@@ -1,0 +1,1 @@
+use {{ rootNamespace }}\app\Extend\Components\PostTypes\{{ name_slugify }} as PostType_{{ name_slugify }};

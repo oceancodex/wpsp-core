@@ -1,0 +1,5 @@
+@extends('modules.web.rewrite-front-pages.layout.main-without-skeleton')
+
+@section('content')
+    Rewrite front page with path: "{{ path }}".
+@endsection

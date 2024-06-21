@@ -1,0 +1,15 @@
+<?php
+namespace {{ rootNamespace }}\app\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class {{ className }} extends Model {
+	use SoftDeletes;
+
+	protected $table      = '{{ table }}';
+	protected $primaryKey = 'id';
+	protected $fillable   = [];
+	protected $guarded    = [];
+
+}

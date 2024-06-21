@@ -1,0 +1,13 @@
+<?php
+
+namespace {{ rootNamespace }}\app\Extend\Components\Shortcodes;
+
+use {{ rootNamespace }}\app\Extend\Base\BaseShortcode;
+
+class {{ className }} extends BaseShortcode {
+
+	public function init($atts, $content, $tag) {
+		return $content;
+	}
+
+}

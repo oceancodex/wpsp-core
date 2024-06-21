@@ -1,0 +1,35 @@
+<?php
+
+namespace {{ rootNamespace }}\app\Http\Controllers;
+
+use {{ rootNamespace }}\app\Extend\Base\BaseController;
+
+class {{ className }} extends BaseController {
+    public function index() {
+        //
+    }
+
+    public function create() {
+        //
+    }
+
+    public function store(\WP_REST_Request $request) {
+        //
+    }
+
+    public function show(string $id) {
+        //
+    }
+
+    public function edit(string $id) {
+        //
+    }
+
+    public function update(\WP_REST_Request $request, string $id) {
+        //
+    }
+
+    public function destroy(string $id) {
+        //
+    }
+}

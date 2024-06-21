@@ -1,0 +1,13 @@
+@extends('modules.web.admin-pages.layout')
+
+@section('navigation')
+    @include('modules.web.admin-pages.{{ path }}.navigation')
+@endsection
+
+@section('content')
+    @if(isset($requestParams['tab']) && $requestParams['tab'] == 'tab-1')
+        @include('modules.web.admin-pages.{{ path }}.tab-1')
+    @else
+        @include('modules.web.admin-pages.{{ path }}.dashboard')
+    @endif
+@endsection

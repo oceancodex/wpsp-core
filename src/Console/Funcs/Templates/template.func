@@ -1,0 +1,5 @@
+	$this->template('{{ name }}', [Template_{{ name_slugify }}::class, 'init'], true, null, [
+//			'relation' => 'OR',
+//			[AdministratorCapability::class, 'handle'],
+//			[EditorCapability::class, 'handle']
+		]);

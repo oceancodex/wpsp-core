@@ -1,0 +1,33 @@
+<?php
+declare(strict_types=1);
+namespace {{ rootNamespace }}\database\migrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * All tables must NOT use the prefix: "{{ dbTablePrefix }}{ custom_table_name }".
+ * You can use function: _dbCMTableName('custom_table_name') to return the table name with prefix: {{ dbCMTablePrefix }} (Eg: {{ dbCMTablePrefix }}my_custom_table)
+ */
+
+final class {{ className }} extends AbstractMigration {
+
+    public function getDescription(): string {
+        return '';
+    }
+
+    public function up(Schema $schema): void {
+//	    $table = $schema->createTable(_dbCMTableName('my_custom_table'));
+//	    $table->addColumn('id', 'integer', ['autoincrement' => true]);
+//		$table->setPrimaryKey(['id'], 'id');
+
+//	    $table = $schema->getTable(_dbCMTableName('my_custom_table'));
+
+//		$table->addForeignKeyConstraint('authors', ['author_id'], ['id']);
+    }
+
+    public function down(Schema $schema): void {
+	    $schema->dropTable(_dbTableName('my_custom_table'));
+    }
+
+}

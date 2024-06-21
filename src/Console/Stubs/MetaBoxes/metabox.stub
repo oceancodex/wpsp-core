@@ -1,0 +1,24 @@
+<?php
+
+namespace {{ rootNamespace }}\app\Extend\Components\MetaBoxes;
+
+use {{ rootNamespace }}\app\Extend\Base\BaseMetaBox;
+
+class {{ className }} extends BaseMetaBox {
+
+//	public mixed $title         = 'Custom Meta Box "{{ id }}" Title';
+//	public mixed $screen        = 'post';
+//	public mixed $context       = 'advanced';
+//	public mixed $priority      = 'default';
+//	public mixed $callback_args = null;
+
+	public function content($post, $meta_box): void {
+//		echo '<pre>'; print_r($meta_box); echo '</pre>';
+		echo 'Custom Meta Box "{{ id }}" Content';
+	}
+
+	public function customProperties(): void {
+//		$this->title = 'Custom Meta Box "{{ id }}" Title Override';
+	}
+
+}

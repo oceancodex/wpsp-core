@@ -1,0 +1,9 @@
+<?php
+
+namespace {{ rootNamespace }}\app\Http\Middleware;
+
+class {{ className }} extends BaseMiddleware {
+    public function handle($request): bool {
+        return true;
+    }
+}
