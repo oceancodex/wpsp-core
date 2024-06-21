@@ -1,9 +1,9 @@
 <?php
 
-namespace OCBPCORE\Objects\Data;
+namespace WPSPCORE\Objects\Data;
 
-use OCBPCORE\Base\BaseData;
-use OCBPCORE\Base\BaseTaxonomy;
+use WPSPCORE\Base\BaseData;
+use WPSPCORE\Base\BaseTaxonomy;
 
 class TaxonomyData extends BaseData {
 	public mixed $taxonomy;

@@ -1,6 +1,6 @@
 <?php
 
-namespace OCBPCORE\Objects\Updater;
+namespace WPSPCORE\Objects\Updater;
 
 use YahnisElsts\PluginUpdateChecker\v5p4\PucFactory;
 
@@ -16,9 +16,9 @@ class Updater {
 
 		try {
 			$updateChecker = PucFactory::buildUpdateChecker(
-				OCBP_PUBLIC_URL . '/plugin.json',
-				OCBP_PLUGIN_FILE_PATH,
-				OCBP_TEXT_DOMAIN,
+				WPSP_PUBLIC_URL . '/plugin.json',
+				WPSP_PLUGIN_FILE_PATH,
+				WPSP_TEXT_DOMAIN,
 			);
 
 			return $updateChecker->requestInfo();

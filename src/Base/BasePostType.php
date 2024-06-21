@@ -1,10 +1,10 @@
 <?php
 
-namespace OCBPCORE\Base;
+namespace WPSPCORE\Base;
 
-use OCBPCORE\Objects\Data\PostTypeData;
-use OCBPCORE\Objects\Http\HttpFoundation;
-use OCBPCORE\Traits\ObjectPropertiesToArrayTrait;
+use WPSPCORE\Objects\Data\PostTypeData;
+use WPSPCORE\Objects\Http\HttpFoundation;
+use WPSPCORE\Traits\ObjectPropertiesToArrayTrait;
 
 /**
  * @property $label

@@ -2,17 +2,17 @@
 
 use Carbon\Carbon;
 use Illuminate\Container\Container;
-use OCBPCORE\View\Blade;
+use WPSPCORE\View\Blade;
 
 if (!function_exists('public_path')) {
 	function public_path($path = null): string {
-		return OCBP_PUBLIC_PATH . '/'. ltrim($path, '/');
+		return WPSP_PUBLIC_PATH . '/'. ltrim($path, '/');
 	}
 }
 
 if (!function_exists('asset')) {
 	function asset($path, $secure = null): string {
-		return OCBP_PUBLIC_URL . '/'. ltrim($path, '/');
+		return WPSP_PUBLIC_URL . '/'. ltrim($path, '/');
 	}
 }
 
@@ -28,15 +28,15 @@ if (!function_exists('app')) {
 
 if (!function_exists('env')) {
 	function env($var, $default = null): string {
-		return \OCBPCORE\Objects\Env\Env::get($var, $default);
+		return \WPSPCORE\Objects\Env\Env::get($var, $default);
 	}
 }
 
 if (!function_exists('view')) {
 	function view($viewName, $data = [], $mergeData = []): \Illuminate\Contracts\View\View {
 		if (!Blade::$BLADE) {
-			$views        = OCBP_RESOURCES_PATH . '/views';
-			$cache        = OCBP_STORAGE_PATH . '/framework/views';
+			$views        = WPSP_RESOURCES_PATH . '/views';
+			$cache        = WPSP_STORAGE_PATH . '/framework/views';
 			Blade::$BLADE = new Blade([$views], $cache);
 		}
 		global $notice;
@@ -48,12 +48,12 @@ if (!function_exists('view')) {
 if (!function_exists('trans')) {
 	function trans($string, $wordpress = false) {
 		if ($wordpress) {
-			return __($string, OCBP_TEXT_DOMAIN);
+			return __($string, WPSP_TEXT_DOMAIN);
 		}
 		else {
 			global $translator;
 			if (!$translator) {
-				$translationPath   = OCBP_RESOURCES_PATH . '/lang';
+				$translationPath   = WPSP_RESOURCES_PATH . '/lang';
 				$translationLoader = new \Illuminate\Translation\FileLoader(new \Illuminate\Filesystem\Filesystem, $translationPath);
 				$translator        = new \Illuminate\Translation\Translator($translationLoader, config('app.locale'));
 			}
@@ -66,7 +66,7 @@ if (!function_exists('config')) {
 	function config($key) {
 		try {
 			$configs = [];
-			$files   = _getAllFilesInFolder(OCBP_CONFIG_PATH);
+			$files   = _getAllFilesInFolder(WPSP_CONFIG_PATH);
 			foreach ($files as $file) {
 				$configKey        = $file['relative_path'];
 				$configKey        = preg_replace('/\.php/iu', '', $configKey);

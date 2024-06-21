@@ -1,5 +1,5 @@
 <?php
-namespace OCBPCORE\Objects\File;
+namespace WPSPCORE\Objects\File;
 
 //use League\Flysystem\Filesystem;
 //use League\Flysystem\FilesystemException;

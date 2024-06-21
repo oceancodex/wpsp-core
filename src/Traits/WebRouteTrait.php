@@ -1,6 +1,6 @@
 <?php
 
-namespace OCBPCORE\Traits;
+namespace WPSPCORE\Traits;
 
 trait WebRouteTrait {
 
@@ -15,7 +15,7 @@ trait WebRouteTrait {
 			return $query_vars;
 		}, true, null, null, 10, 1);
 		// Change "Check for updates" link text.
-		$this->filter('puc_manual_check_link-' . OCBP_TEXT_DOMAIN, function($text) {
+		$this->filter('puc_manual_check_link-' . WPSP_TEXT_DOMAIN, function($text) {
 			return trans('messages.check_for_updates');
 		}, true, null, null, 10, 1);
 

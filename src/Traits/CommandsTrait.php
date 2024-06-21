@@ -1,13 +1,13 @@
 <?php
 
-namespace OCBPCORE\Traits;
+namespace WPSPCORE\Traits;
 
-use OCBPCORE\Objects\File\FileHandler;
+use WPSPCORE\Objects\File\FileHandler;
 use Symfony\Component\Console\Command\Command;
 
 trait CommandsTrait {
 
-	public string $rootNamespace = 'OCBP';
+	public string $rootNamespace = 'WPSP';
 
 	public function replaceRootNamespace($content): array|string {
 		return str_replace('{{ rootNamespace }}', $this->rootNamespace, $content);

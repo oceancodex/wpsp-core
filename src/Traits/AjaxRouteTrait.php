@@ -1,6 +1,6 @@
 <?php
 
-namespace OCBPCORE\Traits;
+namespace WPSPCORE\Traits;
 
 trait AjaxRouteTrait {
 

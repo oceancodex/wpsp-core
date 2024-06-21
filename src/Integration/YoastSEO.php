@@ -1,6 +1,6 @@
 <?php
 
-namespace OCBPCORE\Integration;
+namespace WPSPCORE\Integration;
 
 class YoastSEO {
 

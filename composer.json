@@ -1,7 +1,7 @@
 {
-	"name": "oceancodex/ocbp-core",
+	"name": "oceancodex/wpsp-core",
 	"version": "1.0.0",
-	"description": "OCBP Core",
+	"description": "WPSP Core",
 	"type": "wordpress-plugin",
 	"keywords": [
 		"wordpress plugin"
@@ -36,7 +36,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"OCBPCORE\\": "src/",
+			"WPSPCORE\\": "src/",
 			"Illuminate\\Foundation\\": "src/Packages/Illuminate/Foundation"
 		},
 		"files": [

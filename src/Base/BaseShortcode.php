@@ -1,8 +1,8 @@
 <?php
 
-namespace OCBPCORE\Base;
+namespace WPSPCORE\Base;
 
-use OCBPCORE\Objects\Http\HttpFoundation;
+use WPSPCORE\Objects\Http\HttpFoundation;
 
 abstract class BaseShortcode extends HttpFoundation {
 

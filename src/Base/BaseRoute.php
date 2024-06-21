@@ -1,5 +1,5 @@
 <?php
-namespace OCBPCORE\Base;
+namespace WPSPCORE\Base;
 
 use Symfony\Component\HttpFoundation\Request;
 

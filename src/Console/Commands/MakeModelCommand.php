@@ -1,9 +1,9 @@
 <?php
 
-namespace OCBPCORE\Console\Commands;
+namespace WPSPCORE\Console\Commands;
 
-use OCBPCORE\Objects\File\FileHandler;
-use OCBPCORE\Traits\CommandsTrait;
+use WPSPCORE\Objects\File\FileHandler;
+use WPSPCORE\Traits\CommandsTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

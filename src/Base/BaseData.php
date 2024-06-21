@@ -1,8 +1,8 @@
 <?php
 
-namespace OCBPCORE\Base;
+namespace WPSPCORE\Base;
 
-use OCBPCORE\Traits\ObjectPropertiesToArrayTrait;
+use WPSPCORE\Traits\ObjectPropertiesToArrayTrait;
 
 abstract class BaseData {
 	use ObjectPropertiesToArrayTrait;

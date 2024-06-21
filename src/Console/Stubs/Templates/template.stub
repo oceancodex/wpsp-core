@@ -10,7 +10,7 @@ class {{ className }} extends BaseTemplates {
 //	public mixed $templatePath          = null;
 
 	public function customProperties(): void {
-//		$this->templatePath = OCBP_RESOURCES_PATH. '/views/modules/web/templates/' . $this->templateName . '.blade.php';
+//		$this->templatePath = WPSP_RESOURCES_PATH. '/views/modules/web/templates/' . $this->templateName . '.blade.php';
 	}
 
 }

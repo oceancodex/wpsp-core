@@ -1,6 +1,6 @@
 <?php
 
-namespace OCBPCORE\Objects\Env;
+namespace WPSPCORE\Objects\Env;
 
 use Dotenv\Dotenv;
 use Dotenv\Repository\RepositoryBuilder;

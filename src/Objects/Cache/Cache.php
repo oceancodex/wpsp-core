@@ -1,6 +1,6 @@
 <?php
 
-namespace OCBPCORE\Objects\Cache;
+namespace WPSPCORE\Objects\Cache;
 
 class Cache {
 

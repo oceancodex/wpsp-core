@@ -1,8 +1,8 @@
 <?php
 
-namespace OCBPCORE\Objects\Data;
+namespace WPSPCORE\Objects\Data;
 
-use OCBPCORE\Base\BaseData;
+use WPSPCORE\Base\BaseData;
 use Symfony\Component\HttpClient\HttpClient;
 
 class AccessTokenData extends BaseData {

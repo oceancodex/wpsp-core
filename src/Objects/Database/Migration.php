@@ -1,6 +1,6 @@
 <?php
 
-namespace OCBPCORE\Objects\Database;
+namespace WPSPCORE\Objects\Database;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DriverManager;
@@ -11,8 +11,8 @@ use Doctrine\Migrations\Tools\Console\Command;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\ORMSetup;
-use OCBPCORE\Objects\Database\Extensions\TablePrefix;
-use OCBPCORE\Objects\File\FileHandler;
+use WPSPCORE\Objects\Database\Extensions\TablePrefix;
+use WPSPCORE\Objects\File\FileHandler;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -56,7 +56,7 @@ class Migration {
 			]);
 			$output = new BufferedOutput();
 			self::getCLI()->doRun($input, $output);
-//			echo '<pre>'; print_r($migration->getDependencyFactory()->getMigrationsFinder()->findMigrations(OCBP_MIGRATION_PATH)); echo '</pre>';
+//			echo '<pre>'; print_r($migration->getDependencyFactory()->getMigrationsFinder()->findMigrations(WPSP_MIGRATION_PATH)); echo '</pre>';
 //			echo '<pre>'; print_r($migration->getDependencyFactory()->getMigrationStatusCalculator()->getNewMigrations()->getLast()->getVersion()->__toString()); echo '</pre>';
 			return ['success' => true, 'message' => 'Generate new database migration successfully!', 'data' => ['output' => $output->fetch()]];
 		}
@@ -69,7 +69,7 @@ class Migration {
 		$lastMigratedVersion            = self::getDependencyFactory()->getVersionAliasResolver()->resolveVersionAlias('current')->__toString();
 		$lastMigrateVersionInFolder     = self::getDependencyFactory()->getVersionAliasResolver()->resolveVersionAlias('latest')->__toString();
 		$lastMigrateVersionNameInFolder = preg_replace('/^(.*?)migrations\\\(.*?)$/iu', '$2', $lastMigrateVersionInFolder);
-		$lastMigrateVersionPathInFolder = OCBP_MIGRATION_PATH . '/' . $lastMigrateVersionNameInFolder . '.php';
+		$lastMigrateVersionPathInFolder = WPSP_MIGRATION_PATH . '/' . $lastMigrateVersionNameInFolder . '.php';
 		$result                         = [];
 		if ($lastMigratedVersion !== $lastMigrateVersionInFolder) {
 			try {
@@ -125,10 +125,10 @@ class Migration {
 
 	public static function getEntityManager(): EntityManager {
 		if (!self::$entityManager) {
-			$paths            = [OCBP_APP_PATH . '/Entities'];
+			$paths            = [WPSP_APP_PATH . '/Entities'];
 			$isDevMode        = config('app.env') == 'dev' || config('app.env') == 'local';
 			$tablePrefix      = new TablePrefix(_dbTablePrefix());
-			$connectionParams = include(OCBP_CONFIG_PATH . '/migrations-db.php');
+			$connectionParams = include(WPSP_CONFIG_PATH . '/migrations-db.php');
 
 			$eventManager = new EventManager();
 			$eventManager->addEventListener(Events::loadClassMetadata, $tablePrefix);
@@ -143,7 +143,7 @@ class Migration {
 
 	public static function getDependencyFactory(): DependencyFactory {
 		if (!self::$dependencyFactory) {
-			$config                  = new PhpFile(OCBP_CONFIG_PATH . '/migrations.php');
+			$config                  = new PhpFile(WPSP_CONFIG_PATH . '/migrations.php');
 			$existingEntityManager   = new ExistingEntityManager(self::getEntityManager());
 			self::$dependencyFactory = DependencyFactory::fromEntityManager($config, $existingEntityManager);
 		}
@@ -170,12 +170,12 @@ class Migration {
 	}
 
 	public static function deleteAllMigrations(): array {
-		$allMigrations     = self::getDependencyFactory()->getMigrationsFinder()->findMigrations(_trailingslashit(OCBP_MIGRATION_PATH));
+		$allMigrations     = self::getDependencyFactory()->getMigrationsFinder()->findMigrations(_trailingslashit(WPSP_MIGRATION_PATH));
 		$deletedMigrations = [];
 		foreach ($allMigrations as $migrationVersion) {
 			if (!preg_match('/_/iu', $migrationVersion)) {
 				$migrationVersion     = preg_replace('/^(.*?)migrations\/(.*?)/iu', '$2', _trailingslash($migrationVersion));
-				$migrationVersionPath = _trailingslash(OCBP_MIGRATION_PATH . '/' . $migrationVersion . '.php');
+				$migrationVersionPath = _trailingslash(WPSP_MIGRATION_PATH . '/' . $migrationVersion . '.php');
 //			    $migrationVersionPathFromPluginDir = _getPathFromDir('plugins', $migrationVersionPath) . '.php';
 				$deletedMigrations[] = FileHandler::deleteFile($migrationVersionPath);
 			}

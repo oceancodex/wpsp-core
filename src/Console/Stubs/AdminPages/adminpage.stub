@@ -78,18 +78,18 @@ class {{ className }} extends BaseAdminPage {
 	 */
 
 	public function styles(): void {
-//		wp_enqueue_style(config('app.short_name') . '-admin', OCBP_PUBLIC_URL . '/css/admin.min.css', null, OCBP_VERSION);
+//		wp_enqueue_style(config('app.short_name') . '-admin', WPSP_PUBLIC_URL . '/css/admin.min.css', null, WPSP_VERSION);
 	}
 
 	public function scripts(): void {
-//		wp_enqueue_script(config('app.short_name') . '-database', OCBP_PUBLIC_URL . '/js/modules/web/admin-pages/ocbp/Database.min.js', null, OCBP_VERSION, true);
+//		wp_enqueue_script(config('app.short_name') . '-database', WPSP_PUBLIC_URL . '/js/modules/web/admin-pages/wpsp/Database.min.js', null, WPSP_VERSION, true);
 	}
 
 	public function localizeScripts(): void {
 //		wp_localize_script(config('app.short_name') . '-database', config('app.short_name') . '_localize', [
 //			'ajax_url' => admin_url('admin-ajax.php'),
 //			'nonce' => wp_create_nonce(config('app.short_name')),
-//			'public_url' => OCBP_PUBLIC_URL
+//			'public_url' => WPSP_PUBLIC_URL
 //		]);
 	}
 

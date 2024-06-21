@@ -1,8 +1,8 @@
 <?php
 
-namespace OCBPCORE\Base;
+namespace WPSPCORE\Base;
 
-use OCBPCORE\Objects\Http\HttpFoundation;
+use WPSPCORE\Objects\Http\HttpFoundation;
 use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
 use WP_REST_Request;
 

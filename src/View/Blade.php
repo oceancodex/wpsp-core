@@ -1,6 +1,6 @@
 <?php
 
-namespace OCBPCORE\View;
+namespace WPSPCORE\View;
 
 use Illuminate\Container\Container;
 use Illuminate\Events\Dispatcher;
@@ -10,7 +10,7 @@ use Illuminate\View\Engines\CompilerEngine;
 use Illuminate\View\Engines\EngineResolver;
 use Illuminate\View\Factory;
 use Illuminate\View\FileViewFinder;
-use OCBPCORE\Objects\Cache\Cache;
+use WPSPCORE\Objects\Cache\Cache;
 
 class Blade {
 

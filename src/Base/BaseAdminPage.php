@@ -1,9 +1,9 @@
 <?php
 
-namespace OCBPCORE\Base;
+namespace WPSPCORE\Base;
 
-use OCBPCORE\Objects\Data\AdminPageData;
-use OCBPCORE\Objects\Http\HttpFoundation;
+use WPSPCORE\Objects\Data\AdminPageData;
+use WPSPCORE\Objects\Http\HttpFoundation;
 
 abstract class BaseAdminPage extends HttpFoundation {
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace OCBPCORE\Objects\Database;
+namespace WPSPCORE\Objects\Database;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
-use OCBPCORE\Objects\File\FileHandler;
+use WPSPCORE\Objects\File\FileHandler;
 
 class Eloquent {
 
@@ -34,7 +34,7 @@ class Eloquent {
 	 */
 
 	public static function getConnection($connection = 'mysql') {
-		$database = include(OCBP_CONFIG_PATH . '/database.php');
+		$database = include(WPSP_CONFIG_PATH . '/database.php');
 		return $database['connections'][$connection];
 	}
 
@@ -66,7 +66,7 @@ class Eloquent {
 	}
 
 	public static function getDefinedDatabaseTables(): array {
-		$databaseTableClasses  = _getAllClassesInDir('OCBP\app\Entities', OCBP_APP_PATH . '/Entities');
+		$databaseTableClasses  = _getAllClassesInDir('WPSP\app\Entities', WPSP_APP_PATH . '/Entities');
 		$databaseTableClasses  = array_merge($databaseTableClasses, [_dbTableName('migration_versions')]);
 
 		$definedDatabaseTables = [];
@@ -97,7 +97,7 @@ class Eloquent {
 			catch (\Exception $e) {}
 		}
 
-		$databaseTableMigrations = _getAllFilesInFolder(OCBP_MIGRATION_PATH);
+		$databaseTableMigrations = _getAllFilesInFolder(WPSP_MIGRATION_PATH);
 		foreach ($databaseTableMigrations as $databaseTableMigration) {
 			$fileContent = FileHandler::getFileSystem()->get($databaseTableMigration['real_path']);
 			$newFileContent = '';

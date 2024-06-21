@@ -1,8 +1,8 @@
 <?php
 
-namespace OCBPCORE\Base;
+namespace WPSPCORE\Base;
 
-use OCBPCORE\Objects\Http\HttpFoundation;
+use WPSPCORE\Objects\Http\HttpFoundation;
 
 abstract class BaseTemplates extends HttpFoundation {
 
@@ -60,7 +60,7 @@ abstract class BaseTemplates extends HttpFoundation {
 						if ($seletedTemplatePath) {
 							$seletedTemplatePath = preg_replace('/%%slash%%/iu', '/', $seletedTemplatePath);
 						}
-						$filePath = $seletedTemplatePath ?? OCBP_RESOURCES_PATH . '/views/modules/web/templates/' . $seletedTemplateName;
+						$filePath = $seletedTemplatePath ?? WPSP_RESOURCES_PATH . '/views/modules/web/templates/' . $seletedTemplateName;
 						if (file_exists($filePath)) {
 							return $filePath;
 						}

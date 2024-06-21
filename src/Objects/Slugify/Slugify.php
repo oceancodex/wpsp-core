@@ -1,6 +1,6 @@
 <?php
 
-namespace OCBPCORE\Objects\Slugify;
+namespace WPSPCORE\Objects\Slugify;
 
 use Illuminate\Support\Str;
 

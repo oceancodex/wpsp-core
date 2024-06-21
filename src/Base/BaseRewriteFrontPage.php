@@ -1,8 +1,8 @@
 <?php
 
-namespace OCBPCORE\Base;
+namespace WPSPCORE\Base;
 
-use OCBPCORE\Objects\Http\HttpFoundation;
+use WPSPCORE\Objects\Http\HttpFoundation;
 
 abstract class BaseRewriteFrontPage extends HttpFoundation {
 
@@ -61,7 +61,7 @@ abstract class BaseRewriteFrontPage extends HttpFoundation {
 	public function maybeNoTemplate(): void {
 		if (!$this->useTemplate) {
 			add_filter('template_include', function($template) {
-				return OCBP_RESOURCES_PATH . '/views/modules/web/rewrite-front-pages/layout/base.blade.php';
+				return WPSP_RESOURCES_PATH . '/views/modules/web/rewrite-front-pages/layout/base.blade.php';
 			});
 		}
 	}

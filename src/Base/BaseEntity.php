@@ -1,5 +1,5 @@
 <?php
-namespace OCBPCORE\Base;
+namespace WPSPCORE\Base;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
