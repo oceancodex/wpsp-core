@@ -37,7 +37,7 @@
 	"autoload": {
 		"psr-4": {
 			"WPSPCORE\\": "src/",
-			"Illuminate\\Foundation\\": "src/Packages/Illuminate/Foundation"
+			"Illuminate\\Foundation\\": "src/Objects/Illuminate/Foundation"
 		},
 		"files": [
 			"src/Helpers/Helpers.php"
