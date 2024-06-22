@@ -27,7 +27,7 @@ final class {{ className }} extends AbstractMigration {
     }
 
     public function down(Schema $schema): void {
-	    $schema->dropTable(_dbTableName('my_custom_table'));
+//	    $schema->dropTable(_dbTableName('my_custom_table'));
     }
 
 }
