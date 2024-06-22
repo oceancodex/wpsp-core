@@ -47,7 +47,7 @@ class MakeMetaBoxCommand extends Command {
 		$createView = $createView ?? $input->getOption('create-view');
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(__DIR__ . '/../../Extend/Components/MetaBoxes/' . $idSlugify . '.php');
+		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Components/MetaBoxes/' . $idSlugify . '.php');
 //		$exist = $exist || FileHandler::getFileSystem()->exists(__DIR__ . '/../../../resources/views/modules/web/meta-boxes/'. $id . '.blade.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Meta box: "' . $id . '" already exists! Please try again.');
@@ -59,7 +59,7 @@ class MakeMetaBoxCommand extends Command {
 			$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/MetaBoxes/metabox.view');
 			$view = str_replace('{{ id }}', $id, $view);
 			$view = str_replace('{{ id_slugify }}', $idSlugify, $view);
-			FileHandler::saveFile($view, __DIR__ . '/../../../resources/views/modules/web/meta-boxes/'. $id. '.blade.php');
+			FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/meta-boxes/'. $id. '.blade.php');
 			$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/MetaBoxes/metabox-view.stub');
 		}
 		else {
@@ -70,8 +70,8 @@ class MakeMetaBoxCommand extends Command {
 		$content = str_replace('{{ className }}', $idSlugify, $content);
 		$content = str_replace('{{ id }}', $id, $content);
 		$content = str_replace('{{ id_slugify }}', $idSlugify, $content);
-		$content = $this->replaceRootNamespace($content);
-		FileHandler::saveFile($content, __DIR__ . '/../../Extend/Components/MetaBoxes/' . $idSlugify . '.php');
+		$content = $this->replaceNamespaces($content);
+		FileHandler::saveFile($content, _wpspPath() . '/app/Components/MetaBoxes/' . $idSlugify . '.php');
 
 		// Prepare new line for find function.
 		$func = FileHandler::getFileSystem()->get(__DIR__ . '/../Funcs/MetaBoxes/metabox.func');
@@ -82,7 +82,7 @@ class MakeMetaBoxCommand extends Command {
 		$use = FileHandler::getFileSystem()->get(__DIR__ . '/../Uses/MetaBoxes/metabox.use');
 		$use = str_replace('{{ id }}', $id, $use);
 		$use = str_replace('{{ id_slugify }}', $idSlugify, $use);
-		$use = $this->replaceRootNamespace($use);
+		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
 		$this->addClassToWebRoute('meta_boxes', $func, $use);

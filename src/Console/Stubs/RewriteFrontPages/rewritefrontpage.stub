@@ -1,10 +1,10 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Extend\Components\RewriteFrontPages;
+namespace {{ rootNamespace }}\app\Components\RewriteFrontPages;
 
-use {{ rootNamespace }}\app\Extend\Base\BaseRewriteFrontPage;
-use {{ rootNamespace }}\app\Extend\Integration\RankmathSEO;
-use {{ rootNamespace }}\app\Extend\Integration\YoastSEO;
+use {{ coreNamespace }}\Base\BaseRewriteFrontPage;
+use {{ coreNamespace }}\Integration\RankmathSEO;
+use {{ coreNamespace }}\Integration\YoastSEO;
 
 class {{ name_slugify }} extends BaseRewriteFrontPage {
 

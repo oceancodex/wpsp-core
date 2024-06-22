@@ -57,8 +57,8 @@ class MakeRewriteFrontPageCommand extends Command {
 		$useTemplate            = $useTemplate ?? $input->getOption('use-template') ?: false;
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(__DIR__ . '/../../Extend/Components/RewriteFrontPages/' . $nameSlugify . '.php');
-		$exist = $exist || FileHandler::getFileSystem()->exists(__DIR__ . '/../../../resources/views/modules/web/rewrite-front-pages/' . $pathSlugify . '.php');
+		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Components/RewriteFrontPages/' . $nameSlugify . '.php');
+		$exist = $exist || FileHandler::getFileSystem()->exists(_wpspPath() . '/resources/views/modules/web/rewrite-front-pages/' . $pathSlugify . '.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Rewrite front page: "' . $name . '" already exists! Please try again.');
 			return Command::FAILURE;
@@ -74,8 +74,8 @@ class MakeRewriteFrontPageCommand extends Command {
 		$content = str_replace('{{ rewrite_page_name }}', $rewritePageName, $content);
 		$content = str_replace('{{ rewrite_page_name_slugify }}', $rewritePageNameSlugify, $content);
 		$content = str_replace('{{ use_template }}', $useTemplate ? 'true' : 'false', $content);
-		$content = $this->replaceRootNamespace($content);
-		FileHandler::saveFile($content, __DIR__ . '/../../Extend/Components/RewriteFrontPages/' . $nameSlugify . '.php');
+		$content = $this->replaceNamespaces($content);
+		FileHandler::saveFile($content, _wpspPath() . '/app/Components/RewriteFrontPages/' . $nameSlugify . '.php');
 
 		// Create view file.
 		if ($useTemplate) {
@@ -90,7 +90,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
 		$view = str_replace('{{ rewrite_page_name }}', $rewritePageName, $view);
 		$view = str_replace('{{ rewrite_page_name_slugify }}', $rewritePageNameSlugify, $view);
-		FileHandler::saveFile($view, __DIR__ . '/../../../resources/views/modules/web/rewrite-front-pages/' . $path . '.blade.php');
+		FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/rewrite-front-pages/' . $path . '.blade.php');
 
 		// Prepare new line for find function.
 		$func = FileHandler::getFileSystem()->get(__DIR__ . '/../Funcs/RewriteFrontPages/rewritefrontpage.func');
@@ -109,7 +109,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		$use = str_replace('{{ path_slugify }}', $pathSlugify, $use);
 		$use = str_replace('{{ rewrite_page_name }}', $rewritePageName, $use);
 		$use = str_replace('{{ rewrite_page_name_slugify }}', $rewritePageNameSlugify, $use);
-		$use = $this->replaceRootNamespace($use);
+		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
 		$this->addClassToWebRoute('rewrite_front_pages', $func, $use);

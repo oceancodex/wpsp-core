@@ -8,18 +8,20 @@ use Symfony\Component\Console\Command\Command;
 trait CommandsTrait {
 
 	public string $rootNamespace = 'WPSP';
+	public string $coreNamespace = 'WPSPCORE';
 
-	public function replaceRootNamespace($content): array|string {
-		return str_replace('{{ rootNamespace }}', $this->rootNamespace, $content);
+	public function replaceNamespaces($content): array|string {
+		$content = str_replace('{{ rootNamespace }}', $this->rootNamespace, $content);
+		return str_replace('{{ coreNamespace }}', $this->coreNamespace, $content);
 	}
 
 	public function getWebRouteContent(): string {
-		$webRoute = FileHandler::getFileSystem()->get(__DIR__ . '/../../routes/WebRoute.php');
+		$webRoute = FileHandler::getFileSystem()->get(_wpspPath() . '/routes/WebRoute.php');
 		return $webRoute;
 	}
 
 	public function saveWebRouteContent($webRouteContent): void {
-		FileHandler::saveFile($webRouteContent, __DIR__ . '/../../routes/WebRoute.php');
+		FileHandler::saveFile($webRouteContent, _wpspPath() . '/routes/WebRoute.php');
 	}
 
 	public function addClassToWebRoute($findFunction, $newLineForFindFunction, $newLineUseClass): void {

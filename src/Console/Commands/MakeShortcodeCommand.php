@@ -49,7 +49,7 @@ class MakeShortcodeCommand extends Command {
 		$createView = $createView ?? $input->getOption('create-view');
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(__DIR__ . '/../../Extend/Components/Shortcodes/' . $nameSlugify . '.php');
+		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Components/Shortcodes/' . $nameSlugify . '.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Shortcode: "' . $name . '" already exists! Please try again.');
 			return Command::FAILURE;
@@ -60,7 +60,7 @@ class MakeShortcodeCommand extends Command {
 			$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/Shortcodes/shortcode.view');
 			$view = str_replace('{{ name }}', $name, $view);
 			$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
-			FileHandler::saveFile($view, __DIR__ . '/../../../resources/views/modules/web/shortcodes/'. $name. '.blade.php');
+			FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/shortcodes/'. $name. '.blade.php');
 			$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Shortcodes/shortcode-view.stub');
 		}
 		else {
@@ -71,8 +71,8 @@ class MakeShortcodeCommand extends Command {
 		$content = str_replace('{{ className }}', $nameSlugify, $content);
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = str_replace('{{ name_slugify }}', $nameSlugify, $content);
-		$content = $this->replaceRootNamespace($content);
-		FileHandler::saveFile($content, __DIR__ . '/../../Extend/Components/Shortcodes/'. $nameSlugify. '.php');
+		$content = $this->replaceNamespaces($content);
+		FileHandler::saveFile($content, _wpspPath() . '/app/Components/Shortcodes/'. $nameSlugify. '.php');
 
 		// Prepare new line for find function.
 		$func = FileHandler::getFileSystem()->get(__DIR__ . '/../Funcs/Shortcodes/shortcode.func');
@@ -83,7 +83,7 @@ class MakeShortcodeCommand extends Command {
 		$use = FileHandler::getFileSystem()->get(__DIR__ . '/../Uses/Shortcodes/shortcode.use');
 		$use = str_replace('{{ name }}', $name, $use);
 		$use = str_replace('{{ name_slugify }}', $nameSlugify, $use);
-		$use = $this->replaceRootNamespace($use);
+		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
 		$this->addClassToWebRoute('shortcodes', $func, $use);

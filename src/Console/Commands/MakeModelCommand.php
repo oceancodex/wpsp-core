@@ -55,7 +55,7 @@ class MakeModelCommand extends Command {
 		$this->validateClassName($output, $name);
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(__DIR__ . '/../../Models/' . $name . '.php');
+		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Models/' . $name . '.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Model: "' . $name . '" already exists! Please try again.');
 			return Command::FAILURE;
@@ -69,8 +69,8 @@ class MakeModelCommand extends Command {
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ table }}', $table ?? null, $content);
 		$content = str_replace('{{ entity }}', $entity ?? null, $content);
-		$content = $this->replaceRootNamespace($content);
-		FileHandler::saveFile($content, __DIR__ . '/../../Models/'. $name . '.php');
+		$content = $this->replaceNamespaces($content);
+		FileHandler::saveFile($content, _wpspPath() . '/app/Models/'. $name . '.php');
 
 		// Create entity.
 		if ($entity) {
@@ -79,8 +79,8 @@ class MakeModelCommand extends Command {
 			$entityStub = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Entities/entity.stub');
 			$entityStub = str_replace('{{ className }}', $entity, $entityStub);
 			$entityStub = str_replace('{{ table }}', $table, $entityStub);
-			$entityStub = $this->replaceRootNamespace($entityStub);
-			FileHandler::saveFile($entityStub, __DIR__ . '/../../Entities/' . $entity . '.php');
+			$entityStub = $this->replaceNamespaces($entityStub);
+			FileHandler::saveFile($entityStub, _wpspPath() . '/app/Entities/' . $entity . '.php');
 		}
 
 		// Output message.

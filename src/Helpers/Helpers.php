@@ -6,7 +6,7 @@ use WPSPCORE\View\Blade;
 
 if (!function_exists('public_path')) {
 	function public_path($path = null): string {
-		return WPSP_PUBLIC_PATH . '/'. ltrim($path, '/');
+		return _wpspPath() . '/public/'. ltrim($path, '/');
 	}
 }
 
@@ -66,7 +66,7 @@ if (!function_exists('config')) {
 	function config($key) {
 		try {
 			$configs = [];
-			$files   = _getAllFilesInFolder(WPSP_CONFIG_PATH);
+			$files   = _getAllFilesInFolder(_wpspPath() . '/config');
 			foreach ($files as $file) {
 				$configKey        = $file['relative_path'];
 				$configKey        = preg_replace('/\.php/iu', '', $configKey);
@@ -145,6 +145,13 @@ if (!function_exists('_response')) {
 /*
  *
  */
+
+if (!function_exists('_wpspPath')) {
+	function _wpspPath(): string {
+		$reflection = new \ReflectionClass(\Composer\Autoload\ClassLoader::class);
+		return dirname($reflection->getFileName(), 3);
+	}
+}
 
 if (!function_exists('_locale')) {
 	function _locale(): string {

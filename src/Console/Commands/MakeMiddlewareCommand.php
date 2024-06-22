@@ -40,7 +40,7 @@ class MakeMiddlewareCommand extends Command {
 		$this->validateClassName($output, $name);
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(__DIR__ . '/../../Http/Middleware/' . $name . '.php');
+		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Http/Middleware/' . $name . '.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Middleware: "' . $name . '" already exists! Please try again.');
 			return Command::FAILURE;
@@ -49,8 +49,8 @@ class MakeMiddlewareCommand extends Command {
 		// Create class file.
 		$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Middleware/middleware.stub');
 		$content = str_replace('{{ className }}', $name, $content);
-		$content = $this->replaceRootNamespace($content);
-		FileHandler::saveFile($content, __DIR__ . '/../../Http/Middleware/'. $name . '.php');
+		$content = $this->replaceNamespaces($content);
+		FileHandler::saveFile($content, _wpspPath() . '/app/Http/Middleware/'. $name . '.php');
 
 		// Output message.
 		$output->writeln('Created new middleware: ' . $name);

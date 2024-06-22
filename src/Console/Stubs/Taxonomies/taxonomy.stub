@@ -1,8 +1,8 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Extend\Components\Taxonomies;
+namespace {{ rootNamespace }}\app\Components\Taxonomies;
 
-use {{ rootNamespace }}\app\Extend\Base\BaseTaxonomy;
+use {{ coreNamespace }}\Base\BaseTaxonomy;
 
 class {{ className }} extends BaseTaxonomy {
 

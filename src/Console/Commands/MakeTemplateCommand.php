@@ -21,7 +21,7 @@ class MakeTemplateCommand extends Command {
 			->setName('make:template')
 			->setDescription('Create a new page template.       | Eg: bin/console make:template custom_template')
 			->setHelp('This command allows you to create a page template.')
-			->addArgument('name', InputArgument::REQUIRED, 'The name of the template.');
+			->addArgument('name', InputArgument::OPTIONAL, 'The name of the template.');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -42,7 +42,7 @@ class MakeTemplateCommand extends Command {
 		$nameSlugify = Slugify::slugUnify($name, '_');
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(__DIR__ . '/../../Extend/Components/Templates/' . $nameSlugify . '.php');
+		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Components/Templates/' . $nameSlugify . '.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Template: "' . $name . '" already exists! Please try again.');
 			return Command::FAILURE;
@@ -52,14 +52,14 @@ class MakeTemplateCommand extends Command {
 		$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Templates/template.stub');
 		$content = str_replace('{{ className }}', $nameSlugify, $content);
 		$content = str_replace('{{ name }}', $name, $content);
-		$content = $this->replaceRootNamespace($content);
-		FileHandler::saveFile($content, __DIR__ . '/../../Extend/Components/Templates/'. $nameSlugify. '.php');
+		$content = $this->replaceNamespaces($content);
+		FileHandler::saveFile($content, _wpspPath() . '/app/Components/Templates/'. $nameSlugify. '.php');
 
 		// Create a view file.
 		$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/Templates/template.view');
 		$view = str_replace('{{ name }}', $name, $view);
 		$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
-		FileHandler::saveFile($view, __DIR__ . '/../../../resources/views/modules/web/templates/'. $name. '.php');
+		FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/templates/'. $name. '.php');
 
 		// Prepare new line for find function.
 		$func = FileHandler::getFileSystem()->get(__DIR__ . '/../Funcs/Templates/template.func');
@@ -70,7 +70,7 @@ class MakeTemplateCommand extends Command {
 		$use = FileHandler::getFileSystem()->get(__DIR__ . '/../Uses/Templates/template.use');
 		$use = str_replace('{{ name }}', $name, $use);
 		$use = str_replace('{{ name_slugify }}', $nameSlugify, $use);
-		$use = $this->replaceRootNamespace($use);
+		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
 		$this->addClassToWebRoute('templates', $func, $use);

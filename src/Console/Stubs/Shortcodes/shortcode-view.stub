@@ -1,8 +1,8 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Extend\Components\Shortcodes;
+namespace {{ rootNamespace }}\app\Components\Shortcodes;
 
-use {{ rootNamespace }}\app\Extend\Base\BaseShortcode;
+use {{ coreNamespace }}\Base\BaseShortcode;
 
 class {{ className }} extends BaseShortcode {
 

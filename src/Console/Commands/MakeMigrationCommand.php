@@ -47,8 +47,8 @@ class MakeMigrationCommand extends Command {
 		$content = str_replace('{{ className }}', $nameSlugify, $content);
 		$content = str_replace('{{ dbTablePrefix }}', _dbTablePrefix(), $content);
 		$content = str_replace('{{ dbCMTablePrefix }}', _dbCMTablePrefix(), $content);
-		$content = $this->replaceRootNamespace($content);
-		FileHandler::saveFile($content, __DIR__ . '/../../../database/migrations/' . $nameSlugify . '.php');
+		$content = $this->replaceNamespaces($content);
+		FileHandler::saveFile($content, _wpspPath() . '/database/migrations/' . $nameSlugify . '.php');
 
 		// Output message.
 		$output->writeln('Created new migration: ' . $nameSlugify);

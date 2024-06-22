@@ -1,8 +1,8 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Extend\Components\Templates;
+namespace {{ rootNamespace }}\app\Components\Templates;
 
-use {{ rootNamespace }}\app\Extend\Base\BaseTemplates;
+use {{ coreNamespace }}\Base\BaseTemplates;
 
 class {{ className }} extends BaseTemplates {
 

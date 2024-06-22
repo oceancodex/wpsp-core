@@ -55,8 +55,8 @@ class MakeEntityCommand extends Command {
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ table }}', $table, $content);
 		$content = str_replace('{{ model }}', $model, $content);
-		$content = $this->replaceRootNamespace($content);
-		FileHandler::saveFile($content, __DIR__ . '/../../Entities/' . $name . '.php');
+		$content = $this->replaceNamespaces($content);
+		FileHandler::saveFile($content, _wpspPath() . '/app/Entities/' . $name . '.php');
 
 		// Create model.
 		if ($model) {
@@ -65,8 +65,8 @@ class MakeEntityCommand extends Command {
 			$modelStub = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Models/model.stub');
 			$modelStub = str_replace('{{ className }}', $model, $modelStub);
 			$modelStub = str_replace('{{ table }}', $table, $modelStub);
-			$modelStub = $this->replaceRootNamespace($modelStub);
-			FileHandler::saveFile($modelStub, __DIR__ . '/../../Models/' . $model . '.php');
+			$modelStub = $this->replaceNamespaces($modelStub);
+			FileHandler::saveFile($modelStub, _wpspPath() . '/app/Models/' . $model . '.php');
 		}
 
 		// Output message.

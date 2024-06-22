@@ -1,8 +1,8 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Extend\Components\PostTypes;
+namespace {{ rootNamespace }}\app\Components\PostTypes;
 
-use {{ rootNamespace }}\app\Extend\Base\BasePostType;
+use {{ coreNamespace }}\Base\BasePostType;
 
 class {{ className }} extends BasePostType {
 

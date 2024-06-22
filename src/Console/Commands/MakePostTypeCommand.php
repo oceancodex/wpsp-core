@@ -42,7 +42,7 @@ class MakePostTypeCommand extends Command {
 		$nameSlugify = Slugify::slugUnify($name, '_');
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(__DIR__ . '/../../Extend/Components/PostTypes/' . $nameSlugify . '.php');
+		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Components/PostTypes/' . $nameSlugify . '.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Post type: "' . $name . '" already exists! Please try again.');
 			return Command::FAILURE;
@@ -53,8 +53,8 @@ class MakePostTypeCommand extends Command {
 		$content = str_replace('{{ className }}', $nameSlugify, $content);
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = str_replace('{{ name_slugify }}', $nameSlugify, $content);
-		$content = $this->replaceRootNamespace($content);
-		FileHandler::saveFile($content, __DIR__ . '/../../Extend/Components/PostTypes/'. $nameSlugify . '.php');
+		$content = $this->replaceNamespaces($content);
+		FileHandler::saveFile($content, _wpspPath() . '/app/Components/PostTypes/'. $nameSlugify . '.php');
 
 		// Prepare new line for find function.
 		$func = FileHandler::getFileSystem()->get(__DIR__ . '/../Funcs/PostTypes/posttype.func');
@@ -65,7 +65,7 @@ class MakePostTypeCommand extends Command {
 		$use = FileHandler::getFileSystem()->get(__DIR__ . '/../Uses/PostTypes/posttype.use');
 		$use = str_replace('{{ name }}', $name, $use);
 		$use = str_replace('{{ name_slugify }}', $nameSlugify, $use);
-		$use = $this->replaceRootNamespace($use);
+		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
 		$this->addClassToWebRoute('post_types', $func, $use);

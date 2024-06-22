@@ -38,13 +38,11 @@ class MakeControllerCommand extends Command {
 			}
 		}
 
-		$this->validateClassName($output, $name);
-
 		// Create class file.
 		$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Controllers/controller.stub');
 		$content = str_replace('{{ className }}', $name, $content);
-		$content = $this->replaceRootNamespace($content);
-		FileHandler::saveFile($content, __DIR__ . '/../../Http/Controllers/' . $name . '.php');
+		$content = $this->replaceNamespaces($content);
+		FileHandler::saveFile($content, _wpspPath() . '/app/Http/Controllers/' . $name . '.php');
 
 		// Output message.
 		$output->writeln('Created new controller: ' . $name);

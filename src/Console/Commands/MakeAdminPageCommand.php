@@ -44,8 +44,8 @@ class MakeAdminPageCommand extends Command {
 		$nameSlugify = Slugify::slugUnify($name, '_');
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(__DIR__ . '/../../Extend/Components/AdminPages/' . $nameSlugify . '.php');
-		$exist = $exist || FileHandler::getFileSystem()->exists(__DIR__ . '/../../../resources/views/modules/web/admin-pages/' . $path);
+		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Components/AdminPages/' . $nameSlugify . '.php');
+		$exist = $exist || FileHandler::getFileSystem()->exists(_wpspPath() . '/resources/views/modules/web/admin-pages/' . $path);
 		if ($exist) {
 			$output->writeln('[ERROR] Admin page: "' . $path . '" already exists! Please try again.');
 			return Command::FAILURE;
@@ -58,11 +58,11 @@ class MakeAdminPageCommand extends Command {
 		$content = str_replace('{{ name_slugify }}', $nameSlugify, $content);
 		$content = str_replace('{{ path }}', $path, $content);
 		$content = str_replace('{{ path_slugify }}', $pathSlugify, $content);
-		$content = $this->replaceRootNamespace($content);
-		FileHandler::saveFile($content, __DIR__ . '/../../Extend/Components/AdminPages/' . $nameSlugify . '.php');
+		$content = $this->replaceNamespaces($content);
+		FileHandler::saveFile($content, _wpspPath() . '/app/Components/AdminPages/' . $nameSlugify . '.php');
 
 		// Create view directory.
-		FileHandler::getFileSystem()->makeDirectory(__DIR__ . '/../../../resources/views/modules/web/admin-pages/' . $path);
+		FileHandler::getFileSystem()->makeDirectory(_wpspPath() . '/resources/views/modules/web/admin-pages/' . $path);
 
 		// Create main view file.
 		$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/AdminPages/adminpage.view');
@@ -70,7 +70,7 @@ class MakeAdminPageCommand extends Command {
 		$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
 		$view = str_replace('{{ path }}', $path, $view);
 		$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
-		FileHandler::saveFile($view, __DIR__ . '/../../../resources/views/modules/web/admin-pages/' . $path . '/main.blade.php');
+		FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/admin-pages/' . $path . '/main.blade.php');
 
 		// Create dashboard view file.
 		$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/AdminPages/dashboard.view');
@@ -78,7 +78,7 @@ class MakeAdminPageCommand extends Command {
 		$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
 		$view = str_replace('{{ path }}', $path, $view);
 		$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
-		FileHandler::saveFile($view, __DIR__ . '/../../../resources/views/modules/web/admin-pages/' . $path . '/dashboard.blade.php');
+		FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/admin-pages/' . $path . '/dashboard.blade.php');
 
 		// Create "Tab 1" view file.
 		$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/AdminPages/tab-1.view');
@@ -86,7 +86,7 @@ class MakeAdminPageCommand extends Command {
 		$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
 		$view = str_replace('{{ path }}', $path, $view);
 		$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
-		FileHandler::saveFile($view, __DIR__ . '/../../../resources/views/modules/web/admin-pages/' . $path . '/tab-1.blade.php');
+		FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/admin-pages/' . $path . '/tab-1.blade.php');
 
 		// Create navigation view file.
 		$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/AdminPages/navigation.view');
@@ -94,7 +94,7 @@ class MakeAdminPageCommand extends Command {
 		$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
 		$view = str_replace('{{ path }}', $path, $view);
 		$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
-		FileHandler::saveFile($view, __DIR__ . '/../../../resources/views/modules/web/admin-pages/' . $path . '/navigation.blade.php');
+		FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/admin-pages/' . $path . '/navigation.blade.php');
 
 		// Prepare new line for find function.
 		$func = FileHandler::getFileSystem()->get(__DIR__ . '/../Funcs/AdminPages/adminpage.func');
@@ -109,7 +109,7 @@ class MakeAdminPageCommand extends Command {
 		$use = str_replace('{{ name_slugify }}', $nameSlugify, $use);
 		$use = str_replace('{{ path }}', $path, $use);
 		$use = str_replace('{{ path_slugify }}', $pathSlugify, $use);
-		$use = $this->replaceRootNamespace($use);
+		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
 		$this->addClassToWebRoute('admin_pages', $func, $use);

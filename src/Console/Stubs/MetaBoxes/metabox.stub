@@ -1,8 +1,8 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Extend\Components\MetaBoxes;
+namespace {{ rootNamespace }}\app\Components\MetaBoxes;
 
-use {{ rootNamespace }}\app\Extend\Base\BaseMetaBox;
+use {{ coreNamespace }}\Base\BaseMetaBox;
 
 class {{ className }} extends BaseMetaBox {
 

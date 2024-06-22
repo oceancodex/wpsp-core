@@ -2,7 +2,7 @@
 
 namespace {{ rootNamespace }}\app\Http\Controllers;
 
-use {{ rootNamespace }}\app\Extend\Base\BaseController;
+use {{ coreNamespace }}\Base\BaseController;
 
 class {{ className }} extends BaseController {
     public function index() {
