@@ -2,7 +2,8 @@
 
 namespace WPSPCORE\Base;
 
-use WPSPCORE\Objects\Http\HttpFoundation;
+use WPSPCORE\Http\HttpFoundation;
+use WPSP\Funcs;
 
 abstract class BaseRewriteFrontPage extends HttpFoundation {
 
@@ -61,7 +62,7 @@ abstract class BaseRewriteFrontPage extends HttpFoundation {
 	public function maybeNoTemplate(): void {
 		if (!$this->useTemplate) {
 			add_filter('template_include', function($template) {
-				return WPSP_RESOURCES_PATH . '/views/modules/web/rewrite-front-pages/layout/base.blade.php';
+				return Funcs::instance()->getResourcesPath() . '/views/modules/web/rewrite-front-pages/layout/base.blade.php';
 			});
 		}
 	}

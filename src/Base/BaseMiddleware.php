@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Base;
 
-use WPSPCORE\Objects\Http\HttpFoundation;
+use WPSPCORE\Http\HttpFoundation;
 use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
 use WP_REST_Request;
 

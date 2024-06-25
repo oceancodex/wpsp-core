@@ -2,8 +2,8 @@
 
 namespace WPSPCORE\Base;
 
-use WPSPCORE\Objects\Data\AdminPageData;
-use WPSPCORE\Objects\Http\HttpFoundation;
+use WPSPCORE\Data\AdminPageData;
+use WPSPCORE\Http\HttpFoundation;
 
 abstract class BaseAdminPage extends HttpFoundation {
 

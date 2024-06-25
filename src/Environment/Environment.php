@@ -1,11 +1,11 @@
 <?php
 
-namespace WPSPCORE\Objects\Env;
+namespace WPSPCORE\Environment;
 
 use Dotenv\Dotenv;
 use Dotenv\Repository\RepositoryBuilder;
 
-class Env {
+class Environment {
 
 	private static bool $isInitialized = false;
 
@@ -15,20 +15,16 @@ class Env {
 			$dotEnv = Dotenv::createImmutable($envDir);
 		}
 		else {
-			$repository = RepositoryBuilder::createWithNoAdapters()
-//			                               ->addAdapter(EnvConstAdapter::class)
-//			                               ->addWriter(PutenvAdapter::class)
-			                               ->immutable()
-			                               ->make();
+			$repository = RepositoryBuilder::createWithNoAdapters()/*->addAdapter(EnvConstAdapter::class)->addWriter(PutenvAdapter::class)*/->immutable()->make();
 			$dotEnv     = Dotenv::create($repository, $envDir);
 		}
 		$dotEnv->safeLoad();
-		$dotEnv->required('APP_ENV')->allowedValues(['local', 'dev', 'production'])->notEmpty();
+		$dotEnv->required([])->allowedValues(['local', 'dev', 'production'])->notEmpty();
 		static::$isInitialized = true;
 	}
 
 	public static function get(string $varName, $default = ''): string {
-		return getenv($varName) ?: $_SERVER[$varName] ?? ($_ENV[$varName] ?? $default);
+		return env($varName) ?: getenv($varName) ?: $_SERVER[$varName] ?? ($_ENV[$varName] ?? $default);
 	}
 
 }

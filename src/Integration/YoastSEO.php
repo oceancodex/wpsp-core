@@ -67,6 +67,9 @@ class YoastSEO {
 			add_filter('wpseo_title', function($title) {
 				return $this->title;
 			});
+//			add_filter('pre_get_document_title', function($title) {
+//				return $this->title;
+//			}, 10000, 1);
 		}
 	}
 

@@ -2,7 +2,6 @@
 
 namespace WPSPCORE\Console\Commands;
 
-use WPSPCORE\Objects\File\FileHandler;
 use WPSPCORE\Traits\CommandsTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

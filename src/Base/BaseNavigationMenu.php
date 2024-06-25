@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Base;
 
-use WPSPCORE\Objects\Http\HttpFoundation;
+use WPSPCORE\Http\HttpFoundation;
 
 abstract class BaseNavigationMenu extends HttpFoundation {
 

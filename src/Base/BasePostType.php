@@ -2,8 +2,8 @@
 
 namespace WPSPCORE\Base;
 
-use WPSPCORE\Objects\Data\PostTypeData;
-use WPSPCORE\Objects\Http\HttpFoundation;
+use WPSPCORE\Data\PostTypeData;
+use WPSPCORE\Http\HttpFoundation;
 use WPSPCORE\Traits\ObjectPropertiesToArrayTrait;
 
 /**
@@ -109,9 +109,7 @@ abstract class BasePostType extends HttpFoundation {
 	 */
 
 	public function init(): void {
-		add_action('init', function() {
-			register_post_type($this->post_type, $this->args);
-		});
+		register_post_type($this->post_type, $this->args);
 	}
 
 }

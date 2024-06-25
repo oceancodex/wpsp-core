@@ -1,5 +1,5 @@
 <?php
-namespace WPSPCORE\Objects\Database\Extensions;
+namespace WPSPCORE\Database\Extensions;
 
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadata;

@@ -2,8 +2,8 @@
 
 namespace WPSPCORE\Base;
 
-use WPSPCORE\Objects\Data\TaxonomyData;
-use WPSPCORE\Objects\Http\HttpFoundation;
+use WPSPCORE\Data\TaxonomyData;
+use WPSPCORE\Http\HttpFoundation;
 use WPSPCORE\Traits\ObjectPropertiesToArrayTrait;
 
 /**

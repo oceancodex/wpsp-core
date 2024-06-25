@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Console\Commands;
 
-use WPSPCORE\Objects\File\FileHandler;
+use WPSPCORE\Filesystem\Filesystem;
 use WPSPCORE\Traits\CommandsTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -51,22 +51,22 @@ class MakeEntityCommand extends Command {
 		$this->validateClassName($output, $name);
 
 		// Create class file.
-		$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Entities/entity.stub');
+		$content = Filesystem::instance()->get(__DIR__ . '/../Stubs/Entities/entity.stub');
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ table }}', $table, $content);
 		$content = str_replace('{{ model }}', $model, $content);
 		$content = $this->replaceNamespaces($content);
-		FileHandler::saveFile($content, _wpspPath() . '/app/Entities/' . $name . '.php');
+		Filesystem::instance()->put($this->mainPath . '/app/Entities/' . $name . '.php', $content);
 
 		// Create model.
 		if ($model) {
 			$this->validateClassName($output, $model);
 
-			$modelStub = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Models/model.stub');
+			$modelStub = Filesystem::instance()->get(__DIR__ . '/../Stubs/Models/model.stub');
 			$modelStub = str_replace('{{ className }}', $model, $modelStub);
 			$modelStub = str_replace('{{ table }}', $table, $modelStub);
 			$modelStub = $this->replaceNamespaces($modelStub);
-			FileHandler::saveFile($modelStub, _wpspPath() . '/app/Models/' . $model . '.php');
+			Filesystem::instance()->put($this->mainPath . '/app/Models/' . $model . '.php', $modelStub);
 		}
 
 		// Output message.

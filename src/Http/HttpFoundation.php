@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\Objects\Http;
+namespace WPSPCORE\Http;
 
 use Symfony\Component\HttpFoundation\Request;
 

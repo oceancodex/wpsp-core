@@ -1,9 +1,9 @@
 <?php
 
-namespace WPSPCORE\Objects\Data;
+namespace WPSPCORE\Data;
 
-use WPSPCORE\Base\BasePostType;
 use WPSPCORE\Base\BaseData;
+use WPSPCORE\Base\BasePostType;
 
 class PostTypeData extends BaseData {
 

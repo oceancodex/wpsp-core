@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use Illuminate\Container\Container;
+use WPSP\Funcs;
 use WPSPCORE\View\Blade;
 
 if (!function_exists('public_path')) {
@@ -9,10 +10,20 @@ if (!function_exists('public_path')) {
 		return _wpspPath() . '/public/'. ltrim($path, '/');
 	}
 }
+else {
+    function wpsp_public_path($path = null): string {
+        return _wpspPath() . '/public/'. ltrim($path, '/');
+    }
+}
 
 if (!function_exists('asset')) {
 	function asset($path, $secure = null): string {
-		return WPSP_PUBLIC_URL . '/'. ltrim($path, '/');
+		return Funcs::instance()->getPublicUrl() . '/'. ltrim($path, '/');
+	}
+}
+else {
+	function wpsp_asset($path, $secure = null): string {
+		return Funcs::instance()->getPublicUrl() . '/'. ltrim($path, '/');
 	}
 }
 
@@ -28,15 +39,20 @@ if (!function_exists('app')) {
 
 if (!function_exists('env')) {
 	function env($var, $default = null): string {
-		return \WPSPCORE\Objects\Env\Env::get($var, $default);
+		return Env\Environment::get($var, $default);
 	}
+}
+else {
+	function wpsp_env($var, $default = null): string {
+        return Env\Environment::get($var, $default);
+    }
 }
 
 if (!function_exists('view')) {
 	function view($viewName, $data = [], $mergeData = []): \Illuminate\Contracts\View\View {
 		if (!Blade::$BLADE) {
-			$views        = WPSP_RESOURCES_PATH . '/views';
-			$cache        = WPSP_STORAGE_PATH . '/framework/views';
+			$views        = Funcs::instance()->getResourcesPath() . '/views';
+			$cache        = Funcs::instance()->getStoragePath() . '/framework/views';
 			Blade::$BLADE = new Blade([$views], $cache);
 		}
 		global $notice;
@@ -44,16 +60,28 @@ if (!function_exists('view')) {
 		return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
 	}
 }
+else {
+	function wpsp_view($viewName, $data = [], $mergeData = []): \Illuminate\Contracts\View\View {
+        if (!Blade::$BLADE) {
+            $views        = Funcs::instance()->getResourcesPath(). '/views';
+            $cache        = Funcs::instance()->getStoragePath(). '/framework/views';
+            Blade::$BLADE = new Blade([$views], $cache);
+        }
+        global $notice;
+        Blade::$BLADE->view()->share(['notice' => $notice]);
+        return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
+    }
+}
 
 if (!function_exists('trans')) {
 	function trans($string, $wordpress = false) {
 		if ($wordpress) {
-			return __($string, WPSP_TEXT_DOMAIN);
+			return __($string, Funcs::instance()->getTextDomain());
 		}
 		else {
 			global $translator;
 			if (!$translator) {
-				$translationPath   = WPSP_RESOURCES_PATH . '/lang';
+				$translationPath   = Funcs::instance()->getResourcesPath() . '/lang';
 				$translationLoader = new \Illuminate\Translation\FileLoader(new \Illuminate\Filesystem\Filesystem, $translationPath);
 				$translator        = new \Illuminate\Translation\Translator($translationLoader, config('app.locale'));
 			}

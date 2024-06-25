@@ -6,10 +6,10 @@ use Symfony\Component\Console\Application;
 
 class Kernel {
 
-	public static function commands(Application $application): void {
+	public static function initCommands(Application $application, $rootNamespace, $mainPath): void {
 		$application->add(new \WPSPCORE\Console\Commands\MakeAdminPageCommand());
 		$application->add(new \WPSPCORE\Console\Commands\MakeControllerCommand());
-		$application->add(new \WPSPCORE\Console\Commands\MakeEntityCommand());
+		$application->add(new \WPSPCORE\Console\Commands\MakeEntityCommand(null, $rootNamespace, $mainPath));
 		$application->add(new \WPSPCORE\Console\Commands\MakeMetaBoxCommand());
 		$application->add(new \WPSPCORE\Console\Commands\MakeMiddlewareCommand());
 		$application->add(new \WPSPCORE\Console\Commands\MakeMigrationCommand());

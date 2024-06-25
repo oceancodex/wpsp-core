@@ -2,18 +2,21 @@
 
 namespace WPSPCORE\Console\Commands;
 
-use WPSPCORE\Objects\File\FileHandler;
-use WPSPCORE\Objects\Slugify\Slugify;
-use WPSPCORE\Traits\CommandsTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use WPSPCORE\Traits\CommandsTrait;
 
 class MakeAdminPageCommand extends Command {
 
 	use CommandsTrait;
+
+	public function __construct(?string $name = null) {
+		parent::__construct($name);
+		$this->rootNamespace = 'XXX';
+	}
 
 	protected function configure(): void {
 		$this

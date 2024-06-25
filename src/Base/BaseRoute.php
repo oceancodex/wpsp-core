@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 abstract class BaseRoute {
 
 	public Request $request;
+	public string  $mainPath;
 
 	public ?array $initClasses = null;
 
@@ -48,7 +49,7 @@ abstract class BaseRoute {
 		}
 
 		// If callback is a string.
-		return function () use ($callback) {
+		return function() use ($callback) {
 			return $callback;
 		};
 

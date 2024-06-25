@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\Objects\Data;
+namespace WPSPCORE\Data;
 
 use WPSPCORE\Base\BaseData;
 use WPSPCORE\Base\BaseTaxonomy;

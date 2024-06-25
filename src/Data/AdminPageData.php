@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\Objects\Data;
+namespace WPSPCORE\Data;
 
 class AdminPageData {
 

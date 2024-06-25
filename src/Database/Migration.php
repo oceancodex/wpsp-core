@@ -1,7 +1,8 @@
 <?php
 
-namespace WPSPCORE\Objects\Database;
+namespace WPSPCORE\Database;
 
+use WPSPCORE\Database\Extensions\TablePrefix;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
@@ -11,11 +12,10 @@ use Doctrine\Migrations\Tools\Console\Command;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\ORMSetup;
-use WPSPCORE\Objects\Database\Extensions\TablePrefix;
-use WPSPCORE\Objects\File\FileHandler;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use WPSP\Funcs;
 
 class Migration {
 	private static ?EntityManager     $entityManager     = null;
@@ -69,7 +69,7 @@ class Migration {
 		$lastMigratedVersion            = self::getDependencyFactory()->getVersionAliasResolver()->resolveVersionAlias('current')->__toString();
 		$lastMigrateVersionInFolder     = self::getDependencyFactory()->getVersionAliasResolver()->resolveVersionAlias('latest')->__toString();
 		$lastMigrateVersionNameInFolder = preg_replace('/^(.*?)migrations\\\(.*?)$/iu', '$2', $lastMigrateVersionInFolder);
-		$lastMigrateVersionPathInFolder = WPSP_MIGRATION_PATH . '/' . $lastMigrateVersionNameInFolder . '.php';
+		$lastMigrateVersionPathInFolder = Funcs::instance()->getMigrationPath() . '/' . $lastMigrateVersionNameInFolder . '.php';
 		$result                         = [];
 		if ($lastMigratedVersion !== $lastMigrateVersionInFolder) {
 			try {
@@ -125,10 +125,10 @@ class Migration {
 
 	public static function getEntityManager(): EntityManager {
 		if (!self::$entityManager) {
-			$paths            = [WPSP_APP_PATH . '/Entities'];
+			$paths            = [Funcs::instance()->getAppPath() . '/Entities'];
 			$isDevMode        = config('app.env') == 'dev' || config('app.env') == 'local';
 			$tablePrefix      = new TablePrefix(_dbTablePrefix());
-			$connectionParams = include(WPSP_CONFIG_PATH . '/migrations-db.php');
+			$connectionParams = include(Funcs::instance()->getConfigPath() . '/migrations-db.php');
 
 			$eventManager = new EventManager();
 			$eventManager->addEventListener(Events::loadClassMetadata, $tablePrefix);
@@ -143,7 +143,7 @@ class Migration {
 
 	public static function getDependencyFactory(): DependencyFactory {
 		if (!self::$dependencyFactory) {
-			$config                  = new PhpFile(WPSP_CONFIG_PATH . '/migrations.php');
+			$config                  = new PhpFile(Funcs::instance()->getConfigPath() . '/migrations.php');
 			$existingEntityManager   = new ExistingEntityManager(self::getEntityManager());
 			self::$dependencyFactory = DependencyFactory::fromEntityManager($config, $existingEntityManager);
 		}
@@ -170,12 +170,12 @@ class Migration {
 	}
 
 	public static function deleteAllMigrations(): array {
-		$allMigrations     = self::getDependencyFactory()->getMigrationsFinder()->findMigrations(_trailingslashit(WPSP_MIGRATION_PATH));
+		$allMigrations     = self::getDependencyFactory()->getMigrationsFinder()->findMigrations(_trailingslashit(Funcs::instance()->getMigrationPath()));
 		$deletedMigrations = [];
 		foreach ($allMigrations as $migrationVersion) {
 			if (!preg_match('/_/iu', $migrationVersion)) {
 				$migrationVersion     = preg_replace('/^(.*?)migrations\/(.*?)/iu', '$2', _trailingslash($migrationVersion));
-				$migrationVersionPath = _trailingslash(WPSP_MIGRATION_PATH . '/' . $migrationVersion . '.php');
+				$migrationVersionPath = _trailingslash(Funcs::instance()->getMigrationPath() . '/' . $migrationVersion . '.php');
 //			    $migrationVersionPathFromPluginDir = _getPathFromDir('plugins', $migrationVersionPath) . '.php';
 				$deletedMigrations[] = FileHandler::deleteFile($migrationVersionPath);
 			}

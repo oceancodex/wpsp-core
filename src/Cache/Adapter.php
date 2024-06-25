@@ -1,9 +1,10 @@
 <?php
 
-namespace WPSPCORE\Objects\Cache;
+namespace WPSPCORE\Cache;
 
 use Doctrine\DBAL\DriverManager;
 use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
+use WPSP\Funcs;
 
 class Adapter {
 
@@ -17,7 +18,7 @@ class Adapter {
 	}
 
 	public static function initCacheAdapter(): DoctrineDbalAdapter {
-		$cacheConfigs     = include(WPSP_CONFIG_PATH . ('/cache.php'));
+		$cacheConfigs     = include(Funcs::instance()->getConfigPath() . ('/cache.php'));
 		$connectionParams = $cacheConfigs['stores'][$cacheConfigs['default']];
 		$connection       = DriverManager::getConnection($connectionParams);
 		return new DoctrineDbalAdapter(

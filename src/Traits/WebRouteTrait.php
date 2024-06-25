@@ -14,8 +14,9 @@ trait WebRouteTrait {
 			}
 			return $query_vars;
 		}, true, null, null, 10, 1);
+
 		// Change "Check for updates" link text.
-		$this->filter('puc_manual_check_link-' . WPSP_TEXT_DOMAIN, function($text) {
+		$this->filter('puc_manual_check_link-' . \WPSP\Funcs::instance()->getTextDomain(), function($text) {
 			return trans('messages.check_for_updates');
 		}, true, null, null, 10, 1);
 
@@ -100,7 +101,7 @@ trait WebRouteTrait {
 
 	public function template($name, $callback, $useInitClass = false, $classArgs = [], $middleware = null, $priority = 10, $argsNumber = 0): void {
 		if ($this->isPassedMiddleware($middleware, $this->request)) {
-			$classArgs = array_merge([$name], $classArgs ?? []);
+			$classArgs = array_merge([$name, $this->mainPath], $classArgs ?? []);
 			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
 			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}() : $callback;
 		}

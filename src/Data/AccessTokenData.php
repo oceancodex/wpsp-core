@@ -1,9 +1,9 @@
 <?php
 
-namespace WPSPCORE\Objects\Data;
+namespace WPSPCORE\Data;
 
-use WPSPCORE\Base\BaseData;
 use Symfony\Component\HttpClient\HttpClient;
+use WPSPCORE\Base\BaseData;
 
 class AccessTokenData extends BaseData {
 	public string $access_token;
