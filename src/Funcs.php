@@ -1,4 +1,5 @@
 <?php
+
 namespace WPSPCORE;
 
 use Carbon\Carbon;
@@ -11,8 +12,10 @@ class Funcs {
 	protected ?string $rootNamespace = null;
 	protected ?string $envKeyPrefix  = null;
 
-	public function __construct($mainPath = null) {
+	public function __construct($mainPath = null, $rootNamespace = null, $envKeyPrefix = null) {
 		if ($mainPath) $this->mainPath = $mainPath;
+		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
+		if ($envKeyPrefix) $this->envKeyPrefix = $envKeyPrefix;
 	}
 
 	/*
@@ -133,7 +136,7 @@ class Funcs {
 
 	public function getDBTablePrefix(): string {
 		global $wpdb;
-		return ($wpdb->prefix ?? 'wp_') . $this->env($this->envKeyPrefix . 'APP_SHORT_NAME') . '_';
+		return ($wpdb->prefix ?? 'wp_') . $this->env('APP_SHORT_NAME', true) . '_';
 	}
 
 	public function getDBCustomMigrationTablePrefix(): string {
@@ -141,7 +144,7 @@ class Funcs {
 	}
 
 	public function getDBTableName($name): string {
-		return _dbTablePrefix() . $name;
+		return $this->getDBTablePrefix() . $name;
 	}
 
 	public function getDBCustomMigrationTableName($name): string {
@@ -225,7 +228,7 @@ class Funcs {
 		$locale = 'vi',
 		$currencyCode = 'vnd',
 		$style = NumberFormatter::DECIMAL,
-		$groupingUsed = true
+		$groupingUsed = true,
 	): array|string|null {
 		try {
 			if (!$value) return null;
@@ -268,7 +271,7 @@ class Funcs {
 		return $this->getPublicUrl() . '/' . ltrim($path, '/');
 	}
 
-	public function view($viewName, $data = [], $mergeData = []) {
+	public function view($viewName, $data = [], $mergeData = []): \Illuminate\Contracts\View\View {
 		if (!Blade::$BLADE) {
 			$views        = $this->getResourcesPath() . '/views';
 			$cache        = $this->getStoragePath() . '/framework/views';
@@ -286,7 +289,7 @@ class Funcs {
 			foreach ($files as $file) {
 				$configKey        = $file['relative_path'];
 				$configKey        = preg_replace('/\.php/iu', '', $configKey);
-				$configItemNested = _explodeToNestedArray('/', $configKey, \Noodlehaus\Config::load($file['real_path'])->all());
+				$configItemNested = $this->explodeToNestedArray('/', $configKey, \Noodlehaus\Config::load($file['real_path'])->all());
 				$configs          = array_merge_recursive($configs, $configItemNested);
 			}
 			$configs = new \Dflydev\DotAccessData\Data($configs);
@@ -312,16 +315,24 @@ class Funcs {
 		}
 	}
 
-	public function public_path($path = null): string {
-		return $this->getPublicPath($path);
+	public function notice($message = '', $type = 'info', $dismiss = true): void {
+		global $notice;
+		$notice = $this->view('modules.web.admin-pages.common.notice')->with([
+			'type'    => $type,
+			'message' => $message,
+		])->render();
+	}
+
+	public function buildUrl($baseUrl, $args): string {
+		return add_query_arg($args, $baseUrl);
 	}
 
 	/*
 	 *
 	 */
 
-	public function env($var, $default = null): string {
-		return \WPSPCORE\Environment\Environment::get($var, $default);
+	public function env($var, $addPrefix = false, $default = null): ?string {
+		return \WPSPCORE\Environment\Environment::get($addPrefix ? $this->envKeyPrefix . $var : $var, $default);
 	}
 
 	public function debug($message = '', $print = false, bool $varDump = false): void {
@@ -370,7 +381,7 @@ class Funcs {
 			return get_locale();
 		}
 		else {
-			return $this->env($this->envKeyPrefix . 'APP_LOCALE', 'en');
+			return $this->env('APP_LOCALE', true, 'en');
 		}
 	}
 

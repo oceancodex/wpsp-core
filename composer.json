@@ -39,7 +39,6 @@
 			"WPSPCORE\\": "src/"
 		},
 		"files": [
-			"src/Helpers/Helpers.php"
 		]
 	},
 	"autoload-dev": {

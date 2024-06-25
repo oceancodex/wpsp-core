@@ -2,6 +2,8 @@
 
 namespace WPSPCORE\Cache;
 
+use WPSPCORE\Funcs;
+
 class Cache {
 
 	public static function getItemValue($key) {
@@ -42,7 +44,7 @@ class Cache {
 	}
 
 	private static function getCacheKey($key): string {
-		return _dbTablePrefix() . $key;
+		return (new Funcs())->getDBTablePrefix() . $key;
 	}
 
 }

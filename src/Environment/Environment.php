@@ -23,7 +23,7 @@ class Environment {
 		static::$isInitialized = true;
 	}
 
-	public static function get(string $varName, $default = ''): string {
+	public static function get(string $varName, $default = ''): ?string {
 		return env($varName) ?: getenv($varName) ?: $_SERVER[$varName] ?? ($_ENV[$varName] ?? $default);
 	}
 

@@ -15,49 +15,64 @@ use Doctrine\ORM\ORMSetup;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-use WPSP\Funcs;
+use WPSPCORE\Filesystem\Filesystem;
+use WPSPCORE\Funcs;
 
 class Migration {
-	private static ?EntityManager     $entityManager     = null;
-	private static ?DependencyFactory $dependencyFactory = null;
-	private static ?Application       $cli               = null;
 
-	public static function getCLI(): Application {
-		if (!self::$cli) {
-			self::$cli = new Application(config('app.short_name'));
-			self::$cli->setCatchExceptions(true);
-			self::$cli->addCommands([
-				new Command\DumpSchemaCommand(self::getDependencyFactory()),
-				new Command\ExecuteCommand(self::getDependencyFactory()),
-				new Command\GenerateCommand(self::getDependencyFactory()),
-				new Command\LatestCommand(self::getDependencyFactory()),
-				new Command\ListCommand(self::getDependencyFactory()),
-				new Command\MigrateCommand(self::getDependencyFactory()),
-				new Command\RollupCommand(self::getDependencyFactory()),
-				new Command\StatusCommand(self::getDependencyFactory()),
-				new Command\SyncMetadataCommand(self::getDependencyFactory()),
-				new Command\VersionCommand(self::getDependencyFactory()),
-				new Command\DiffCommand(self::getDependencyFactory()),
-			]);
-		}
-		return self::$cli;
+	private ?EntityManager     $entityManager     = null;
+	private ?DependencyFactory $dependencyFactory = null;
+	private ?Application       $cli               = null;
+	private Funcs              $funcs;
+	private Eloquent           $eloquent;
+
+	/*
+	 *
+	 */
+
+	public function __construct($mainPath, $rootNamespace) {
+		$this->funcs    = new Funcs($mainPath, $rootNamespace);
+		$this->eloquent = new Eloquent($this, $mainPath, $rootNamespace);
 	}
 
 	/*
 	 *
 	 */
 
-	public static function diff(): array {
+	public function getCli(): Application {
+		if (!$this->cli) {
+			$this->cli = new Application($this->funcs->config('app.short_name'));
+			$this->cli->setCatchExceptions(true);
+			$this->cli->addCommands([
+				new Command\DumpSchemaCommand($this->getDependencyFactory()),
+				new Command\ExecuteCommand($this->getDependencyFactory()),
+				new Command\GenerateCommand($this->getDependencyFactory()),
+				new Command\LatestCommand($this->getDependencyFactory()),
+				new Command\ListCommand($this->getDependencyFactory()),
+				new Command\MigrateCommand($this->getDependencyFactory()),
+				new Command\RollupCommand($this->getDependencyFactory()),
+				new Command\StatusCommand($this->getDependencyFactory()),
+				new Command\SyncMetadataCommand($this->getDependencyFactory()),
+				new Command\VersionCommand($this->getDependencyFactory()),
+				new Command\DiffCommand($this->getDependencyFactory()),
+			]);
+		}
+		return $this->cli;
+	}
+
+	/*
+	 *
+	 */
+
+	public function diff(): array {
 		try {
 			$input  = new ArrayInput([
 				'command'             => 'diff',
 				'--no-interaction'    => true,
-				'--filter-expression' => '/^' . _dbTablePrefix() . '((?!cm))/iu',
+				'--filter-expression' => '/^' . $this->funcs->getDBTablePrefix() . '((?!cm))/iu',
 			]);
 			$output = new BufferedOutput();
-			self::getCLI()->doRun($input, $output);
-//			echo '<pre>'; print_r($migration->getDependencyFactory()->getMigrationsFinder()->findMigrations(WPSP_MIGRATION_PATH)); echo '</pre>';
-//			echo '<pre>'; print_r($migration->getDependencyFactory()->getMigrationStatusCalculator()->getNewMigrations()->getLast()->getVersion()->__toString()); echo '</pre>';
+			$this->getCli()->doRun($input, $output);
 			return ['success' => true, 'message' => 'Generate new database migration successfully!', 'data' => ['output' => $output->fetch()]];
 		}
 		catch (\Exception|\Throwable $e) {
@@ -65,11 +80,11 @@ class Migration {
 		}
 	}
 
-	public static function repair(): array {
-		$lastMigratedVersion            = self::getDependencyFactory()->getVersionAliasResolver()->resolveVersionAlias('current')->__toString();
-		$lastMigrateVersionInFolder     = self::getDependencyFactory()->getVersionAliasResolver()->resolveVersionAlias('latest')->__toString();
+	public function repair(): array {
+		$lastMigratedVersion            = $this->getDependencyFactory()->getVersionAliasResolver()->resolveVersionAlias('current')->__toString();
+		$lastMigrateVersionInFolder     = $this->getDependencyFactory()->getVersionAliasResolver()->resolveVersionAlias('latest')->__toString();
 		$lastMigrateVersionNameInFolder = preg_replace('/^(.*?)migrations\\\(.*?)$/iu', '$2', $lastMigrateVersionInFolder);
-		$lastMigrateVersionPathInFolder = Funcs::instance()->getMigrationPath() . '/' . $lastMigrateVersionNameInFolder . '.php';
+		$lastMigrateVersionPathInFolder = $this->funcs->getMigrationPath() . '/' . $lastMigrateVersionNameInFolder . '.php';
 		$result                         = [];
 		if ($lastMigratedVersion !== $lastMigrateVersionInFolder) {
 			try {
@@ -80,10 +95,10 @@ class Migration {
 //				]);
 //				$output = new BufferedOutput();
 //				$this->getCLI()->doRun($input, $output);
-				$exists = FileHandler::getFileSystem()->exists($lastMigrateVersionPathInFolder);
+				$exists = Filesystem::instance()->exists($lastMigrateVersionPathInFolder);
 				if ($exists) {
 					try {
-						FileHandler::getFileSystem()->delete($lastMigrateVersionPathInFolder);
+						Filesystem::instance()->delete($lastMigrateVersionPathInFolder);
 						$result = ['success' => true, 'message' => 'Repaired database successfully! [Deleted: ' . $lastMigrateVersionNameInFolder . ']', 'data' => null];
 					}
 					catch (\Exception $exception) {
@@ -104,14 +119,14 @@ class Migration {
 		return $result;
 	}
 
-	public static function migrate(): array {
+	public function migrate(): array {
 		try {
 			$input  = new ArrayInput([
 				'command'          => 'migrate',
 				'--no-interaction' => true,
 			]);
 			$output = new BufferedOutput();
-			self::getCLI()->doRun($input, $output);
+			$this->getCLI()->doRun($input, $output);
 			return ['success' => true, 'message' => 'Migrate database successful!', 'data' => $output->fetch()];
 		}
 		catch (\Exception|\Throwable $e) {
@@ -123,12 +138,12 @@ class Migration {
 	 *
 	 */
 
-	public static function getEntityManager(): EntityManager {
-		if (!self::$entityManager) {
-			$paths            = [Funcs::instance()->getAppPath() . '/Entities'];
-			$isDevMode        = config('app.env') == 'dev' || config('app.env') == 'local';
-			$tablePrefix      = new TablePrefix(_dbTablePrefix());
-			$connectionParams = include(Funcs::instance()->getConfigPath() . '/migrations-db.php');
+	public function getEntityManager(): EntityManager {
+		if (!$this->entityManager) {
+			$paths            = [$this->funcs->getAppPath() . '/Entities'];
+			$isDevMode        = $this->funcs->config('app.env') == 'dev' || $this->funcs->config('app.env') == 'local';
+			$tablePrefix      = new TablePrefix($this->funcs->getDBTablePrefix());
+			$connectionParams = include($this->funcs->getConfigPath() . '/migrations-db.php');
 
 			$eventManager = new EventManager();
 			$eventManager->addEventListener(Events::loadClassMetadata, $tablePrefix);
@@ -136,32 +151,32 @@ class Migration {
 			$ormConfig  = ORMSetup::createAttributeMetadataConfiguration($paths, $isDevMode);
 			$connection = DriverManager::getConnection($connectionParams);
 
-			self::$entityManager = new EntityManager($connection, $ormConfig, $eventManager);
+			$this->entityManager = new EntityManager($connection, $ormConfig, $eventManager);
 		}
-		return self::$entityManager;
+		return $this->entityManager;
 	}
 
-	public static function getDependencyFactory(): DependencyFactory {
-		if (!self::$dependencyFactory) {
-			$config                  = new PhpFile(Funcs::instance()->getConfigPath() . '/migrations.php');
-			$existingEntityManager   = new ExistingEntityManager(self::getEntityManager());
-			self::$dependencyFactory = DependencyFactory::fromEntityManager($config, $existingEntityManager);
+	public function getDependencyFactory(): DependencyFactory {
+		if (!$this->dependencyFactory) {
+			$config                  = new PhpFile($this->funcs->getConfigPath() . '/migrations.php');
+			$existingEntityManager   = new ExistingEntityManager($this->getEntityManager());
+			$this->dependencyFactory = DependencyFactory::fromEntityManager($config, $existingEntityManager);
 		}
-		return self::$dependencyFactory;
+		return $this->dependencyFactory;
 	}
 
 	/*
 	 *
 	 */
 
-	public static function syncMetadata(): array {
+	public function syncMetadata(): array {
 		try {
 			$input  = new ArrayInput([
 				'command'          => 'sync-metadata-storage',
 				'--no-interaction' => true,
 			]);
 			$output = new BufferedOutput();
-			self::getCLI()->doRun($input, $output);
+			$this->getCLI()->doRun($input, $output);
 			return ['success' => true, 'message' => 'Sync metadata successful!', 'data' => $output->fetch()];
 		}
 		catch (\Exception|\Throwable $e) {
@@ -169,33 +184,34 @@ class Migration {
 		}
 	}
 
-	public static function deleteAllMigrations(): array {
-		$allMigrations     = self::getDependencyFactory()->getMigrationsFinder()->findMigrations(_trailingslashit(Funcs::instance()->getMigrationPath()));
+	public function deleteAllMigrations(): array {
+		$allMigrations     = $this->getDependencyFactory()->getMigrationsFinder()->findMigrations($this->funcs->trailingslashit($this->funcs->getMigrationPath()));
 		$deletedMigrations = [];
 		foreach ($allMigrations as $migrationVersion) {
 			if (!preg_match('/_/iu', $migrationVersion)) {
-				$migrationVersion     = preg_replace('/^(.*?)migrations\/(.*?)/iu', '$2', _trailingslash($migrationVersion));
-				$migrationVersionPath = _trailingslash(Funcs::instance()->getMigrationPath() . '/' . $migrationVersion . '.php');
+				$migrationVersion     = preg_replace('/^(.*?)migrations\/(.*?)/iu', '$2', $this->funcs->trailingslash($migrationVersion));
+				$migrationVersionPath = $this->funcs->trailingslash($this->funcs->getMigrationPath() . '/' . $migrationVersion . '.php');
 //			    $migrationVersionPathFromPluginDir = _getPathFromDir('plugins', $migrationVersionPath) . '.php';
-				$deletedMigrations[] = FileHandler::deleteFile($migrationVersionPath);
+				$deletedMigrations[] = Filesystem::instance()->delete($migrationVersionPath);
 			}
 		}
-		return _response(true, $deletedMigrations, 'Deleted all migrations successful!', 200);
+		return $this->funcs->response(true, $deletedMigrations, 'Deleted all migrations successful!', 200);
 	}
 
-	public static function checkDatabaseVersion(): ?array {
-		$databaseIsValid = Eloquent::checkDatabaseVersionNewest();
+	public function checkDatabaseVersion(): ?array {
+		$databaseIsValid = $this->eloquent->checkDatabaseVersionNewest();
 		if ($databaseIsValid['result']) {
-			$databaseIsValid = Migration::checkMigrationFolderNotEmpty();
+			$databaseIsValid = $this->checkMigrationFolderNotEmpty();
 		}
 		if ($databaseIsValid['result']) {
-			$databaseIsValid = Eloquent::checkAllDatabaseTableExists();
+			$databaseIsValid = $this->eloquent->checkAllDatabaseTableExists();
 		}
 		return $databaseIsValid;
 	}
 
-	public static function checkMigrationFolderNotEmpty(): array {
-		$migrationCounts = self::getDependencyFactory()->getMigrationRepository()->getMigrations()->count();
+	public function checkMigrationFolderNotEmpty(): array {
+		$migrationCounts = $this->getDependencyFactory()->getMigrationRepository()->getMigrations()->count();
 		return ['result' => $migrationCounts, 'type' => 'check_migration_folder_not_empty'];
 	}
+
 }
