@@ -7,7 +7,7 @@ use Doctrine\Migrations\AbstractMigration;
 
 /**
  * All tables must NOT use the prefix: "{{ dbTablePrefix }}{ custom_table_name }".
- * You can use function: _dbCMTableName('custom_table_name') to return the table name with prefix: {{ dbCMTablePrefix }} (Eg: {{ dbCMTablePrefix }}my_custom_table)
+ * You can use function: _dbCMTableName('custom_table_name') to return the table name with prefix: {{ dbCustomMigrationTablePrefix }} (Eg: {{ dbCustomMigrationTablePrefix }}my_custom_table)
  */
 
 final class {{ className }} extends AbstractMigration {

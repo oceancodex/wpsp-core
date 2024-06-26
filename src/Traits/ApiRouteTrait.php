@@ -79,7 +79,7 @@ trait ApiRouteTrait {
 	}
 
 	public function registerRestRoute($path, $method, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $namespace = null, $version = null): void {
-		register_rest_route(($namespace ?? config('app.short_name')) . '/' . ($version ?? 'v1'), $path, [
+		register_rest_route(($namespace ?? $this->funcs->_config('app.short_name')) . '/' . ($version ?? 'v1'), $path, [
 			'methods'             => $method,
 			'callback'            => $this->prepareCallback($callback, $useInitClass, $classArgs),
 			'args'                => [

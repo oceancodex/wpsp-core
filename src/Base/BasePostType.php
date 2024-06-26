@@ -3,7 +3,6 @@
 namespace WPSPCORE\Base;
 
 use WPSPCORE\Data\PostTypeData;
-use WPSPCORE\Http\HttpFoundation;
 use WPSPCORE\Traits\ObjectPropertiesToArrayTrait;
 
 /**
@@ -49,7 +48,7 @@ use WPSPCORE\Traits\ObjectPropertiesToArrayTrait;
  * @property $_edit_link                            Warning: This attribute may affect post editing.
  * @property $query_var                             Warning: This attribute can affect article viewing beyond the frontend.
  */
-abstract class BasePostType extends HttpFoundation {
+abstract class BasePostType extends BaseInstances {
 
 	use ObjectPropertiesToArrayTrait;
 
@@ -60,8 +59,8 @@ abstract class BasePostType extends HttpFoundation {
 	 *
 	 */
 
-	public function __construct($postType = null) {
-		parent::__construct();
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $postType = null) {
+		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
 		$this->overridePostType($postType);
 		$this->prepareArguments();
 		$this->customProperties();
@@ -108,7 +107,7 @@ abstract class BasePostType extends HttpFoundation {
 	 *
 	 */
 
-	public function init(): void {
+	public function init($postType = null): void {
 		register_post_type($this->post_type, $this->args);
 	}
 

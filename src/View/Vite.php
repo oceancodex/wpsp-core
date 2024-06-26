@@ -194,7 +194,7 @@ class Vite implements Htmlable
 	 */
 	public function hotFile()
 	{
-		return $this->hotFile ?? $this->funcs->getPublicPath('/hot');
+		return $this->hotFile ?? $this->funcs->_getPublicPath('/hot');
 	}
 
 	/**
@@ -697,7 +697,7 @@ class Vite implements Htmlable
 
 		$chunk = $this->chunk($this->manifest($buildDirectory), $asset);
 
-		$path = $this->funcs->getPublicPath($buildDirectory.'/'.$chunk['file']);
+		$path = $this->funcs->_getPublicPath($buildDirectory.'/'.$chunk['file']);
 
 		if (! is_file($path) || ! file_exists($path)) {
 			throw new Exception("Unable to locate file from Vite manifest: {$path}.");
@@ -749,7 +749,7 @@ class Vite implements Htmlable
 	 */
 	protected function manifestPath($buildDirectory)
 	{
-		return $this->funcs->getPublicPath($buildDirectory.'/'.$this->manifestFilename);
+		return $this->funcs->_getPublicPath($buildDirectory.'/'.$this->manifestFilename);
 	}
 
 	/**

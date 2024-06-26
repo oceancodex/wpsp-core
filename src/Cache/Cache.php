@@ -2,49 +2,93 @@
 
 namespace WPSPCORE\Cache;
 
-use WPSPCORE\Funcs;
+use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
+use WPSPCORE\Base\BaseInstances;
 
-class Cache {
+class Cache extends BaseInstances {
 
-	public static function getItemValue($key) {
-		return self::getItem($key)->get();
+	private ?DoctrineDbalAdapter $adapter = null;
+
+	/*
+	 *
+	 */
+
+	public function afterConstruct(): void {
+		$this->adapter = (new Adapter($this->mainPath, $this->rootNamespace, $this->prefixEnv))->init();
 	}
 
-	public static function getItem($key): \Symfony\Component\Cache\CacheItem {
-		$key = self::getCacheKey($key);
-		return Adapter::getInstance()->getItem($key);
+	/*
+	 *
+	 */
+
+	public function _getItem($key): \Symfony\Component\Cache\CacheItem|string {
+		$key = $this->_getCacheKey($key);
+		try {
+			return $this->adapter->getItem($key);
+		}
+		catch (InvalidArgumentException $e) {
+			return $e->getMessage();
+		}
+		catch (\Exception $e) {
+			return $e->getMessage();
+		}
 	}
 
-	public static function set($key, $callback) {
-		self::delete($key);
-		return self::get($key, $callback);
+	public function _getCacheKey($key): string {
+		return $this->funcs->_getDBTablePrefix() . $key;
 	}
 
-	public static function get($key, $callback) {
-		$key = self::getCacheKey($key);
-		return Adapter::getInstance()->get($key, $callback);
+	public function _getItemValue($key) {
+		return $this->_getItem($key)->get();
 	}
 
-	public static function delete($key): bool {
-		$key = self::getCacheKey($key);
-		return Adapter::getInstance()->delete($key);
+	/*
+	 *
+	 */
+
+	public function _set($key, $callback) {
+		$this->_delete($key);
+		return $this->_get($key, $callback);
 	}
 
-	public static function reset(): void {
-		Adapter::getInstance()->reset();
+	public function _get($key, $callback) {
+		$key = $this->_getCacheKey($key);
+		try {
+			return $this->adapter->get($key, $callback);
+		}
+		catch (InvalidArgumentException $e) {
+			return $e->getMessage();
+		}
+		catch (\Exception $e) {
+			return $e->getMessage();
+		}
 	}
 
-	public static function clear($prefix = null): void {
+	public function _delete($key): bool|string {
+		$key = $this->_getCacheKey($key);
+		try {
+			return $this->adapter->delete($key);
+		}
+		catch (InvalidArgumentException $e) {
+			return $e->getMessage();
+		}
+		catch (\Exception $e) {
+			return $e->getMessage();
+		}
+	}
+
+	public function _reset(): void {
+		$this->adapter->reset();
+	}
+
+	public function _clear($prefix = null): void {
 		if ($prefix) {
-			Adapter::getInstance()->clear($prefix);
+			$this->adapter->clear($prefix);
 		}
 		else {
-			Adapter::getInstance()->clear();
+			$this->adapter->clear();
 		}
-	}
-
-	private static function getCacheKey($key): string {
-		return (new Funcs())->getDBTablePrefix() . $key;
 	}
 
 }

@@ -1,20 +1,15 @@
 <?php
 namespace WPSPCORE\Base;
 
-use Symfony\Component\HttpFoundation\Request;
-
-abstract class BaseRoute {
-
-	public Request $request;
-	public string  $mainPath;
+abstract class BaseRoute extends BaseInstances {
 
 	public ?array $initClasses = null;
 
-	public function __construct() {
-		$this->request = Request::createFromGlobals();
-	}
+	/*
+	 *
+	 */
 
-	protected function isPassedMiddleware($middlewares = null, $request = null) {
+	public function isPassedMiddleware($middlewares = null, $request = null) {
 		$passed = true;
 		if (!empty($middlewares)) {
 			$relation = strtolower($middlewares['relation'] ?? 'and');
@@ -30,7 +25,7 @@ abstract class BaseRoute {
 		return $passed;
 	}
 
-	protected function prepareCallback($callback, $useInitClass = false, $classArgs = []): array|\Closure {
+	public function prepareCallback($callback, $useInitClass = false, $classArgs = []): array|\Closure {
 
 		// If callback is a closure.
 		if ($callback instanceof \Closure) {
@@ -55,10 +50,6 @@ abstract class BaseRoute {
 
 	}
 
-	/*
-	 *
-	 */
-
 	public function prepareClass($callback, $useInitClass = false, $classArgs = []) {
 		if ($useInitClass) {
 			$class = $this->getInitClass($callback[0], $useInitClass, $classArgs);
@@ -69,15 +60,19 @@ abstract class BaseRoute {
 		return $class;
 	}
 
-	public function getInitClasses(): ?array {
+	/*
+	 *
+	 */
+
+	private function getInitClasses(): ?array {
 		return $this->initClasses;
 	}
 
-	public function setInitClasses($initClasses): void {
+	private function setInitClasses($initClasses): void {
 		$this->initClasses = $initClasses;
 	}
 
-	public function getInitClass($className, $addInitClass = false, $classArgs = []) {
+	private function getInitClass($className, $addInitClass = false, $classArgs = []) {
 		$initClass = $this->getInitClasses()[$className] ?? null;
 		if (!$initClass) {
 			$initClass = new $className(...$classArgs ?? []);
@@ -86,7 +81,7 @@ abstract class BaseRoute {
 		return $initClass;
 	}
 
-	public function addInitClass($className, $classInstance): void {
+	private function addInitClass($className, $classInstance): void {
 		$initClasses             = $this->getInitClasses();
 		$initClasses[$className] = $classInstance;
 		$this->setInitClasses($initClasses);

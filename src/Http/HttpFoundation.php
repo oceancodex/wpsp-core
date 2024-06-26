@@ -6,14 +6,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 abstract class HttpFoundation {
 
-	/**
-	 * @var Request $request
-	 */
-	public static ?Request $request = null;
+	public ?Request $request = null;
 
 	public function __construct() {
-		if (!self::$request) {
-			self::$request = Request::createFromGlobals();
+		if (!$this->request) {
+			$this->request = Request::createFromGlobals();
 		}
 	}
 

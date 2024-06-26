@@ -51,22 +51,22 @@ class MakeEntityCommand extends Command {
 		$this->validateClassName($output, $name);
 
 		// Create class file.
-		$content = Filesystem::instance()->get(__DIR__ . '/../Stubs/Entities/entity.stub');
+		$content = Filesystem::get(__DIR__ . '/../Stubs/Entities/entity.stub');
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ table }}', $table, $content);
 		$content = str_replace('{{ model }}', $model, $content);
 		$content = $this->replaceNamespaces($content);
-		Filesystem::instance()->put($this->mainPath . '/app/Entities/' . $name . '.php', $content);
+		Filesystem::put($this->mainPath . '/app/Entities/' . $name . '.php', $content);
 
 		// Create model.
 		if ($model) {
 			$this->validateClassName($output, $model);
 
-			$modelStub = Filesystem::instance()->get(__DIR__ . '/../Stubs/Models/model.stub');
+			$modelStub = Filesystem::get(__DIR__ . '/../Stubs/Models/model.stub');
 			$modelStub = str_replace('{{ className }}', $model, $modelStub);
 			$modelStub = str_replace('{{ table }}', $table, $modelStub);
 			$modelStub = $this->replaceNamespaces($modelStub);
-			Filesystem::instance()->put($this->mainPath . '/app/Models/' . $model . '.php', $modelStub);
+			Filesystem::put($this->mainPath . '/app/Models/' . $model . '.php', $modelStub);
 		}
 
 		// Output message.

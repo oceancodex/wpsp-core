@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use WPSPCORE\Filesystem\Filesystem;
 use WPSPCORE\Traits\CommandsTrait;
 
 class MakeControllerCommand extends Command {
@@ -36,10 +37,10 @@ class MakeControllerCommand extends Command {
 		}
 
 		// Create class file.
-		$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Controllers/controller.stub');
+		$content = Filesystem::get(__DIR__ . '/../Stubs/Controllers/controller.stub');
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = $this->replaceNamespaces($content);
-		FileHandler::saveFile($content, _wpspPath() . '/app/Http/Controllers/' . $name . '.php');
+		Filesystem::put($this->mainPath . '/app/Http/Controllers/' . $name . '.php', $content);
 
 		// Output message.
 		$output->writeln('Created new controller: ' . $name);

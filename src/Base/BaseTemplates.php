@@ -34,7 +34,7 @@ abstract class BaseTemplates extends HttpFoundation {
 				else {
 					$templateName .= '.php';
 				}
-				$templates[$templateName] = $this->templateLabel ?? config('app.short_name') . ' - Custom template';
+				$templates[$templateName] = $this->templateLabel ?? $this->funcs->config('app.short_name') . ' - Custom template';
 				return $templates;
 			});
 		}
@@ -64,7 +64,7 @@ abstract class BaseTemplates extends HttpFoundation {
 							if ($seletedTemplatePath) {
 								$seletedTemplatePath = preg_replace('/%%slash%%/iu', '/', $seletedTemplatePath);
 							}
-							$filePath = $seletedTemplatePath ?? Funcs::instance()->getResourcesPath() . '/views/modules/web/templates/' . $seletedTemplateName;
+							$filePath = $seletedTemplatePath ?? Funcs::instance()->_getResourcesPath() . '/views/modules/web/templates/' . $seletedTemplateName;
 							if (file_exists($filePath)) {
 								return $filePath;
 							}

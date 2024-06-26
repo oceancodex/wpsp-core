@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\Console\Commands;
 
+use WPSPCORE\Filesystem\Filesystem;
 use WPSPCORE\Traits\CommandsTrait;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -39,17 +40,17 @@ class MakeMiddlewareCommand extends Command {
 		$this->validateClassName($output, $name);
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Http/Middleware/' . $name . '.php');
+		$exist = Filesystem::exists($this->mainPath . '/app/Http/Middleware/' . $name . '.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Middleware: "' . $name . '" already exists! Please try again.');
 			return Command::FAILURE;
 		}
 
 		// Create class file.
-		$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Middleware/middleware.stub');
+		$content = Filesystem::get(__DIR__ . '/../Stubs/Middleware/middleware.stub');
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = $this->replaceNamespaces($content);
-		FileHandler::saveFile($content, _wpspPath() . '/app/Http/Middleware/'. $name . '.php');
+		Filesystem::put($this->mainPath . '/app/Http/Middleware/'. $name . '.php', $content);
 
 		// Output message.
 		$output->writeln('Created new middleware: ' . $name);

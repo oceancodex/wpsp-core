@@ -2,17 +2,7 @@
 
 namespace WPSPCORE\Base;
 
-use WPSPCORE\Http\HttpFoundation;
-
-abstract class BaseSchedule extends HttpFoundation {
-
-	public function __construct() {
-		parent::__construct();
-	}
-
-	/*
-	 *
-	 */
+abstract class BaseSchedule extends BaseInstances {
 
 	abstract public function init();
 

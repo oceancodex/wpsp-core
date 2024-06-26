@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\Console\Commands;
 
+use WPSPCORE\Filesystem\Filesystem;
 use WPSPCORE\Traits\CommandsTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -54,7 +55,7 @@ class MakeModelCommand extends Command {
 		$this->validateClassName($output, $name);
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Models/' . $name . '.php');
+		$exist = Filesystem::exists($this->mainPath . '/app/Models/' . $name . '.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Model: "' . $name . '" already exists! Please try again.');
 			return Command::FAILURE;
@@ -64,22 +65,22 @@ class MakeModelCommand extends Command {
 		$entity = $entity ?? $input->getOption('entity') ?: '';
 
 		// Create class file.
-		$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Models/model.stub');
+		$content = Filesystem::get(__DIR__ . '/../Stubs/Models/model.stub');
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ table }}', $table ?? null, $content);
 		$content = str_replace('{{ entity }}', $entity ?? null, $content);
 		$content = $this->replaceNamespaces($content);
-		FileHandler::saveFile($content, _wpspPath() . '/app/Models/'. $name . '.php');
+		Filesystem::put($this->mainPath . '/app/Models/'. $name . '.php', $content);
 
 		// Create entity.
 		if ($entity) {
 			$this->validateClassName($output, $entity);
 
-			$entityStub = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Entities/entity.stub');
+			$entityStub = Filesystem::get(__DIR__ . '/../Stubs/Entities/entity.stub');
 			$entityStub = str_replace('{{ className }}', $entity, $entityStub);
 			$entityStub = str_replace('{{ table }}', $table, $entityStub);
 			$entityStub = $this->replaceNamespaces($entityStub);
-			FileHandler::saveFile($entityStub, _wpspPath() . '/app/Entities/' . $entity . '.php');
+			Filesystem::put($this->mainPath . '/app/Entities/' . $entity . '.php', $entityStub);
 		}
 
 		// Output message.

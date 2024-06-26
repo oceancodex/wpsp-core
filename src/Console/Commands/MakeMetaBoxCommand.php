@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\Console\Commands;
 
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -9,6 +10,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
+use WPSPCORE\Filesystem\Filesystem;
 use WPSPCORE\Traits\CommandsTrait;
 
 class MakeMetaBoxCommand extends Command {
@@ -40,12 +42,12 @@ class MakeMetaBoxCommand extends Command {
 			$createViewQuestion = new ConfirmationQuestion('Do you want to create a view for this meta box? [y/N]: ', false);
 			$createView = $helper->ask($input, $output, $createViewQuestion);
 		}
-		$idSlugify = Slugify::slugUnify($id, '_');
+		$idSlugify = Str::slug($id, '_');
 		$createView = $createView ?? $input->getOption('create-view');
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Components/MetaBoxes/' . $idSlugify . '.php');
-//		$exist = $exist || FileHandler::getFileSystem()->exists(__DIR__ . '/../../../resources/views/modules/web/meta-boxes/'. $id . '.blade.php');
+		$exist = Filesystem::exists($this->mainPath . '/app/Components/MetaBoxes/' . $idSlugify . '.php');
+//		$exist = $exist || Filesystem::exists(__DIR__ . '/../../../resources/views/modules/web/meta-boxes/'. $id . '.blade.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Meta box: "' . $id . '" already exists! Please try again.');
 			return Command::FAILURE;
@@ -53,14 +55,14 @@ class MakeMetaBoxCommand extends Command {
 
 		if ($createView) {
 			// Create a view file.
-			$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/MetaBoxes/metabox.view');
+			$view = Filesystem::get(__DIR__ . '/../Views/MetaBoxes/metabox.view');
 			$view = str_replace('{{ id }}', $id, $view);
 			$view = str_replace('{{ id_slugify }}', $idSlugify, $view);
-			FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/meta-boxes/'. $id. '.blade.php');
-			$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/MetaBoxes/metabox-view.stub');
+			Filesystem::put($this->mainPath . '/resources/views/modules/web/meta-boxes/'. $id. '.blade.php', $view);
+			$content = Filesystem::get(__DIR__ . '/../Stubs/MetaBoxes/metabox-view.stub');
 		}
 		else {
-			$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/MetaBoxes/metabox.stub');
+			$content = Filesystem::get(__DIR__ . '/../Stubs/MetaBoxes/metabox.stub');
 		}
 
 		// Create class file.
@@ -68,15 +70,15 @@ class MakeMetaBoxCommand extends Command {
 		$content = str_replace('{{ id }}', $id, $content);
 		$content = str_replace('{{ id_slugify }}', $idSlugify, $content);
 		$content = $this->replaceNamespaces($content);
-		FileHandler::saveFile($content, _wpspPath() . '/app/Components/MetaBoxes/' . $idSlugify . '.php');
+		Filesystem::put($this->mainPath . '/app/Components/MetaBoxes/' . $idSlugify . '.php', $content);
 
 		// Prepare new line for find function.
-		$func = FileHandler::getFileSystem()->get(__DIR__ . '/../Funcs/MetaBoxes/metabox.func');
+		$func = Filesystem::get(__DIR__ . '/../Funcs/MetaBoxes/metabox.func');
 		$func = str_replace('{{ id }}', $id, $func);
 		$func = str_replace('{{ id_slugify }}', $idSlugify, $func);
 
 		// Prepare new line for use class.
-		$use = FileHandler::getFileSystem()->get(__DIR__ . '/../Uses/MetaBoxes/metabox.use');
+		$use = Filesystem::get(__DIR__ . '/../Uses/MetaBoxes/metabox.use');
 		$use = str_replace('{{ id }}', $id, $use);
 		$use = str_replace('{{ id_slugify }}', $idSlugify, $use);
 		$use = $this->replaceNamespaces($use);

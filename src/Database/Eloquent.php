@@ -4,38 +4,38 @@ namespace WPSPCORE\Database;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
+use WPSPCORE\Base\BaseInstances;
 use WPSPCORE\Filesystem\Filesystem;
-use WPSPCORE\Funcs;
 
-class Eloquent {
+class Eloquent extends BaseInstances {
 
 	private ?Capsule  $capsule = null;
-	private Funcs     $funcs;
-	private string    $mainPath;
 	private Migration $migration;
-	private string    $rootNamespace;
 
 	/*
 	 *
 	 */
 
-	public function __construct(Migration $migration, $mainPath, $rootNamespace) {
-		$this->funcs         = new Funcs($mainPath);
-		$this->mainPath      = $mainPath;
-		$this->migration     = $migration;
-		$this->rootNamespace = $rootNamespace;
-	}
-
-
-	public function getCapsule(): ?Capsule {
+	public function afterConstruct(): void {
 		if (!$this->capsule) {
-			$connection    = include($this->funcs->getConfigPath() . '/database.php');
+			$databaseConfig    = include($this->funcs->_getConfigPath() . '/database.php');
 			$this->capsule = new Capsule();
-			$this->capsule->addConnection($connection);
+			$this->capsule->addConnection($databaseConfig);
 			$this->capsule->setAsGlobal();
 			$this->capsule->bootEloquent();
 		}
+	}
+
+	/*
+	 *
+	 */
+
+	public function getCapsule(): ?Capsule {
 		return $this->capsule;
+	}
+
+	public function setMigration($migration): void {
+		$this->migration = $migration;
 	}
 
 	/*
@@ -66,8 +66,8 @@ class Eloquent {
 	}
 
 	public function getDefinedDatabaseTables(): array {
-		$databaseTableClasses = $this->funcs->getAllClassesInDir($this->rootNamespace . '\app\Entities', $this->funcs->getAppPath() . '/Entities');
-		$databaseTableClasses = array_merge($databaseTableClasses, [$this->funcs->getDBTableName('migration_versions')]);
+		$databaseTableClasses = $this->funcs->_getAllClassesInDir($this->rootNamespace . '\app\Entities', $this->funcs->_getAppPath() . '/Entities');
+		$databaseTableClasses = array_merge($databaseTableClasses, [$this->funcs->_getDBTableName('migration_versions')]);
 
 		$definedDatabaseTables = [];
 		foreach ($databaseTableClasses as $databaseTableClass) {
@@ -78,7 +78,7 @@ class Eloquent {
 				$databaseTableName = null; // $databaseTableClass;
 			}
 			if ($databaseTableName) {
-				$databaseTableName       = preg_replace('/^' . $this->funcs->getDBTablePrefix() . '/iu', '', $databaseTableName);
+				$databaseTableName       = preg_replace('/^' . $this->funcs->_getDBTablePrefix() . '/iu', '', $databaseTableName);
 				$definedDatabaseTables[] = $databaseTableName;
 			}
 
@@ -88,7 +88,7 @@ class Eloquent {
 					if (!empty($joinTable?->joinTable?->name)) {
 						$joinTableName = $joinTable?->joinTable?->name ?? null;
 						if ($joinTableName) {
-							$joinTableName           = preg_replace('/^' . $this->funcs->getDBTablePrefix() . '/iu', '', $joinTableName);
+							$joinTableName           = preg_replace('/^' . $this->funcs->_getDBTablePrefix() . '/iu', '', $joinTableName);
 							$definedDatabaseTables[] = $joinTableName;
 						}
 					}
@@ -98,14 +98,14 @@ class Eloquent {
 			}
 		}
 
-		$databaseTableMigrations = $this->funcs->getAllFilesInFolder($this->funcs->getMigrationPath());
+		$databaseTableMigrations = $this->funcs->_getAllFilesInFolder($this->funcs->_getMigrationPath());
 		foreach ($databaseTableMigrations as $databaseTableMigration) {
 			$fileContent    = Filesystem::instance()->get($databaseTableMigration['real_path']);
 			$newFileContent = '';
 			$tokens         = token_get_all($fileContent);
 			foreach ($tokens as $token) {
 				if (is_array($token)) {
-					if (in_array($token[0], $this->funcs->commentTokens())) {
+					if (in_array($token[0], $this->funcs->_commentTokens())) {
 						continue;
 					}
 					$token = $token[1];
@@ -123,7 +123,7 @@ class Eloquent {
 					try {
 						$createTableName = eval($createTableName);
 						if ($createTableName) {
-							$createTableName         = str_replace($this->funcs->getDBTablePrefix(), '', $createTableName);
+							$createTableName         = str_replace($this->funcs->_getDBTablePrefix(), '', $createTableName);
 							$definedDatabaseTables[] = $createTableName;
 						}
 					}

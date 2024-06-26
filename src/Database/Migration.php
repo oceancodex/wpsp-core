@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\Database;
 
+use WPSPCORE\Base\BaseInstances;
 use WPSPCORE\Database\Extensions\TablePrefix;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DriverManager;
@@ -16,23 +17,25 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use WPSPCORE\Filesystem\Filesystem;
-use WPSPCORE\Funcs;
 
-class Migration {
+class Migration extends BaseInstances {
 
 	private ?EntityManager     $entityManager     = null;
 	private ?DependencyFactory $dependencyFactory = null;
 	private ?Application       $cli               = null;
-	private Funcs              $funcs;
-	private Eloquent           $eloquent;
+	private ?Eloquent          $eloquent          = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath, $rootNamespace) {
-		$this->funcs    = new Funcs($mainPath, $rootNamespace);
-		$this->eloquent = new Eloquent($this, $mainPath, $rootNamespace);
+	public function afterConstruct(): void {
+		$this->eloquent = new Eloquent(
+			$this->mainPath,
+			$this->rootNamespace,
+			$this->prefixEnv
+		);
+		$this->eloquent->setMigration($this);
 	}
 
 	/*
@@ -41,7 +44,7 @@ class Migration {
 
 	public function getCli(): Application {
 		if (!$this->cli) {
-			$this->cli = new Application($this->funcs->config('app.short_name'));
+			$this->cli = new Application($this->funcs->_config('app.short_name'));
 			$this->cli->setCatchExceptions(true);
 			$this->cli->addCommands([
 				new Command\DumpSchemaCommand($this->getDependencyFactory()),
@@ -60,6 +63,10 @@ class Migration {
 		return $this->cli;
 	}
 
+	public function getEloquent(): ?Eloquent {
+		return $this->eloquent;
+	}
+
 	/*
 	 *
 	 */
@@ -69,7 +76,7 @@ class Migration {
 			$input  = new ArrayInput([
 				'command'             => 'diff',
 				'--no-interaction'    => true,
-				'--filter-expression' => '/^' . $this->funcs->getDBTablePrefix() . '((?!cm))/iu',
+				'--filter-expression' => '/^' . $this->funcs->_getDBTablePrefix() . '((?!cm))/iu',
 			]);
 			$output = new BufferedOutput();
 			$this->getCli()->doRun($input, $output);
@@ -84,7 +91,7 @@ class Migration {
 		$lastMigratedVersion            = $this->getDependencyFactory()->getVersionAliasResolver()->resolveVersionAlias('current')->__toString();
 		$lastMigrateVersionInFolder     = $this->getDependencyFactory()->getVersionAliasResolver()->resolveVersionAlias('latest')->__toString();
 		$lastMigrateVersionNameInFolder = preg_replace('/^(.*?)migrations\\\(.*?)$/iu', '$2', $lastMigrateVersionInFolder);
-		$lastMigrateVersionPathInFolder = $this->funcs->getMigrationPath() . '/' . $lastMigrateVersionNameInFolder . '.php';
+		$lastMigrateVersionPathInFolder = $this->funcs->_getMigrationPath() . '/' . $lastMigrateVersionNameInFolder . '.php';
 		$result                         = [];
 		if ($lastMigratedVersion !== $lastMigrateVersionInFolder) {
 			try {
@@ -95,10 +102,10 @@ class Migration {
 //				]);
 //				$output = new BufferedOutput();
 //				$this->getCLI()->doRun($input, $output);
-				$exists = Filesystem::instance()->exists($lastMigrateVersionPathInFolder);
+				$exists = Filesystem::exists($lastMigrateVersionPathInFolder);
 				if ($exists) {
 					try {
-						Filesystem::instance()->delete($lastMigrateVersionPathInFolder);
+						Filesystem::delete($lastMigrateVersionPathInFolder);
 						$result = ['success' => true, 'message' => 'Repaired database successfully! [Deleted: ' . $lastMigrateVersionNameInFolder . ']', 'data' => null];
 					}
 					catch (\Exception $exception) {
@@ -140,10 +147,10 @@ class Migration {
 
 	public function getEntityManager(): EntityManager {
 		if (!$this->entityManager) {
-			$paths            = [$this->funcs->getAppPath() . '/Entities'];
-			$isDevMode        = $this->funcs->config('app.env') == 'dev' || $this->funcs->config('app.env') == 'local';
-			$tablePrefix      = new TablePrefix($this->funcs->getDBTablePrefix());
-			$connectionParams = include($this->funcs->getConfigPath() . '/migrations-db.php');
+			$paths            = [$this->funcs->_getAppPath() . '/Entities'];
+			$isDevMode        = $this->funcs->_config('app.env') == 'dev' || $this->funcs->_config('app.env') == 'local';
+			$tablePrefix      = new TablePrefix($this->funcs->_getDBTablePrefix());
+			$connectionParams = include($this->funcs->_getConfigPath() . '/migrations-db.php');
 
 			$eventManager = new EventManager();
 			$eventManager->addEventListener(Events::loadClassMetadata, $tablePrefix);
@@ -158,7 +165,7 @@ class Migration {
 
 	public function getDependencyFactory(): DependencyFactory {
 		if (!$this->dependencyFactory) {
-			$config                  = new PhpFile($this->funcs->getConfigPath() . '/migrations.php');
+			$config                  = new PhpFile($this->funcs->_getConfigPath() . '/migrations.php');
 			$existingEntityManager   = new ExistingEntityManager($this->getEntityManager());
 			$this->dependencyFactory = DependencyFactory::fromEntityManager($config, $existingEntityManager);
 		}
@@ -185,14 +192,14 @@ class Migration {
 	}
 
 	public function deleteAllMigrations(): array {
-		$allMigrations     = $this->getDependencyFactory()->getMigrationsFinder()->findMigrations($this->funcs->trailingslashit($this->funcs->getMigrationPath()));
+		$allMigrations     = $this->getDependencyFactory()->getMigrationsFinder()->findMigrations($this->funcs->trailingslashit($this->funcs->_getMigrationPath()));
 		$deletedMigrations = [];
 		foreach ($allMigrations as $migrationVersion) {
 			if (!preg_match('/_/iu', $migrationVersion)) {
 				$migrationVersion     = preg_replace('/^(.*?)migrations\/(.*?)/iu', '$2', $this->funcs->trailingslash($migrationVersion));
-				$migrationVersionPath = $this->funcs->trailingslash($this->funcs->getMigrationPath() . '/' . $migrationVersion . '.php');
+				$migrationVersionPath = $this->funcs->trailingslash($this->funcs->_getMigrationPath() . '/' . $migrationVersion . '.php');
 //			    $migrationVersionPathFromPluginDir = _getPathFromDir('plugins', $migrationVersionPath) . '.php';
-				$deletedMigrations[] = Filesystem::instance()->delete($migrationVersionPath);
+				$deletedMigrations[] = Filesystem::delete($migrationVersionPath);
 			}
 		}
 		return $this->funcs->response(true, $deletedMigrations, 'Deleted all migrations successful!', 200);

@@ -4,17 +4,22 @@ namespace WPSPCORE\Traits;
 
 use Symfony\Component\Console\Command\Command;
 use WPSPCORE\Filesystem\Filesystem;
+use WPSPCORE\Funcs;
 
 trait CommandsTrait {
 
 	public ?string $mainPath      = null;
 	public ?string $rootNamespace = null;
+	public ?string $prefixEnv     = null;
+	public ?Funcs  $funcs         = null;
 	public string  $coreNamespace = 'WPSPCORE';
 
-	public function __construct(?string $name = null, $rootNamespace = null, $mainPath = null) {
+	public function __construct(?string $name = null, $mainPath = null, $rootNamespace = null, $prefixEnv = null) {
 		parent::__construct($name);
-		$this->rootNamespace = $rootNamespace;
 		$this->mainPath      = $mainPath;
+		$this->rootNamespace = $rootNamespace;
+		$this->prefixEnv     = $prefixEnv;
+		$this->funcs         = new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv);
 	}
 
 	public function replaceNamespaces($content): array|string {
@@ -23,7 +28,7 @@ trait CommandsTrait {
 	}
 
 	public function getWebRouteContent(): string {
-		$webRoute = Filesystem::instance()->get($this->mainPath . '/routes/WebRoute.php');
+		$webRoute = Filesystem::get($this->mainPath . '/routes/WebRoute.php');
 		return $webRoute;
 	}
 

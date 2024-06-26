@@ -162,6 +162,12 @@ class YoastSEO {
 		$this->title = $title;
 	}
 
+	public function setDocumentTitle($title): void {
+		add_filter('pre_get_document_title', function($title) {
+			return $this->title;
+		});
+	}
+
 	public function getTitle(): mixed {
 		return $this->title;
 	}

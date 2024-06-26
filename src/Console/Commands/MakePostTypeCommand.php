@@ -2,11 +2,13 @@
 
 namespace WPSPCORE\Console\Commands;
 
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use WPSPCORE\Filesystem\Filesystem;
 use WPSPCORE\Traits\CommandsTrait;
 
 class MakePostTypeCommand extends Command {
@@ -36,30 +38,30 @@ class MakePostTypeCommand extends Command {
 		}
 
 		// Define variables.
-		$nameSlugify = Slugify::slugUnify($name, '_');
+		$nameSlugify = Str::slug($name, '_');
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Components/PostTypes/' . $nameSlugify . '.php');
+		$exist = Filesystem::exists($this->mainPath . '/app/Components/PostTypes/' . $nameSlugify . '.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Post type: "' . $name . '" already exists! Please try again.');
 			return Command::FAILURE;
 		}
 
 		// Create class file.
-		$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/PostTypes/posttype.stub');
+		$content = Filesystem::get(__DIR__ . '/../Stubs/PostTypes/posttype.stub');
 		$content = str_replace('{{ className }}', $nameSlugify, $content);
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = str_replace('{{ name_slugify }}', $nameSlugify, $content);
 		$content = $this->replaceNamespaces($content);
-		FileHandler::saveFile($content, _wpspPath() . '/app/Components/PostTypes/'. $nameSlugify . '.php');
+		Filesystem::put($this->mainPath . '/app/Components/PostTypes/'. $nameSlugify . '.php', $content);
 
 		// Prepare new line for find function.
-		$func = FileHandler::getFileSystem()->get(__DIR__ . '/../Funcs/PostTypes/posttype.func');
+		$func = Filesystem::get(__DIR__ . '/../Funcs/PostTypes/posttype.func');
 		$func = str_replace('{{ name }}', $name, $func);
 		$func = str_replace('{{ name_slugify }}', $nameSlugify, $func);
 
 		// Prepare new line for use class.
-		$use = FileHandler::getFileSystem()->get(__DIR__ . '/../Uses/PostTypes/posttype.use');
+		$use = Filesystem::get(__DIR__ . '/../Uses/PostTypes/posttype.use');
 		$use = str_replace('{{ name }}', $name, $use);
 		$use = str_replace('{{ name_slugify }}', $nameSlugify, $use);
 		$use = $this->replaceNamespaces($use);

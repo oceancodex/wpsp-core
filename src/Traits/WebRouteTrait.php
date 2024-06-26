@@ -8,16 +8,16 @@ trait WebRouteTrait {
 		// Add rewrite query vars.
 		$this->filter('query_vars', function($query_vars) {
 			$query_vars[] = 'is_rewrite';
-			$query_vars[] = config('app.short_name') . '_rewrite_ident';
+			$query_vars[] = $this->funcs->_config('app.short_name') . '_rewrite_ident';
 			for ($i = 1; $i <= 10; $i++) {
-				$query_vars[] = config('app.short_name') . '_rewrite_group_'. $i;
+				$query_vars[] = $this->funcs->_config('app.short_name') . '_rewrite_group_'. $i;
 			}
 			return $query_vars;
 		}, true, null, null, 10, 1);
 
 		// Change "Check for updates" link text.
-		$this->filter('puc_manual_check_link-' . \WPSP\Funcs::instance()->getTextDomain(), function($text) {
-			return trans('messages.check_for_updates');
+		$this->filter('puc_manual_check_link-' . $this->funcs->_getTextDomain(), function($text) {
+			return $this->funcs->_trans('messages.check_for_updates');
 		}, true, null, null, 10, 1);
 
 		$this->apis();
@@ -53,6 +53,11 @@ trait WebRouteTrait {
 	public function get($path, $callback, $useInitClass = false, $classArgs = [], $middleware = null): void {
 		if (!wp_doing_ajax() && $this->isPassedMiddleware($middleware, $this->request)) {
 			$classArgs = array_merge([$path], $classArgs ?? []);
+			$classArgs = array_merge([
+				$this->funcs->_getMainPath(),
+				$this->funcs->_getRootNamespace(),
+				$this->funcs->_getPrefixEnv()
+			], $classArgs);
 			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
 			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
 		}
@@ -61,13 +66,13 @@ trait WebRouteTrait {
 	public function post($path, $callback, $isAdminPage = false, $useInitClass = false, $classArgs = [], $middleware = null): void {
 		if (!wp_doing_ajax() && $this->request->isMethod('POST') && ($this->request->get('page') == $path) && $this->isPassedMiddleware($middleware, $this->request)) {
 			$classArgs = array_merge([$path], $classArgs ?? []);
+			$classArgs = array_merge([
+				$this->funcs->_getMainPath(),
+				$this->funcs->_getRootNamespace(),
+				$this->funcs->_getPrefixEnv()
+			], $classArgs);
 			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
-			if ($isAdminPage) {
-				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}() : $callback;
-			}
-			else {
-				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
-			}
+			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
 		}
 	}
 
@@ -119,7 +124,7 @@ trait WebRouteTrait {
 		if ($this->isPassedMiddleware($middleware, $this->request)) {
 			$classArgs = array_merge([$taxonomy], $classArgs ?? []);
 			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
-			add_action('init', $callback, $priority, $argsNumber);
+			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}() : $callback;
 		}
 	}
 
@@ -134,9 +139,16 @@ trait WebRouteTrait {
 		if ($this->isPassedMiddleware($middleware, $this->request)) {
 			if (is_array($callback)) {
 				$classArgs = array_merge([$postType], $classArgs ?? []);
-				$class  = $this->prepareClass($callback, $useInitClass, $classArgs);
-				$method = $callback[1] ?? null;
-				$method ? (new $class($postType))->$method() : new $class($postType);
+				$classArgs = array_merge([
+					$this->funcs->_getMainPath(),
+					$this->funcs->_getRootNamespace(),
+					$this->funcs->_getPrefixEnv()
+				], $classArgs);
+//				$class  = $this->prepareClass($callback, $useInitClass, $classArgs);
+//				$method = $callback[1] ?? null;
+//				$method ? (new $class($postType))->$method($postType) : new $class($postType);
+				$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
+				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($postType) : $callback;
 			}
 			elseif (is_callable($callback)) {
 				$callback();

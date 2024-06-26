@@ -3,9 +3,8 @@
 namespace WPSPCORE\Base;
 
 use WPSPCORE\Data\AdminPageData;
-use WPSPCORE\Http\HttpFoundation;
 
-abstract class BaseAdminPage extends HttpFoundation {
+abstract class BaseAdminPage extends BaseInstances {
 
 	public mixed $menuTitle      = null;
 	public mixed $pageTitle      = null;
@@ -16,8 +15,8 @@ abstract class BaseAdminPage extends HttpFoundation {
 	public mixed $isSubAdminPage = false;
 	public mixed $parentSlug     = null;
 
-	public function __construct($menuSlug = null) {
-		parent::__construct();
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $menuSlug = null) {
+		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
 		$this->overrideMenuSlug($menuSlug);
 		$this->customProperties();
 	}

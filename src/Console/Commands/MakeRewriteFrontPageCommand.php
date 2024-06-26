@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\Console\Commands;
 
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -9,6 +10,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
+use WPSPCORE\Filesystem\Filesystem;
 use WPSPCORE\Traits\CommandsTrait;
 
 class MakeRewriteFrontPageCommand extends Command {
@@ -47,23 +49,23 @@ class MakeRewriteFrontPageCommand extends Command {
 		}
 
 		// Define variables.
-		$pathSlugify            = Slugify::slugUnify($path, '-');
+		$pathSlugify            = Str::slug($path, '-');
 		$name                   = $path;
-		$nameSlugify            = Slugify::slugUnify($name, '_');
+		$nameSlugify            = Str::slug($name, '_');
 		$rewritePageName        = $rewritePageName ?? $input->getOption('rewrite-page-name') ?: 'rewrite-front-pages';
-		$rewritePageNameSlugify = Slugify::slugUnify($rewritePageName, '-');
+		$rewritePageNameSlugify = Str::slug($rewritePageName, '-');
 		$useTemplate            = $useTemplate ?? $input->getOption('use-template') ?: false;
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Components/RewriteFrontPages/' . $nameSlugify . '.php');
-		$exist = $exist || FileHandler::getFileSystem()->exists(_wpspPath() . '/resources/views/modules/web/rewrite-front-pages/' . $pathSlugify . '.php');
+		$exist = Filesystem::exists($this->mainPath . '/app/Components/RewriteFrontPages/' . $nameSlugify . '.php');
+		$exist = $exist || Filesystem::exists($this->mainPath . '/resources/views/modules/web/rewrite-front-pages/' . $pathSlugify . '.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Rewrite front page: "' . $name . '" already exists! Please try again.');
 			return Command::FAILURE;
 		}
 
 		// Create class file.
-		$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/RewriteFrontPages/rewritefrontpage.stub');
+		$content = Filesystem::get(__DIR__ . '/../Stubs/RewriteFrontPages/rewritefrontpage.stub');
 		$content = str_replace('{{ className }}', $nameSlugify, $content);
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = str_replace('{{ name_slugify }}', $nameSlugify, $content);
@@ -73,14 +75,14 @@ class MakeRewriteFrontPageCommand extends Command {
 		$content = str_replace('{{ rewrite_page_name_slugify }}', $rewritePageNameSlugify, $content);
 		$content = str_replace('{{ use_template }}', $useTemplate ? 'true' : 'false', $content);
 		$content = $this->replaceNamespaces($content);
-		FileHandler::saveFile($content, _wpspPath() . '/app/Components/RewriteFrontPages/' . $nameSlugify . '.php');
+		Filesystem::put($this->mainPath . '/app/Components/RewriteFrontPages/' . $nameSlugify . '.php', $content);
 
 		// Create view file.
 		if ($useTemplate) {
-			$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/RewriteFrontPages/rewritefrontpage.view');
+			$view = Filesystem::get(__DIR__ . '/../Views/RewriteFrontPages/rewritefrontpage.view');
 		}
 		else {
-			$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/RewriteFrontPages/rewritefrontpage-no-template.view');
+			$view = Filesystem::get(__DIR__ . '/../Views/RewriteFrontPages/rewritefrontpage-no-template.view');
 		}
 		$view = str_replace('{{ name }}', $name, $view);
 		$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
@@ -88,10 +90,10 @@ class MakeRewriteFrontPageCommand extends Command {
 		$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
 		$view = str_replace('{{ rewrite_page_name }}', $rewritePageName, $view);
 		$view = str_replace('{{ rewrite_page_name_slugify }}', $rewritePageNameSlugify, $view);
-		FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/rewrite-front-pages/' . $path . '.blade.php');
+		Filesystem::put($this->mainPath . '/resources/views/modules/web/rewrite-front-pages/' . $path . '.blade.php', $view);
 
 		// Prepare new line for find function.
-		$func = FileHandler::getFileSystem()->get(__DIR__ . '/../Funcs/RewriteFrontPages/rewritefrontpage.func');
+		$func = Filesystem::get(__DIR__ . '/../Funcs/RewriteFrontPages/rewritefrontpage.func');
 		$func = str_replace('{{ name }}', $name, $func);
 		$func = str_replace('{{ name_slugify }}', $nameSlugify, $func);
 		$func = str_replace('{{ path }}', $path, $func);
@@ -100,7 +102,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		$func = str_replace('{{ rewrite_page_name_slugify }}', $rewritePageNameSlugify, $func);
 
 		// Prepare new line for use class.
-		$use = FileHandler::getFileSystem()->get(__DIR__ . '/../Uses/RewriteFrontPages/rewritefrontpage.use');
+		$use = Filesystem::get(__DIR__ . '/../Uses/RewriteFrontPages/rewritefrontpage.use');
 		$use = str_replace('{{ name }}', $name, $use);
 		$use = str_replace('{{ name_slugify }}', $nameSlugify, $use);
 		$use = str_replace('{{ path }}', $path, $use);

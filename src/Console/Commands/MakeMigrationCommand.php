@@ -2,11 +2,13 @@
 
 namespace WPSPCORE\Console\Commands;
 
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use WPSPCORE\Filesystem\Filesystem;
 use WPSPCORE\Traits\CommandsTrait;
 
 class MakeMigrationCommand extends Command {
@@ -35,17 +37,17 @@ class MakeMigrationCommand extends Command {
 		}
 
 		// Define variables.
-		$nameSlugify = Slugify::slugUnify($name, '_');
+		$nameSlugify = Str::slug($name, '_');
 		$date        = date('YmdHis');
 		$nameSlugify = 'Version' . $date . '_' . $nameSlugify;
 
 		// Create class file.
-		$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Migrations/migration.stub');
+		$content = Filesystem::get(__DIR__ . '/../Stubs/Migrations/migration.stub');
 		$content = str_replace('{{ className }}', $nameSlugify, $content);
-		$content = str_replace('{{ dbTablePrefix }}', _dbTablePrefix(), $content);
-		$content = str_replace('{{ dbCMTablePrefix }}', _dbCMTablePrefix(), $content);
+		$content = str_replace('{{ dbTablePrefix }}', $this->funcs->_getDBTablePrefix(), $content);
+		$content = str_replace('{{ dbCustomMigrationTablePrefix }}', $this->funcs->_getDBCustomMigrationTablePrefix(), $content);
 		$content = $this->replaceNamespaces($content);
-		FileHandler::saveFile($content, _wpspPath() . '/database/migrations/' . $nameSlugify . '.php');
+		Filesystem::put($this->mainPath . '/database/migrations/' . $nameSlugify . '.php', $content);
 
 		// Output message.
 		$output->writeln('Created new migration: ' . $nameSlugify);

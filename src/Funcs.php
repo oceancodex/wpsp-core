@@ -8,120 +8,129 @@ use WPSPCORE\View\Blade;
 
 class Funcs {
 
-	protected ?string $mainPath      = null;
-	protected ?string $rootNamespace = null;
-	protected ?string $envKeyPrefix  = null;
+	protected ?string $mainPath       = null;
+	protected ?string $rootNamespace  = null;
+	protected ?string $prefixEnv      = null;
 
-	public function __construct($mainPath = null, $rootNamespace = null, $envKeyPrefix = null) {
+
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
 		if ($mainPath) $this->mainPath = $mainPath;
 		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
-		if ($envKeyPrefix) $this->envKeyPrefix = $envKeyPrefix;
+		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
 	}
 
 	/*
 	 *
 	 */
 
-	public function getRootNamespace(): ?string {
-		return $this->rootNamespace;
-	}
-
-	public function getMainPath(): string {
+	public function _getMainPath(): string {
 		return trim($this->mainPath, '/ \\');
 	}
 
-	public function getMainBaseName(): string {
-		return basename(self::getMainPath());
+	public function _getRootNamespace(): ?string {
+		return $this->rootNamespace;
 	}
 
-	public function getSitePath(): string {
+	public function _getPrefixEnv() {
+		return $this->prefixEnv;
+	}
+
+	/*
+	 *
+	 */
+
+	public function _getMainBaseName(): string {
+		return basename($this->_getMainPath());
+	}
+
+	public function _getSitePath(): string {
 		if (defined('WP_CONTENT_DIR')) {
 			$path = WP_CONTENT_DIR;
 			$path = preg_replace('/wp-content$/iu', '', $path);
 		}
 		else {
-			$path = self::getMainPath();
+			$path = $this->_getMainPath();
 			$path = preg_replace('/^(.+?)wp-content(.+?)$/iu', '$1', $path);
 		}
 		$path = trim($path, '/ \\');
 		return $path;
 	}
 
-	public function getMainFilePath(): string {
-		return self::getMainPath() . '/main.php';
+	public function _getMainFilePath(): string {
+		return $this->_getMainPath() . '/main.php';
 	}
 
-	public function getAppPath(): string {
-		return self::getMainPath() . '/app';
+	public function _getAppPath(): string {
+		return $this->_getMainPath() . '/app';
 	}
 
-	public function getControllerPath(): string {
-		return self::getAppPath() . '/Http/Controllers';
+	public function _getControllerPath(): string {
+		return $this->_getAppPath() . '/Http/Controllers';
 	}
 
-	public function getConfigPath(): string {
-		return self::getMainPath() . '/config';
+	public function _getConfigPath(): string {
+		return $this->_getMainPath() . '/config';
 	}
 
-	public function getRoutesPath(): string {
-		return self::getMainPath() . '/routes';
+	public function _getRoutesPath(): string {
+		return $this->_getMainPath() . '/routes';
 	}
 
-	public function getResourcesPath(): string {
-		return self::getMainPath() . '/resources';
+	public function _getResourcesPath(): string {
+		return $this->_getMainPath() . '/resources';
 	}
 
-	public function getStoragePath(): string {
-		return self::getMainPath() . '/storage';
+	public function _getStoragePath(): string {
+		return $this->_getMainPath() . '/storage';
 	}
 
-	public function getDatabasePath(): string {
-		return self::getMainPath() . '/database';
+	public function _getDatabasePath(): string {
+		return $this->_getMainPath() . '/database';
 	}
 
-	public function getMigrationPath(): string {
-		return self::getDatabasePath() . '/migrations';
+	public function _getMigrationPath(): string {
+		return $this->_getDatabasePath() . '/migrations';
 	}
 
-	public function getMainUrl(): string {
+	public function _getMainUrl(): string {
 		if (!function_exists('plugin_dir_url')) {
-			require(self::getSitePath() . '/wp-admin/includes/plugin.php');
+			require($this->_getSitePath() . '/wp-admin/includes/plugin.php');
 		}
-		return trim(plugin_dir_url(self::getMainFilePath()), '/');
+		return trim(plugin_dir_url($this->_getMainFilePath()), '/');
 	}
 
-	public function getPublicUrl(): string {
-		return self::getMainUrl() . '/public';
+	public function _getPublicUrl(): string {
+		return $this->_getMainUrl() . '/public';
 	}
 
-	public function getPublicPath($path = null): string {
-		return self::getMainPath() . '/public' . ($path ? '/' . ltrim($path, '/') : '');
+	public function _getPublicPath($path = null): string {
+		return $this->_getMainPath() . '/public' . ($path ? '/' . ltrim($path, '/') : '');
 	}
 
-	public function getPluginData(): array {
+	public function _getPluginData(): array {
 		if (!function_exists('get_plugin_data')) {
-			require(self::getSitePath() . '/wp-admin/includes/plugin.php');
+			require($this->_getSitePath() . '/wp-admin/includes/plugin.php');
 		}
-		return get_plugin_data(self::getMainFilePath());
+		return get_plugin_data($this->_getMainFilePath());
 	}
 
-	public function getVersion(): string {
-		return self::getPluginData()['Version'];
+	public function _getVersion(): string {
+		return $this->_getPluginData()['Version'];
 	}
 
-	public function getTextDomain(): string {
-		return self::getPluginData()['TextDomain'];
+	public function _getTextDomain(): string {
+		return $this->_getPluginData()['TextDomain'];
 	}
 
-	public function getRequiresPhp(): string {
-		return self::getPluginData()['RequiresPHP'];
+	public function _getRequiresPhp(): string {
+		return $this->_getPluginData()['RequiresPHP'];
 	}
 
 	/*
 	 *
 	 */
 
-	public function getAllFilesInFolder(string $path): array {
+	public function _getAllFilesInFolder(string $path): array {
 		$finder = new \Symfony\Component\Finder\Finder();
 		$finder->files()->in($path);
 		foreach ($finder as $file) {
@@ -134,28 +143,28 @@ class Funcs {
 		return $files ?? [];
 	}
 
-	public function getDBTablePrefix(): string {
+	public function _getDBTablePrefix(): string {
 		global $wpdb;
-		return ($wpdb->prefix ?? 'wp_') . $this->env('APP_SHORT_NAME', true) . '_';
+		return ($wpdb->prefix ?? 'wp_') . $this->_env('DB_TABLE_PREFIX', true);
 	}
 
-	public function getDBCustomMigrationTablePrefix(): string {
-		return $this->getDBTablePrefix() . 'cm_';
+	public function _getDBCustomMigrationTablePrefix(): string {
+		return $this->_getDBTablePrefix() . 'cm_';
 	}
 
-	public function getDBTableName($name): string {
-		return $this->getDBTablePrefix() . $name;
+	public function _getDBTableName($name): string {
+		return $this->_getDBTablePrefix() . $name;
 	}
 
-	public function getDBCustomMigrationTableName($name): string {
-		return $this->getDBTablePrefix() . 'cm_' . $name;
+	public function _getDBCustomMigrationTableName($name): string {
+		return $this->_getDBTablePrefix() . 'cm_' . $name;
 	}
 
-	public function getPathFromDir($targetDir, $path): array|string|null {
+	public function _getPathFromDir($targetDir, $path): array|string|null {
 		return preg_replace('/^(.*?)' . $targetDir . '(.*?)$/iu', $targetDir . '$2', $path);
 	}
 
-	public function getAllClassesInDir(string $namespace = __NAMESPACE__, string $path = __DIR__): array {
+	public function _getAllClassesInDir(string $namespace = __NAMESPACE__, string $path = __DIR__): array {
 		$finder = new \Symfony\Component\Finder\Finder();
 		$finder->files()->in($path)->name('*.php');
 		foreach ($finder as $file) {
@@ -173,7 +182,7 @@ class Funcs {
 		return $classes ?? [];
 	}
 
-	public function getArrItemByKeyDots(array $array, string $key) {
+	public function _getArrItemByKeyDots(array $array, string $key) {
 		try {
 			$configs = new \Dflydev\DotAccessData\Data($array);
 			return $configs->get($key) ?? null;
@@ -183,7 +192,7 @@ class Funcs {
 		}
 	}
 
-	public function convertObjectToArray($object): array {
+	public function _convertObjectToArray($object): array {
 		if (is_object($object)) {
 			$config        = new \GeneratedHydrator\Configuration(get_class($object));
 			$hydratorClass = $config->createFactory()->getHydratorClass();
@@ -193,7 +202,7 @@ class Funcs {
 		return [];
 	}
 
-	public function commentTokens(): array {
+	public function _commentTokens(): array {
 		$commentTokens = [T_COMMENT];
 
 		if (defined('T_DOC_COMMENT')) {
@@ -206,30 +215,22 @@ class Funcs {
 		return $commentTokens;
 	}
 
-	public function trailingslash($path): string {
+	public function _trailingslash($path): string {
 		return str_replace('\\', '/', $path);
 	}
 
-	public function trailingslashit($path): string {
+	public function _trailingslashit($path): string {
 		$path = str_replace('\\', '/', $path);
 		$path = rtrim($path, '/\\');
 		return $path . '/';
 	}
 
-	public function untrailingslashit($path): string {
+	public function _untrailingslashit($path): string {
 		$path = str_replace('\\', '/', $path);
 		return rtrim($path, '/\\');
 	}
 
-	public function numberFormat(
-		$value,
-		$precision = 0,
-		$endWithZeros = true,
-		$locale = 'vi',
-		$currencyCode = 'vnd',
-		$style = NumberFormatter::DECIMAL,
-		$groupingUsed = true,
-	): array|string|null {
+	public function _numberFormat($value, $precision = 0, $endWithZeros = true, $locale = 'vi', $currencyCode = 'vnd', $style = NumberFormatter::DECIMAL, $groupingUsed = true): array|string|null {
 		try {
 			if (!$value) return null;
 			$formatter = new NumberFormatter($locale, $style);
@@ -246,7 +247,7 @@ class Funcs {
 		}
 	}
 
-	public function explodeToNestedArray($delimiter, $key, $value) {
+	public function _explodeToNestedArray($delimiter, $key, $value) {
 		$keys = explode($delimiter, $key);
 		while ($key = array_pop($keys)) {
 			$value = [$key => $value];
@@ -254,12 +255,12 @@ class Funcs {
 		return $value;
 	}
 
-	public function dateDiffForHumans($dateString, $format = 'H:i:s - d/m/Y'): string {
+	public function _dateDiffForHumans($dateString, $format = 'H:i:s - d/m/Y'): string {
 		try {
 			return Carbon::createFromFormat($format, $dateString, wp_timezone_string())->locale(get_locale())->diffForHumans();
 		}
 		catch (\Throwable $e) {
-			return trans('messages.undefined');
+			return $this->_trans('messages.undefined');
 		}
 	}
 
@@ -267,14 +268,14 @@ class Funcs {
 	 *
 	 */
 
-	public function asset($path, $secure = null): string {
-		return $this->getPublicUrl() . '/' . ltrim($path, '/');
+	public function _asset($path, $secure = null): string {
+		return $this->_getPublicUrl() . '/' . ltrim($path, '/');
 	}
 
-	public function view($viewName, $data = [], $mergeData = []): \Illuminate\Contracts\View\View {
+	public function _view($viewName, $data = [], $mergeData = []): \Illuminate\Contracts\View\View {
 		if (!Blade::$BLADE) {
-			$views        = $this->getResourcesPath() . '/views';
-			$cache        = $this->getStoragePath() . '/framework/views';
+			$views        = $this->_getResourcesPath() . '/views';
+			$cache        = $this->_getStoragePath() . '/framework/views';
 			Blade::$BLADE = new Blade([$views], $cache);
 		}
 		global $notice;
@@ -282,14 +283,29 @@ class Funcs {
 		return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
 	}
 
-	public function config($key = null, $default = null) {
+	public function _trans($string, $wordpress = false) {
+		if ($wordpress) {
+			return __($string, $this->_getTextDomain());
+		}
+		else {
+			global $translator;
+			if (!$translator) {
+				$translationPath   = $this->_getResourcesPath() . '/lang';
+				$translationLoader = new \Illuminate\Translation\FileLoader(new \Illuminate\Filesystem\Filesystem, $translationPath);
+				$translator        = new \Illuminate\Translation\Translator($translationLoader, $this->_config('app.locale'));
+			}
+			return $translator->has($string) ? $translator->get($string) : $translator->get($string, [], $this->_config('app.fallback_locale'));
+		}
+	}
+
+	public function _config($key = null, $default = null) {
 		try {
 			$configs = [];
-			$files   = self::getAllFilesInFolder($this->getMainPath() . '/config');
+			$files   = $this->_getAllFilesInFolder($this->_getMainPath() . '/config');
 			foreach ($files as $file) {
 				$configKey        = $file['relative_path'];
 				$configKey        = preg_replace('/\.php/iu', '', $configKey);
-				$configItemNested = $this->explodeToNestedArray('/', $configKey, \Noodlehaus\Config::load($file['real_path'])->all());
+				$configItemNested = $this->_explodeToNestedArray('/', $configKey, \Noodlehaus\Config::load($file['real_path'])->all());
 				$configs          = array_merge_recursive($configs, $configItemNested);
 			}
 			$configs = new \Dflydev\DotAccessData\Data($configs);
@@ -300,30 +316,15 @@ class Funcs {
 		return null;
 	}
 
-	public function trans($string, $wordpress = false) {
-		if ($wordpress) {
-			return __($string, $this->getTextDomain());
-		}
-		else {
-			global $translator;
-			if (!$translator) {
-				$translationPath   = $this->getResourcesPath() . '/lang';
-				$translationLoader = new \Illuminate\Translation\FileLoader(new \Illuminate\Filesystem\Filesystem, $translationPath);
-				$translator        = new \Illuminate\Translation\Translator($translationLoader, $this->config('app.locale'));
-			}
-			return $translator->has($string) ? $translator->get($string) : $translator->get($string, [], $this->config('app.fallback_locale'));
-		}
-	}
-
-	public function notice($message = '', $type = 'info', $dismiss = true): void {
+	public function _notice($message = '', $type = 'info', $dismiss = true): void {
 		global $notice;
-		$notice = $this->view('modules.web.admin-pages.common.notice')->with([
+		$notice = $this->_view('modules.web.admin-pages.common.notice')->with([
 			'type'    => $type,
 			'message' => $message,
 		])->render();
 	}
 
-	public function buildUrl($baseUrl, $args): string {
+	public function _buildUrl($baseUrl, $args): string {
 		return add_query_arg($args, $baseUrl);
 	}
 
@@ -331,11 +332,11 @@ class Funcs {
 	 *
 	 */
 
-	public function env($var, $addPrefix = false, $default = null): ?string {
-		return \WPSPCORE\Environment\Environment::get($addPrefix ? $this->envKeyPrefix . $var : $var, $default);
+	public function _env($var, $addPrefix = false, $default = null): ?string {
+		return \WPSPCORE\Environment\Environment::get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
 	}
 
-	public function debug($message = '', $print = false, bool $varDump = false): void {
+	public function _debug($message = '', $print = false, bool $varDump = false): void {
 
 		// If "var_dump" mode is OFF.
 		if ($varDump) {
@@ -367,22 +368,22 @@ class Funcs {
 
 	}
 
-	public function response($success = false, $data = [], $message = '', $code = 204): array {
+	public function _locale(): string {
+		if (function_exists('get_locale')) {
+			return get_locale();
+		}
+		else {
+			return $this->_env('APP_LOCALE', true, 'en');
+		}
+	}
+
+	public function _response($success = false, $data = [], $message = '', $code = 204): array {
 		return [
 			'success' => $success,
 			'message' => $message,
 			'data'    => $data,
 			'code'    => $code,
 		];
-	}
-
-	public function locale(): string {
-		if (function_exists('get_locale')) {
-			return get_locale();
-		}
-		else {
-			return $this->env('APP_LOCALE', true, 'en');
-		}
 	}
 
 }

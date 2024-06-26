@@ -2,21 +2,18 @@
 
 namespace WPSPCORE\Console\Commands;
 
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use WPSPCORE\Filesystem\Filesystem;
 use WPSPCORE\Traits\CommandsTrait;
 
 class MakeAdminPageCommand extends Command {
 
 	use CommandsTrait;
-
-	public function __construct(?string $name = null) {
-		parent::__construct($name);
-		$this->rootNamespace = 'XXX';
-	}
 
 	protected function configure(): void {
 		$this
@@ -42,72 +39,72 @@ class MakeAdminPageCommand extends Command {
 		}
 
 		// Define variables.
-		$pathSlugify = Slugify::slugUnify($path, '-');
+		$pathSlugify = Str::slug($path);
 		$name = $path;
-		$nameSlugify = Slugify::slugUnify($name, '_');
+		$nameSlugify = Str::slug($name, '_');
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Components/AdminPages/' . $nameSlugify . '.php');
-		$exist = $exist || FileHandler::getFileSystem()->exists(_wpspPath() . '/resources/views/modules/web/admin-pages/' . $path);
+		$exist = Filesystem::exists($this->mainPath . '/app/Components/AdminPages/' . $nameSlugify . '.php');
+		$exist = $exist || Filesystem::exists($this->mainPath . '/resources/views/modules/web/admin-pages/' . $path);
 		if ($exist) {
 			$output->writeln('[ERROR] Admin page: "' . $path . '" already exists! Please try again.');
 			return Command::FAILURE;
 		}
 
 		// Create class file.
-		$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/AdminPages/adminpage.stub');
+		$content = Filesystem::get(__DIR__ . '/../Stubs/AdminPages/adminpage.stub');
 		$content = str_replace('{{ className }}', $nameSlugify, $content);
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = str_replace('{{ name_slugify }}', $nameSlugify, $content);
 		$content = str_replace('{{ path }}', $path, $content);
 		$content = str_replace('{{ path_slugify }}', $pathSlugify, $content);
 		$content = $this->replaceNamespaces($content);
-		FileHandler::saveFile($content, _wpspPath() . '/app/Components/AdminPages/' . $nameSlugify . '.php');
+		Filesystem::put($this->mainPath . '/app/Components/AdminPages/' . $nameSlugify . '.php', $content);
 
 		// Create view directory.
-		FileHandler::getFileSystem()->makeDirectory(_wpspPath() . '/resources/views/modules/web/admin-pages/' . $path);
+		Filesystem::makeDirectory($this->mainPath . '/resources/views/modules/web/admin-pages/' . $path);
 
 		// Create main view file.
-		$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/AdminPages/adminpage.view');
+		$view = Filesystem::get(__DIR__ . '/../Views/AdminPages/adminpage.view');
 		$view = str_replace('{{ name }}', $name, $view);
 		$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
 		$view = str_replace('{{ path }}', $path, $view);
 		$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
-		FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/admin-pages/' . $path . '/main.blade.php');
+		Filesystem::put($this->mainPath . '/resources/views/modules/web/admin-pages/' . $path . '/main.blade.php', $view);
 
 		// Create dashboard view file.
-		$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/AdminPages/dashboard.view');
+		$view = Filesystem::get(__DIR__ . '/../Views/AdminPages/dashboard.view');
 		$view = str_replace('{{ name }}', $name, $view);
 		$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
 		$view = str_replace('{{ path }}', $path, $view);
 		$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
-		FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/admin-pages/' . $path . '/dashboard.blade.php');
+		Filesystem::put($this->mainPath . '/resources/views/modules/web/admin-pages/' . $path . '/dashboard.blade.php', $view);
 
 		// Create "Tab 1" view file.
-		$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/AdminPages/tab-1.view');
+		$view = Filesystem::get(__DIR__ . '/../Views/AdminPages/tab-1.view');
 		$view = str_replace('{{ name }}', $name, $view);
 		$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
 		$view = str_replace('{{ path }}', $path, $view);
 		$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
-		FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/admin-pages/' . $path . '/tab-1.blade.php');
+		Filesystem::put($this->mainPath . '/resources/views/modules/web/admin-pages/' . $path . '/tab-1.blade.php', $view);
 
 		// Create navigation view file.
-		$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/AdminPages/navigation.view');
+		$view = Filesystem::get(__DIR__ . '/../Views/AdminPages/navigation.view');
 		$view = str_replace('{{ name }}', $name, $view);
 		$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
 		$view = str_replace('{{ path }}', $path, $view);
 		$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
-		FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/admin-pages/' . $path . '/navigation.blade.php');
+		Filesystem::put($this->mainPath . '/resources/views/modules/web/admin-pages/' . $path . '/navigation.blade.php', $view);
 
 		// Prepare new line for find function.
-		$func = FileHandler::getFileSystem()->get(__DIR__ . '/../Funcs/AdminPages/adminpage.func');
+		$func = Filesystem::get(__DIR__ . '/../Funcs/AdminPages/adminpage.func');
 		$func = str_replace('{{ name }}', $name, $func);
 		$func = str_replace('{{ name_slugify }}', $nameSlugify, $func);
 		$func = str_replace('{{ path }}', $path, $func);
 		$func = str_replace('{{ path_slugify }}', $pathSlugify, $func);
 
 		// Prepare new line for use class.
-		$use = FileHandler::getFileSystem()->get(__DIR__ . '/../Uses/AdminPages/adminpage.use');
+		$use = Filesystem::get(__DIR__ . '/../Uses/AdminPages/adminpage.use');
 		$use = str_replace('{{ name }}', $name, $use);
 		$use = str_replace('{{ name_slugify }}', $nameSlugify, $use);
 		$use = str_replace('{{ path }}', $path, $use);

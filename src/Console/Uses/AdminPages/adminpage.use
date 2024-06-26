@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\app\Components\AdminPages\{{ name_slugify }} as AdminPage_{{ name_slugify }};
+use {{ rootNamespace }}\app\Extend\Components\AdminPages\{{ name_slugify }} as AdminPage_{{ name_slugify }};

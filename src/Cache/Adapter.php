@@ -4,28 +4,19 @@ namespace WPSPCORE\Cache;
 
 use Doctrine\DBAL\DriverManager;
 use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
-use WPSP\Funcs;
+use WPSPCORE\Base\BaseInstances;
 
-class Adapter {
+class Adapter extends BaseInstances {
 
-	public static ?DoctrineDbalAdapter         $instance = null;
-
-	public static function getInstance(): DoctrineDbalAdapter {
-		if (self::$instance == null) {
-			self::$instance = self::initCacheAdapter();
-		}
-		return self::$instance;
-	}
-
-	public static function initCacheAdapter(): DoctrineDbalAdapter {
-		$cacheConfigs     = include(Funcs::instance()->getConfigPath() . '/cache.php');
+	public function init(): DoctrineDbalAdapter {
+		$cacheConfigs     = include($this->funcs->_getConfigPath() . '/cache.php');
 		$connectionParams = $cacheConfigs['stores'][$cacheConfigs['default']];
 		$connection       = DriverManager::getConnection($connectionParams);
 		return new DoctrineDbalAdapter(
 			$connection,
 			$cacheConfigs['prefix'],
 			0,
-			['db_table' => (new \WPSPCORE\Funcs())->getDBTablePrefix() . 'cm_cache_items']
+			['db_table' => $this->funcs->_getDBTablePrefix() . 'cm_cache_items']
 		);
 	}
 

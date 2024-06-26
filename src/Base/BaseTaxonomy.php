@@ -3,7 +3,6 @@
 namespace WPSPCORE\Base;
 
 use WPSPCORE\Data\TaxonomyData;
-use WPSPCORE\Http\HttpFoundation;
 use WPSPCORE\Traits\ObjectPropertiesToArrayTrait;
 
 /**
@@ -64,7 +63,7 @@ use WPSPCORE\Traits\ObjectPropertiesToArrayTrait;
  * @property $args;
  * @property $_builtin;
  */
-abstract class BaseTaxonomy extends HttpFoundation {
+abstract class BaseTaxonomy extends BaseInstances {
 
 	use ObjectPropertiesToArrayTrait;
 

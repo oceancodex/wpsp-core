@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\Console\Commands;
 
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -9,6 +10,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
+use WPSPCORE\Filesystem\Filesystem;
 use WPSPCORE\Traits\CommandsTrait;
 
 class MakeShortcodeCommand extends Command {
@@ -42,11 +44,11 @@ class MakeShortcodeCommand extends Command {
 		}
 
 		// Define variables.
-		$nameSlugify = Slugify::slugUnify($name, '_');
+		$nameSlugify = Str::slug($name, '_');
 		$createView = $createView ?? $input->getOption('create-view');
 
 		// Check exist.
-		$exist = FileHandler::getFileSystem()->exists(_wpspPath() . '/app/Components/Shortcodes/' . $nameSlugify . '.php');
+		$exist = Filesystem::exists($this->mainPath . '/app/Components/Shortcodes/' . $nameSlugify . '.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Shortcode: "' . $name . '" already exists! Please try again.');
 			return Command::FAILURE;
@@ -54,14 +56,14 @@ class MakeShortcodeCommand extends Command {
 
 		if ($createView) {
 			// Create a view file.
-			$view = FileHandler::getFileSystem()->get(__DIR__ . '/../Views/Shortcodes/shortcode.view');
+			$view = Filesystem::get(__DIR__ . '/../Views/Shortcodes/shortcode.view');
 			$view = str_replace('{{ name }}', $name, $view);
 			$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
-			FileHandler::saveFile($view, _wpspPath() . '/resources/views/modules/web/shortcodes/'. $name. '.blade.php');
-			$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Shortcodes/shortcode-view.stub');
+			Filesystem::put($this->mainPath . '/resources/views/modules/web/shortcodes/'. $name. '.blade.php', $view);
+			$content = Filesystem::get(__DIR__ . '/../Stubs/Shortcodes/shortcode-view.stub');
 		}
 		else {
-			$content = FileHandler::getFileSystem()->get(__DIR__ . '/../Stubs/Shortcodes/shortcode.stub');
+			$content = Filesystem::get(__DIR__ . '/../Stubs/Shortcodes/shortcode.stub');
 		}
 
 		// Create class file.
@@ -69,15 +71,15 @@ class MakeShortcodeCommand extends Command {
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = str_replace('{{ name_slugify }}', $nameSlugify, $content);
 		$content = $this->replaceNamespaces($content);
-		FileHandler::saveFile($content, _wpspPath() . '/app/Components/Shortcodes/'. $nameSlugify. '.php');
+		Filesystem::put($this->mainPath . '/app/Components/Shortcodes/'. $nameSlugify. '.php', $content);
 
 		// Prepare new line for find function.
-		$func = FileHandler::getFileSystem()->get(__DIR__ . '/../Funcs/Shortcodes/shortcode.func');
+		$func = Filesystem::get(__DIR__ . '/../Funcs/Shortcodes/shortcode.func');
 		$func = str_replace('{{ name }}', $name, $func);
 		$func = str_replace('{{ name_slugify }}', $nameSlugify, $func);
 
 		// Prepare new line for use class.
-		$use = FileHandler::getFileSystem()->get(__DIR__ . '/../Uses/Shortcodes/shortcode.use');
+		$use = Filesystem::get(__DIR__ . '/../Uses/Shortcodes/shortcode.use');
 		$use = str_replace('{{ name }}', $name, $use);
 		$use = str_replace('{{ name_slugify }}', $nameSlugify, $use);
 		$use = $this->replaceNamespaces($use);

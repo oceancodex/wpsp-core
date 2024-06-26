@@ -1,11 +1,14 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Components\AdminPages;
+namespace {{ rootNamespace }}\app\Extend\Components\AdminPages;
 
+use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\Funcs;
 use {{ coreNamespace }}\Base\BaseAdminPage;
-use {{ rootNamespace }}\app\Helpers\Constants;
 
 class {{ className }} extends BaseAdminPage {
+
+	use InstancesTrait;
 
 	public mixed $menuTitle      = '{{ name }}';
 //	public mixed $pageTitle      = '{{ name }}';
@@ -23,19 +26,19 @@ class {{ className }} extends BaseAdminPage {
 	 */
 
 //	public function init($path = null): void {
-//		$currentTab  = self::$request->get('tab');
-//		$currentPage = self::$request->get('page');
+//		$currentTab  = $this->request->get('tab');
+//		$currentPage = $this->request->get('page');
 //
 //		// Custom information before call to parent method "init" .
-//		$this->setPageTitle(($currentTab ? trans('messages.' . $currentTab) : trans('messages.dashboard')) . ' - ' . config('app.name'));
+//		$this->setPageTitle(($currentTab ? Funcs::trans('messages.' . $currentTab) : Funcs::trans('messages.dashboard')) . ' - ' . Funcs::config('app.name'));
 //
 //		// You must call to parent method "init" if you want to custom it.
 //		parent::init();
 //
 //		// Check database version and maybe redirect.
-//		$this->checkDatabase = Migration::checkDatabaseVersion();
+//		$this->checkDatabase = Migration::instance()->checkDatabaseVersion();
 //		if (!$this->checkDatabase['result'] && $currentPage == $this->getMenuSlug() && $currentTab !== 'database') {
-//			$url = _build_url($this->getParentSlug(), [
+//			$url = Funcs::instance()->_buildUrl($this->getParentSlug(), [
 //				'page' => $this->getMenuSlug(),
 //				'tab'  => 'database',
 //			]);
@@ -59,15 +62,15 @@ class {{ className }} extends BaseAdminPage {
 	 */
 
 	public function index(): void {
-		if (self::$request->get('updated') && $this->parentSlug !== 'options-general.php') {
-			_notice(trans('Updated successfully'), 'success');
+		if ($this->request->get('updated') && $this->parentSlug !== 'options-general.php') {
+			Funcs::notice(Funcs::trans('Updated successfully'), 'success');
 		}
 
-		$appShortName  = config('app.short_name');
-        $requestParams = self::$request->query->all();
+		$appShortName  = Funcs::config('app.short_name');
+        $requestParams = $this->request->query->all();
         $menuSlug      = $this->getMenuSlug();
 
-        echo view('modules.web.admin-pages.{{ path }}.main', compact('requestParams', 'menuSlug'));
+        echo Funcs::view('modules.web.admin-pages.{{ path }}.main', compact('requestParams', 'menuSlug'));
 	}
 
 	public function update(): void {
@@ -79,18 +82,18 @@ class {{ className }} extends BaseAdminPage {
 	 */
 
 	public function styles(): void {
-//		wp_enqueue_style(config('app.short_name') . '-admin', Constants::getPublicUrl() . '/css/admin.min.css', null, Constants::getVersion());
+//		wp_enqueue_style(Funcs::config('app.short_name') . '-admin', Funcs::asset('/css/admin.min.css'), null, Funcs::instance()->_getVersion());
 	}
 
 	public function scripts(): void {
-//		wp_enqueue_script(config('app.short_name') . '-database', Constants::getPublicUrl() . '/js/modules/web/admin-pages/wpsp/Database.min.js', null, WPSP_VERSION, true);
+//		wp_enqueue_script(config('app.short_name') . '-database', Funcs::asset('/js/modules/web/admin-pages/wpsp/Database.min.js'), null, Funcs::instance()->_getVersion(), true);
 	}
 
 	public function localizeScripts(): void {
-//		wp_localize_script(config('app.short_name') . '-database', config('app.short_name') . '_localize', [
+//		wp_localize_script(Funcs::config('app.short_name') . '-database', Funcs::config('app.short_name') . '_localize', [
 //			'ajax_url' => admin_url('admin-ajax.php'),
-//			'nonce' => wp_create_nonce(config('app.short_name')),
-//			'public_url' => Constants::getPublicUrl()
+//			'nonce' => wp_create_nonce(Funcs::config('app.short_name')),
+//			'public_url' => Funcs::instance()->_getPublicUrl()
 //		]);
 	}
 

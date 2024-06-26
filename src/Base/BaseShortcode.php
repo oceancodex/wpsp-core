@@ -2,17 +2,7 @@
 
 namespace WPSPCORE\Base;
 
-use WPSPCORE\Http\HttpFoundation;
-
-abstract class BaseShortcode extends HttpFoundation {
-
-	public function __construct() {
-		parent::__construct();
-	}
-
-	/*
-	 *
-	 */
+abstract class BaseShortcode extends BaseInstances {
 
 	abstract public function init($atts, $content, $tag);
 

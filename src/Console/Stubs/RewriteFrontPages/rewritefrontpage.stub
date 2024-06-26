@@ -32,7 +32,7 @@ class {{ name_slugify }} extends BaseRewriteFrontPage {
 
 //		add_filter('yoast_seo_development_mode', '__return_true');
 
-		$this->currentURL     = home_url(self::$request->getRequestUri());
+		$this->currentURL     = home_url($this->request->getRequestUri());
 		$this->queryVarGroup1 = get_query_var(config('app.short_name') . '_rewrite_group_1') ?: $this->rewriteIdent;
 
 		$this->seo = new YoastSEO();
