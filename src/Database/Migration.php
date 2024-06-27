@@ -192,17 +192,17 @@ class Migration extends BaseInstances {
 	}
 
 	public function deleteAllMigrations(): array {
-		$allMigrations     = $this->getDependencyFactory()->getMigrationsFinder()->findMigrations($this->funcs->trailingslashit($this->funcs->_getMigrationPath()));
+		$allMigrations     = $this->getDependencyFactory()->getMigrationsFinder()->findMigrations($this->funcs->_trailingslashit($this->funcs->_getMigrationPath()));
 		$deletedMigrations = [];
 		foreach ($allMigrations as $migrationVersion) {
 			if (!preg_match('/_/iu', $migrationVersion)) {
-				$migrationVersion     = preg_replace('/^(.*?)migrations\/(.*?)/iu', '$2', $this->funcs->trailingslash($migrationVersion));
-				$migrationVersionPath = $this->funcs->trailingslash($this->funcs->_getMigrationPath() . '/' . $migrationVersion . '.php');
+				$migrationVersion     = preg_replace('/^(.*?)migrations\/(.*?)/iu', '$2', $this->funcs->_trailingslash($migrationVersion));
+				$migrationVersionPath = $this->funcs->_trailingslash($this->funcs->_getMigrationPath() . '/' . $migrationVersion . '.php');
 //			    $migrationVersionPathFromPluginDir = _getPathFromDir('plugins', $migrationVersionPath) . '.php';
 				$deletedMigrations[] = Filesystem::delete($migrationVersionPath);
 			}
 		}
-		return $this->funcs->response(true, $deletedMigrations, 'Deleted all migrations successful!', 200);
+		return $this->funcs->_response(true, $deletedMigrations, 'Deleted all migrations successful!', 200);
 	}
 
 	public function checkDatabaseVersion(): ?array {
