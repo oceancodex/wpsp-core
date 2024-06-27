@@ -26,7 +26,6 @@
 		"yahnis-elsts/plugin-update-checker": "^5.4"
 	},
 	"config": {
-		"optimize-autoloader": true,
 		"sort-packages": true
 	},
 	"autoload": {
