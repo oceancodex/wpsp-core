@@ -3,6 +3,7 @@
 namespace WPSPCORE\Cache;
 
 use Doctrine\DBAL\DriverManager;
+use Illuminate\Support\Str;
 use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
 use WPSPCORE\Base\BaseInstances;
 
@@ -14,7 +15,7 @@ class Adapter extends BaseInstances {
 		$connection       = DriverManager::getConnection($connectionParams);
 		return new DoctrineDbalAdapter(
 			$connection,
-			$cacheConfigs['prefix'],
+			Str::slug($cacheConfigs['prefix']),
 			0,
 			['db_table' => $this->funcs->_getDBTablePrefix() . 'cm_cache_items']
 		);
