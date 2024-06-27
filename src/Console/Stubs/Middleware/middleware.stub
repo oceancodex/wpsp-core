@@ -2,8 +2,17 @@
 
 namespace {{ rootNamespace }}\app\Http\Middleware;
 
+use WP_REST_Request;
+use Symfony\Component\HttpFoundation\Request;
+use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use WPSPCORE\Base\BaseMiddleware;
+
 class {{ className }} extends BaseMiddleware {
-    public function handle($request): bool {
+
+	use InstancesTrait;
+
+    public function handle(Request|WP_REST_Request $request): bool {
         return true;
     }
+
 }

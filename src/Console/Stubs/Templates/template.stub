@@ -1,16 +1,20 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Components\Templates;
+namespace {{ rootNamespace }}\app\Extend\Components\Templates;
 
+use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\Funcs;
 use {{ coreNamespace }}\Base\BaseTemplates;
 
 class {{ className }} extends BaseTemplates {
+
+	use InstancesTrait;
 
 	public mixed $templateLabel         = 'Custom page template: {{ name }}';
 //	public mixed $templatePath          = null;
 
 	public function customProperties(): void {
-//		$this->templatePath = Constants::getResourcesPath() . '/views/modules/web/templates/' . $this->templateName . '.blade.php';
+//		$this->templatePath = Funcs::instance()->_getResourcesPath() . '/views/modules/web/templates/' . $this->templateName . '.blade.php';
 	}
 
 }

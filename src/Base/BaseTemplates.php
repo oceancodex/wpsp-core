@@ -2,20 +2,17 @@
 
 namespace WPSPCORE\Base;
 
-use WPSPCORE\Http\HttpFoundation;
 use WPSP\Funcs;
 
-abstract class BaseTemplates extends HttpFoundation {
+abstract class BaseTemplates extends BaseInstances {
 
 	public mixed $templateName  = null;
 	public mixed $templateLabel = null;
 	public mixed $templatePath  = null;
-	public mixed $mainPath      = null;
 
-	public function __construct($templateName = null, $mainPath = null) {
-		parent::__construct();
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $templateName = null) {
+		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
 		$this->templateName = $templateName;
-		$this->mainPath     = $mainPath;
 		$this->customProperties();
 		$this->templateInclude();
 	}
@@ -34,7 +31,7 @@ abstract class BaseTemplates extends HttpFoundation {
 				else {
 					$templateName .= '.php';
 				}
-				$templates[$templateName] = $this->templateLabel ?? $this->funcs->config('app.short_name') . ' - Custom template';
+				$templates[$templateName] = $this->templateLabel ?? $this->funcs->_config('app.short_name') . ' - Custom template';
 				return $templates;
 			});
 		}
@@ -68,7 +65,7 @@ abstract class BaseTemplates extends HttpFoundation {
 							if (file_exists($filePath)) {
 								return $filePath;
 							}
-							elseif (config('app.debug')) {
+							elseif ($this->funcs->_config('app.debug')) {
 								echo '<pre>';
 								print_r('Template file not found: ' . $filePath);
 								echo '</pre>';

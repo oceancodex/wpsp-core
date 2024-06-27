@@ -75,8 +75,8 @@ abstract class BaseTaxonomy extends BaseInstances {
 	 *
 	 */
 
-	public function __construct($taxonomy = null) {
-		parent::__construct();
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $taxonomy = null) {
+		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
 		$this->overrideTaxonomy($taxonomy);
 		$this->prepareArguments();
 		$this->customProperties();

@@ -1,10 +1,13 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Components\PostTypes;
+namespace {{ rootNamespace }}\app\Extend\Components\PostTypes;
 
+use {{ rootNamespace }}\app\Traits\InstancesTrait;
 use {{ coreNamespace }}\Base\BasePostType;
 
 class {{ className }} extends BasePostType {
+
+	use InstancesTrait;
 
 	/**
 	 * WordPress register post type docs.
@@ -94,7 +97,7 @@ class {{ className }} extends BasePostType {
 	 *
 	 */
 
-	public function customArguments(): void {
+	public function customProperties(): void {
 
 		/**
 		 * Modify "post_type" and "args" properties.

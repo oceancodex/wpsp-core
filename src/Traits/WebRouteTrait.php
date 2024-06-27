@@ -64,7 +64,7 @@ trait WebRouteTrait {
 	}
 
 	public function post($path, $callback, $isAdminPage = false, $useInitClass = false, $classArgs = [], $middleware = null): void {
-		if (!wp_doing_ajax() && $this->request->isMethod('POST') && ($this->request->get('page') == $path) && $this->isPassedMiddleware($middleware, $this->request)) {
+		if (!wp_doing_ajax() && $this->request->isMethod('POST') && ($this->request->get('page') == $path || $this->request->getBasePath() == $path) && $this->isPassedMiddleware($middleware, $this->request)) {
 			$classArgs = array_merge([$path], $classArgs ?? []);
 			$classArgs = array_merge([
 				$this->funcs->_getMainPath(),
@@ -106,15 +106,25 @@ trait WebRouteTrait {
 
 	public function template($name, $callback, $useInitClass = false, $classArgs = [], $middleware = null, $priority = 10, $argsNumber = 0): void {
 		if ($this->isPassedMiddleware($middleware, $this->request)) {
-			$classArgs = array_merge([$name, $this->mainPath], $classArgs ?? []);
+			$classArgs = array_merge([$name], $classArgs ?? []);
+			$classArgs = array_merge([
+				$this->funcs->_getMainPath(),
+				$this->funcs->_getRootNamespace(),
+				$this->funcs->_getPrefixEnv()
+			], $classArgs);
 			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
-			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}() : $callback;
+			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($name) : $callback;
 		}
 	}
 
 	public function meta_box($id, $callback, $useInitClass = false, $classArgs = [], $middleware = null, $priority = 10, $argsNumber = 0): void {
 		if ($this->isPassedMiddleware($middleware, $this->request)) {
 			$classArgs = array_merge([$id], $classArgs ?? []);
+			$classArgs = array_merge([
+				$this->funcs->_getMainPath(),
+				$this->funcs->_getRootNamespace(),
+				$this->funcs->_getPrefixEnv()
+			], $classArgs);
 			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
 			add_action('add_meta_boxes', $callback, $priority, $argsNumber);
 		}
@@ -123,8 +133,13 @@ trait WebRouteTrait {
 	public function taxonomy($taxonomy, $callback, $useInitClass = false, $classArgs = [], $middleware = null, $priority = 10, $argsNumber = 0): void {
 		if ($this->isPassedMiddleware($middleware, $this->request)) {
 			$classArgs = array_merge([$taxonomy], $classArgs ?? []);
+			$classArgs = array_merge([
+				$this->funcs->_getMainPath(),
+				$this->funcs->_getRootNamespace(),
+				$this->funcs->_getPrefixEnv()
+			], $classArgs);
 			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
-			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}() : $callback;
+			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($taxonomy) : $callback;
 		}
 	}
 
@@ -144,9 +159,6 @@ trait WebRouteTrait {
 					$this->funcs->_getRootNamespace(),
 					$this->funcs->_getPrefixEnv()
 				], $classArgs);
-//				$class  = $this->prepareClass($callback, $useInitClass, $classArgs);
-//				$method = $callback[1] ?? null;
-//				$method ? (new $class($postType))->$method($postType) : new $class($postType);
 				$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
 				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($postType) : $callback;
 			}
