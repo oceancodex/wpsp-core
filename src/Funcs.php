@@ -4,6 +4,7 @@ namespace WPSPCORE;
 
 use Carbon\Carbon;
 use NumberFormatter;
+use WPSPCORE\Environment\Environment;
 use WPSPCORE\View\Blade;
 
 class Funcs {
@@ -333,7 +334,7 @@ class Funcs {
 	 */
 
 	public function _env($var, $addPrefix = false, $default = null): ?string {
-		return \WPSPCORE\Environment\Environment::get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
+		return Environment::get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
 	}
 
 	public function _debug($message = '', $print = false, bool $varDump = false): void {

@@ -7,10 +7,7 @@ use Dotenv\Repository\RepositoryBuilder;
 
 class Environment {
 
-	private static bool $isInitialized = false;
-
 	public static function init($envDir): void {
-		if (static::$isInitialized) return;
 		if (method_exists(Dotenv::class, 'createImmutable')) {
 			$dotEnv = Dotenv::createImmutable($envDir);
 		}
@@ -20,7 +17,6 @@ class Environment {
 		}
 		$dotEnv->safeLoad();
 		$dotEnv->required([])->allowedValues(['local', 'dev', 'production'])->notEmpty();
-		static::$isInitialized = true;
 	}
 
 	public static function get(string $varName, $default = ''): ?string {

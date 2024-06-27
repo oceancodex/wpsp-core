@@ -34,7 +34,7 @@ class Eloquent extends BaseInstances {
 		return $this->capsule;
 	}
 
-	public function setMigration($migration): void {
+	public function setMigration(Migration $migration): void {
 		$this->migration = $migration;
 	}
 
