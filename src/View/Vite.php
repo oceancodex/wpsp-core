@@ -13,11 +13,13 @@ class Vite implements Htmlable
 {
 	use Macroable;
 
-	public ?string $mainPath = null;
-	public ?\WPSPCORE\Funcs $funcs = null;
+	public ?string          $mainPath      = null;
+	public ?string          $rootNamespace = null;
+	public ?string          $prefixEnv     = null;
+	public ?\WPSPCORE\Funcs $funcs         = null;
 
 	public function __construct() {
-		$this->funcs = new \WPSPCORE\Funcs($this->mainPath);
+		$this->funcs = new \WPSPCORE\Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv);
 	}
 
 	/**
@@ -715,7 +717,7 @@ class Vite implements Htmlable
 	 */
 	protected function assetPath($path, $secure = null)
 	{
-		return ($this->assetPathResolver ?? $this->funcs->asset(...))($path, $secure);
+		return ($this->assetPathResolver ?? $this->funcs->_asset(...))($path, $secure);
 	}
 
 	/**
