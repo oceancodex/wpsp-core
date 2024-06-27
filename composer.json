@@ -25,15 +25,6 @@
 		"vlucas/phpdotenv": "^5.6",
 		"yahnis-elsts/plugin-update-checker": "^5.4"
 	},
-	"suggest": {
-	},
-	"config": {
-		"optimize-autoloader": true,
-		"preferred-install": "dist",
-		"sort-packages": true,
-		"allow-plugins": {
-		}
-	},
 	"autoload": {
 		"psr-4": {
 			"WPSPCORE\\": "src/"
@@ -43,7 +34,7 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Tests\\": "tests/"
+			"WPSPCORE\\Tests\\": "tests/"
 		}
 	},
 	"authors": [
@@ -52,8 +43,6 @@
 			"email": "contact@oceancodex.com"
 		}
 	],
-	"minimum-stability": "stable",
-	"prefer-stable": true,
 	"scripts": {
 		"post-autoload-dump": [
 		],
