@@ -57,7 +57,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		$useTemplate            = $useTemplate ?? $input->getOption('use-template') ?: false;
 
 		// Check exist.
-		$exist = Filesystem::exists($this->mainPath . '/app/Components/RewriteFrontPages/' . $nameSlugify . '.php');
+		$exist = Filesystem::exists($this->mainPath . '/app/Extend/Components/RewriteFrontPages/' . $nameSlugify . '.php');
 		$exist = $exist || Filesystem::exists($this->mainPath . '/resources/views/modules/web/rewrite-front-pages/' . $pathSlugify . '.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Rewrite front page: "' . $name . '" already exists! Please try again.');
@@ -75,7 +75,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		$content = str_replace('{{ rewrite_page_name_slugify }}', $rewritePageNameSlugify, $content);
 		$content = str_replace('{{ use_template }}', $useTemplate ? 'true' : 'false', $content);
 		$content = $this->replaceNamespaces($content);
-		Filesystem::put($this->mainPath . '/app/Components/RewriteFrontPages/' . $nameSlugify . '.php', $content);
+		Filesystem::put($this->mainPath . '/app/Extend/Components/RewriteFrontPages/' . $nameSlugify . '.php', $content);
 
 		// Create view file.
 		if ($useTemplate) {

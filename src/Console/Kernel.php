@@ -23,7 +23,7 @@ class Kernel {
 		];
 		foreach ($commands as $command) {
 			$command = '\WPSPCORE\Console\Commands\\' . $command;
-			$application->add(new $command($mainPath, $rootNamespace, $prefixEnv));
+			$application->add(new $command(null, $mainPath, $rootNamespace, $prefixEnv));
 		}
 	}
 

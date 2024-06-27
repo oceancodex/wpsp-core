@@ -41,7 +41,7 @@ class MakeTaxonomyCommand extends Command {
 		$nameSlugify = Str::slug($name, '_');
 
 		// Check exist.
-		$exist = Filesystem::exists($this->mainPath . '/app/Components/Taxonomies/' . $nameSlugify . '.php');
+		$exist = Filesystem::exists($this->mainPath . '/app/Extend/Components/Taxonomies/' . $nameSlugify . '.php');
 		if ($exist) {
 			$output->writeln('[ERROR] Taxonomy: "' . $name . '" already exists! Please try again.');
 			return Command::FAILURE;
@@ -53,7 +53,7 @@ class MakeTaxonomyCommand extends Command {
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = str_replace('{{ name_slugify }}', $nameSlugify, $content);
 		$content = $this->replaceNamespaces($content);
-		Filesystem::put($this->mainPath . '/app/Components/Taxonomies/'. $nameSlugify . '.php', $content);
+		Filesystem::put($this->mainPath . '/app/Extend/Components/Taxonomies/'. $nameSlugify . '.php', $content);
 
 		// Prepare new line for find function.
 		$func = Filesystem::get(__DIR__ . '/../Funcs/Taxonomies/taxonomy.func');

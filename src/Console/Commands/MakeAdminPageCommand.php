@@ -44,7 +44,7 @@ class MakeAdminPageCommand extends Command {
 		$nameSlugify = Str::slug($name, '_');
 
 		// Check exist.
-		$exist = Filesystem::exists($this->mainPath . '/app/Components/AdminPages/' . $nameSlugify . '.php');
+		$exist = Filesystem::exists($this->mainPath . '/app/Extend/Components/AdminPages/' . $nameSlugify . '.php');
 		$exist = $exist || Filesystem::exists($this->mainPath . '/resources/views/modules/web/admin-pages/' . $path);
 		if ($exist) {
 			$output->writeln('[ERROR] Admin page: "' . $path . '" already exists! Please try again.');
@@ -59,7 +59,7 @@ class MakeAdminPageCommand extends Command {
 		$content = str_replace('{{ path }}', $path, $content);
 		$content = str_replace('{{ path_slugify }}', $pathSlugify, $content);
 		$content = $this->replaceNamespaces($content);
-		Filesystem::put($this->mainPath . '/app/Components/AdminPages/' . $nameSlugify . '.php', $content);
+		Filesystem::put($this->mainPath . '/app/Extend/Components/AdminPages/' . $nameSlugify . '.php', $content);
 
 		// Create view directory.
 		Filesystem::makeDirectory($this->mainPath . '/resources/views/modules/web/admin-pages/' . $path);
