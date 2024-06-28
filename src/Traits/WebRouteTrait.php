@@ -63,16 +63,22 @@ trait WebRouteTrait {
 		}
 	}
 
-	public function post($path, $callback, $isAdminPage = false, $useInitClass = false, $classArgs = [], $middleware = null): void {
-		if (!wp_doing_ajax() && $this->request->isMethod('POST') && ($this->request->get('page') == $path || $this->request->getBasePath() == $path) && $this->isPassedMiddleware($middleware, $this->request)) {
-			$classArgs = array_merge([$path], $classArgs ?? []);
-			$classArgs = array_merge([
-				$this->funcs->_getMainPath(),
-				$this->funcs->_getRootNamespace(),
-				$this->funcs->_getPrefixEnv()
-			], $classArgs);
-			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
-			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
+	public function post($path, $callback, $useInitClass = false, $classArgs = [], $middleware = null): void {
+		if (!wp_doing_ajax() && $this->request->isMethod('POST')) {
+			$requestPath = trim($this->request->getPathInfo(), '/');
+			if (
+				($this->request->get('page') == $path || preg_match('/' . $path . '/iu', $requestPath))
+				&& $this->isPassedMiddleware($middleware, $this->request)
+			) {
+				$classArgs = array_merge([$path], $classArgs ?? []);
+				$classArgs = array_merge([
+					$this->funcs->_getMainPath(),
+					$this->funcs->_getRootNamespace(),
+					$this->funcs->_getPrefixEnv()
+				], $classArgs);
+				$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
+				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
+			}
 		}
 	}
 

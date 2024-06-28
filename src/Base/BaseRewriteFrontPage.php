@@ -59,7 +59,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 *
 	 */
 
-	public function overridePath($path = null): void {
+	private function overridePath($path = null): void {
 		if ($path && !$this->path) {
 			$this->path = $path;
 		}
