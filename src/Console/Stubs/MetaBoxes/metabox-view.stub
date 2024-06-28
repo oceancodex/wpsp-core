@@ -19,7 +19,7 @@ class {{ className }} extends BaseMetaBox {
 	public function content($post, $meta_box): void {
 //		echo '<pre>'; print_r($meta_box); echo '</pre>';
 //		echo 'Custom Meta Box "{{ id }}" Content';
-        echo view('modules.web.meta-boxes.{{ id }}');
+        echo Funcs::view('modules.web.meta-boxes.{{ id }}');
 	}
 
 	public function customProperties(): void {
