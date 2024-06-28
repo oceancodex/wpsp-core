@@ -62,7 +62,7 @@ class Eloquent extends BaseInstances {
 		foreach ($definedDatabaseTables as $definedDatabaseTable) {
 			$tableDropped = $this->dropDatabaseTable($definedDatabaseTable);
 		}
-		return ['success' => true, 'data' => $definedDatabaseTables, 'message' => 'Drop all database tables successful!', 'code' => 200];
+		return ['success' => true, 'data' => $definedDatabaseTables, 'message' => 'Drop all database tables successfully!', 'code' => 200];
 	}
 
 	public function getDefinedDatabaseTables(): array {
@@ -112,13 +112,12 @@ class Eloquent extends BaseInstances {
 				}
 				$newFileContent .= $token;
 			}
-			preg_match_all('/createTable\(([\S\s]*?)\)/iu', $newFileContent, $createTables);
+			preg_match_all('/createTable\(([\S\s]*?);/iu', $newFileContent, $createTables);
 			$createTableNames = $createTables[1] ?? $createTables[0] ?? null;
 			if ($createTableNames) {
 				foreach ($createTableNames as $createTableName) {
-					if (preg_match('/\(/iu', $createTableName)) {
-						$createTableName .= ')';
-					}
+					$createTableName = preg_replace('/\)$/', '', $createTableName);
+					$createTableName = preg_replace('/Funcs::instance\(\)->|Funcs::/', '$this->funcs->', $createTableName);
 					$createTableName = 'return ' . $createTableName . ';';
 					try {
 						$createTableName = eval($createTableName);
@@ -132,7 +131,6 @@ class Eloquent extends BaseInstances {
 				}
 			}
 		}
-
 		return $definedDatabaseTables;
 	}
 

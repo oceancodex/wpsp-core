@@ -17,6 +17,7 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use WPSPCORE\Filesystem\Filesystem;
+use WPSPCORE\Listeners\MigrationListener;
 
 class Migration extends BaseInstances {
 
@@ -134,7 +135,16 @@ class Migration extends BaseInstances {
 			]);
 			$output = new BufferedOutput();
 			$this->getCLI()->doRun($input, $output);
-			return ['success' => true, 'message' => 'Migrate database successful!', 'data' => $output->fetch()];
+			$outputMessage = $output->fetch();
+			$outputMessage = preg_replace('/\n*|\r\n*/', '', $outputMessage);
+			$outputMessage = preg_replace('/^(.+?)yes](.+?)\[/', '[', $outputMessage);
+			$outputMessage = preg_replace('/^\[(.+?)]\s/', '', $outputMessage);
+			if (preg_match('/successfully/iu', $outputMessage)) {
+				return ['success' => true, 'data' => ['output' => $outputMessage], 'message' => 'Migrate database successfully!'];
+			}
+			else {
+				return ['success' => false, 'data' => ['output' => $outputMessage], 'message' => $outputMessage];
+			}
 		}
 		catch (\Exception|\Throwable $e) {
 			return ['success' => false, 'message' => $e->getMessage(), 'data' => null];
@@ -154,6 +164,7 @@ class Migration extends BaseInstances {
 
 			$eventManager = new EventManager();
 			$eventManager->addEventListener(Events::loadClassMetadata, $tablePrefix);
+			$eventManager->addEventSubscriber(new MigrationListener());
 
 			$ormConfig  = ORMSetup::createAttributeMetadataConfiguration($paths, $isDevMode);
 			$connection = DriverManager::getConnection($connectionParams);
@@ -184,7 +195,7 @@ class Migration extends BaseInstances {
 			]);
 			$output = new BufferedOutput();
 			$this->getCLI()->doRun($input, $output);
-			return ['success' => true, 'message' => 'Sync metadata successful!', 'data' => $output->fetch()];
+			return ['success' => true, 'message' => 'Sync metadata successfully!', 'data' => $output->fetch()];
 		}
 		catch (\Exception|\Throwable $e) {
 			return ['success' => false, 'message' => $e->getMessage(), 'data' => null];
@@ -202,7 +213,7 @@ class Migration extends BaseInstances {
 				$deletedMigrations[] = Filesystem::delete($migrationVersionPath);
 			}
 		}
-		return $this->funcs->_response(true, $deletedMigrations, 'Deleted all migrations successful!', 200);
+		return $this->funcs->_response(true, $deletedMigrations, 'Deleted all migrations successfully!', 200);
 	}
 
 	public function checkDatabaseVersion(): ?array {

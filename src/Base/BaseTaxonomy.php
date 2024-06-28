@@ -98,13 +98,14 @@ abstract class BaseTaxonomy extends BaseInstances {
 		foreach ($this->toArray() as $key => $value) {
 			if (property_exists($this->args, $key)) {
 				$this->args->{$key} = $value;
-				unset($this->args->{$key});
 			}
 			if (array_key_exists($key, $this->args->labels)) {
 				$this->args->labels[$key] = $value;
-				unset($this->args->{$key});
 			}
 		}
+//		unset($this->args->taxonomy);
+//		unset($this->args->object_type);
+		unset($this->args->args);
 	}
 
 	public function maybePrepareArgumentsAgain($taxonomy = null): void {

@@ -11,7 +11,7 @@ class {{ className }} extends BaseShortcode {
 	use InstancesTrait;
 
 	public function init($atts, $content, $tag) {
-		return view('modules.web.shortcodes.{{ name }}')->render();
+		return Funcs::view('modules.web.shortcodes.{{ name }}')->render();
 	}
 
 }
