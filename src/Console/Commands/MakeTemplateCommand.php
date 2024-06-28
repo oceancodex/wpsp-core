@@ -75,7 +75,7 @@ class MakeTemplateCommand extends Command {
 		$this->addClassToWebRoute('templates', $func, $use);
 
 		// Output message.
-		$output->writeln('Created new page template: ' . $name);
+		$output->writeln('Created new page template: "' . $name . '"');
 
 		// this method must return an integer number with the "exit status code"
 		// of the command. You can also use these constants to make code more readable

@@ -87,7 +87,7 @@ class MakeMetaBoxCommand extends Command {
 		$this->addClassToWebRoute('meta_boxes', $func, $use);
 
 		// Output message.
-		$output->writeln('Created new meta box: ' . $id);
+		$output->writeln('Created new meta box: "' . $id . '"');
 
 		// this method must return an integer number with the "exit status code"
 		// of the command. You can also use these constants to make code more readable

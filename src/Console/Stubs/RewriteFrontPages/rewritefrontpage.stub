@@ -29,10 +29,11 @@ class {{ name_slugify }} extends BaseRewriteFrontPage {
 	 *
 	 */
 
-//	public function update($path = null): void {
+	public function update($path = null): void {
 //		global $wp_query, $post;
+		echo '<pre>'; print_r($this->request->request->all()); echo '</pre>';
 //		echo '<pre>'; print_r($wp_query); echo '</pre>';
-//	}
+	}
 
 	public function access(): void {
 //		global $wp_query, $post;
@@ -53,6 +54,7 @@ class {{ name_slugify }} extends BaseRewriteFrontPage {
 		$this->seo->setRobots(['index, follow']);
 		$this->seo->setCanonical($this->currentURL);
 		$this->seo->setTitle($this->queryVarGroup1);
+		$this->seo->setDocumentTitle($this->queryVarGroup1);
 		$this->seo->setDescription('Rewrite front page "{{ name }}" custom SEO description.');
 
 		/**
