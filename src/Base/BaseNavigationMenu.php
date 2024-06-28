@@ -2,9 +2,7 @@
 
 namespace WPSPCORE\Base;
 
-use WPSPCORE\Http\HttpFoundation;
-
-abstract class BaseNavigationMenu extends HttpFoundation {
+abstract class BaseNavigationMenu extends BaseInstances {
 
 	public ?\WP_Post $currentPost                 = null;
 	public ?\WP_Post $currentPostParent           = null;
@@ -14,8 +12,8 @@ abstract class BaseNavigationMenu extends HttpFoundation {
 	 *
 	 */
 
-	public function __construct() {
-		parent::__construct();
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
+		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
 		$this->prepareCurrentPostAndParent();
 	}
 

@@ -1,10 +1,14 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Components\MetaBoxes;
+namespace {{ rootNamespace }}\app\Extend\Components\MetaBoxes;
 
+use {{ rootNamespace }}\Funcs;
+use {{ rootNamespace }}\app\Traits\InstancesTrait;
 use {{ coreNamespace }}\Base\BaseMetaBox;
 
 class {{ className }} extends BaseMetaBox {
+
+	use InstancesTrait;
 
 //	public mixed $title         = 'Custom Meta Box "{{ id }}" Title';
 //	public mixed $screen        = 'post';

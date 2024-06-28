@@ -71,6 +71,14 @@ abstract class BasePostType extends BaseInstances {
 	 *
 	 */
 
+	public function init($postType = null): void {
+		register_post_type($this->post_type, $this->args);
+	}
+
+	/*
+	 *
+	 */
+
 	public function overridePostType($postType = null): void {
 		if ($postType && !$this->post_type) {
 			$this->post_type = $postType;
@@ -102,13 +110,5 @@ abstract class BasePostType extends BaseInstances {
 	 */
 
 	abstract public function customProperties();
-
-	/*
-	 *
-	 */
-
-	public function init($postType = null): void {
-		register_post_type($this->post_type, $this->args);
-	}
 
 }

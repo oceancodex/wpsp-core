@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\app\Components\Shortcodes\{{ name_slugify }} as Shortcode_{{ name_slugify }};
+use {{ rootNamespace }}\app\Extend\Components\Shortcodes\{{ name_slugify }} as Shortcode_{{ name_slugify }};

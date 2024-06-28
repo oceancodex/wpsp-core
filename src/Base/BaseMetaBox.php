@@ -2,9 +2,7 @@
 
 namespace WPSPCORE\Base;
 
-use WPSPCORE\Http\HttpFoundation;
-
-abstract class BaseMetaBox extends HttpFoundation {
+abstract class BaseMetaBox extends BaseInstances {
 
 	private mixed $id = null;
 
@@ -18,8 +16,8 @@ abstract class BaseMetaBox extends HttpFoundation {
 	 *
 	 */
 
-	public function __construct($id = null) {
-		parent::__construct();
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $id = null) {
+		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
 		$this->id = $id;
 		$this->customProperties();
 	}
