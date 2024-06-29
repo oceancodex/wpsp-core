@@ -23,7 +23,7 @@ class Eloquent extends BaseInstances {
 			$this->capsule->addConnection($databaseConfig);
 			$this->capsule->setAsGlobal();
 			$this->capsule->bootEloquent();
-			$this->capsule->setEventDispatcher(new \Illuminate\Events\Dispatcher(new \Illuminate\Container\Container()));
+//			$this->capsule->setEventDispatcher(new \Illuminate\Events\Dispatcher(new \Illuminate\Container\Container()));
 		}
 	}
 
