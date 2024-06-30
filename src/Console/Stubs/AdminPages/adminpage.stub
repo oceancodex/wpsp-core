@@ -62,7 +62,7 @@ class {{ className }} extends BaseAdminPage {
 	 */
 
 	public function index(): void {
-		if ($this->request->get('updated') && $this->parentSlug !== 'options-general.php') {
+		if ($this->request->get('updated')) {
 			Funcs::notice(Funcs::trans('Updated successfully'), 'success');
 		}
 
