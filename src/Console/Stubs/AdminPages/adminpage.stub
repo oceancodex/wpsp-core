@@ -19,7 +19,23 @@ class {{ className }} extends BaseAdminPage {
 //	public mixed $isSubAdminPage = true;
 //	public mixed $parentSlug     = 'options-general.php';
 
-//	public mixed $checkDatabase  = null;
+//	private mixed $checkDatabase = null;
+//	private mixed $table         = null;
+
+	/*
+	 *
+	 */
+
+	public function customProperties(): void {
+//		$this->menuTitle      = '';
+//		$this->pageTitle      = '';
+//		$this->capability     = '';
+//		$this->menuSlug       = '';
+//		$this->iconUrl        = '';
+//		$this->position       = '';
+//		$this->isSubAdminPage = false;
+//		$this->parentSlug     = '';
+	}
 
 	/*
 	 *
@@ -46,34 +62,36 @@ class {{ className }} extends BaseAdminPage {
 //		}
 //	}
 
-	public function customProperties(): void {
-//		$this->menuTitle      = '';
-//		$this->pageTitle      = '';
-//		$this->capability     = '';
-//		$this->menuSlug       = '';
-//		$this->iconUrl        = '';
-//		$this->position       = '';
-//		$this->isSubAdminPage = false;
-//		$this->parentSlug     = '';
-	}
+//	public function afterLoad($menuPage): void {
+//		$this->table = new \WPSP\app\Extend\Components\ListTables\Settings();
+//	}
 
 	/*
 	 *
 	 */
 
 	public function index(): void {
-		if ($this->request->get('updated')) {
+		if ($this->request->get('updated') && $this->parentSlug !== 'options-general.php' && $this->request->get('tab') !== 'table') {
 			Funcs::notice(Funcs::trans('Updated successfully'), 'success');
 		}
 
         $requestParams = $this->request->query->all();
         $menuSlug      = $this->getMenuSlug();
 
-        echo Funcs::view('modules.web.admin-pages.{{ path }}.main', compact('requestParams', 'menuSlug'));
+		$table = $this->table;
+
+		echo Funcs::view('modules.web.admin-pages.{{ path }}.main', compact(
+			'requestParams',
+			'menuSlug',
+			'table'
+		));
 	}
 
 	public function update(): void {
-		wp_safe_redirect(wp_get_raw_referer() . '&updated=true');
+		$tab = $this->request->get('tab');
+		if ($tab !== 'table') {
+			wp_safe_redirect(wp_get_raw_referer() . '&updated=true');
+		}
 	}
 
 	/*

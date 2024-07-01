@@ -9,9 +9,9 @@ use WPSPCORE\View\Blade;
 
 class Funcs {
 
-	protected ?string $mainPath       = null;
-	protected ?string $rootNamespace  = null;
-	protected ?string $prefixEnv      = null;
+	protected ?string $mainPath      = null;
+	protected ?string $rootNamespace = null;
+	protected ?string $prefixEnv     = null;
 
 
 	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
@@ -317,12 +317,10 @@ class Funcs {
 		return null;
 	}
 
-	public function _notice($message = '', $type = 'info', $dismiss = true): void {
+	public function _notice($message = '', $type = 'info', $echo = false, $class = null, $dismiss = true): void {
 		global $notice;
-		$notice = $this->_view('modules.web.admin-pages.common.notice')->with([
-			'type'    => $type,
-			'message' => $message,
-		])->render();
+		$notice = '<div class="notice ' . $class . ' notice-' . $type . ' is-dismissible"><p>' . $message . '</p></div>';
+		if ($echo) echo $notice;
 	}
 
 	public function _buildUrl($baseUrl, $args): string {
@@ -330,7 +328,7 @@ class Funcs {
 	}
 
 	public function _nonceName($name = null): string {
-		return $this->_env('APP_SHORT_NAME', true) . ($name ? '_'. $name : '') . '_nonce';
+		return $this->_env('APP_SHORT_NAME', true) . ($name ? '_' . $name : '') . '_nonce';
 	}
 
 	/*

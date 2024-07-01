@@ -2,8 +2,6 @@
 
 namespace WPSPCORE\Base;
 
-use WPSPCORE\Data\AdminPageData;
-
 abstract class BaseAdminPage extends BaseInstances {
 
 	public mixed $menuTitle      = null;
@@ -30,12 +28,14 @@ abstract class BaseAdminPage extends BaseInstances {
 		add_action('admin_menu', function () {
 			$menuPage = $this->isSubAdminPage ? $this->addSubMenuPage() : $this->addMenuPage();
 			add_action('load-' . $menuPage, function () use ($menuPage) {
-
 				// Enqueue scripts.
 				add_action('admin_enqueue_scripts', [$this, 'assets']);
 
 				// Screen options.
 				$this->screenOptions($menuPage);
+
+				// After load this admin page.
+				$this->afterLoad($menuPage);
 			});
 		});
 
@@ -45,18 +45,28 @@ abstract class BaseAdminPage extends BaseInstances {
 		}, 10, 3);
 	}
 
+	public function assets(): void {
+		$this->styles();
+		$this->scripts();
+		$this->localizeScripts();
+	}
+
+	public function screenOptions($menuPage): void {
+		$screen = get_current_screen();
+		if (!is_object($screen) || $screen->id != $menuPage) return;
+		$args = [
+			'default' => 20,
+			'option'  => 'items_per_page',
+		];
+		add_screen_option('per_page', $args);
+	}
+
+	public function afterLoad($menuPage) {}
+
 	public function overrideMenuSlug($menuSlug = null): void {
 		if ($menuSlug && !$this->menuSlug) {
 			$this->menuSlug = $menuSlug;
 		}
-	}
-
-	public function assets(): \Closure {
-		return function () {
-			$this->styles();
-			$this->scripts();
-			$this->localizeScripts();
-		};
 	}
 
 	/*
@@ -84,16 +94,6 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->menuSlug,
 			[$this, 'index']
 		);
-	}
-
-	protected function screenOptions($menuPage): void {
-		$screen = get_current_screen();
-		if (!is_object($screen) || $screen->id != $menuPage) return;
-		$args = [
-			'default' => 20,
-			'option'  => 'items_per_page',
-		];
-		add_screen_option('per_page', $args);
 	}
 
 	/*
