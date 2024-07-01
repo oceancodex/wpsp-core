@@ -329,6 +329,10 @@ class Funcs {
 		return add_query_arg($args, $baseUrl);
 	}
 
+	public function _nonceName($name = null): string {
+		return $this->_env('APP_SHORT_NAME', true) . ($name ? '_'. $name : '') . '_nonce';
+	}
+
 	/*
 	 *
 	 */
