@@ -14,64 +14,6 @@ class AdminPageData {
 	private mixed $isSubAdminPage = false;
 	private mixed $parentSlug     = null;
 
-	/*
-	 *
-	 */
-
-	public function __construct($adminPage) {
-		$this->menuTitle      = $adminPage->menuTitle;
-		$this->pageTitle      = $adminPage->pageTitle;
-		$this->capability     = $adminPage->capability;
-		$this->menuSlug       = $adminPage->menuSlug;
-		$this->callback       = [$adminPage, 'index'];
-		$this->iconUrl        = $adminPage->iconUrl;
-		$this->position       = $adminPage->position;
-		$this->isSubAdminPage = $adminPage->isSubAdminPage;
-		$this->parentSlug     = $adminPage->parentSlug;
-	}
-
-	/*
-	 * ADDERS
-	 */
-
-	public function addAdminPage($enqueueScripts = null): void {
-		$menuPage = $this->isSubAdminPage ? $this->addSubMenuPage() : $this->addMenuPage();
-		if ($enqueueScripts) {
-			add_action('load-' . $menuPage, function() use ($enqueueScripts) {
-				add_action('admin_enqueue_scripts', function() use ($enqueueScripts) {
-					call_user_func($enqueueScripts);
-				});
-			});
-		}
-	}
-
-	public function addMenuPage(): string {
-		return add_menu_page(
-			$this->pageTitle,
-			$this->menuTitle,
-			$this->capability,
-			$this->menuSlug,
-			$this->callback,
-			$this->iconUrl,
-			$this->position
-		);
-	}
-
-	public function addSubMenuPage(): string {
-		return add_submenu_page(
-			$this->parentSlug,
-			$this->pageTitle,
-			$this->menuTitle,
-			$this->capability,
-			$this->menuSlug,
-			$this->callback
-		);
-	}
-
-	/*
-	 * GETTERS & SETTERS
-	 */
-
 	public function getMenuTitle(): string {
 		return $this->menuTitle;
 	}
