@@ -32,7 +32,7 @@ class MakeModelCommand extends Command {
 
 		$helper = $this->getHelper('question');
 		if (!$name) {
-			$nameQuestion = new Question('Please enter the name of the model: ', 'MyModel');
+			$nameQuestion = new Question('Please enter the name of the model: ');
 			$name = $helper->ask($input, $output, $nameQuestion);
 
 			if (empty($name)) {

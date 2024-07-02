@@ -27,7 +27,7 @@ class MakeListTableCommand extends Command {
 
 		$helper = $this->getHelper('question');
 		if (!$name) {
-			$nameQuestion = new Question('Please enter the name of the list table: ', 'MyListTable');
+			$nameQuestion = new Question('Please enter the name of the list table: ');
 			$name         = $helper->ask($input, $output, $nameQuestion);
 
 			if (empty($name)) {

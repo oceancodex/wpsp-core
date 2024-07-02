@@ -28,7 +28,7 @@ class MakeTemplateCommand extends Command {
 
 		$helper = $this->getHelper('question');
 		if (!$name) {
-			$nameQuestion = new Question('Please enter the name of the template: ', 'custom_template');
+			$nameQuestion = new Question('Please enter the name of the template: ');
 			$name = $helper->ask($input, $output, $nameQuestion);
 
 			if (empty($name)) {

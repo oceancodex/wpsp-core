@@ -28,20 +28,37 @@ trait CommandsTrait {
 	}
 
 	public function getWebRouteContent(): string {
-		$webRoute = Filesystem::get($this->mainPath . '/routes/WebRoute.php');
-		return $webRoute;
+		return Filesystem::get($this->mainPath . '/routes/WebRoute.php');
 	}
 
-	public function saveWebRouteContent($webRouteContent): void {
-		Filesystem::instance()->put($this->mainPath . '/routes/WebRoute.php', $webRouteContent);
+	public function getApiRouteContent(): string {
+		return Filesystem::get($this->mainPath . '/routes/ApiRoute.php');
+	}
+
+	public function saveWebRouteContent($content): void {
+		Filesystem::instance()->put($this->mainPath . '/routes/WebRoute.php', $content);
+	}
+
+	public function saveApiRouteContent($content): void {
+		Filesystem::instance()->put($this->mainPath . '/routes/ApiRoute.php', $content);
 	}
 
 	public function addClassToWebRoute($findFunction, $newLineForFindFunction, $newLineUseClass): void {
 		$webRouteContent = $this->getWebRouteContent();
-		if (strpos($webRouteContent, $newLineUseClass) !== false) return;
 		$webRouteContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{([\S\s]*?)}/iu', 'public function ' . $findFunction . '$1{$2' . $newLineForFindFunction . "\n	}", $webRouteContent);
-		$webRouteContent = preg_replace('/(\n\s*)class WebRoute extends/iu', "\n" . $newLineUseClass . '$1class WebRoute extends', $webRouteContent);
+		if (!strpos($webRouteContent, $newLineUseClass) !== false) {
+			$webRouteContent = preg_replace('/(\n\s*)class WebRoute extends/iu', "\n" . $newLineUseClass . '$1class WebRoute extends', $webRouteContent);
+		}
 		$this->saveWebRouteContent($webRouteContent);
+	}
+
+	public function addClassToApiRoute($findFunction, $newLineForFindFunction, $newLineUseClass): void {
+		$apiRouteContent = $this->getApiRouteContent();
+		$apiRouteContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{([\S\s]*?)}/iu', 'public function ' . $findFunction . '$1{$2' . $newLineForFindFunction . "\n	}", $apiRouteContent);
+		if (!strpos($apiRouteContent, $newLineUseClass) !== false) {
+			$apiRouteContent = preg_replace('/(\n\s*)class ApiRoute extends/iu', "\n" . $newLineUseClass . '$1class ApiRoute extends', $apiRouteContent);
+		}
+		$this->saveApiRouteContent($apiRouteContent);
 	}
 
 	public function validateClassName($output, $className = null): void {

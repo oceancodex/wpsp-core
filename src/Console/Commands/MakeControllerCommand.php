@@ -27,7 +27,7 @@ class MakeControllerCommand extends Command {
 
 		$helper = $this->getHelper('question');
 		if (!$name) {
-			$nameQuestion = new Question('Please enter the name of the controller: ', 'MyController');
+			$nameQuestion = new Question('Please enter the name of the controller: ');
 			$name         = $helper->ask($input, $output, $nameQuestion);
 
 			if (empty($name)) {

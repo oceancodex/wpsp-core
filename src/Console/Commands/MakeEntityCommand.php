@@ -30,7 +30,7 @@ class MakeEntityCommand extends Command {
 
 		$helper = $this->getHelper('question');
 		if (!$name) {
-			$nameQuestion = new Question('Please enter the name of the entity: ', 'MyEntity');
+			$nameQuestion = new Question('Please enter the name of the entity: ');
 			$name         = $helper->ask($input, $output, $nameQuestion);
 
 			if (empty($name)) {

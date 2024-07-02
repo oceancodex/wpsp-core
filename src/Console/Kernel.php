@@ -4,6 +4,7 @@ namespace WPSPCORE\Console;
 
 use Symfony\Component\Console\Application;
 use WPSPCORE\Console\Commands\MakeAdminPageCommand;
+use WPSPCORE\Console\Commands\MakeAPICommand;
 use WPSPCORE\Console\Commands\MakeControllerCommand;
 use WPSPCORE\Console\Commands\MakeEntityCommand;
 use WPSPCORE\Console\Commands\MakeListTableCommand;
@@ -22,6 +23,7 @@ class Kernel {
 	public static function initCommands(Application $application, $mainPath, $rootNamespace, $prefixEnv): void {
 		$commands = [
 			MakeAdminPageCommand::class,
+			MakeAPICommand::class,
 			MakeControllerCommand::class,
             MakeEntityCommand::class,
             MakeListTableCommand::class,

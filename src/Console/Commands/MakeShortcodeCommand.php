@@ -31,7 +31,7 @@ class MakeShortcodeCommand extends Command {
 
 		$helper = $this->getHelper('question');
 		if (!$name) {
-			$nameQuestion = new Question('Please enter the name of the shortcode: ', 'custom_shortcode');
+			$nameQuestion = new Question('Please enter the name of the shortcode: ');
 			$name         = $helper->ask($input, $output, $nameQuestion);
 
 			if (empty($name)) {

@@ -28,7 +28,7 @@ class MakeTaxonomyCommand extends Command {
 
 		$helper = $this->getHelper('question');
 		if (!$name) {
-			$nameQuestion = new Question('Please enter the name of the taxonomy: ', 'custom_taxonomy');
+			$nameQuestion = new Question('Please enter the name of the taxonomy: ');
 			$name = $helper->ask($input, $output, $nameQuestion);
 
 			if (empty($name)) {
