@@ -10,9 +10,16 @@ class {{ className }} extends BaseListTable {
 
 	use HttpRequestTrait;
 
-	public ?string $listTableId    = 'my-custom-list-table';
 	public ?string $defaultOrder   = 'asc';
 	public ?string $defaultOrderby = 'id';
+	public ?array  $removeQueryVar = [
+		'_wp_http_referer',
+		'_wpnonce',
+		'action',
+		'action2',
+		'filter_action',
+		'id'
+	];
 
 	private ?string $page   = null;
 	private ?string $tab    = null;
@@ -29,12 +36,14 @@ class {{ className }} extends BaseListTable {
 		$this->page   = self::request()->get('page');
 		$this->tab    = self::request()->get('tab');
 		$this->search = self::request()->get('s');
+		$this->option = self::request()->get('c');
 		$this->type   = self::request()->get('type');
 		$this->url    = Funcs::instance()->_buildUrl(self::request()->getBaseUrl(), [
 			'page' => $this->page,
 			'tab'  => $this->tab,
 		]);
 		$this->url    .= $this->search ? '&s=' . $this->search : '';
+		$this->url    .= $this->option ? '&c=' . $this->option : '';
 	}
 
 	/**
@@ -144,7 +153,7 @@ class {{ className }} extends BaseListTable {
 
 			// Multi delete.
 			if ('delete' === $this->current_action()) {
-//				echo '<pre style="z-index: 9999; position: relative; clear: both;">'; print_r(self::request()->request->all()); echo '</pre>';
+				echo '<pre style="z-index: 9999; position: relative; clear: both;">'; print_r(self::request()->query->all()); echo '</pre>';
 				Funcs::notice(Funcs::trans('Deleted successfully'), 'success', true);
 			}
 
