@@ -9,7 +9,6 @@ use {{ rootNamespace }}\Funcs;
 /**
  * All tables must use the prefix: "{{ dbCustomMigrationTablePrefix }}" (Eg: {{ dbCustomMigrationTablePrefix }}my_custom_table).
  */
-
 final class {{ className }} extends AbstractMigration {
 
     public function getDescription(): string {
@@ -20,6 +19,10 @@ final class {{ className }} extends AbstractMigration {
 //	    $table = $schema->createTable(Funcs::instance()->_getDBCustomMigrationTableName('my_custom_table'));
 //	    $table->addColumn('id', 'integer', ['autoincrement' => true]);
 //		$table->setPrimaryKey(['id'], 'id');
+
+//		$table->addColumn('created_at', 'datetime', ['notnull' => false]);
+//		$table->addColumn('updated_at', 'datetime', ['notnull' => false]);
+//		$table->addColumn('deleted_at', 'datetime', ['notnull' => false]);
 
 //	    $table = $schema->getTable(Funcs::instance()->_getDBCustomMigrationTableName('my_custom_table'));
 

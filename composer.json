@@ -15,6 +15,7 @@
 		"dflydev/dot-access-data": "^3.0",
 		"doctrine/doctrine-migrations-bundle": "^3.3",
 		"doctrine/orm": "^3.2",
+		"fakerphp/faker": "^v1.23.1",
 		"gedmo/doctrine-extensions": "^3.14",
 		"hassankhan/config": "^3.1",
 		"illuminate/database": "^11.10",

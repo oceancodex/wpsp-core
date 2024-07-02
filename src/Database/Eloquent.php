@@ -18,8 +18,8 @@ class Eloquent extends BaseInstances {
 
 	public function afterConstruct(): void {
 		if (!$this->capsule) {
-			$databaseConfig    = include($this->funcs->_getConfigPath() . '/database.php');
-			$this->capsule = new Capsule();
+			$databaseConfig = include($this->funcs->_getConfigPath() . '/database.php');
+			$this->capsule  = new Capsule();
 			$this->capsule->addConnection($databaseConfig);
 			$this->capsule->setAsGlobal();
 			$this->capsule->bootEloquent();
@@ -44,7 +44,7 @@ class Eloquent extends BaseInstances {
 	 */
 
 	public function dropDatabaseTable($tableName): string {
-		$this->getCapsule()->schema()->withoutForeignKeyConstraints(function () use ($tableName) {
+		$this->getCapsule()->schema()->withoutForeignKeyConstraints(function() use ($tableName) {
 			$this->getCapsule()->schema()->dropIfExists($tableName);
 		});
 		return $tableName;
@@ -52,7 +52,7 @@ class Eloquent extends BaseInstances {
 
 	public function createDatabaseTables(): void {
 		if (!$this->getCapsule()->schema()->hasTable('abc')) {
-			$this->getCapsule()->schema()->create('abc', function (Blueprint $table) {
+			$this->getCapsule()->schema()->create('abc', function(Blueprint $table) {
 				$table->increments('id');
 			});
 		}

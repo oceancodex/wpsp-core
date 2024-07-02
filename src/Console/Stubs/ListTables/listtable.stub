@@ -19,6 +19,7 @@ class {{ className }} extends BaseListTable {
 	private ?string $type   = null;
 	private ?string $search = null;
 	private ?string $url    = null;
+	private ?string $paged  = null;
 
 	/**
 	 * Override construct to assign some variables.
@@ -41,7 +42,7 @@ class {{ className }} extends BaseListTable {
 	 */
 
 	public function get_data(): array {
-//		return \WPSP\app\Models\Settings::all()->toArray();
+//		return \WPSP\app\Models\AccountsModel::all()->toArray();
 		return [
 			[
 				'id'    => 1,
@@ -114,8 +115,9 @@ class {{ className }} extends BaseListTable {
 
 	public function get_sortable_columns(): array {
 		return [
-			'id'  => ['id', false],
-			'key' => ['key', false],
+			'id'    => ['id', false],
+			'key'   => ['key', false],
+			'value' => ['value', false],
 		];
 	}
 
@@ -181,16 +183,9 @@ class {{ className }} extends BaseListTable {
 	}
 
 	public function usort_reorder($a, $b): int {
-		// If no sort, default
 		$orderby = (!empty($_GET['orderby'])) ? $_GET['orderby'] : $this->defaultOrderby;
-
-		// If no order, default to asc
-		$order = (!empty($_GET['order'])) ? $_GET['order'] : $this->defaultOrder;
-
-		// Determine sort order
-		$result = strcmp($a[$orderby], $b[$orderby]);
-
-		// Send final sort direction to usort
+		$order   = (!empty($_GET['order'])) ? $_GET['order'] : $this->defaultOrder;
+		$result  = strnatcmp($a[$orderby], $b[$orderby]);
 		return ($order === 'asc') ? $result : -$result;
 	}
 
