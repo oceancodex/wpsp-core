@@ -33,7 +33,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		// If path is empty.
 		$helper = $this->getHelper('question');
 		if (!$path) {
-			$pathQuestion = new Question('Please enter the path of the rewrite front page: ', 'custom-rewrite-front-page');
+			$pathQuestion = new Question('Please enter the path of the rewrite front page: ');
 			$path         = $helper->ask($input, $output, $pathQuestion);
 
 			if (empty($path)) {

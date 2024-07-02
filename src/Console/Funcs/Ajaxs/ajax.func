@@ -1,0 +1,5 @@
+	$this->get('{{ action }}', [AjaxController::class, 'demoAjaxGet'], {{ nopriv }}, true, null, [
+//			'relation' => 'OR',
+//			[AdministratorCapability::class, 'handle'],
+//			[EditorCapability::class]
+		]);

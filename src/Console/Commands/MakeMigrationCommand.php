@@ -27,7 +27,7 @@ class MakeMigrationCommand extends Command {
 		$name        = $input->getArgument('name');
 		$helper = $this->getHelper('question');
 		if (!$name) {
-			$nameQuestion = new Question('Please enter the name of the migration: ', 'custom_migration');
+			$nameQuestion = new Question('Please enter the name of the migration: ');
 			$name         = $helper->ask($input, $output, $nameQuestion);
 
 			if (empty($name)) {

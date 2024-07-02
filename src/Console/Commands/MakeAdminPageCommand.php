@@ -29,7 +29,7 @@ class MakeAdminPageCommand extends Command {
 		// If path is empty.
 		$helper = $this->getHelper('question');
 		if (!$path) {
-			$pathQuestion = new Question('Please enter the path of the admin page: ', 'custom-admin-page-path');
+			$pathQuestion = new Question('Please enter the path of the admin page: ');
 			$path         = $helper->ask($input, $output, $pathQuestion);
 
 			if (empty($path)) {

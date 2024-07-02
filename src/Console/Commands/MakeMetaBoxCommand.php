@@ -31,7 +31,7 @@ class MakeMetaBoxCommand extends Command {
 
 		$helper = $this->getHelper('question');
 		if (!$id) {
-			$idQuestion = new Question('Please enter the ID of the meta box: ', 'custom_meta_box');
+			$idQuestion = new Question('Please enter the ID of the meta box: ');
 			$id         = $helper->ask($input, $output, $idQuestion);
 
 			if (empty($id)) {

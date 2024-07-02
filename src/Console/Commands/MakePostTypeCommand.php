@@ -28,7 +28,7 @@ class MakePostTypeCommand extends Command {
 
 		$helper = $this->getHelper('question');
 		if (!$name) {
-			$nameQuestion = new Question('Please enter the name of the post type: ', 'custom_post_type');
+			$nameQuestion = new Question('Please enter the name of the post type: ');
 			$name         = $helper->ask($input, $output, $nameQuestion);
 
 			if (empty($name)) {

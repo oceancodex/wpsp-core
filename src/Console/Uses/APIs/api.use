@@ -1,0 +1,1 @@
+use {{ rootNamespace }}\app\Http\Controllers\ApiController;
