@@ -40,7 +40,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		});
 
 		// Save screen options.
-		add_filter('set_screen_option_items_per_page', function ($default, $option, $value) {
+		add_filter('set_screen_option_' . $this->funcs->_env('APP_SHORT_NAME', true) . '_' . $this->menuSlug . '_items_per_page', function ($default, $option, $value) {
 			return $value;
 		}, 10, 3);
 	}
@@ -56,7 +56,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		if (!is_object($screen) || $screen->id != $menuPage) return;
 		$args = [
 			'default' => 20,
-			'option'  => 'items_per_page',
+			'option'  => $this->funcs->_env('APP_SHORT_NAME', true) . '_' . $this->menuSlug . '_items_per_page',
 		];
 		add_screen_option('per_page', $args);
 	}

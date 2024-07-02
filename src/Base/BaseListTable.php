@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Base;
 
-class BaseListTable extends \WP_List_Table {
+abstract class BaseListTable extends \WP_List_Table {
 
 	public ?string $listTableId    = null;
 	public ?string $defaultOrder   = null;
