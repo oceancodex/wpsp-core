@@ -31,7 +31,7 @@ class Migration extends BaseInstances {
 	 */
 
 	public function afterConstruct(): void {
-		$this->eloquent = new Eloquent(
+		$this->eloquent = Eloquent::instance(
 			$this->mainPath,
 			$this->rootNamespace,
 			$this->prefixEnv

@@ -7,7 +7,7 @@ use Dotenv\Repository\RepositoryBuilder;
 
 class Environment {
 
-	public static function init($envDir): void {
+	public static function load($envDir): void {
 		if (method_exists(Dotenv::class, 'createImmutable')) {
 			$dotEnv = Dotenv::createImmutable($envDir);
 		}
