@@ -279,8 +279,16 @@ class Funcs {
 			$cache        = $this->_getStoragePath() . '/framework/views';
 			Blade::$BLADE = new Blade([$views], $cache);
 		}
+		$shareVariables = [];
+		try {
+			$shareClass = '\\' . $this->_getRootNamespace() . '\\app\\View\\Share';
+			$shareVariables = array_merge($shareVariables, (new $shareClass())->variables());
+		}
+		catch (\Exception $e) {
+		}
 		global $notice;
-		Blade::$BLADE->view()->share(['notice' => $notice]);
+		$shareVariables = array_merge($shareVariables, ['notice' => $notice]);
+		Blade::$BLADE->view()->share($shareVariables);
 		return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
 	}
 
