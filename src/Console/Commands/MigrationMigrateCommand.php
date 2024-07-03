@@ -30,12 +30,8 @@ class MigrationMigrateCommand extends Command {
 		}
 
 		foreach ($execOutput as $execOutputItem) {
-			$blankLine = str_repeat(' ', strlen($execOutputItem) + 20);
-			$addonSpaceparator = str_repeat(' ', 20);
 			if (preg_match('/\[OK|\[Success/iu', $execOutputItem)) {
-				$output->writeln('<bg=green;fg=black>'. $blankLine .'</>');
-				$output->writeln('<bg=green;fg=black>'. $execOutputItem . $addonSpaceparator .'</>');
-				$output->writeln('<bg=green;fg=black>'. $blankLine .'</>');
+				$output->writeln('<bg=green;fg=black>'. $execOutputItem . '   </>');
 			}
 			else {
 				$output->writeln($execOutputItem);
