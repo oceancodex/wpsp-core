@@ -20,7 +20,7 @@ class {{ className }} extends BaseAdminPage {
 //	public mixed $parentSlug     = 'options-general.php';
 
 //	private mixed $checkDatabase = null;
-//	private mixed $table         = null;
+	private mixed $table         = null;
 
 	/*
 	 *
