@@ -6,17 +6,17 @@ abstract class BaseListTable extends \WP_List_Table {
 
 	public ?string $defaultOrder   = null;
 	public ?string $defaultOrderby = null;
-	public ?array  $removeQueryVar = [];
+	public ?array  $removeQueryVars = [];
 
 	public function __construct($args = []) {
 		parent::__construct($args);
-        $this->removeQueryVar();
+        $this->removeQueryVars();
 	}
 
-	public function removeQueryVar(): void {
+	public function removeQueryVars(): void {
 		if (isset($_REQUEST['action']) && $_REQUEST['action'] < 0 && isset($_REQUEST['action2']) && $_REQUEST['action2'] < 0
 			|| !isset($_REQUEST['action']) && !isset($_REQUEST['action2']) && isset($_REQUEST['_wpnonce'])) {
-			wp_safe_redirect(remove_query_arg($this->removeQueryVar, stripslashes($_SERVER['REQUEST_URI'])));
+			wp_safe_redirect(remove_query_arg($this->removeQueryVars, stripslashes($_SERVER['REQUEST_URI'])));
 			exit;
 		}
 	}
