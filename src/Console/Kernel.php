@@ -15,9 +15,12 @@ use WPSPCORE\Console\Commands\MakeMigrationCommand;
 use WPSPCORE\Console\Commands\MakeModelCommand;
 use WPSPCORE\Console\Commands\MakePostTypeCommand;
 use WPSPCORE\Console\Commands\MakeRewriteFrontPageCommand;
+use WPSPCORE\Console\Commands\MakeSeederCommand;
 use WPSPCORE\Console\Commands\MakeShortcodeCommand;
 use WPSPCORE\Console\Commands\MakeTaxonomyCommand;
 use WPSPCORE\Console\Commands\MakeTemplateCommand;
+use WPSPCORE\Console\Commands\MigrationDiffCommand;
+use WPSPCORE\Console\Commands\MigrationMigrateCommand;
 
 class Kernel {
 
@@ -27,17 +30,20 @@ class Kernel {
 			MakeAjaxCommand::class,
 			MakeAPICommand::class,
 			MakeControllerCommand::class,
-            MakeEntityCommand::class,
-            MakeListTableCommand::class,
-            MakeMetaBoxCommand::class,
-            MakeMiddlewareCommand::class,
-            MakeMigrationCommand::class,
+			MakeEntityCommand::class,
+			MakeListTableCommand::class,
+			MakeMetaBoxCommand::class,
+			MakeMiddlewareCommand::class,
+			MakeMigrationCommand::class,
 			MakeModelCommand::class,
-            MakePostTypeCommand::class,
-            MakeRewriteFrontPageCommand::class,
-            MakeShortcodeCommand::class,
-            MakeTaxonomyCommand::class,
+			MakePostTypeCommand::class,
+			MakeRewriteFrontPageCommand::class,
+			MakeSeederCommand::class,
+			MakeShortcodeCommand::class,
+			MakeTaxonomyCommand::class,
 			MakeTemplateCommand::class,
+			MigrationDiffCommand::class,
+			MigrationMigrateCommand::class,
 		];
 		foreach ($commands as $command) {
 			$application->add(new $command(null, $mainPath, $rootNamespace, $prefixEnv));
