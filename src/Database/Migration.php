@@ -43,7 +43,7 @@ class Migration extends BaseInstances {
 	 *
 	 */
 
-	public function getCli(): Application {
+	public function cli(): Application {
 		if (!$this->cli) {
 			$this->cli = new Application($this->funcs->_config('app.short_name'));
 			$this->cli->setCatchExceptions(true);
@@ -80,7 +80,7 @@ class Migration extends BaseInstances {
 				'--filter-expression' => '/^' . $this->funcs->_getDBTablePrefix() . '((?!cm))/iu',
 			]);
 			$output = new BufferedOutput();
-			$this->getCli()->doRun($input, $output);
+			$this->cli()->doRun($input, $output);
 			return ['success' => true, 'message' => 'Generate new database migration successfully!', 'data' => ['output' => $output->fetch()]];
 		}
 		catch (\Exception|\Throwable $e) {
@@ -102,7 +102,7 @@ class Migration extends BaseInstances {
 //					'--delete' => true
 //				]);
 //				$output = new BufferedOutput();
-//				$this->getCLI()->doRun($input, $output);
+//				$this->cli()->doRun($input, $output);
 				$exists = Filesystem::exists($lastMigrateVersionPathInFolder);
 				if ($exists) {
 					try {
@@ -134,7 +134,7 @@ class Migration extends BaseInstances {
 				'--no-interaction' => true,
 			]);
 			$output = new BufferedOutput();
-			$this->getCLI()->doRun($input, $output);
+			$this->cli()->doRun($input, $output);
 			$outputMessage = $output->fetch();
 			$outputMessage = preg_replace('/\n*|\r\n*/', '', $outputMessage);
 			$outputMessage = preg_replace('/^(.+?)yes](.+?)\[/', '[', $outputMessage);
@@ -194,7 +194,7 @@ class Migration extends BaseInstances {
 				'--no-interaction' => true,
 			]);
 			$output = new BufferedOutput();
-			$this->getCLI()->doRun($input, $output);
+			$this->cli()->doRun($input, $output);
 			return ['success' => true, 'message' => 'Sync metadata successfully!', 'data' => $output->fetch()];
 		}
 		catch (\Exception|\Throwable $e) {

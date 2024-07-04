@@ -16,7 +16,7 @@ final class {{ className }} extends AbstractMigration {
     }
 
     public function up(Schema $schema): void {
-//	    $table = $schema->createTable(Funcs::instance()->_getDBCustomMigrationTableName('my_custom_table'));
+//	    $table = $schema->createTable(Funcs::getDBCustomMigrationTableName('my_custom_table'));
 //	    $table->addColumn('id', 'integer', ['autoincrement' => true]);
 //		$table->setPrimaryKey(['id'], 'id');
 
@@ -24,13 +24,13 @@ final class {{ className }} extends AbstractMigration {
 //		$table->addColumn('updated_at', 'datetime', ['notnull' => false]);
 //		$table->addColumn('deleted_at', 'datetime', ['notnull' => false]);
 
-//	    $table = $schema->getTable(Funcs::instance()->_getDBCustomMigrationTableName('my_custom_table'));
+//	    $table = $schema->getTable(Funcs::getDBCustomMigrationTableName('my_custom_table'));
 
 //		$table->addForeignKeyConstraint('authors', ['author_id'], ['id']);
     }
 
     public function down(Schema $schema): void {
-//	    $schema->dropTable(_dbTableName('my_custom_table'));
+//	    $schema->dropTable(Funcs::getDBCustomMigrationTableName('my_custom_table'));
     }
 
 }

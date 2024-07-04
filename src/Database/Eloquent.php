@@ -132,6 +132,7 @@ class Eloquent extends BaseInstances {
 				foreach ($createTableNames as $createTableName) {
 					$createTableName = preg_replace('/\)$/', '', $createTableName);
 					$createTableName = preg_replace('/Funcs::instance\(\)->|Funcs::/', '$this->funcs->', $createTableName);
+					$createTableName = preg_replace('/getDB/', '_getDB', $createTableName);
 					$createTableName = 'return ' . $createTableName . ';';
 					try {
 						$createTableName = eval($createTableName);
