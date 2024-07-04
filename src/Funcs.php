@@ -193,6 +193,53 @@ class Funcs {
 		}
 	}
 
+	public function _getArrItemByKeyValue(array $arr, $key, $value = null, $operator = 'equals', $single = true) {
+		try {
+			$result = [];
+			foreach ($arr as $item) {
+				if ($value) {
+					if ($operator == 'equals') {
+						if (isset($item[$key]) && $item[$key] == $value) {
+							if ($single) {
+								$result = $item;
+								break;
+							}
+							else {
+								$result[] = $item;
+							}
+						}
+					}
+					elseif ($operator == 'contains') {
+						if (isset($item[$key]) && preg_match('/' . $value . '/iu', $item[$key])) {
+							if ($single) {
+								$result = $item;
+								break;
+							}
+							else {
+								$result[] = $item;
+							}
+						}
+					}
+				}
+				else {
+					if (isset($item[$key])) {
+						if ($single) {
+							$result = $item;
+							break;
+						}
+						else {
+							$result[] = $item;
+						}
+					}
+				}
+			}
+			return $result;
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+
 	public function _convertObjectToArray($object): array {
 		if (is_object($object)) {
 			$config        = new \GeneratedHydrator\Configuration(get_class($object));
