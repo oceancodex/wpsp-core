@@ -43,7 +43,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			if (!is_admin()) {
 				// Access URL that match rewrite rule.
 				add_action('wp', function() use ($path) {
-					$requestPath = trim($this->request->getPathInfo(), '/');
+					$requestPath = trim($this->request->getPathInfo(), '/\\');
 					if (preg_match('/' . $path . '/iu', $requestPath)) {
 						$this->maybeNoTemplate();
 						$this->access();

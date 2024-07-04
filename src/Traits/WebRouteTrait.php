@@ -65,7 +65,7 @@ trait WebRouteTrait {
 
 	public function post($path, $callback, $useInitClass = false, $classArgs = [], $middleware = null): void {
 		if (!wp_doing_ajax() && $this->request->isMethod('POST')) {
-			$requestPath = trim($this->request->getPathInfo(), '/');
+			$requestPath = trim($this->request->getPathInfo(), '/\\');
 			if (
 				($this->request->get('page') == $path || preg_match('/' . $path . '/iu', $requestPath))
 				&& $this->isPassedMiddleware($middleware, $this->request)
