@@ -12,6 +12,8 @@ class Eloquent extends BaseInstances {
 	private ?Capsule  $capsule = null;
 	private Migration $migration;
 
+	public static ?Eloquent $instance = null;
+
 	/*
 	 *
 	 */
@@ -25,6 +27,17 @@ class Eloquent extends BaseInstances {
 			$this->capsule->bootEloquent();
 //			$this->capsule->setEventDispatcher(new \Illuminate\Events\Dispatcher(new \Illuminate\Container\Container()));
 		}
+	}
+
+	/*
+	 *
+	 */
+
+	public static function instance($mainPath = null, $rootNamespace = null, $prefixEnv = null): null|static {
+		if (!self::$instance) {
+			self::$instance = new static($mainPath, $rootNamespace, $prefixEnv);
+		}
+		return self::$instance;
 	}
 
 	/*
@@ -119,6 +132,7 @@ class Eloquent extends BaseInstances {
 				foreach ($createTableNames as $createTableName) {
 					$createTableName = preg_replace('/\)$/', '', $createTableName);
 					$createTableName = preg_replace('/Funcs::instance\(\)->|Funcs::/', '$this->funcs->', $createTableName);
+					$createTableName = preg_replace('/getDB/', '_getDB', $createTableName);
 					$createTableName = 'return ' . $createTableName . ';';
 					try {
 						$createTableName = eval($createTableName);

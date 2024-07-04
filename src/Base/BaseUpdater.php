@@ -1,0 +1,66 @@
+<?php
+
+namespace WPSPCORE\Base;
+
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
+abstract class BaseUpdater extends BaseInstances {
+
+	public bool    $sslVerify            = true;
+	public ?string $checkForUpdatesLabel = null;
+	public ?string $packageUrl           = null;
+
+	/*
+	 *
+	 */
+
+	public function afterInstanceConstruct(): void {
+
+		// Custom properties.
+		$this->customProperties();
+
+	}
+
+	/*
+	 *
+	 */
+
+	public function init(): void {
+
+		// Disable SSL verification.
+		if (!$this->sslVerify) {
+			add_filter('puc_request_info_options-' . $this->funcs->_getTextDomain(), function($options) {
+				$options['sslverify'] = false;
+				return $options;
+			});
+		}
+
+		// Change "Check for updates" link text.
+		if ($this->checkForUpdatesLabel) {
+			add_filter('puc_manual_check_link-' . $this->funcs->_getTextDomain(), function($text) {
+				return $this->checkForUpdatesLabel;
+			});
+		}
+
+		try {
+			$updateChecker = PucFactory::buildUpdateChecker(
+				$this->packageUrl ?: $this->funcs->_config('updater.package_url') ?: $this->funcs->_getPublicUrl() . '/plugin.json',
+				$this->funcs->_getMainFilePath(),
+				$this->funcs->_getTextDomain(),
+			);
+
+//			return $updateChecker->requestInfo();
+		}
+		catch (\Exception $e) {
+//			return null;
+		}
+
+	}
+
+	/*
+	 *
+	 */
+
+	public function customProperties() {}
+
+}
