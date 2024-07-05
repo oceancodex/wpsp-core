@@ -2,45 +2,38 @@
 
 namespace WPSPCORE\Base;
 
+use WPSPCORE\Data\NavigationMenuData;
+use WPSPCORE\Traits\ObjectPropertiesToArrayTrait;
+
 abstract class BaseNavigationMenu extends BaseInstances {
 
-	public ?\WP_Post $currentPost                 = null;
-	public ?\WP_Post $currentPostParent           = null;
-	public mixed     $prepareCurrentPostAndParent = false;
+	use ObjectPropertiesToArrayTrait;
+
+	public ?string                   $location    = null;
+	public ?string                   $description = null;
+	public ?NavigationMenuData       $args        = null;
+	public static BaseNavigationMenu $instance;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $location = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->prepareCurrentPostAndParent();
+		$this->overrideLocation($location);
+		$this->prepareArguments();
+		$this->customProperties();
+		$this->maybePrepareArgumentsAgain($location);
+		self::$instance = $this;
 	}
 
 	/*
 	 *
 	 */
 
-	public function prepareCurrentPostAndParent(): void {
-		if ($this->prepareCurrentPostAndParent) {
-			add_action('wp', function() {
-				$this->prepareCurrentPost();
-				$this->prepareCurrentPostParent();
-			});
-		}
-	}
-
-	public function prepareCurrentPost(): void {
-		if (!$this->getCurrentPost()) {
-			$currentPost = get_post(get_the_ID());
-			$this->setCurrentPost($currentPost);
-		}
-	}
-
-	public function prepareCurrentPostParent(): void {
-		if (!$this->getCurrentPostParent()) {
-			$currentPostParent = get_post_parent($this->getCurrentPost());
-			$this->setCurrentPostParent($currentPostParent);
+	public function init($location = null): void {
+		if ($this->location) {
+			register_nav_menu($this->location, $this->description);
 		}
 	}
 
@@ -48,20 +41,51 @@ abstract class BaseNavigationMenu extends BaseInstances {
 	 *
 	 */
 
-	public function getCurrentPost(): ?\WP_Post {
-		return $this->currentPost;
+	public static function get(): false|string|null {
+		self::instance()->args->echo = false;
+		return wp_nav_menu(self::instance()->args);
 	}
 
-	public function setCurrentPost($currentPost): void {
-		$this->currentPost = $currentPost;
+	public static function display(): void {
+		wp_nav_menu(self::instance()->args);
 	}
 
-	public function getCurrentPostParent(): ?\WP_Post {
-		return $this->currentPostParent;
+	public static function instance(): static {
+		return self::$instance;
 	}
 
-	public function setCurrentPostParent($currentPostParent): void {
-		$this->currentPostParent = $currentPostParent;
+	/*
+	 *
+	 */
+
+	public function overrideLocation($location = null): void {
+		if ($location && !$this->location) {
+			$this->location = $location;
+		}
 	}
+
+	public function prepareArguments(): void {
+		$this->args = new NavigationMenuData($this);
+		foreach ($this->toArray() as $key => $value) {
+			if (property_exists($this->args, $key)) {
+				$this->args->{$key} = $value;
+//				unset($this->args->{$key});
+			}
+		}
+		unset($this->args->location);
+		unset($this->args->description);
+	}
+
+	public function maybePrepareArgumentsAgain($location = null): void {
+		if ($location !== $this->location) {
+			$this->prepareArguments();
+		}
+	}
+
+	/*
+	 *
+	 */
+
+	abstract public function customProperties();
 
 }

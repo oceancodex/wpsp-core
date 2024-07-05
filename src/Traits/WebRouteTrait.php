@@ -21,8 +21,9 @@ trait WebRouteTrait {
 		}, true, null, null, 10, 1);
 
 		$this->apis();
-		$this->meta_boxes();
+		$this->nav_menus();
 		$this->templates();
+		$this->meta_boxes();
 		$this->shortcodes();
 		$this->post_types();
 		$this->taxonomies();
@@ -37,6 +38,7 @@ trait WebRouteTrait {
      */
 
 	public function apis() {}
+	public function nav_menus() {}
 	public function templates() {}
 	public function meta_boxes() {}
 	public function shortcodes() {}
@@ -109,6 +111,17 @@ trait WebRouteTrait {
 	/*
 	 *
 	 */
+
+	public function nav_menu($location, $callback, $useInitClass = false, $classArgs = [], $middleware = null): void {
+		$classArgs = array_merge([$location], $classArgs ?? []);
+		$classArgs = array_merge([
+			$this->funcs->_getMainPath(),
+			$this->funcs->_getRootNamespace(),
+			$this->funcs->_getPrefixEnv()
+		], $classArgs);
+		$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
+		isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($location) : $callback;
+	}
 
 	public function template($name, $callback, $useInitClass = false, $classArgs = [], $middleware = null, $priority = 10, $argsNumber = 0): void {
 		if ($this->isPassedMiddleware($middleware, $this->request)) {
