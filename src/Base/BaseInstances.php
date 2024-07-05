@@ -26,7 +26,11 @@ abstract class BaseInstances {
 		$this->afterInstanceConstruct();
 	}
 
-	public function prepareFuncs(): void {
+	/*
+	 *
+	 */
+
+	protected function prepareFuncs(): void {
 		$this->funcs = new Funcs(
 			$this->mainPath,
 			$this->rootNamespace,
@@ -38,12 +42,12 @@ abstract class BaseInstances {
 	 *
 	 */
 
-	public function beforeConstruct() {}
+	protected function beforeConstruct() {}
 
-	public function beforeInstanceConstruct() {}
+	protected function beforeInstanceConstruct() {}
 
-	public function afterConstruct() {}
+	protected function afterConstruct() {}
 
-	public function afterInstanceConstruct() {}
+	protected function afterInstanceConstruct() {}
 
 }

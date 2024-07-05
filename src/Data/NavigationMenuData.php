@@ -32,15 +32,15 @@ class NavigationMenuData extends BaseData {
 	public mixed $item_spacing;
 
 	// Custom properties.
-	public mixed $navigationMenuInstance;
+//	public mixed $navigationMenuInstance;
 
 	public function __construct(BaseNavigationMenu $navigationMenuInstance = null) {
-		$this->navigationMenuInstance = $navigationMenuInstance;
-		$this->prepareCustomVariables();
+//		$this->navigationMenuInstance = $navigationMenuInstance;
+//		$this->prepareCustomVariables();
 		$this->prepareArgs();
 	}
 
-	public function prepareArgs(): void {
+	private function prepareArgs(): void {
 //		$this->menu                 = '';
 		$this->menu_class           = 'menu';
 //		$this->menu_id              = '';
@@ -53,7 +53,7 @@ class NavigationMenuData extends BaseData {
 //		$this->after                = '';
 //		$this->link_before          = '';
 //		$this->link_after           = '';
-		$this->echo                 = true;
+		$this->echo                 = false;
 		$this->depth                = 0;
 //		$this->walker               = '';
 //		$this->theme_location       = '';
@@ -61,8 +61,8 @@ class NavigationMenuData extends BaseData {
 //		$this->item_spacing         = '';
 	}
 
-	public function prepareCustomVariables(): void {
-		unset($this->navigationMenuInstance);
-	}
+//	private function prepareCustomVariables(): void {
+//		unset($this->navigationMenuInstance);
+//	}
 
 }

@@ -14,7 +14,7 @@ abstract class BaseUpdater extends BaseInstances {
 	 *
 	 */
 
-	public function afterInstanceConstruct(): void {
+	protected function afterInstanceConstruct(): void {
 
 		// Custom properties.
 		$this->customProperties();

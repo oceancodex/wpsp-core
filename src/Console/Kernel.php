@@ -13,6 +13,8 @@ use WPSPCORE\Console\Commands\MakeMetaBoxCommand;
 use WPSPCORE\Console\Commands\MakeMiddlewareCommand;
 use WPSPCORE\Console\Commands\MakeMigrationCommand;
 use WPSPCORE\Console\Commands\MakeModelCommand;
+use WPSPCORE\Console\Commands\MakeNavLocationCommand;
+use WPSPCORE\Console\Commands\MakeNavMenuCommand;
 use WPSPCORE\Console\Commands\MakePostTypeCommand;
 use WPSPCORE\Console\Commands\MakeRewriteFrontPageCommand;
 use WPSPCORE\Console\Commands\MakeSeederCommand;
@@ -36,6 +38,8 @@ class Kernel {
 			MakeMiddlewareCommand::class,
 			MakeMigrationCommand::class,
 			MakeModelCommand::class,
+			MakeNavLocationCommand::class,
+			MakeNavMenuCommand::class,
 			MakePostTypeCommand::class,
 			MakeRewriteFrontPageCommand::class,
 			MakeSeederCommand::class,

@@ -18,7 +18,7 @@ class MakeTemplateCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:template')
-			->setDescription('Create a new page template.       | Eg: bin/console make:template custom_template')
+			->setDescription('Create a new page template.               | Eg: bin/console make:template custom_template')
 			->setHelp('This command allows you to create a page template.')
 			->addArgument('name', InputArgument::OPTIONAL, 'The name of the template.');
 	}

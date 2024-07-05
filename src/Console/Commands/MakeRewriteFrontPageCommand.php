@@ -20,7 +20,7 @@ class MakeRewriteFrontPageCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:rewrite-front-page')
-			->setDescription('Create a new rewrite front page.  | Eg: bin/console make:rewrite-front-page custom-rewrite-front-page --rewrite-page-name=rewrite-front-pages --use-template')
+			->setDescription('Create a new rewrite front page.          | Eg: bin/console make:rewrite-front-page custom-rewrite-front-page --rewrite-page-name=rewrite-front-pages --use-template')
 			->setHelp('This command allows you to create a rewrite front page.')
 			->addArgument('path', InputArgument::OPTIONAL, 'The path of the rewrite front page.')
 			->addOption('rewrite-page-name', 'rewrite-page-name', InputOption::VALUE_REQUIRED, 'The page name for rewrite front page.')

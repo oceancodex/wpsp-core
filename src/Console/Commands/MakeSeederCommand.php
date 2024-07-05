@@ -17,7 +17,7 @@ class MakeSeederCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:seeder')
-			->setDescription('Create a new seeder.              | Eg: bin/console make:seeder MySeeder')
+			->setDescription('Create a new seeder.                      | Eg: bin/console make:seeder MySeeder')
 			->setHelp('This command allows you to create a seeder.')
 			->addArgument('name', InputArgument::OPTIONAL, 'The name of the seeder.');
 	}

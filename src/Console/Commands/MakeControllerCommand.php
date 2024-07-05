@@ -17,7 +17,7 @@ class MakeControllerCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:controller')
-			->setDescription('Create a new controller.          | Eg: bin/console make:controller MyController')
+			->setDescription('Create a new controller.                  | Eg: bin/console make:controller MyController')
 			->setHelp('This command allows you to create a controller.')
 			->addArgument('name', InputArgument::OPTIONAL, 'The name of the controller.');
 	}
@@ -35,6 +35,9 @@ class MakeControllerCommand extends Command {
 				return Command::INVALID;
 			}
 		}
+
+		// Validate class name.
+		$this->validateClassName($output, $name);
 
 		// Create class file.
 		$content = Filesystem::get(__DIR__ . '/../Stubs/Controllers/controller.stub');

@@ -18,7 +18,7 @@ class MakePostTypeCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:post-type')
-			->setDescription('Create a new post type.           | Eg: bin/console make:post-type custom_post_type')
+			->setDescription('Create a new post type.                   | Eg: bin/console make:post-type custom_post_type')
 			->setHelp('This command allows you to create a post type...')
 			->addArgument('name', InputArgument::OPTIONAL, 'The name of the post type.');
 	}

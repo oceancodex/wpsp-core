@@ -19,7 +19,7 @@ class MakeAjaxCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:ajax')
-			->setDescription('Create a new Ajax action.         | Eg: bin/console make:ajax my_action')
+			->setDescription('Create a new Ajax action.                 | Eg: bin/console make:ajax my_action')
 			->setHelp('This command allows you to create an Ajax action.')
 			->addArgument('action', InputArgument::OPTIONAL, 'The action name of the Ajax.')
 			->addOption('nopriv', 'nopriv', InputOption::VALUE_NONE, 'Fires non-authenticated Ajax actions for logged-out users.');

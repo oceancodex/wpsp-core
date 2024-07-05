@@ -65,7 +65,6 @@ abstract class BasePostType extends BaseInstances {
 		$this->prepareArguments();
 		$this->customProperties();
 		$this->maybePrepareArgumentsAgain($postType);
-		echo '<pre style="z-index: 9999; position: relative; clear: both;">'; print_r($this->args); echo '</pre>';
 	}
 
 	/*
@@ -82,13 +81,13 @@ abstract class BasePostType extends BaseInstances {
 	 *
 	 */
 
-	public function overridePostType($postType = null): void {
+	protected function overridePostType($postType = null): void {
 		if ($postType && !$this->post_type) {
 			$this->post_type = $postType;
 		}
 	}
 
-	public function prepareArguments(): void {
+	protected function prepareArguments(): void {
 		$this->args = new PostTypeData($this);
 		foreach ($this->toArray() as $key => $value) {
 			if (property_exists($this->args, $key)) {
@@ -103,7 +102,7 @@ abstract class BasePostType extends BaseInstances {
 		unset($this->args->post_type);
 	}
 
-	public function maybePrepareArgumentsAgain($postType = null): void {
+	protected function maybePrepareArgumentsAgain($postType = null): void {
 		if ($postType !== $this->post_type) {
 			$this->prepareArguments();
 		}

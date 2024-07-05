@@ -20,7 +20,7 @@ class MakeMetaBoxCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:meta-box')
-			->setDescription('Create a new meta box.            | Eg: bin/console make:meta-box custom_meta_box --create-view')
+			->setDescription('Create a new meta box.                    | Eg: bin/console make:meta-box custom_meta_box --create-view')
 			->setHelp('This command allows you to create a meta box.')
 			->addArgument('id', InputArgument::OPTIONAL, 'The id of the meta box.')
 			->addOption('create-view', 'create-view', InputOption::VALUE_NONE, 'Whether to create the view file for this meta box or not.');

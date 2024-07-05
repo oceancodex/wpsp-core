@@ -18,7 +18,7 @@ class MakeAdminPageCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:admin-page')
-			->setDescription('Create a new admin page.          | Eg: bin/console make:admin-page custom-admin-page')
+			->setDescription('Create a new admin page.                  | Eg: bin/console make:admin-page custom-admin-page')
 			->setHelp('This command allows you to create an admin page.')
 			->addArgument('path', InputArgument::OPTIONAL, 'The path of the admin page.');
 	}

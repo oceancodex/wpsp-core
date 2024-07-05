@@ -18,7 +18,7 @@ class MakeMiddlewareCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:middleware')
-			->setDescription('Create a new middleware.          | Eg: bin/console make:middleware MyMiddleware')
+			->setDescription('Create a new middleware.                  | Eg: bin/console make:middleware MyMiddleware')
 			->setHelp('This command allows you to create a middleware...')
 			->addArgument('name', InputArgument::OPTIONAL, 'The name of the middleware.');
 	}

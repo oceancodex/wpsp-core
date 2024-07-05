@@ -21,7 +21,8 @@ trait WebRouteTrait {
 		}, true, null, null, 10, 1);
 
 		$this->apis();
-		$this->nav_menus();
+		$this->nav_locations();
+
 		$this->templates();
 		$this->meta_boxes();
 		$this->shortcodes();
@@ -38,12 +39,14 @@ trait WebRouteTrait {
      */
 
 	public function apis() {}
-	public function nav_menus() {}
+	public function nav_locations() {}
+
 	public function templates() {}
 	public function meta_boxes() {}
 	public function shortcodes() {}
 	public function post_types() {}
 	public function taxonomies() {}
+
 	public function actions() {}
 	public function filters() {}
 	public function hooks() {}
@@ -112,7 +115,18 @@ trait WebRouteTrait {
 	 *
 	 */
 
-	public function nav_menu($location, $callback, $useInitClass = false, $classArgs = [], $middleware = null): void {
+	public function nav_menu($menu, $callback, $useInitClass = false, $classArgs = [], $middleware = null): void {
+		$classArgs = array_merge([$menu], $classArgs ?? []);
+		$classArgs = array_merge([
+			$this->funcs->_getMainPath(),
+			$this->funcs->_getRootNamespace(),
+			$this->funcs->_getPrefixEnv()
+		], $classArgs);
+		$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
+		isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($menu) : $callback;
+	}
+
+	public function nav_location($location, $callback, $useInitClass = false, $classArgs = [], $middleware = null): void {
 		$classArgs = array_merge([$location], $classArgs ?? []);
 		$classArgs = array_merge([
 			$this->funcs->_getMainPath(),

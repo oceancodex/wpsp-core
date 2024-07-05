@@ -18,7 +18,7 @@ class MakeMigrationCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:migration')
-			->setDescription('Create a new migration.           | Eg: bin/console make:migration custom_migration')
+			->setDescription('Create a new migration.                   | Eg: bin/console make:migration custom_migration')
 			->setHelp('This command allows you to create a migration.')
 			->addArgument('name', InputArgument::OPTIONAL, 'The name of the migration.');
 	}

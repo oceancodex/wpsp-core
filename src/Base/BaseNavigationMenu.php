@@ -3,54 +3,38 @@
 namespace WPSPCORE\Base;
 
 use WPSPCORE\Data\NavigationMenuData;
+use WPSPCORE\Data\PostTypeData;
 use WPSPCORE\Traits\ObjectPropertiesToArrayTrait;
 
 abstract class BaseNavigationMenu extends BaseInstances {
 
 	use ObjectPropertiesToArrayTrait;
 
-	public ?string                   $location    = null;
-	public ?string                   $description = null;
-	public ?NavigationMenuData       $args        = null;
-	public static BaseNavigationMenu $instance;
+	public mixed        $args     = null;
+	public static ?self $instance = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $location = null) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->overrideLocation($location);
+	protected function afterInstanceConstruct(): void {
 		$this->prepareArguments();
 		$this->customProperties();
-		$this->maybePrepareArgumentsAgain($location);
-		self::$instance = $this;
 	}
 
 	/*
 	 *
 	 */
 
-	public function init($location = null): void {
-		if ($this->location) {
-			register_nav_menu($this->location, $this->description);
-		}
-	}
-
-	/*
-	 *
-	 */
-
-	public static function get(): false|string|null {
+	public static function render(): false|string {
 		self::instance()->args->echo = false;
-		return wp_nav_menu(self::instance()->args);
+		return wp_nav_menu(self::instance()->args->toArray());
 	}
 
-	public static function display(): void {
-		wp_nav_menu(self::instance()->args);
-	}
-
-	public static function instance(): static {
+	protected static function instance(): static {
+		if (!self::$instance || !self::$instance instanceof static) {
+			self::$instance = new static();
+		}
 		return self::$instance;
 	}
 
@@ -58,27 +42,12 @@ abstract class BaseNavigationMenu extends BaseInstances {
 	 *
 	 */
 
-	public function overrideLocation($location = null): void {
-		if ($location && !$this->location) {
-			$this->location = $location;
-		}
-	}
-
-	public function prepareArguments(): void {
+	protected function prepareArguments(): void {
 		$this->args = new NavigationMenuData($this);
 		foreach ($this->toArray() as $key => $value) {
 			if (property_exists($this->args, $key)) {
 				$this->args->{$key} = $value;
-//				unset($this->args->{$key});
 			}
-		}
-		unset($this->args->location);
-		unset($this->args->description);
-	}
-
-	public function maybePrepareArgumentsAgain($location = null): void {
-		if ($location !== $this->location) {
-			$this->prepareArguments();
 		}
 	}
 
