@@ -20,7 +20,7 @@ class MakeModelCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:model')
-			->setDescription('Create a new model.               | Eg: bin/console make:model MyModel --table=custom_table --entity=MyEntity')
+			->setDescription('Create a new model.                       | Eg: bin/console make:model MyModel --table=custom_table --entity=MyEntity')
 			->setHelp('This command allows you to create a model.')
 			->addArgument('name', InputArgument::OPTIONAL, 'The class name of the model.')
 			->addOption('table', 'table', InputOption::VALUE_OPTIONAL, 'The table of the model.')

@@ -152,7 +152,7 @@ class PostTypeData extends BaseData {
 		$this->labels['all_items']                = 'All ' . $this->preparedName;
 		$this->labels['archives']                 = 'Archives for ' . $this->preparedName;
 		$this->labels['attributes']               = 'Attributes for ' . $this->preparedName;
-		$this->labels['insert_into_item']         = '\Insert into ' . $this->preparedName;
+		$this->labels['insert_into_item']         = 'Insert into ' . $this->preparedName;
 		$this->labels['uploaded_to_this_item']    = 'Uploaded to this ' . $this->preparedName;
 		$this->labels['featured_image']           = 'Featured image for ' . $this->preparedName;
 		$this->labels['set_featured_image']       = 'Set featured image for ' . $this->preparedName;

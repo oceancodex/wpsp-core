@@ -18,7 +18,7 @@ class MakeEntityCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:entity')
-			->setDescription('Create a new entity.              | Eg: bin/console make:entity MyEntity --table=custom_table --model=MyModel')
+			->setDescription('Create a new entity.                      | Eg: bin/console make:entity MyEntity --table=custom_table --model=MyModel')
 			->setHelp('This command allows you to create a entity.')
 			->addArgument('name', InputArgument::OPTIONAL, 'The name of the entity.')
 			->addOption('table', 'table', InputOption::VALUE_OPTIONAL, 'The database table of the entity.')

@@ -9,9 +9,9 @@ use WPSPCORE\View\Blade;
 
 class Funcs {
 
-	protected ?string $mainPath      = null;
-	protected ?string $rootNamespace = null;
-	protected ?string $prefixEnv     = null;
+	public ?string $mainPath      = null;
+	public ?string $rootNamespace = null;
+	public ?string $prefixEnv     = null;
 
 
 	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
@@ -25,7 +25,7 @@ class Funcs {
 	 */
 
 	public function _getMainPath(): string {
-		return trim($this->mainPath, '/ \\');
+		return rtrim($this->mainPath, '/\\');
 	}
 
 	public function _getRootNamespace(): ?string {
@@ -53,7 +53,7 @@ class Funcs {
 			$path = $this->_getMainPath();
 			$path = preg_replace('/^(.+?)wp-content(.+?)$/iu', '$1', $path);
 		}
-		$path = trim($path, '/ \\');
+		$path = rtrim($path, '/\\');
 		return $path;
 	}
 
@@ -97,7 +97,7 @@ class Funcs {
 		if (!function_exists('plugin_dir_url')) {
 			require($this->_getSitePath() . '/wp-admin/includes/plugin.php');
 		}
-		return trim(plugin_dir_url($this->_getMainFilePath()), '/');
+		return rtrim(plugin_dir_url($this->_getMainFilePath()), '/\\');
 	}
 
 	public function _getPublicUrl(): string {
@@ -105,7 +105,7 @@ class Funcs {
 	}
 
 	public function _getPublicPath($path = null): string {
-		return $this->_getMainPath() . '/public' . ($path ? '/' . ltrim($path, '/') : '');
+		return $this->_getMainPath() . '/public' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
 	public function _getPluginData(): array {
@@ -193,6 +193,53 @@ class Funcs {
 		}
 	}
 
+	public function _getArrItemByKeyValue(array $arr, $key, $value = null, $operator = 'equals', $single = true) {
+		try {
+			$result = [];
+			foreach ($arr as $item) {
+				if ($value) {
+					if ($operator == 'equals') {
+						if (isset($item[$key]) && $item[$key] == $value) {
+							if ($single) {
+								$result = $item;
+								break;
+							}
+							else {
+								$result[] = $item;
+							}
+						}
+					}
+					elseif ($operator == 'contains') {
+						if (isset($item[$key]) && preg_match('/' . $value . '/iu', $item[$key])) {
+							if ($single) {
+								$result = $item;
+								break;
+							}
+							else {
+								$result[] = $item;
+							}
+						}
+					}
+				}
+				else {
+					if (isset($item[$key])) {
+						if ($single) {
+							$result = $item;
+							break;
+						}
+						else {
+							$result[] = $item;
+						}
+					}
+				}
+			}
+			return $result;
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+
 	public function _convertObjectToArray($object): array {
 		if (is_object($object)) {
 			$config        = new \GeneratedHydrator\Configuration(get_class($object));
@@ -270,7 +317,7 @@ class Funcs {
 	 */
 
 	public function _asset($path, $secure = null): string {
-		return $this->_getPublicUrl() . '/' . ltrim($path, '/');
+		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
 	}
 
 	public function _view($viewName, $data = [], $mergeData = []): \Illuminate\Contracts\View\View {

@@ -2,8 +2,6 @@
 
 namespace WPSPCORE\Base;
 
-use WPSP\Funcs;
-
 abstract class BaseTemplates extends BaseInstances {
 
 	public mixed $templateName  = null;
@@ -61,7 +59,7 @@ abstract class BaseTemplates extends BaseInstances {
 							if ($seletedTemplatePath) {
 								$seletedTemplatePath = preg_replace('/%%slash%%/iu', '/', $seletedTemplatePath);
 							}
-							$filePath = $seletedTemplatePath ?? Funcs::instance()->_getResourcesPath() . '/views/modules/web/templates/' . $seletedTemplateName;
+							$filePath = $seletedTemplatePath ?? $this->funcs->_getResourcesPath() . '/views/modules/web/templates/' . $seletedTemplateName;
 							if (file_exists($filePath)) {
 								return $filePath;
 							}

@@ -20,7 +20,7 @@ class MakeShortcodeCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:shortcode')
-			->setDescription('Create a new shortcode.           | Eg: bin/console make:shortcode custom_shortcode --create-view')
+			->setDescription('Create a new shortcode.                   | Eg: bin/console make:shortcode custom_shortcode --create-view')
 			->setHelp('This command allows you to create a shortcode.')
 			->addArgument('name', InputArgument::OPTIONAL, 'The name of the shortcode.')
 			->addOption('create-view', 'create-view', InputOption::VALUE_NONE, 'Whether to create the view file for this shortcode or not.');

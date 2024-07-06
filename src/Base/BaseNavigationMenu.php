@@ -2,66 +2,59 @@
 
 namespace WPSPCORE\Base;
 
+use WPSPCORE\Data\NavigationMenuData;
+use WPSPCORE\Data\PostTypeData;
+use WPSPCORE\Traits\ObjectPropertiesToArrayTrait;
+
 abstract class BaseNavigationMenu extends BaseInstances {
 
-	public ?\WP_Post $currentPost                 = null;
-	public ?\WP_Post $currentPostParent           = null;
-	public mixed     $prepareCurrentPostAndParent = false;
+	use ObjectPropertiesToArrayTrait;
+
+	public mixed        $args     = null;
+	public static ?self $instance = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->prepareCurrentPostAndParent();
-	}
-
-	/*
-	 *
-	 */
-
-	public function prepareCurrentPostAndParent(): void {
-		if ($this->prepareCurrentPostAndParent) {
-			add_action('wp', function() {
-				$this->prepareCurrentPost();
-				$this->prepareCurrentPostParent();
-			});
-		}
-	}
-
-	public function prepareCurrentPost(): void {
-		if (!$this->getCurrentPost()) {
-			$currentPost = get_post(get_the_ID());
-			$this->setCurrentPost($currentPost);
-		}
-	}
-
-	public function prepareCurrentPostParent(): void {
-		if (!$this->getCurrentPostParent()) {
-			$currentPostParent = get_post_parent($this->getCurrentPost());
-			$this->setCurrentPostParent($currentPostParent);
-		}
+	protected function afterInstanceConstruct(): void {
+		$this->prepareArguments();
+		$this->customProperties();
 	}
 
 	/*
 	 *
 	 */
 
-	public function getCurrentPost(): ?\WP_Post {
-		return $this->currentPost;
+	public static function render(): false|string|null {
+		self::instance()->args->echo = false;
+		return wp_nav_menu(self::instance()->args->toArray());
 	}
 
-	public function setCurrentPost($currentPost): void {
-		$this->currentPost = $currentPost;
+	protected static function instance(): static {
+		if (!self::$instance || !self::$instance instanceof static) {
+			self::$instance = new static();
+		}
+		return self::$instance;
 	}
 
-	public function getCurrentPostParent(): ?\WP_Post {
-		return $this->currentPostParent;
+	/*
+	 *
+	 */
+
+	protected function prepareArguments(): void {
+		$this->args = new NavigationMenuData($this);
+		foreach ($this->toArray() as $key => $value) {
+			if (property_exists($this->args, $key)) {
+				$this->args->{$key} = $value;
+			}
+		}
 	}
 
-	public function setCurrentPostParent($currentPostParent): void {
-		$this->currentPostParent = $currentPostParent;
-	}
+	/*
+	 *
+	 */
+
+	abstract public function customProperties();
 
 }

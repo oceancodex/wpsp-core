@@ -2,8 +2,6 @@
 
 namespace WPSPCORE\Traits;
 
-use WPSP\Funcs;
-
 trait ScheduleRouteTrait {
 
 	public function init(): void {
@@ -28,7 +26,7 @@ trait ScheduleRouteTrait {
 		if (!wp_next_scheduled($hook)) {
 			wp_schedule_event(time(), $interval, $hook);
 		}
-		register_deactivation_hook(Funcs::instance()->_getMainFilePath(), function() use ($hook) {
+		register_deactivation_hook($this->funcs->_getMainFilePath(), function() use ($hook) {
 			wp_unschedule_hook($hook);
 //			$timestamp = wp_next_scheduled($hook);
 //			if ($timestamp) wp_unschedule_event($timestamp, $hook);

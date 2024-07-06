@@ -72,34 +72,37 @@ abstract class BasePostType extends BaseInstances {
 	 */
 
 	public function init($postType = null): void {
-		register_post_type($this->post_type, $this->args);
+		if ($this->post_type) {
+			register_post_type($this->post_type, $this->args);
+		}
 	}
 
 	/*
 	 *
 	 */
 
-	public function overridePostType($postType = null): void {
+	protected function overridePostType($postType = null): void {
 		if ($postType && !$this->post_type) {
 			$this->post_type = $postType;
 		}
 	}
 
-	public function prepareArguments(): void {
+	protected function prepareArguments(): void {
 		$this->args = new PostTypeData($this);
 		foreach ($this->toArray() as $key => $value) {
 			if (property_exists($this->args, $key)) {
 				$this->args->{$key} = $value;
-				unset($this->args->{$key});
+//				unset($this->args->{$key});
 			}
 			if (array_key_exists($key, $this->args->labels)) {
 				$this->args->labels[$key] = $value;
 				unset($this->args->{$key});
 			}
 		}
+		unset($this->args->post_type);
 	}
 
-	public function maybePrepareArgumentsAgain($postType = null): void {
+	protected function maybePrepareArgumentsAgain($postType = null): void {
 		if ($postType !== $this->post_type) {
 			$this->prepareArguments();
 		}
