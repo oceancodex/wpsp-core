@@ -15,7 +15,7 @@ class {{ name_slugify }} extends BaseRewriteFrontPage {
 	public mixed $path                 = null;
 	public mixed $rewriteIdent         = '{{ path }}';
 	public mixed $useTemplate          = {{ use_template }};
-	public mixed $rewriteFrontPageName = '{{ rewrite_page_name }}';      // You need create a "Page" with the slug (post name) like this.
+	public mixed $rewriteFrontPageSlug = '{{ rewrite_page_slug }}';      // You need create a "Page" with the slug like this.
 
 	/**
 	 * Private properties.

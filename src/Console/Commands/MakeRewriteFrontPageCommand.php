@@ -20,10 +20,10 @@ class MakeRewriteFrontPageCommand extends Command {
 	protected function configure(): void {
 		$this
 			->setName('make:rewrite-front-page')
-			->setDescription('Create a new rewrite front page.          | Eg: bin/console make:rewrite-front-page custom-rewrite-front-page --rewrite-page-name=rewrite-front-pages --use-template')
+			->setDescription('Create a new rewrite front page.          | Eg: bin/console make:rewrite-front-page custom-rewrite-front-page --rewrite-page-slug=parent/rewrite-front-pages --use-template')
 			->setHelp('This command allows you to create a rewrite front page.')
 			->addArgument('path', InputArgument::OPTIONAL, 'The path of the rewrite front page.')
-			->addOption('rewrite-page-name', 'rewrite-page-name', InputOption::VALUE_REQUIRED, 'The page name for rewrite front page.')
+			->addOption('rewrite-page-slug', 'rewrite-page-slug', InputOption::VALUE_REQUIRED, 'The page slug for rewrite front page.')
 			->addOption('use-template', 'use-template', InputOption::VALUE_NONE, 'Whether this rewrite front page have use template or not?.');
 	}
 
@@ -41,8 +41,8 @@ class MakeRewriteFrontPageCommand extends Command {
 				return Command::INVALID;
 			}
 
-			$rewritePageNameQuestion = new Question('Please enter the page name for rewrite front page: ', 'rewrite-front-pages');
-			$rewritePageName         = $helper->ask($input, $output, $rewritePageNameQuestion);
+			$rewritePageSlugQuestion = new Question('Please enter the page name for rewrite front page: ', 'rewrite-front-pages');
+			$rewritePageSlug         = $helper->ask($input, $output, $rewritePageSlugQuestion);
 
 			$useTemplateQuestion = new ConfirmationQuestion('Use template for this rewrite front page? [y/N]: ', false);
 			$useTemplate         = $helper->ask($input, $output, $useTemplateQuestion);
@@ -52,8 +52,8 @@ class MakeRewriteFrontPageCommand extends Command {
 		$pathSlugify            = Str::slug($path, '-');
 		$name                   = $path;
 		$nameSlugify            = Str::slug($name, '_');
-		$rewritePageName        = $rewritePageName ?? $input->getOption('rewrite-page-name') ?: 'rewrite-front-pages';
-		$rewritePageNameSlugify = Str::slug($rewritePageName, '-');
+		$rewritePageSlug        = $rewritePageSlug ?? $input->getOption('rewrite-page-slug') ?: 'rewrite-front-pages';
+		$rewritePageSlugSlugify = Str::slug($rewritePageSlug, '-');
 		$useTemplate            = $useTemplate ?? $input->getOption('use-template') ?: false;
 
 		// Check exist.
@@ -71,8 +71,8 @@ class MakeRewriteFrontPageCommand extends Command {
 		$content = str_replace('{{ name_slugify }}', $nameSlugify, $content);
 		$content = str_replace('{{ path }}', $path, $content);
 		$content = str_replace('{{ path_slugify }}', $pathSlugify, $content);
-		$content = str_replace('{{ rewrite_page_name }}', $rewritePageName, $content);
-		$content = str_replace('{{ rewrite_page_name_slugify }}', $rewritePageNameSlugify, $content);
+		$content = str_replace('{{ rewrite_page_slug }}', $rewritePageSlug, $content);
+		$content = str_replace('{{ rewrite_page_slug_slugify }}', $rewritePageSlugSlugify, $content);
 		$content = str_replace('{{ use_template }}', $useTemplate ? 'true' : 'false', $content);
 		$content = $this->replaceNamespaces($content);
 		Filesystem::put($this->mainPath . '/app/Extend/Components/RewriteFrontPages/' . $nameSlugify . '.php', $content);
@@ -88,8 +88,8 @@ class MakeRewriteFrontPageCommand extends Command {
 		$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
 		$view = str_replace('{{ path }}', $path, $view);
 		$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
-		$view = str_replace('{{ rewrite_page_name }}', $rewritePageName, $view);
-		$view = str_replace('{{ rewrite_page_name_slugify }}', $rewritePageNameSlugify, $view);
+		$view = str_replace('{{ rewrite_page_slug }}', $rewritePageSlug, $view);
+		$view = str_replace('{{ rewrite_page_slug_slugify }}', $rewritePageSlugSlugify, $view);
 		Filesystem::put($this->mainPath . '/resources/views/modules/web/rewrite-front-pages/' . $path . '.blade.php', $view);
 
 		// Prepare new line for find function.
@@ -98,8 +98,8 @@ class MakeRewriteFrontPageCommand extends Command {
 		$func = str_replace('{{ name_slugify }}', $nameSlugify, $func);
 		$func = str_replace('{{ path }}', $path, $func);
 		$func = str_replace('{{ path_slugify }}', $pathSlugify, $func);
-		$func = str_replace('{{ rewrite_page_name }}', $rewritePageName, $func);
-		$func = str_replace('{{ rewrite_page_name_slugify }}', $rewritePageNameSlugify, $func);
+		$func = str_replace('{{ rewrite_page_slug }}', $rewritePageSlug, $func);
+		$func = str_replace('{{ rewrite_page_slug_slugify }}', $rewritePageSlugSlugify, $func);
 
 		// Prepare new line for use class.
 		$use = Filesystem::get(__DIR__ . '/../Uses/RewriteFrontPages/rewritefrontpage.use');
@@ -107,8 +107,8 @@ class MakeRewriteFrontPageCommand extends Command {
 		$use = str_replace('{{ name_slugify }}', $nameSlugify, $use);
 		$use = str_replace('{{ path }}', $path, $use);
 		$use = str_replace('{{ path_slugify }}', $pathSlugify, $use);
-		$use = str_replace('{{ rewrite_page_name }}', $rewritePageName, $use);
-		$use = str_replace('{{ rewrite_page_name_slugify }}', $rewritePageNameSlugify, $use);
+		$use = str_replace('{{ rewrite_page_slug }}', $rewritePageSlug, $use);
+		$use = str_replace('{{ rewrite_page_slug_slugify }}', $rewritePageSlugSlugify, $use);
 		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
