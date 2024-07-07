@@ -139,6 +139,8 @@ class Migration extends BaseInstances {
 			$outputMessage = preg_replace('/\n*|\r\n*/', '', $outputMessage);
 			$outputMessage = preg_replace('/^(.+?)yes](.+?)\[/', '[', $outputMessage);
 			$outputMessage = preg_replace('/^\[(.+?)]\s/', '', $outputMessage);
+			$outputMessage = preg_replace('/>>/', '<br/>>>', $outputMessage);
+			$outputMessage = preg_replace('/\[OK]/', '<br/>[OK]', $outputMessage);
 			if (preg_match('/successfully/iu', $outputMessage)) {
 				return ['success' => true, 'data' => ['output' => $outputMessage], 'message' => 'Migrate database successfully!'];
 			}
