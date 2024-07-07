@@ -10,7 +10,7 @@ class {{ className }} extends BaseShortcode {
 
 	use InstancesTrait;
 
-	public function init($atts, $content, $tag) {
+	public function init($atts, $content, $tag): string {
 		return $content;
 	}
 

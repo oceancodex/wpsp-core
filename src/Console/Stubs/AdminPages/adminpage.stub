@@ -68,7 +68,7 @@ class {{ className }} extends BaseAdminPage {
 
 //	public function afterLoad($menuPage): void {
 //		if ($this->request->get('tab') == 'table') {
-//			$this->table = new \WPSP\app\Extend\Components\ListTables\Settings();
+//			$this->table = new \{{ rootNamespace }}\app\Extend\Components\ListTables\Settings();
 //		}
 //	}
 
