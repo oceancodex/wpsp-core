@@ -3,6 +3,7 @@
 namespace {{ rootNamespace }}\app\Http\Controllers;
 
 use {{ coreNamespace }}\Base\BaseController;
+use {{ coreNamespace }}\Funcs;
 
 class {{ className }} extends BaseController {
     public function index() {
