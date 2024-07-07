@@ -1,6 +1,6 @@
 {
 	"name": "oceancodex/wpsp-core",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "WordPress Starter Plugin - Core",
 	"type": "wordpress-plugin",
 	"keywords": [
