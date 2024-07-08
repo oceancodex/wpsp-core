@@ -136,12 +136,13 @@ class Migration extends BaseInstances {
 			$output = new BufferedOutput();
 			$this->cli()->doRun($input, $output);
 			$outputMessage = $output->fetch();
-			$outputMessage = preg_replace('/\n*|\r\n*/', '', $outputMessage);
-			$outputMessage = preg_replace('/^(.+?)yes](.+?)\[/', '[', $outputMessage);
-			$outputMessage = preg_replace('/^\[(.+?)]\s/', '', $outputMessage);
+			$outputMessage = preg_replace('/\n*|\r\n*/iu', '', $outputMessage);
+			$outputMessage = preg_replace('/^(.+?)yes](.+?)\[/iu', '[', $outputMessage);
+			$outputMessage = preg_replace('/^\[(.+?)]\s/iu', '', $outputMessage);
 			$outputMessage = preg_replace('/>>/', '<br/>>>', $outputMessage);
-			$outputMessage = preg_replace('/\[OK]/', '<br/>[OK]', $outputMessage);
-			if (preg_match('/successfully/iu', $outputMessage)) {
+			$outputMessage = preg_replace('/\[OK]/iu', '<br/>[OK]', $outputMessage);
+			$outputMessage = preg_replace('/\[notice]/iu', '<br/>[Notice]', $outputMessage);
+			if (preg_match('/Successfully|Already|Migrating/iu', $outputMessage)) {
 				return ['success' => true, 'data' => ['output' => $outputMessage], 'message' => 'Migrate database successfully!'];
 			}
 			else {
