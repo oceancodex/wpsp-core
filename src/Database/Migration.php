@@ -24,26 +24,23 @@ class Migration extends BaseInstances {
 	private ?EntityManager     $entityManager     = null;
 	private ?DependencyFactory $dependencyFactory = null;
 	private ?Application       $cli               = null;
-	private ?Eloquent          $eloquent          = null;
 
 	/*
 	 *
 	 */
 
-	public function afterConstruct(): void {
-		$this->eloquent = Eloquent::instance(
-			$this->mainPath,
-			$this->rootNamespace,
-			$this->prefixEnv
-		);
-		$this->eloquent->setMigration($this);
+	public function global(): void {
+		$globalMigration = $this->funcs->_getAppShortName();
+		$globalMigration = $globalMigration . '_migration';
+		global ${$globalMigration};
+		${$globalMigration} = $this;
 	}
 
 	/*
 	 *
 	 */
 
-	public function cli(): Application {
+	public function afterConstruct(): void {
 		if (!$this->cli) {
 			$this->cli = new Application($this->funcs->_config('app.short_name'));
 			$this->cli->setCatchExceptions(true);
@@ -61,11 +58,14 @@ class Migration extends BaseInstances {
 				new Command\DiffCommand($this->getDependencyFactory()),
 			]);
 		}
-		return $this->cli;
 	}
 
-	public function getEloquent(): ?Eloquent {
-		return $this->eloquent;
+	/*
+	 *
+	 */
+
+	public function cli(): ?Application {
+		return $this->cli;
 	}
 
 	/*
@@ -219,20 +219,117 @@ class Migration extends BaseInstances {
 		return $this->funcs->_response(true, $deletedMigrations, 'Deleted all migrations successfully!', 200);
 	}
 
+	public function getDefinedDatabaseTables(): array {
+		$databaseTableClasses = $this->funcs->_getAllClassesInDir($this->rootNamespace . '\app\Entities', $this->funcs->_getAppPath() . '/Entities');
+		$databaseTableClasses = array_merge($databaseTableClasses, [$this->funcs->_getDBTableName('migration_versions')]);
+
+		$definedDatabaseTables = [];
+		foreach ($databaseTableClasses as $databaseTableClass) {
+			try {
+				$databaseTableName = $this->getEntityManager()->getClassMetadata($databaseTableClass)->getTableName();
+			}
+			catch (\Exception $e) {
+				$databaseTableName = null; // $databaseTableClass;
+			}
+			if ($databaseTableName) {
+				$databaseTableName       = preg_replace('/^' . $this->funcs->_getDBTablePrefix() . '/iu', '', $databaseTableName);
+				$definedDatabaseTables[] = $databaseTableName;
+			}
+
+			try {
+				$joinTables = $this->getEntityManager()->getClassMetadata($databaseTableClass)->getAssociationMappings();
+				foreach ($joinTables as $joinTable) {
+					if (!empty($joinTable?->joinTable?->name)) {
+						$joinTableName = $joinTable?->joinTable?->name ?? null;
+						if ($joinTableName) {
+							$joinTableName           = preg_replace('/^' . $this->funcs->_getDBTablePrefix() . '/iu', '', $joinTableName);
+							$definedDatabaseTables[] = $joinTableName;
+						}
+					}
+				}
+			}
+			catch (\Exception $e) {
+			}
+		}
+
+		$databaseTableMigrations = $this->funcs->_getAllFilesInFolder($this->funcs->_getMigrationPath());
+		foreach ($databaseTableMigrations as $databaseTableMigration) {
+			$fileContent    = Filesystem::instance()->get($databaseTableMigration['real_path']);
+			$newFileContent = '';
+			$tokens         = token_get_all($fileContent);
+			foreach ($tokens as $token) {
+				if (is_array($token)) {
+					if (in_array($token[0], $this->funcs->_commentTokens())) {
+						continue;
+					}
+					$token = $token[1];
+				}
+				$newFileContent .= $token;
+			}
+			preg_match_all('/createTable\(([\S\s]*?);/iu', $newFileContent, $createTables);
+			$createTableNames = $createTables[1] ?? $createTables[0] ?? null;
+			if ($createTableNames) {
+				foreach ($createTableNames as $createTableName) {
+					$createTableName = preg_replace('/\)$/', '', $createTableName);
+					$createTableName = preg_replace('/Funcs::instance\(\)->|Funcs::/', '$this->funcs->', $createTableName);
+					$createTableName = preg_replace('/getDB/', '_getDB', $createTableName);
+					$createTableName = 'return ' . $createTableName . ';';
+					try {
+						$createTableName = eval($createTableName);
+						if ($createTableName) {
+							$createTableName         = str_replace($this->funcs->_getDBTablePrefix(), '', $createTableName);
+							$definedDatabaseTables[] = $createTableName;
+						}
+					}
+					catch (\Exception $e) {
+					}
+				}
+			}
+		}
+		return $definedDatabaseTables;
+	}
+
+	/*
+	 *
+	 */
+
 	public function checkDatabaseVersion(): ?array {
-		$databaseIsValid = $this->eloquent->checkDatabaseVersionNewest();
+		$databaseIsValid = $this->checkDatabaseVersionNewest();
 		if ($databaseIsValid['result']) {
 			$databaseIsValid = $this->checkMigrationFolderNotEmpty();
 		}
 		if ($databaseIsValid['result']) {
-			$databaseIsValid = $this->eloquent->checkAllDatabaseTableExists();
+			$databaseIsValid = $this->checkAllDatabaseTableExists();
 		}
 		return $databaseIsValid;
+	}
+
+	public function checkDatabaseVersionNewest(): array {
+		$databaseVersionIsNewest       = true;
+		$lastMigrateVersionInFolder    = $this->getDependencyFactory()->getVersionAliasResolver()->resolveVersionAlias('latest')->__toString();
+		$lastMigratedVersionInDatabase = $this->getDependencyFactory()->getVersionAliasResolver()->resolveVersionAlias('current')->__toString();
+		if ($lastMigratedVersionInDatabase !== $lastMigrateVersionInFolder) {
+			$databaseVersionIsNewest = false;
+		}
+		return ['result' => $databaseVersionIsNewest, 'type' => 'check_database_version_newest'];
 	}
 
 	public function checkMigrationFolderNotEmpty(): array {
 		$migrationCounts = $this->getDependencyFactory()->getMigrationRepository()->getMigrations()->count();
 		return ['result' => $migrationCounts, 'type' => 'check_migration_folder_not_empty'];
+	}
+
+	public function checkAllDatabaseTableExists(): array {
+		$definedDatabaseTables   = $this->getDefinedDatabaseTables();
+		$allDatabaseTablesExists = true;
+		foreach ($definedDatabaseTables as $definedDatabaseTable) {
+			$databaseTableExists = $this->funcs->_getAppEloquent()->getCapsule()->schema()->hasTable($definedDatabaseTable);
+			if (!$databaseTableExists) {
+				$allDatabaseTablesExists = false;
+				break;
+			}
+		}
+		return ['result' => $allDatabaseTablesExists, 'type' => 'check_all_database_table_exists'];
 	}
 
 }
