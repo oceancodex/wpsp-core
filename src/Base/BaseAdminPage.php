@@ -24,6 +24,8 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	public function init($path = null): void {
+		$this->beforeInit($path);
+
 		// Add admin page.
 		add_action('admin_menu', function () {
 			$menuPage = $this->isSubAdminPage ? $this->addSubMenuPage() : $this->addMenuPage();
@@ -43,7 +45,13 @@ abstract class BaseAdminPage extends BaseInstances {
 		add_filter('set_screen_option_' . $this->funcs->_env('APP_SHORT_NAME', true) . '_' . $this->menuSlug . '_items_per_page', function ($default, $option, $value) {
 			return $value;
 		}, 10, 3);
+
+		$this->afterInit($path);
 	}
+
+	public function beforeInit($path = null): void {}
+
+	public function afterInit($path = null): void {}
 
 	public function assets(): void {
 		$this->styles();

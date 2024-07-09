@@ -20,6 +20,7 @@ class Eloquent extends BaseInstances {
 
 	public function afterConstruct(): void {
 		if (!$this->capsule) {
+			echo '<pre style="z-index: 9999; position: relative; clear: both;">'; print_r($this->funcs->_getConfigPath()); echo '</pre>';
 			$databaseConfig = include($this->funcs->_getConfigPath() . '/database.php');
 			$this->capsule  = new Capsule();
 			$this->capsule->addConnection($databaseConfig);
@@ -34,10 +35,11 @@ class Eloquent extends BaseInstances {
 	 */
 
 	public static function instance($mainPath = null, $rootNamespace = null, $prefixEnv = null): null|static {
-		if (!self::$instance) {
-			self::$instance = new static($mainPath, $rootNamespace, $prefixEnv);
-		}
-		return self::$instance;
+		return new static($mainPath, $rootNamespace, $prefixEnv);
+//		if (!static::$instance) {
+//			static::$instance = new static($mainPath, $rootNamespace, $prefixEnv);
+//		}
+//		return static::$instance;
 	}
 
 	/*
