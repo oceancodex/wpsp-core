@@ -31,7 +31,8 @@ class MigrationMigrateCommand extends Command {
 
 		foreach ($execOutput as $execOutputItem) {
 			if (preg_match('/\[OK|\[Success/iu', $execOutputItem)) {
-				$output->writeln('<bg=green;fg=black>'. $execOutputItem . '   </>');
+				$execOutputItem = trim($execOutputItem);
+				$output->writeln('<fg=green>'. $execOutputItem . '  </>');
 			}
 			else {
 				$output->writeln($execOutputItem);
@@ -42,7 +43,7 @@ class MigrationMigrateCommand extends Command {
 		if ($seed) {
 			$namespace = $this->funcs->_getRootNamespace();
 			$databaseSeeder = $namespace. '\\database\\seeders\\DatabaseSeeder';
-			(new $databaseSeeder())->run();
+			(new $databaseSeeder($output))->run();
 		}
 
 		// Output message.

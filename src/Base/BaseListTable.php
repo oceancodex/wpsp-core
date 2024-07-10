@@ -10,6 +10,7 @@ abstract class BaseListTable extends \WP_List_Table {
 
 	public function __construct($args = []) {
 		parent::__construct($args);
+		$this->customProperties();
         $this->removeQueryVars();
 	}
 
@@ -20,6 +21,8 @@ abstract class BaseListTable extends \WP_List_Table {
 			exit;
 		}
 	}
+
+	public function customProperties() {}
 
 
 }
