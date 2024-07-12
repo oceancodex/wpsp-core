@@ -168,9 +168,14 @@ class Funcs {
 		return $files ?? [];
 	}
 
-	public function _getDBTablePrefix(): string {
-		global $wpdb;
-		return ($wpdb->prefix ?? 'wp_') . $this->_env('DB_TABLE_PREFIX', true);
+	public function _getDBTablePrefix($withWpdbPrefix = true): string {
+		if ($withWpdbPrefix) {
+			global $wpdb;
+			return ($wpdb->prefix ?? 'wp_') . $this->_env('DB_TABLE_PREFIX', true);
+		}
+		else {
+			return $this->_env('DB_TABLE_PREFIX', true);
+		}
 	}
 
 	public function _getDBCustomMigrationTablePrefix(): string {

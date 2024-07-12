@@ -8,7 +8,7 @@ use {{ coreNamespace }}\Traits\ObserversTrait;
 class {{ className }} extends Model {
 	use SoftDeletes, ObserversTrait;
 
-	protected $connection = '{{ tablePreFix }}_mysql';
+	protected $connection = '{{ tablePreFix }}mysql';
 	protected $table      = '{{ table }}';
 //	protected $primaryKey = 'id';
 
@@ -45,5 +45,11 @@ class {{ className }} extends Model {
 //	protected static array $observers = [
 //		\{{ rootNamespace }}\app\Observers\{{ className }}Observer::class,
 //	];
+
+//	public function __construct(array $attributes = []) {
+//		$this->getConnection()->setTablePrefix('wp_{{ tablePreFix }}');
+//		$this->setConnection(Funcs::instance()->_getDBTablePrefix(false) . 'mysql');
+//		parent::__construct($attributes);
+//	}
 
 }
