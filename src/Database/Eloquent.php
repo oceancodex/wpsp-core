@@ -9,7 +9,8 @@ use WPSPCORE\Filesystem\Filesystem;
 
 class Eloquent extends BaseInstances {
 
-	public ?Capsule $capsule = null;
+	public ?Capsule $capsule    = null;
+	public string   $connection = 'mysql';
 
 	/*
 	 *
@@ -28,9 +29,17 @@ class Eloquent extends BaseInstances {
 
 	public function afterConstruct(): void {
 		if (!$this->capsule) {
-			$databaseConfig = include($this->funcs->_getConfigPath() . '/database.php');
 			$this->capsule  = new Capsule();
-			$this->capsule->addConnection($databaseConfig);
+			$databaseConnections = $this->funcs->_config('database.connections');
+
+			$defaultConnectionName = $this->funcs->_config('database.default');
+			$defaultConnectionConfig = $databaseConnections[$defaultConnectionName];
+			$this->capsule->addConnection($defaultConnectionConfig, 'default');
+
+			foreach ($databaseConnections as $connectionName => $connectionConfig) {
+				$this->capsule->addConnection($connectionConfig, $connectionName);
+			}
+
 			$this->capsule->setAsGlobal();
 			$this->capsule->bootEloquent();
 		}
@@ -49,7 +58,7 @@ class Eloquent extends BaseInstances {
 	 */
 
 	public function dropDatabaseTable($tableName): string {
-		$this->funcs->_getAppEloquent()->getCapsule()->schema()->withoutForeignKeyConstraints(function () use ($tableName) {
+		$this->funcs->_getAppEloquent()->getCapsule()->schema()->withoutForeignKeyConstraints(function() use ($tableName) {
 			$this->getCapsule()->schema()->dropIfExists($tableName);
 		});
 		return $tableName;

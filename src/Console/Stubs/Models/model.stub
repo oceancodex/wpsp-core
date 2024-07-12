@@ -3,14 +3,47 @@ namespace {{ rootNamespace }}\app\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use WPSPCORE\Traits\ObserversTrait;
+use {{ coreNamespace }}\Traits\ObserversTrait;
 
 class {{ className }} extends Model {
 	use SoftDeletes, ObserversTrait;
 
+//	protected $connection;
 	protected $table      = '{{ table }}';
-	protected $primaryKey = 'id';
-	protected $fillable   = [];
-	protected $guarded    = [];
+//	protected $primaryKey = 'id';
+
+//	protected $appends;
+//	protected $attributeCastCache;
+//	protected $attributes;
+//	protected $casts;
+//	protected $changes;
+//	protected $classCastCache;
+//	protected $dateFormat;
+//	protected $dispatchesEvents;
+//	protected $escapeWhenCastingToString;
+//	protected $fillable = [];
+//	protected $forceDeleting;
+	protected $guarded = [];
+//	protected $hidden;
+//	protected $keyType;
+//	protected $observables;
+//	protected $original;
+//	protected $perPage;
+//	protected $relations;
+//	protected $touches;
+//	protected $visible;
+//	protected $with;
+//	protected $withCount;
+
+//	public    $exists;
+//	public    $incrementing;
+//	public    $preventsLazyLoading;
+//	public    $timestamps;
+//	public    $usesUniqueIds;
+//	public    $wasRecentlyCreated;
+
+//	protected static array $observers = [
+//		\{{ rootNamespace }}\app\Observers\{{ className }}Observer::class,
+//	];
 
 }

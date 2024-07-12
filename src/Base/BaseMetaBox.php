@@ -44,7 +44,7 @@ abstract class BaseMetaBox extends BaseInstances {
 	 *
 	 */
 
-	abstract public function content($post, $meta_box);
+	abstract public function index($post, $meta_box);
 
 	abstract public function customProperties();
 
