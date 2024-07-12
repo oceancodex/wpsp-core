@@ -14,31 +14,37 @@ class {{ className }} extends BaseAdminPage {
 
 	use InstancesTrait;
 
-	public mixed $menuTitle      = '{{ name }}';
-//	public mixed $pageTitle      = '{{ name }}';
+	public mixed $menu_title     = '{{ name }}';
+//	public mixed $page_title     = '{{ name }}';
 	public mixed $capability     = 'manage_options';
-//	public mixed $menuSlug       = '{{ path_slugify }}';
-	public mixed $iconUrl        = 'dashicons-admin-generic';
+//	public mixed $menu_slug      = '{{ path_slugify }}';
+	public mixed $icon_url       = 'dashicons-admin-generic';
 	public mixed $position       = 2;
 //	public mixed $isSubAdminPage = true;
-//	public mixed $parentSlug     = 'options-general.php';
+//	public mixed $parent_slug    = 'options-general.php';
 
 //	private mixed $checkDatabase = null;
-	private mixed $table         = null;
+//	private mixed $table         = null;
+	private mixed $currentTab    = null;
+	private mixed $currentPage   = null;
 
 	/*
 	 *
 	 */
 
 	public function customProperties(): void {
-//		$this->menuTitle      = '';
-//		$this->pageTitle      = '';
+//		$this->menu_title     = '';
+//		$this->page_title     = '';
 //		$this->capability     = '';
-//		$this->menuSlug       = '';
-//		$this->iconUrl        = '';
+//		$this->menu_slug      = '';
+//		$this->icon_url       = '';
 //		$this->position       = '';
 //		$this->isSubAdminPage = false;
-//		$this->parentSlug     = '';
+//		$this->parent_slug    = '';
+
+		$this->currentTab   = $this->request->get('tab');
+		$this->currentPage  = $this->request->get('page');
+		$this->page_title   = ($this->currentTab ? Funcs::trans('messages.' . $this->currentTab) : Funcs::trans('messages.dashboard')) . ' - ' . Funcs::config('app.name');
 	}
 
 	/*
@@ -46,35 +52,35 @@ class {{ className }} extends BaseAdminPage {
 	 */
 
 //	public function init($path = null): void {
-//		$currentTab  = $this->request->get('tab');
-//		$currentPage = $this->request->get('page');
-//
-//		// Custom information before call to parent method "init" .
-//		$this->setPageTitle(($currentTab ? Funcs::trans('messages.' . $currentTab) : Funcs::trans('messages.dashboard')) . ' - ' . Funcs::config('app.name'));
-//
 //		// You must call to parent method "init" if you want to custom it.
 //		parent::init();
-//
-//		// Check database version and maybe redirect.
-//		$this->checkDatabase = Migration::instance()->checkDatabaseVersion();
-//		if (!$this->checkDatabase['result'] && $currentPage == $this->getMenuSlug() && $currentTab !== 'database') {
-//			$url = Funcs::instance()->_buildUrl($this->getParentSlug(), [
-//				'page' => $this->getMenuSlug(),
-//				'tab'  => 'database',
-//			]);
-//			wp_redirect($url);
-//		}
 //	}
 
-//	public function afterLoad($menuPage): void {
+	public function beforeInit(): void {}
+
+	public function afterInit(): void {
+//		if ($this->currentPage == $this->menu_slug) {
+//			// Check database version and maybe redirect.
+//			$this->checkDatabase = Funcs::instance()->_getAppMigration()->checkDatabaseVersion();
+//			if (!$this->checkDatabase['result'] && $this->currentPage == $this->getMenuSlug() && $this->currentTab !== 'database') {
+//				$url = Funcs::instance()->_buildUrl($this->getParentSlug(), [
+//					'page' => $this->getMenuSlug(),
+//					'tab'  => 'database',
+//				]);
+//				wp_redirect($url);
+//			}
+//		}
+	}
+
+	public function afterLoad($adminPage): void {
 //		if ($this->request->get('tab') == 'table') {
 //			$this->table = new \{{ rootNamespace }}\app\Extend\Components\ListTables\Settings();
 //		}
-//	}
+	}
 
-//	public function screenOptions($menuPage): void {
+//	public function screenOptions($adminPage): void {
 //		if ($this->request->get('tab') == 'table') {
-//			parent::screenOptions($menuPage);
+//			parent::screenOptions($adminPage);
 //		}
 //	}
 
@@ -83,12 +89,12 @@ class {{ className }} extends BaseAdminPage {
 	 */
 
 	public function index(): void {
-		if ($this->request->get('updated') && $this->parentSlug !== 'options-general.php' && $this->request->get('tab') !== 'table') {
+		if ($this->request->get('updated') && $this->parent_slug !== 'options-general.php' && $this->request->get('tab') !== 'table') {
 			Funcs::notice(Funcs::trans('Updated successfully', true), 'success');
 		}
 
-        $requestParams = $this->request->query->all();
-        $menuSlug      = $this->getMenuSlug();
+		$requestParams = $this->request->query->all();
+		$menuSlug      = $this->getMenuSlug();
 
 		$table = $this->table;
 
@@ -102,6 +108,28 @@ class {{ className }} extends BaseAdminPage {
 	public function update(): void {
 //		$tab = $this->request->get('tab');
 //		if ($tab !== 'table') {
+//			$settings = $this->request->get('settings');
+//
+////			$existSettings = Cache::getItemValue('settings');
+//			$existSettings = Settings::query()->where('key','settings')->first();
+//			$existSettings = json_decode($existSettings['value'] ?? '', true);
+//			$existSettings = array_merge($existSettings ?? [], $settings ?? []);
+//
+//			// Save settings into cache.
+////			Cache::set('settings', function() use ($existSettings) {
+////				return $existSettings;
+////			});
+//
+//			// Delete license information cache.
+//			Cache::delete('license_information');
+//
+//			// Save settings into database.
+//			Settings::updateOrCreate([
+//				'key' => 'settings',
+//			], [
+//				'value' => json_encode($existSettings),
+//			]);
+//
 //			wp_safe_redirect(wp_get_raw_referer() . '&updated=true');
 //		}
 	}

@@ -30,13 +30,14 @@ class Eloquent extends BaseInstances {
 	public function afterConstruct(): void {
 		if (!$this->capsule) {
 			$this->capsule  = new Capsule();
-			$databaseConnections = $this->funcs->_config('database.connections');
+			global $wpspDatabaseConnections;
+			$wpspDatabaseConnections = array_merge(is_array($wpspDatabaseConnections) ? $wpspDatabaseConnections : [], $this->funcs->_config('database.connections'));
 
 			$defaultConnectionName = $this->funcs->_config('database.default');
-			$defaultConnectionConfig = $databaseConnections[$defaultConnectionName];
+			$defaultConnectionConfig = $wpspDatabaseConnections[$defaultConnectionName];
 			$this->capsule->addConnection($defaultConnectionConfig, 'default');
 
-			foreach ($databaseConnections as $connectionName => $connectionConfig) {
+			foreach ($wpspDatabaseConnections as $connectionName => $connectionConfig) {
 				$this->capsule->addConnection($connectionConfig, $connectionName);
 			}
 

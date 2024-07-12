@@ -5,7 +5,7 @@ namespace WPSPCORE\Base;
 abstract class BaseListTable extends \WP_List_Table {
 
 	public ?string $defaultOrder   = 'asc';
-	public ?string $defaultOrderby = 'id';
+	public ?string $defaultOrderBy = 'id';
 	public ?array  $removeQueryVars = [];
 
 	public function __construct($args = []) {
