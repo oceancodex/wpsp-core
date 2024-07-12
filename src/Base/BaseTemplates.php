@@ -4,13 +4,13 @@ namespace WPSPCORE\Base;
 
 abstract class BaseTemplates extends BaseInstances {
 
-	public mixed $templateName  = null;
-	public mixed $templateLabel = null;
-	public mixed $templatePath  = null;
+	public mixed $name  = null;
+	public mixed $label = null;
+	public mixed $path  = null;
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $templateName = null) {
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $name = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->templateName = $templateName;
+		$this->name = $name;
 		$this->customProperties();
 		$this->templateInclude();
 	}
@@ -19,17 +19,17 @@ abstract class BaseTemplates extends BaseInstances {
 	 *
 	 */
 
-	public function init($templateName = null): void {
-		if ($this->templateName) {
+	public function init($name = null): void {
+		if ($this->name) {
 			add_filter('theme_page_templates', function($templates) {
-				$templateName = $this->templateName;
-				if ($this->templatePath) {
-					$templateName .= '|' . preg_replace('/\/|\\\/iu', '%%slash%%', $this->templatePath);
+				$name = $this->name;
+				if ($this->path) {
+					$name .= '|' . preg_replace('/\/|\\\/iu', '%%slash%%', $this->path);
 				}
 				else {
-					$templateName .= '.php';
+					$name .= '.php';
 				}
-				$templates[$templateName] = $this->templateLabel ?? $this->funcs->_config('app.short_name') . ' - Custom template';
+				$templates[$name] = $this->label ?? $this->funcs->_config('app.short_name') . ' - Custom template';
 				return $templates;
 			});
 		}
@@ -55,7 +55,7 @@ abstract class BaseTemplates extends BaseInstances {
 						$seletedTemplate     = explode('|', $seletedTemplate);
 						$seletedTemplateName = $seletedTemplate[0] ?? null;
 						$seletedTemplatePath = $seletedTemplate[1] ?? null;
-						if ($seletedTemplateName == $this->templateName || $seletedTemplateName == $this->templateName . '.php') {
+						if ($seletedTemplateName == $this->name || $seletedTemplateName == $this->name . '.php') {
 							if ($seletedTemplatePath) {
 								$seletedTemplatePath = preg_replace('/%%slash%%/iu', '/', $seletedTemplatePath);
 							}
