@@ -68,6 +68,7 @@ class MakeModelCommand extends Command {
 		$content = Filesystem::get(__DIR__ . '/../Stubs/Models/model.stub');
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ table }}', $table ?? null, $content);
+		$content = str_replace('{{ tablePrefix }}', $this->funcs->_getDBTablePrefix(), $content);
 		$content = str_replace('{{ entity }}', $entity ?? null, $content);
 		$content = $this->replaceNamespaces($content);
 		Filesystem::put($this->mainPath . '/app/Models/'. $name . '.php', $content);

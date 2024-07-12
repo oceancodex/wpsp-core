@@ -8,7 +8,7 @@ use {{ coreNamespace }}\Traits\ObserversTrait;
 class {{ className }} extends Model {
 	use SoftDeletes, ObserversTrait;
 
-//	protected $connection;
+	protected $connection = '{{ tablePreFix }}_mysql';
 	protected $table      = '{{ table }}';
 //	protected $primaryKey = 'id';
 
