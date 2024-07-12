@@ -4,12 +4,13 @@ namespace WPSPCORE\Base;
 
 abstract class BaseListTable extends \WP_List_Table {
 
-	public ?string $defaultOrder   = null;
-	public ?string $defaultOrderby = null;
+	public ?string $defaultOrder   = 'asc';
+	public ?string $defaultOrderby = 'id';
 	public ?array  $removeQueryVars = [];
 
 	public function __construct($args = []) {
 		parent::__construct($args);
+		$this->customProperties();
         $this->removeQueryVars();
 	}
 
@@ -20,6 +21,8 @@ abstract class BaseListTable extends \WP_List_Table {
 			exit;
 		}
 	}
+
+	public function customProperties() {}
 
 
 }

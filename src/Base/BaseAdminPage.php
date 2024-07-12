@@ -23,7 +23,19 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
+	public function overrideMenuSlug($menuSlug = null): void {
+		if ($menuSlug && !$this->menuSlug) {
+			$this->menuSlug = $menuSlug;
+		}
+	}
+
+	/*
+	 *
+	 */
+
 	public function init($path = null): void {
+		$this->beforeInit();
+
 		// Add admin page.
 		add_action('admin_menu', function () {
 			$menuPage = $this->isSubAdminPage ? $this->addSubMenuPage() : $this->addMenuPage();
@@ -43,31 +55,15 @@ abstract class BaseAdminPage extends BaseInstances {
 		add_filter('set_screen_option_' . $this->funcs->_env('APP_SHORT_NAME', true) . '_' . $this->menuSlug . '_items_per_page', function ($default, $option, $value) {
 			return $value;
 		}, 10, 3);
+
+		$this->afterInit();
 	}
 
-	public function assets(): void {
-		$this->styles();
-		$this->scripts();
-		$this->localizeScripts();
-	}
+	public function beforeInit() {}
 
-	public function screenOptions($menuPage): void {
-		$screen = get_current_screen();
-		if (!is_object($screen) || $screen->id != $menuPage) return;
-		$args = [
-			'default' => 20,
-			'option'  => $this->funcs->_env('APP_SHORT_NAME', true) . '_' . $this->menuSlug . '_items_per_page',
-		];
-		add_screen_option('per_page', $args);
-	}
+	public function afterInit() {}
 
 	public function afterLoad($menuPage) {}
-
-	public function overrideMenuSlug($menuSlug = null): void {
-		if ($menuSlug && !$this->menuSlug) {
-			$this->menuSlug = $menuSlug;
-		}
-	}
 
 	/*
 	 *
@@ -94,6 +90,26 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->menuSlug,
 			[$this, 'index']
 		);
+	}
+
+	/*
+	 *
+	 */
+
+	public function assets(): void {
+		$this->styles();
+		$this->scripts();
+		$this->localizeScripts();
+	}
+
+	public function screenOptions($menuPage): void {
+		$screen = get_current_screen();
+		if (!is_object($screen) || $screen->id != $menuPage) return;
+		$args = [
+			'default' => 20,
+			'option'  => $this->funcs->_env('APP_SHORT_NAME', true) . '_' . $this->menuSlug . '_items_per_page',
+		];
+		add_screen_option('per_page', $args);
 	}
 
 	/*

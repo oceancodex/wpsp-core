@@ -4,6 +4,8 @@ namespace WPSPCORE;
 
 use Carbon\Carbon;
 use NumberFormatter;
+use WPSPCORE\Database\Eloquent;
+use WPSPCORE\Database\Migration;
 use WPSPCORE\Environment\Environment;
 use WPSPCORE\View\Blade;
 
@@ -39,6 +41,28 @@ class Funcs {
 	/*
 	 *
 	 */
+
+	public function _getAppShortName(): ?string {
+		return $this->_env('APP_SHORT_NAME', true);
+	}
+
+	/**
+	 * @return Eloquent
+	 */
+	public function _getAppEloquent(): Eloquent {
+		$globalEloquent = $this->_getAppShortName() . '_eloquent';
+		global ${$globalEloquent};
+		return ${$globalEloquent};
+	}
+
+	/**
+	 * @return Migration
+	 */
+	public function _getAppMigration(): Migration {
+		$globalMigration = $this->_getAppShortName() . '_migration';
+		global ${$globalMigration};
+		return ${$globalMigration};
+	}
 
 	public function _getMainBaseName(): string {
 		return basename($this->_getMainPath());
@@ -328,7 +352,7 @@ class Funcs {
 		}
 		$shareVariables = [];
 		try {
-			$shareClass = '\\' . $this->_getRootNamespace() . '\\app\\View\\Share';
+			$shareClass     = '\\' . $this->_getRootNamespace() . '\\app\\View\\Share';
 			$shareVariables = array_merge($shareVariables, (new $shareClass())->variables());
 		}
 		catch (\Exception $e) {
