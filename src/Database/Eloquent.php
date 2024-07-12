@@ -66,6 +66,7 @@ class Eloquent extends BaseInstances {
 
 	public function dropAllDatabaseTables(): array {
 		$definedDatabaseTables = $this->funcs->_getAppMigration()->getDefinedDatabaseTables();
+		$definedDatabaseTables = array_merge($definedDatabaseTables, ['migration_versions']);
 		foreach ($definedDatabaseTables as $definedDatabaseTable) {
 			$tableDropped = $this->dropDatabaseTable($definedDatabaseTable);
 		}
