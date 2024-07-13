@@ -8,7 +8,15 @@ use {{ coreNamespace }}\Funcs;
 class {{ className }} extends BaseController {
 
     public function index(\WP_REST_Request $request) {
-        //
+
+        // Remove slashes at the end of URL and redirect to new URL.
+//		$uri = $this->request->getRequestUri();
+//		if (preg_match('/\/$/iu', $uri)) {
+//			$uri = rtrim($uri, '/');
+//			$response = new RedirectResponse(home_url($uri));
+//			$response->send();
+//		}
+
     }
 
     public function create(\WP_REST_Request $request) {
