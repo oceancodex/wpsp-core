@@ -96,12 +96,12 @@ class {{ className }} extends BaseAdminPage {
 		$requestParams = $this->request->query->all();
 		$menuSlug      = $this->getMenuSlug();
 
-		$table = $this->table;
+//		$table = $this->table;
 
 		echo Funcs::view('modules.web.admin-pages.{{ path }}.main', compact(
 			'requestParams',
 			'menuSlug',
-			'table'
+//			'table'
 		));
 	}
 

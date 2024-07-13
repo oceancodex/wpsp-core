@@ -31,7 +31,7 @@ abstract class BaseMetaBox extends BaseInstances {
 			add_meta_box(
 				$this->id,
 				$this->title,
-				[$this, 'content'],
+				[$this, 'index'],
 				$this->screen,
 				$this->context,
 				$this->priority,

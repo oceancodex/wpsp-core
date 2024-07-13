@@ -65,6 +65,7 @@ class MakeEntityCommand extends Command {
 			$modelStub = Filesystem::get(__DIR__ . '/../Stubs/Models/model.stub');
 			$modelStub = str_replace('{{ className }}', $model, $modelStub);
 			$modelStub = str_replace('{{ table }}', $table, $modelStub);
+			$modelStub = str_replace('{{ tablePrefix }}', $this->funcs->_getDBTablePrefix(false), $modelStub);
 			$modelStub = $this->replaceNamespaces($modelStub);
 			Filesystem::put($this->mainPath . '/app/Models/' . $model . '.php', $modelStub);
 		}

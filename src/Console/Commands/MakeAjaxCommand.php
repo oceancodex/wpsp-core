@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 use WPSPCORE\Filesystem\Filesystem;
 use WPSPCORE\Traits\CommandsTrait;
@@ -38,13 +39,13 @@ class MakeAjaxCommand extends Command {
 				return Command::INVALID;
 			}
 
-			$noprivQuestion = new Question('Do you want to allow access for non-logged user? (nopriv): ');
+			$noprivQuestion = new ConfirmationQuestion('Do you want to allow access for non-logged user? (nopriv) [y/N]: ');
 			$nopriv         = $helper->ask($input, $output, $noprivQuestion);
 		}
 
 		// Define variables.
 		$actionSlugify = Str::slug($action, '_');
-		$nopriv        = $nopriv ?? $input->getOption('nopriv');
+		$nopriv        = $nopriv ?? $input->getOption('nopriv') ?: 'false';
 		$nopriv        = $nopriv ? 'true' : 'false';
 
 		// Prepare new line for find function.

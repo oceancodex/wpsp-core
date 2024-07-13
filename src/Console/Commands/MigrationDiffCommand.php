@@ -22,7 +22,12 @@ class MigrationDiffCommand extends Command {
 
 		$tablePrefix = $this->funcs->_getDBTablePrefix();
 
-		exec('php bin/migrations diff --filter-expression="/^'.$tablePrefix.'((?!cm_))/iu" -n');
+		exec('php bin/migrations diff --filter-expression="/^'.$tablePrefix.'((?!cm_))/iu" -n', $output);
+		foreach ($output as $outputItem) {
+			if ($outputItem) {
+				echo $outputItem. PHP_EOL;
+			}
+		}
 
 		// Output message.
 //		$output->writeln('Diff.');
