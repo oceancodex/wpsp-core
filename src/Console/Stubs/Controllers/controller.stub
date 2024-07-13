@@ -7,11 +7,11 @@ use {{ coreNamespace }}\Funcs;
 
 class {{ className }} extends BaseController {
 
-    public function index() {
+    public function index(\WP_REST_Request $request) {
         //
     }
 
-    public function create() {
+    public function create(\WP_REST_Request $request) {
         //
     }
 
@@ -19,19 +19,19 @@ class {{ className }} extends BaseController {
         //
     }
 
-    public function show(string $id) {
+    public function show(\WP_REST_Request $request) {
         //
     }
 
-    public function edit(string $id) {
+    public function edit(\WP_REST_Request $request) {
         //
     }
 
-    public function update(\WP_REST_Request $request, string $id) {
+    public function update(\WP_REST_Request $request) {
         //
     }
 
-    public function destroy(string $id) {
+    public function destroy(\WP_REST_Request $request) {
         //
     }
 
