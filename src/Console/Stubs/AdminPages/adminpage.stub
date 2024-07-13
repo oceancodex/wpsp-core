@@ -5,7 +5,7 @@ namespace {{ rootNamespace }}\app\Extend\Components\AdminPages;
 use {{ rootNamespace }}\app\Extend\Components\License\License;
 use {{ rootNamespace }}\app\Extend\Instances\Cache\Cache;
 use {{ rootNamespace }}\app\Extend\Instances\Database\Migration;
-use {{ rootNamespace }}\app\Models\Settings;
+use {{ rootNamespace }}\app\Models\SettingsModel;
 use {{ rootNamespace }}\app\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
 use {{ coreNamespace }}\Base\BaseAdminPage;
