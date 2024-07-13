@@ -6,6 +6,7 @@ use {{ coreNamespace }}\Base\BaseController;
 use {{ coreNamespace }}\Funcs;
 
 class {{ className }} extends BaseController {
+
     public function index() {
         //
     }
@@ -33,4 +34,5 @@ class {{ className }} extends BaseController {
     public function destroy(string $id) {
         //
     }
+
 }
