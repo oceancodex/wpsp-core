@@ -69,9 +69,11 @@ class TaxonomyData extends BaseData {
 	// Custom properties.
 	public mixed $preparedName;
 	public mixed $taxonomyInstance;
+	public mixed $previousArgs;
 
-	public function __construct(BaseTaxonomy $taxonomyInstance = null) {
+	public function __construct(BaseTaxonomy $taxonomyInstance = null, $previousArgs = null) {
 		$this->taxonomyInstance = $taxonomyInstance;
+		$this->previousArgs     = $previousArgs;
 		$this->prepareCustomVariables();
 		$this->prepareArgs();
 		$this->prepareLabels();
@@ -141,8 +143,14 @@ class TaxonomyData extends BaseData {
 	}
 
 	public function prepareCustomVariables(): void {
-		$this->preparedName = $this->singular_name ?? $this->name ?? $this->taxonomy ?? null;
-		$this->preparedName = $this->preparedName ?: $this->taxonomyInstance->singular_name ?? $this->taxonomyInstance->name ?? $this->taxonomyInstance->taxonomy;
+		$this->preparedName = $this->previousArgs->labels['name']
+			?? $this->previousArgs->labels['singular_name']
+			?? $this->taxonomyInstance->args->labels['name']
+			?? $this->taxonomyInstance->args->labels['singular_name']
+			?? $this->taxonomyInstance->taxonomy
+			?? $this->name
+			?? $this->singular_name
+			?? $this->taxonomy;
 		unset($this->taxonomyInstance);
 	}
 

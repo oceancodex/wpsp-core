@@ -24,7 +24,7 @@ class MakeModelCommand extends Command {
 			->setHelp('This command allows you to create a model.')
 			->addArgument('name', InputArgument::OPTIONAL, 'The class name of the model.')
 			->addOption('table', 'table', InputOption::VALUE_OPTIONAL, 'The table of the model.')
-			->addOption('entity', 'entity', InputOption::VALUE_NONE, 'The entity of the model.');
+			->addOption('entity', 'entity', InputOption::VALUE_OPTIONAL, 'The entity of the model.');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {

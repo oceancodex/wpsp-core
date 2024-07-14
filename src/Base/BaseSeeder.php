@@ -21,13 +21,14 @@ abstract class BaseSeeder extends Seeder {
 		$this->output = $output;
 		$this->beforeInstanceConstruct();
 		$this->funcs = new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv);
-		if (!$this->capsule) {
-			$databaseConfig = include($this->funcs->_getMainPath() . '/config/database.php');
-			$this->capsule  = new Capsule();
-			$this->capsule->addConnection($databaseConfig);
-			$this->capsule->setAsGlobal();
-			$this->capsule->bootEloquent();
-		}
+//		if (!$this->capsule) {
+//			$databaseConfig = include($this->funcs->_getMainPath() . '/config/database.php');
+//			echo '<pre style="z-index: 9999; position: relative; clear: both;">'; print_r($databaseConfig); echo '</pre>';
+//			$this->capsule  = new Capsule();
+//			$this->capsule->addConnection($databaseConfig);
+//			$this->capsule->setAsGlobal();
+//			$this->capsule->bootEloquent();
+//		}
 	}
 
 	public function call($class, $silent = false, array $parameters = []): static {

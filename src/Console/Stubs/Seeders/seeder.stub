@@ -5,6 +5,7 @@ namespace {{ rootNamespace }}\database\seeders;
 use Faker\Factory as Faker;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\app\Models\SettingsModel;
 use WPSPCORE\Base\BaseSeeder;
 
 class {{ className }} extends BaseSeeder {
@@ -15,7 +16,7 @@ class {{ className }} extends BaseSeeder {
 //		$faker = Faker::create();
 //
 //		for ($i = 0; $i < 20; $i++) {
-//			Settings::create([
+//			SettingsModel::create([
 //				'key'   => $faker->userName,
 //				'value' => $faker->name
 //			]);
