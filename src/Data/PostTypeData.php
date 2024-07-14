@@ -84,15 +84,17 @@ class PostTypeData extends BaseData {
 	public mixed $template;
 	public mixed $template_lock;
 	public mixed $_builtin;
-//	public mixed $_edit_link;
-//	public mixed $query_var;
+//	public mixed $_edit_link;                           // Warning: This attribute may affect post editing.
+//	public mixed $query_var;                            // Warning: This attribute can affect article viewing beyond the frontend.
 
 	// Custom properties.
-	public mixed $preparedName;
+	public mixed $preparedName = null;
 	public mixed $postTypeInstance;
+	public mixed $previousArgs;
 
-	public function __construct(BasePostType $postTypeInstance = null) {
+	public function __construct(BasePostType $postTypeInstance = null, $previousArgs = null) {
 		$this->postTypeInstance = $postTypeInstance;
+		$this->previousArgs     = $previousArgs;
 		$this->prepareCustomVariables();
 		$this->prepareArgs();
 		$this->prepareLabels();
@@ -152,7 +154,7 @@ class PostTypeData extends BaseData {
 		$this->labels['all_items']                = 'All ' . $this->preparedName;
 		$this->labels['archives']                 = 'Archives for ' . $this->preparedName;
 		$this->labels['attributes']               = 'Attributes for ' . $this->preparedName;
-		$this->labels['insert_into_item']         = 'Insert into ' . $this->preparedName;
+		$this->labels['insert_into_item']         = 'Insert into' . ' ' . $this->preparedName;
 		$this->labels['uploaded_to_this_item']    = 'Uploaded to this ' . $this->preparedName;
 		$this->labels['featured_image']           = 'Featured image for ' . $this->preparedName;
 		$this->labels['set_featured_image']       = 'Set featured image for ' . $this->preparedName;
@@ -178,8 +180,14 @@ class PostTypeData extends BaseData {
 	}
 
 	public function prepareCustomVariables(): void {
-		$this->preparedName = $this->singular_name ?? $this->name ?? $this->post_type ?? null;
-		$this->preparedName = $this->preparedName ?: $this->postTypeInstance->singular_name ?? $this->postTypeInstance->name ?? $this->postTypeInstance->post_type;
+		$this->preparedName = $this->previousArgs->labels['name']
+			?? $this->previousArgs->labels['singular_name']
+			?? $this->postTypeInstance->args->labels['name']
+			?? $this->postTypeInstance->args->labels['singular_name']
+			?? $this->postTypeInstance->post_type
+			?? $this->name
+			?? $this->singular_name
+			?? $this->post_type;
 		unset($this->postTypeInstance);
 	}
 

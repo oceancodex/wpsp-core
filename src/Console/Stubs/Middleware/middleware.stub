@@ -5,7 +5,7 @@ namespace {{ rootNamespace }}\app\Http\Middleware;
 use WP_REST_Request;
 use Symfony\Component\HttpFoundation\Request;
 use {{ rootNamespace }}\app\Traits\InstancesTrait;
-use {{ rootNamespace }}\Base\BaseMiddleware;
+use {{ coreNamespace }}\Base\BaseMiddleware;
 
 class {{ className }} extends BaseMiddleware {
 
