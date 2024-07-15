@@ -15,12 +15,12 @@ abstract class BaseInstances {
 	public ?Funcs $funcs = null;
 
 	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
+		if (!$this->request) $this->request = Request::createFromGlobals();
 		$this->beforeConstruct();
 		$this->beforeInstanceConstruct();
 		if ($mainPath) $this->mainPath = $mainPath;
 		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
 		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
-		if (!$this->request) $this->request = Request::createFromGlobals();
 		$this->prepareFuncs();
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();

@@ -17,17 +17,6 @@ class Eloquent extends BaseInstances {
 	 *
 	 */
 
-	public function global(): void {
-		$globalEloquent = $this->funcs->_getAppShortName();
-		$globalEloquent = $globalEloquent . '_eloquent';
-		global ${$globalEloquent};
-		${$globalEloquent} = $this;
-	}
-
-	/*
-	 *
-	 */
-
 	public function afterConstruct(): void {
 		if (!$this->capsule) {
 			$this->capsule  = new Capsule();
@@ -53,6 +42,17 @@ class Eloquent extends BaseInstances {
 			$this->capsule->setAsGlobal();
 			$this->capsule->bootEloquent();
 		}
+	}
+
+	/*
+	 *
+	 */
+
+	public function global(): void {
+		$globalEloquent = $this->funcs->_getAppShortName();
+		$globalEloquent = $globalEloquent . '_eloquent';
+		global ${$globalEloquent};
+		${$globalEloquent} = $this;
 	}
 
 	/*

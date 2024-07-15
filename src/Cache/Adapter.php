@@ -14,14 +14,15 @@ class Adapter extends BaseInstances {
 
 	private string $store;
 
-	public function afterInstanceConstruct(): void {
+	public function afterConstruct(): void {
 		$this->store = $this->funcs->_env('CACHE_STORE', true);
 	}
 
-	public function init(): DoctrineDbalAdapter|FilesystemAdapter|MemcachedAdapter|RedisAdapter|null {
+	public function init($store = null, $connectionParams = null): DoctrineDbalAdapter|FilesystemAdapter|MemcachedAdapter|RedisAdapter|null {
+		if ($store) $this->store = $store;
 		$cacheConfigs     = include($this->funcs->_getConfigPath() . '/cache.php');
 		$cachePrefix      = $cacheConfigs['prefix'];
-		$connectionParams = $cacheConfigs['stores'][$this->store];
+		$connectionParams = $connectionParam ?? $cacheConfigs['stores'][$this->store];
 
 		$adapter = null;
 
@@ -52,18 +53,30 @@ class Adapter extends BaseInstances {
 			);
 		}
 		elseif ($this->store == 'memcached') {
-			$connection = MemcachedAdapter::createConnection(
-				'memcached://'
-				. $connectionParams['sasl'][0]
-				. ':' . $connectionParams['sasl'][1]
-				. '@' . $connectionParams['servers']['host']
-				. ':' . $connectionParams['servers']['port']
-				. '?weight=' . $connectionParams['servers']['weight'],
-			);
-			$adapter = new MemcachedAdapter(
+			$conns    = [];
+			$user     = $connectionParams['sasl'][0];
+			$password = $connectionParams['sasl'][1];
+			foreach ($connectionParams['servers'] as $server) {
+				if ($user || $password) {
+					$conns[] = 'memcached://'
+						. $user
+						. ':' . $password
+						. '@' . $server['host']
+						. ':' . $server['port']
+						. '?weight=' . $server['weight'];
+				}
+				else {
+					$conns[] = 'memcached://'
+						. $server['host']
+						. ':' . $server['port']
+						. '?weight=' . $server['weight'];
+				}
+			}
+			$connection = MemcachedAdapter::createConnection($conns);
+			$adapter    = new MemcachedAdapter(
 				$connection,
-                $this->funcs->_getAppShortName(),
-                0
+				$this->funcs->_getAppShortName(),
+				0
 			);
 		}
 
