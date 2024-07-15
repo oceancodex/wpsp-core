@@ -1,0 +1,55 @@
+<?php
+namespace {{ rootNamespace }}\app\Models;
+
+use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use {{ coreNamespace }}\Traits\ObserversTrait;
+
+class {{ className }} extends Model {
+	use SoftDeletes, ObserversTrait;
+
+	protected $connection = '{{ tablePrefix }}mongodb';
+	protected $table      = '{{ table }}';
+//	protected $primaryKey = 'id';
+
+//	protected $appends;
+//	protected $attributeCastCache;
+//	protected $attributes;
+//	protected $casts;
+//	protected $changes;
+//	protected $classCastCache;
+//	protected $dateFormat;
+//	protected $dispatchesEvents;
+//	protected $escapeWhenCastingToString;
+//	protected $fillable = [];
+//	protected $forceDeleting;
+	protected $guarded = [];
+//	protected $hidden;
+//	protected $keyType;
+//	protected $observables;
+//	protected $original;
+//	protected $perPage;
+//	protected $relations;
+//	protected $touches;
+//	protected $visible;
+//	protected $with;
+//	protected $withCount;
+
+//	public    $exists;
+//	public    $incrementing;
+//	public    $preventsLazyLoading;
+//	public    $timestamps;
+//	public    $usesUniqueIds;
+//	public    $wasRecentlyCreated;
+
+//	protected static array $observers = [
+//		\{{ rootNamespace }}\app\Observers\{{ className }}Observer::class,
+//	];
+
+//	public function __construct(array $attributes = []) {
+//		$this->getConnection()->setTablePrefix('wp_{{ tablePrefix }}');
+//		$this->setConnection(Funcs::instance()->_getDBTablePrefix(false) . 'mysql');
+//		parent::__construct($attributes);
+//	}
+
+}
