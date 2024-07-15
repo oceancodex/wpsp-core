@@ -21,14 +21,27 @@ abstract class BaseSeeder extends Seeder {
 		$this->output = $output;
 		$this->beforeInstanceConstruct();
 		$this->funcs = new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv);
-//		if (!$this->capsule) {
-//			$databaseConfig = include($this->funcs->_getMainPath() . '/config/database.php');
-//			echo '<pre style="z-index: 9999; position: relative; clear: both;">'; print_r($databaseConfig); echo '</pre>';
-//			$this->capsule  = new Capsule();
-//			$this->capsule->addConnection($databaseConfig);
-//			$this->capsule->setAsGlobal();
-//			$this->capsule->bootEloquent();
-//		}
+		if (!$this->capsule) {
+			$this->capsule  = new Capsule();
+
+			$this->capsule->getDatabaseManager()->extend('mongodb', function($config, $name) {
+				$config['name'] = $name;
+				return new \MongoDB\Laravel\Connection($config);
+			});
+
+			$databaseConnections = $this->funcs->_config('database.connections');
+
+			$defaultConnectionName = $this->funcs->_config('database.default');
+			$defaultConnectionConfig = $databaseConnections[$defaultConnectionName];
+			$this->capsule->addConnection($defaultConnectionConfig, 'default');
+
+			foreach ($databaseConnections as $connectionName => $connectionConfig) {
+				$this->capsule->addConnection($connectionConfig, $connectionName);
+			}
+
+			$this->capsule->setAsGlobal();
+			$this->capsule->bootEloquent();
+		}
 	}
 
 	public function call($class, $silent = false, array $parameters = []): static {

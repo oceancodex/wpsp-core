@@ -101,12 +101,12 @@ class Funcs {
 		return $this->_getMainPath() . '/routes';
 	}
 
-	public function _getResourcesPath(): string {
-		return $this->_getMainPath() . '/resources';
+	public function _getResourcesPath($path = null): string {
+		return $this->_getMainPath() . '/resources' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getStoragePath(): string {
-		return $this->_getMainPath() . '/storage';
+	public function _getStoragePath($path = null): string {
+		return $this->_getMainPath() . '/storage' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
 	public function _getDatabasePath(): string {
@@ -351,8 +351,8 @@ class Funcs {
 
 	public function _view($viewName, $data = [], $mergeData = []): \Illuminate\Contracts\View\View {
 		if (!Blade::$BLADE) {
-			$views        = $this->_getResourcesPath() . '/views';
-			$cache        = $this->_getStoragePath() . '/framework/views';
+			$views        = $this->_getResourcesPath('/views');
+			$cache        = $this->_getStoragePath('/framework/views');
 			Blade::$BLADE = new Blade([$views], $cache);
 		}
 		$shareVariables = [];

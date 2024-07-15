@@ -24,7 +24,8 @@ class MakeModelCommand extends Command {
 			->setHelp('This command allows you to create a model.')
 			->addArgument('name', InputArgument::OPTIONAL, 'The class name of the model.')
 			->addOption('table', 'table', InputOption::VALUE_OPTIONAL, 'The table of the model.')
-			->addOption('entity', 'entity', InputOption::VALUE_OPTIONAL, 'The entity of the model.');
+			->addOption('entity', 'entity', InputOption::VALUE_OPTIONAL, 'The entity of the model.')
+			->addOption('mongodb', 'mongodb', InputOption::VALUE_NONE, 'This is MongoDB model or not?');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -43,12 +44,17 @@ class MakeModelCommand extends Command {
 			$tableQuestion = new Question('Please enter the table name of the model: ', 'my_model_table');
 			$table = $helper->ask($input, $output, $tableQuestion);
 
-			$entityQuestion = new ConfirmationQuestion("Do you want to create entity? [y/N]: ", false);
-			$entity = $helper->ask($input, $output, $entityQuestion);
+			$mongodbQuestion = new ConfirmationQuestion('This is MongoDB model? [y/N]: ', false);
+			$mongodb         = $helper->ask($input, $output, $mongodbQuestion);
 
-			if ($entity) {
-				$entityQuestion = new Question("Please enter the entity name: ", 'MyEntity');
-				$entity = $helper->ask($input, $output, $entityQuestion);
+			if (!$mongodb) {
+				$entityQuestion = new ConfirmationQuestion('Do you want to create entity? [y/N]: ', false);
+				$entity         = $helper->ask($input, $output, $entityQuestion);
+
+				if ($entity) {
+					$entityQuestion = new Question('Please enter the entity name: ', 'MyEntity');
+					$entity         = $helper->ask($input, $output, $entityQuestion);
+				}
 			}
 		}
 
@@ -63,9 +69,15 @@ class MakeModelCommand extends Command {
 
 		$table  = $table ?? $input->getOption('table') ?: '';
 		$entity = $entity ?? $input->getOption('entity') ?: '';
+		$mongodb = ($mongodb ?? $input->getOption('mongodb'));
 
 		// Create class file.
-		$content = Filesystem::get(__DIR__ . '/../Stubs/Models/model.stub');
+		if ($mongodb) {
+			$content = Filesystem::get(__DIR__ . '/../Stubs/Models/model-mongodb.stub');
+		}
+		else {
+			$content = Filesystem::get(__DIR__ . '/../Stubs/Models/model.stub');
+		}
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ table }}', $table ?? null, $content);
 		$content = str_replace('{{ tablePrefix }}', $this->funcs->_getDBTablePrefix(false), $content);

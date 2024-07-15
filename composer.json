@@ -21,8 +21,10 @@
 		"illuminate/database": "*",
 		"illuminate/translation": "*",
 		"illuminate/view": "*",
+		"mongodb/laravel-mongodb": "*",
 		"ocramius/generated-hydrator": "*",
 		"symfony/http-client": "*",
+		"symfony/rate-limiter": "*",
 		"vlucas/phpdotenv": "*",
 		"yahnis-elsts/plugin-update-checker": "*"
 	},
