@@ -21,6 +21,7 @@
 		"illuminate/database": "*",
 		"illuminate/translation": "*",
 		"illuminate/view": "*",
+		"mongodb/laravel-mongodb": "*",
 		"ocramius/generated-hydrator": "*",
 		"symfony/http-client": "*",
 		"vlucas/phpdotenv": "*",

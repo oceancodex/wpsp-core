@@ -9,7 +9,7 @@ class {{ className }} extends Model {
 	use SoftDeletes, ObserversTrait;
 
 	protected $connection = '{{ tablePrefix }}mysql';
-	protected $table      = '{{ table }}';
+	protected $table      = '{{ table }}';                  // If this table created by custom migration, you need to add prefix "cm_" to the table name, like this: "cm_{{ table }}"
 //	protected $primaryKey = 'id';
 
 //	protected $appends;

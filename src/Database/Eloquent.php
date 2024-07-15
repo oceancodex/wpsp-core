@@ -4,6 +4,7 @@ namespace WPSPCORE\Database;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
+use MongoDB\Laravel\Eloquent\Model;
 use WPSPCORE\Base\BaseInstances;
 use WPSPCORE\Filesystem\Filesystem;
 
@@ -30,6 +31,14 @@ class Eloquent extends BaseInstances {
 	public function afterConstruct(): void {
 		if (!$this->capsule) {
 			$this->capsule  = new Capsule();
+
+			$this->capsule->getDatabaseManager()->extend('mongodb', function($config, $name) {
+				$config['name'] = $name;
+				return new \MongoDB\Laravel\Connection($config);
+			});
+
+//			Model::setConnectionResolver($this->capsule->getDatabaseManager());
+
 			global $wpspDatabaseConnections;
 			$wpspDatabaseConnections = array_merge(is_array($wpspDatabaseConnections) ? $wpspDatabaseConnections : [], $this->funcs->_config('database.connections'));
 
