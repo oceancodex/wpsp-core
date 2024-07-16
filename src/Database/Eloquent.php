@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\Database;
 
+use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
 use MongoDB\Laravel\Eloquent\Model;
@@ -18,30 +19,33 @@ class Eloquent extends BaseInstances {
 	 */
 
 	public function afterConstruct(): void {
-		if (!$this->capsule) {
-			$this->capsule  = new Capsule();
+//		if (!$this->capsule) {
+			$this->capsule  = new Capsule(new Container());
 
 			$this->capsule->getDatabaseManager()->extend('mongodb', function($config, $name) {
 				$config['name'] = $name;
 				return new \MongoDB\Laravel\Connection($config);
 			});
 
-//			Model::setConnectionResolver($this->capsule->getDatabaseManager());
+			$wrapDbConfigsKey = $this->funcs->_getAppShortName() . '_database_configs';
 
-			global $wpspDatabaseConnections;
-			$wpspDatabaseConnections = array_merge(is_array($wpspDatabaseConnections) ? $wpspDatabaseConnections : [], $this->funcs->_config('database.connections'));
+//			global $wpspDatabaseConnections;
+			$wpspDatabaseConnections = array_merge(
+				$wpspDatabaseConnections ?? [],
+				[$wrapDbConfigsKey => $this->funcs->_config('database')]
+			);
 
-			$defaultConnectionName = $this->funcs->_config('database.default');
-			$defaultConnectionConfig = $wpspDatabaseConnections[$defaultConnectionName];
-			$this->capsule->addConnection($defaultConnectionConfig, 'default');
+			$defaultConnectionName = $this->funcs->_getAppShortName() . '_' . $this->funcs->_config('database.default');
+			$defaultConnectionConfig = $wpspDatabaseConnections[$wrapDbConfigsKey]['connections'][$defaultConnectionName];
+			$this->capsule->addConnection($defaultConnectionConfig);
 
-			foreach ($wpspDatabaseConnections as $connectionName => $connectionConfig) {
+			foreach ($wpspDatabaseConnections[$wrapDbConfigsKey]['connections'] as $connectionName => $connectionConfig) {
 				$this->capsule->addConnection($connectionConfig, $connectionName);
 			}
 
-			$this->capsule->setAsGlobal();
+//			$this->capsule->setAsGlobal();
 			$this->capsule->bootEloquent();
-		}
+//		}
 	}
 
 	/*

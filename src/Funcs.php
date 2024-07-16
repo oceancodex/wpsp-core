@@ -341,6 +341,23 @@ class Funcs {
 		}
 	}
 
+	public function _prefixArrayKeys(array $array, ?string $prefix = null): array {
+		$results = [];
+        foreach ($array as $key => $value) {
+            $results[$prefix . $key] = $value;
+        }
+        return $results;
+	}
+
+	public function _removePrefixArrayKeys(array $array, ?string $prefix = null): array {
+		$results = [];
+        foreach ($array as $key => $value) {
+			$key = preg_replace('/'.$prefix.'/iu', '', $key);
+            $results[$key] = $value;
+        }
+        return $results;
+	}
+
 	/*
 	 *
 	 */
