@@ -48,7 +48,7 @@ class {{ className }} extends Model {
 
 //	public function __construct(array $attributes = []) {
 //		$this->getConnection()->setTablePrefix('wp_{{ tablePrefix }}');
-//		$this->setConnection(Funcs::instance()->_getDBTablePrefix(false) . 'mysql');
+//		$this->setConnection(Funcs::instance()->_getDBTablePrefix(false) . 'wordpress');
 //		parent::__construct($attributes);
 //	}
 
