@@ -4,9 +4,9 @@ namespace {{ rootNamespace }}\database\seeders;
 
 use Faker\Factory as Faker;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use {{ rootNamespace }}\app\Models\SettingsModel;
 use {{ rootNamespace }}\app\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
-use {{ rootNamespace }}\app\Models\SettingsModel;
 use {{ coreNamespace }}\Base\BaseSeeder;
 
 class {{ className }} extends BaseSeeder {
@@ -14,7 +14,7 @@ class {{ className }} extends BaseSeeder {
 	use WithoutModelEvents, InstancesTrait;
 
 	public function run(): void {
-//		$faker = Faker::create();
+//		$faker = Faker::create('vi_VN');
 //		$faker = Funcs::faker();
 
 //		for ($i = 0; $i < 20; $i++) {

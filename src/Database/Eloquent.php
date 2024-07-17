@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\Database;
 
+use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
 use MongoDB\Laravel\Eloquent\Model;
@@ -26,14 +27,15 @@ class Eloquent extends BaseInstances {
 				return new \MongoDB\Laravel\Connection($config);
 			});
 
-//			Model::setConnectionResolver($this->capsule->getDatabaseManager());
-
 			global $wpspDatabaseConnections;
-			$wpspDatabaseConnections = array_merge(is_array($wpspDatabaseConnections) ? $wpspDatabaseConnections : [], $this->funcs->_config('database.connections'));
+			$wpspDatabaseConnections = array_merge(
+				$wpspDatabaseConnections ?? [],
+				$this->funcs->_config('database.connections')
+			);
 
-			$defaultConnectionName = $this->funcs->_config('database.default');
+			$defaultConnectionName = $this->funcs->_getAppShortName() . '_' . $this->funcs->_config('database.default');
 			$defaultConnectionConfig = $wpspDatabaseConnections[$defaultConnectionName];
-			$this->capsule->addConnection($defaultConnectionConfig, 'default');
+			$this->capsule->addConnection($defaultConnectionConfig);
 
 			foreach ($wpspDatabaseConnections as $connectionName => $connectionConfig) {
 				$this->capsule->addConnection($connectionConfig, $connectionName);
