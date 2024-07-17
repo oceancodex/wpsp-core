@@ -19,33 +19,31 @@ class Eloquent extends BaseInstances {
 	 */
 
 	public function afterConstruct(): void {
-//		if (!$this->capsule) {
-			$this->capsule  = new Capsule(new Container());
+		if (!$this->capsule) {
+			$this->capsule  = new Capsule();
 
 			$this->capsule->getDatabaseManager()->extend('mongodb', function($config, $name) {
 				$config['name'] = $name;
 				return new \MongoDB\Laravel\Connection($config);
 			});
 
-			$wrapDbConfigsKey = $this->funcs->_getAppShortName() . '_database_configs';
-
-//			global $wpspDatabaseConnections;
+			global $wpspDatabaseConnections;
 			$wpspDatabaseConnections = array_merge(
 				$wpspDatabaseConnections ?? [],
-				[$wrapDbConfigsKey => $this->funcs->_config('database')]
+				$this->funcs->_config('database.connections')
 			);
 
 			$defaultConnectionName = $this->funcs->_getAppShortName() . '_' . $this->funcs->_config('database.default');
-			$defaultConnectionConfig = $wpspDatabaseConnections[$wrapDbConfigsKey]['connections'][$defaultConnectionName];
+			$defaultConnectionConfig = $wpspDatabaseConnections[$defaultConnectionName];
 			$this->capsule->addConnection($defaultConnectionConfig);
 
-			foreach ($wpspDatabaseConnections[$wrapDbConfigsKey]['connections'] as $connectionName => $connectionConfig) {
+			foreach ($wpspDatabaseConnections as $connectionName => $connectionConfig) {
 				$this->capsule->addConnection($connectionConfig, $connectionName);
 			}
 
-//			$this->capsule->setAsGlobal();
+			$this->capsule->setAsGlobal();
 			$this->capsule->bootEloquent();
-//		}
+		}
 	}
 
 	/*

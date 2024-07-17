@@ -31,9 +31,9 @@ abstract class BaseSeeder extends Seeder {
 
 			$databaseConnections = $this->funcs->_config('database.connections');
 
-			$defaultConnectionName = $this->funcs->_config('database.default');
+			$defaultConnectionName = $this->funcs->_getAppShortName() . '_' . $this->funcs->_config('database.default');
 			$defaultConnectionConfig = $databaseConnections[$defaultConnectionName];
-			$this->capsule->addConnection($defaultConnectionConfig, 'default');
+			$this->capsule->addConnection($defaultConnectionConfig);
 
 			foreach ($databaseConnections as $connectionName => $connectionConfig) {
 				$this->capsule->addConnection($connectionConfig, $connectionName);
