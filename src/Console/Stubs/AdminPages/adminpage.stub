@@ -2,10 +2,13 @@
 
 namespace {{ rootNamespace }}\app\Extend\Components\AdminPages;
 
+use Symfony\Component\RateLimiter\RateLimiterFactory;
+use Symfony\Component\RateLimiter\Storage\CacheStorage;
 use {{ rootNamespace }}\app\Extend\Components\License\License;
 use {{ rootNamespace }}\app\Extend\Instances\Cache\Cache;
-use {{ rootNamespace }}\app\Extend\Instances\Database\Migration;
+use {{ rootNamespace }}\app\Extend\Instances\Cache\RateLimiter;
 use {{ rootNamespace }}\app\Models\SettingsModel;
+use {{ rootNamespace }}\app\Models\VideosModel;
 use {{ rootNamespace }}\app\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
 use {{ coreNamespace }}\Base\BaseAdminPage;
@@ -89,6 +92,7 @@ class {{ className }} extends BaseAdminPage {
 	 */
 
 	public function index(): void {
+
 		if ($this->request->get('updated') && $this->parent_slug !== 'options-general.php' && $this->request->get('tab') !== 'table') {
 			Funcs::notice(Funcs::trans('Updated successfully', true), 'success');
 		}
@@ -106,12 +110,13 @@ class {{ className }} extends BaseAdminPage {
 	}
 
 	public function update(): void {
+
 //		$tab = $this->request->get('tab');
 //		if ($tab !== 'table') {
 //			$settings = $this->request->get('settings');
 //
 ////			$existSettings = Cache::getItemValue('settings');
-//			$existSettings = Settings::query()->where('key','settings')->first();
+//			$existSettings = SettingsModel::query()->where('key','settings')->first();
 //			$existSettings = json_decode($existSettings['value'] ?? '', true);
 //			$existSettings = array_merge($existSettings ?? [], $settings ?? []);
 //
@@ -124,7 +129,7 @@ class {{ className }} extends BaseAdminPage {
 //			Cache::delete('license_information');
 //
 //			// Save settings into database.
-//			Settings::updateOrCreate([
+//			SettingsModel::updateOrCreate([
 //				'key' => 'settings',
 //			], [
 //				'value' => json_encode($existSettings),
@@ -132,6 +137,7 @@ class {{ className }} extends BaseAdminPage {
 //
 //			wp_safe_redirect(wp_get_raw_referer() . '&updated=true');
 //		}
+
 	}
 
 	/*

@@ -79,7 +79,7 @@ class {{ className }} extends BasePostType {
 //	public mixed $capability_type                 = 'post';
 //	public mixed $capabilities                    = [];
 //	public mixed $map_meta_cap                    = false;
-//	public mixed $supports                        = ['title', 'editor'];
+//	public mixed $supports                        = ['title', 'editor', 'excerpt'];
 //	public mixed $register_meta_box_cb            = null;
 //	public mixed $taxonomies                      = [];
 //	public mixed $has_archive                     = false;

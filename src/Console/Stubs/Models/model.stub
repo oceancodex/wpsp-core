@@ -3,12 +3,13 @@ namespace {{ rootNamespace }}\app\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use {{ rootNamespace }}\app\Traits\ModelsTrait;
 use {{ coreNamespace }}\Traits\ObserversTrait;
 
 class {{ className }} extends Model {
-	use SoftDeletes, ObserversTrait;
+	use ModelsTrait, SoftDeletes, ObserversTrait;
 
-	protected $connection = '{{ tablePrefix }}wordpress';
+	protected $connection = 'wordpress';
 	protected $table      = '{{ table }}';                  // If this table created by custom migration, you need to add prefix "cm_" to the table name, like this: "cm_{{ table }}"
 //	protected $primaryKey = 'id';
 
@@ -48,7 +49,7 @@ class {{ className }} extends Model {
 
 //	public function __construct(array $attributes = []) {
 //		$this->getConnection()->setTablePrefix('wp_{{ tablePrefix }}');
-//		$this->setConnection(Funcs::instance()->_getDBTablePrefix(false) . 'wordpress');
+//		$this->setConnection('wordpress');
 //		parent::__construct($attributes);
 //	}
 

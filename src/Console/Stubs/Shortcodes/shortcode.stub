@@ -11,7 +11,7 @@ class {{ className }} extends BaseShortcode {
 	use InstancesTrait;
 
 	public function index($atts, $content, $tag): string {
-		return $content;
+		return do_shortcode($content);
 	}
 
 }
