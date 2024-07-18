@@ -18,6 +18,16 @@ trait AjaxRouteTrait {
 	 *
 	 */
 
+	public function group($callback, $middlewares = null): void {
+		if ($this->isPassedMiddleware($middlewares, $this->request)) {
+			$callback();
+		}
+	}
+
+	/*
+	 *
+	 */
+
 	public function get($action, $callback, $nopriv = false, $useInitClass = false, $classArgs = [], $middleware = null): void {
 		if (wp_doing_ajax() && $this->request->isMethod('GET') && $this->isPassedMiddleware($middleware, $this->request)) {
 			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
