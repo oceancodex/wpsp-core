@@ -102,7 +102,11 @@ class {{ className }} extends BaseAdminPage {
 
 		$table = $this->table;
 
-		echo '<div class="wrap"><h1>Admin page: "{{ name }}"</h1></div>';
+		echo Funcs::view('modules.web.admin-pages.{{ path }}.main', compact(
+			'requestParams',
+			'menuSlug',
+			'table'
+		));
 	}
 
 	public function update(): void {

@@ -23,7 +23,7 @@ class MakeMetaBoxCommand extends Command {
 			->setDescription('Create a new meta box.                    | Eg: bin/console make:meta-box custom_meta_box --create-view')
 			->setHelp('This command allows you to create a meta box.')
 			->addArgument('id', InputArgument::OPTIONAL, 'The id of the meta box.')
-			->addOption('create-view', 'create-view', InputOption::VALUE_NONE, 'Whether to create the view file for this meta box or not.');
+			->addOption('create-view', 'create-view', InputOption::VALUE_NONE, 'Create view files for this meta box or not?');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -39,7 +39,7 @@ class MakeMetaBoxCommand extends Command {
 				return Command::INVALID;
 			}
 
-			$createViewQuestion = new ConfirmationQuestion('Do you want to create a view for this meta box? [y/N]: ', false);
+			$createViewQuestion = new ConfirmationQuestion('Do you want to create view files for this meta box? [y/N]: ', false);
 			$createView = $helper->ask($input, $output, $createViewQuestion);
 		}
 		$idSlugify = Str::slug($id, '_');
