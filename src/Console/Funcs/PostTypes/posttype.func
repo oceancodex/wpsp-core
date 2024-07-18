@@ -1,4 +1,4 @@
-	$this->post_type('{{ name }}', [PostType_{{ name_slugify }}::class, 'init'], true, null, [
+		$this->post_type('{{ name }}', [PostType_{{ name_slugify }}::class, 'init'], true, null, [
 //			'relation' => 'OR',
 //			[AdministratorCapability::class, 'handle'],
 //			[EditorCapability::class, 'handle'],

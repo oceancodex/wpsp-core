@@ -72,7 +72,7 @@ trait CommandsTrait {
 
 	public function addClassToWebRoute($findFunction, $newLineForFindFunction, $newLineUseClass): void {
 		$webRouteContent = $this->getWebRouteContent();
-		$webRouteContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{([\S\s]*?)}/iu', 'public function ' . $findFunction . '$1{$2' . $newLineForFindFunction . "\n	}", $webRouteContent);
+		$webRouteContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{/iu', 'public function ' . $findFunction . "$1{\n" . $newLineForFindFunction, $webRouteContent);
 		if (!strpos($webRouteContent, $newLineUseClass) !== false) {
 			$webRouteContent = preg_replace('/(\n\s*)class WebRoute extends/iu', "\n" . $newLineUseClass . '$1class WebRoute extends', $webRouteContent);
 		}
@@ -81,7 +81,7 @@ trait CommandsTrait {
 
 	public function addClassToApiRoute($findFunction, $newLineForFindFunction, $newLineUseClass): void {
 		$apiRouteContent = $this->getApiRouteContent();
-		$apiRouteContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{([\S\s]*?)}/iu', 'public function ' . $findFunction . '$1{$2' . $newLineForFindFunction . "\n	}", $apiRouteContent);
+		$apiRouteContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{/iu', 'public function ' . $findFunction . "$1{\n" . $newLineForFindFunction, $apiRouteContent);
 		if (!strpos($apiRouteContent, $newLineUseClass) !== false) {
 			$apiRouteContent = preg_replace('/(\n\s*)class ApiRoute extends/iu', "\n" . $newLineUseClass . '$1class ApiRoute extends', $apiRouteContent);
 		}
@@ -90,7 +90,7 @@ trait CommandsTrait {
 
 	public function addClassToAjaxRoute($findFunction, $newLineForFindFunction, $newLineUseClass): void {
 		$ajaxRouteContent = $this->getAjaxRouteContent();
-		$ajaxRouteContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{([\S\s]*?)}/iu', 'public function ' . $findFunction . '$1{$2' . $newLineForFindFunction . "\n	}", $ajaxRouteContent);
+		$ajaxRouteContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{/iu', 'public function ' . $findFunction . "$1{\n" . $newLineForFindFunction, $ajaxRouteContent);
 		if (!strpos($ajaxRouteContent, $newLineUseClass) !== false) {
 			$ajaxRouteContent = preg_replace('/(\n\s*)class AjaxRoute extends/iu', "\n" . $newLineUseClass . '$1class AjaxRoute extends', $ajaxRouteContent);
 		}
