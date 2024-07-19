@@ -101,12 +101,12 @@ class Funcs {
 		return $this->_getMainPath() . '/routes';
 	}
 
-	public function _getResourcesPath(): string {
-		return $this->_getMainPath() . '/resources';
+	public function _getResourcesPath($path = null): string {
+		return $this->_getMainPath() . '/resources' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getStoragePath(): string {
-		return $this->_getMainPath() . '/storage';
+	public function _getStoragePath($path = null): string {
+		return $this->_getMainPath() . '/storage' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
 	public function _getDatabasePath(): string {
@@ -168,9 +168,14 @@ class Funcs {
 		return $files ?? [];
 	}
 
-	public function _getDBTablePrefix(): string {
-		global $wpdb;
-		return ($wpdb->prefix ?? 'wp_') . $this->_env('DB_TABLE_PREFIX', true);
+	public function _getDBTablePrefix($withWpdbPrefix = true): string {
+		if ($withWpdbPrefix) {
+			global $wpdb;
+			return ($wpdb->prefix ?? 'wp_') . $this->_env('DB_TABLE_PREFIX', true);
+		}
+		else {
+			return $this->_env('DB_TABLE_PREFIX', true);
+		}
 	}
 
 	public function _getDBCustomMigrationTablePrefix(): string {
@@ -336,6 +341,23 @@ class Funcs {
 		}
 	}
 
+	public function _prefixArrayKeys(array $array, ?string $prefix = null): array {
+		$results = [];
+        foreach ($array as $key => $value) {
+            $results[$prefix . $key] = $value;
+        }
+        return $results;
+	}
+
+	public function _removePrefixArrayKeys(array $array, ?string $prefix = null): array {
+		$results = [];
+        foreach ($array as $key => $value) {
+			$key = preg_replace('/'.$prefix.'/iu', '', $key);
+            $results[$key] = $value;
+        }
+        return $results;
+	}
+
 	/*
 	 *
 	 */
@@ -346,8 +368,8 @@ class Funcs {
 
 	public function _view($viewName, $data = [], $mergeData = []): \Illuminate\Contracts\View\View {
 		if (!Blade::$BLADE) {
-			$views        = $this->_getResourcesPath() . '/views';
-			$cache        = $this->_getStoragePath() . '/framework/views';
+			$views        = $this->_getResourcesPath('/views');
+			$cache        = $this->_getStoragePath('/framework/views');
 			Blade::$BLADE = new Blade([$views], $cache);
 		}
 		$shareVariables = [];

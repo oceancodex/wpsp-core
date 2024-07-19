@@ -24,6 +24,16 @@ trait ApiRouteTrait {
 	 *
 	 */
 
+	public function group($callback, $middlewares = null): void {
+		if ($this->isPassedMiddleware($middlewares, $this->request)) {
+			$callback();
+		}
+	}
+
+	/*
+	 *
+	 */
+
 	public function hook($type, $hook, $callback, $useInitClass = false, $classArgs = [], $middleware = null, $priority = 10, $argsNumber = 0): void {
 		if ($this->isPassedMiddleware($middleware, $this->request)) {
 			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);

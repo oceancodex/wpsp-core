@@ -2,8 +2,10 @@
 
 namespace WPSPCORE\Database;
 
+use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
+use MongoDB\Laravel\Eloquent\Model;
 use WPSPCORE\Base\BaseInstances;
 use WPSPCORE\Filesystem\Filesystem;
 
@@ -11,6 +13,38 @@ class Eloquent extends BaseInstances {
 
 	public ?Capsule $capsule    = null;
 	public string   $connection = 'mysql';
+
+	/*
+	 *
+	 */
+
+	public function afterConstruct(): void {
+		if (!$this->capsule) {
+			$this->capsule  = new Capsule();
+
+			$this->capsule->getDatabaseManager()->extend('mongodb', function($config, $name) {
+				$config['name'] = $name;
+				return new \MongoDB\Laravel\Connection($config);
+			});
+
+			global $wpspDatabaseConnections;
+			$wpspDatabaseConnections = array_merge(
+				$wpspDatabaseConnections ?? [],
+				$this->funcs->_config('database.connections')
+			);
+
+			$defaultConnectionName = $this->funcs->_getAppShortName() . '_' . $this->funcs->_config('database.default');
+			$defaultConnectionConfig = $wpspDatabaseConnections[$defaultConnectionName];
+			$this->capsule->addConnection($defaultConnectionConfig);
+
+			foreach ($wpspDatabaseConnections as $connectionName => $connectionConfig) {
+				$this->capsule->addConnection($connectionConfig, $connectionName);
+			}
+
+			$this->capsule->setAsGlobal();
+			$this->capsule->bootEloquent();
+		}
+	}
 
 	/*
 	 *
@@ -27,28 +61,6 @@ class Eloquent extends BaseInstances {
 	 *
 	 */
 
-	public function afterConstruct(): void {
-		if (!$this->capsule) {
-			$this->capsule  = new Capsule();
-			$databaseConnections = $this->funcs->_config('database.connections');
-
-			$defaultConnectionName = $this->funcs->_config('database.default');
-			$defaultConnectionConfig = $databaseConnections[$defaultConnectionName];
-			$this->capsule->addConnection($defaultConnectionConfig, 'default');
-
-			foreach ($databaseConnections as $connectionName => $connectionConfig) {
-				$this->capsule->addConnection($connectionConfig, $connectionName);
-			}
-
-			$this->capsule->setAsGlobal();
-			$this->capsule->bootEloquent();
-		}
-	}
-
-	/*
-	 *
-	 */
-
 	public function getCapsule(): ?Capsule {
 		return $this->capsule;
 	}
@@ -58,8 +70,8 @@ class Eloquent extends BaseInstances {
 	 */
 
 	public function dropDatabaseTable($tableName): string {
-		$this->funcs->_getAppEloquent()->getCapsule()->schema()->withoutForeignKeyConstraints(function() use ($tableName) {
-			$this->getCapsule()->schema()->dropIfExists($tableName);
+		$this->funcs->_getAppEloquent()->getCapsule()->getDatabaseManager()->getSchemaBuilder()->withoutForeignKeyConstraints(function() use ($tableName) {
+			$this->getCapsule()->getDatabaseManager()->getSchemaBuilder()->dropIfExists($tableName);
 		});
 		return $tableName;
 	}

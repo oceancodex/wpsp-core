@@ -29,17 +29,6 @@ class Migration extends BaseInstances {
 	 *
 	 */
 
-	public function global(): void {
-		$globalMigration = $this->funcs->_getAppShortName();
-		$globalMigration = $globalMigration . '_migration';
-		global ${$globalMigration};
-		${$globalMigration} = $this;
-	}
-
-	/*
-	 *
-	 */
-
 	public function afterConstruct(): void {
 		if (!$this->cli) {
 			$this->cli = new Application($this->funcs->_config('app.short_name'));
@@ -58,6 +47,17 @@ class Migration extends BaseInstances {
 				new Command\DiffCommand($this->getDependencyFactory()),
 			]);
 		}
+	}
+
+	/*
+	 *
+	 */
+
+	public function global(): void {
+		$globalMigration = $this->funcs->_getAppShortName();
+		$globalMigration = $globalMigration . '_migration';
+		global ${$globalMigration};
+		${$globalMigration} = $this;
 	}
 
 	/*
@@ -323,7 +323,7 @@ class Migration extends BaseInstances {
 		$definedDatabaseTables   = $this->getDefinedDatabaseTables();
 		$allDatabaseTablesExists = true;
 		foreach ($definedDatabaseTables as $definedDatabaseTable) {
-			$databaseTableExists = $this->funcs->_getAppEloquent()->getCapsule()->schema()->hasTable($definedDatabaseTable);
+			$databaseTableExists = $this->funcs->_getAppEloquent()->getCapsule()->getDatabaseManager()->getSchemaBuilder()->hasTable($definedDatabaseTable);
 			if (!$databaseTableExists) {
 				$allDatabaseTablesExists = false;
 				break;

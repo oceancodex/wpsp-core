@@ -1,7 +1,7 @@
 <?php
 namespace {{ rootNamespace }}\app\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use {{ rootNamespace }}\app\Traits\ModelsTrait;
 use {{ coreNamespace }}\Traits\ObserversTrait;
@@ -9,8 +9,8 @@ use {{ coreNamespace }}\Traits\ObserversTrait;
 class {{ className }} extends Model {
 	use ModelsTrait, SoftDeletes, ObserversTrait;
 
-	protected $connection = 'wordpress';
-	protected $table      = '{{ table }}';                  // If this table created by custom migration, you need to add prefix "cm_" to the table name, like this: "cm_{{ table }}"
+	protected $connection = 'mongodb';
+	protected $table      = '{{ table }}';
 //	protected $primaryKey = 'id';
 
 //	protected $appends;

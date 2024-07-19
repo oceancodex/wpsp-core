@@ -23,7 +23,7 @@ class MakeShortcodeCommand extends Command {
 			->setDescription('Create a new shortcode.                   | Eg: bin/console make:shortcode custom_shortcode --create-view')
 			->setHelp('This command allows you to create a shortcode.')
 			->addArgument('name', InputArgument::OPTIONAL, 'The name of the shortcode.')
-			->addOption('create-view', 'create-view', InputOption::VALUE_NONE, 'Whether to create the view file for this shortcode or not.');
+			->addOption('create-view', 'create-view', InputOption::VALUE_NONE, 'Create view files for this shortcode or not?');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -39,7 +39,7 @@ class MakeShortcodeCommand extends Command {
 				return Command::INVALID;
 			}
 
-			$createViewQuestion = new ConfirmationQuestion('Do you want to create a view for this shortcode? [y/N]: ', false);
+			$createViewQuestion = new ConfirmationQuestion('Do you want to create view files for this shortcode? [y/N]: ', false);
 			$createView = $helper->ask($input, $output, $createViewQuestion);
 		}
 

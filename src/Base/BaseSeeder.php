@@ -22,9 +22,23 @@ abstract class BaseSeeder extends Seeder {
 		$this->beforeInstanceConstruct();
 		$this->funcs = new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv);
 		if (!$this->capsule) {
-			$databaseConfig = include($this->funcs->_getMainPath() . '/config/database.php');
 			$this->capsule  = new Capsule();
-			$this->capsule->addConnection($databaseConfig);
+
+			$this->capsule->getDatabaseManager()->extend('mongodb', function($config, $name) {
+				$config['name'] = $name;
+				return new \MongoDB\Laravel\Connection($config);
+			});
+
+			$databaseConnections = $this->funcs->_config('database.connections');
+
+			$defaultConnectionName = $this->funcs->_getAppShortName() . '_' . $this->funcs->_config('database.default');
+			$defaultConnectionConfig = $databaseConnections[$defaultConnectionName];
+			$this->capsule->addConnection($defaultConnectionConfig);
+
+			foreach ($databaseConnections as $connectionName => $connectionConfig) {
+				$this->capsule->addConnection($connectionConfig, $connectionName);
+			}
+
 			$this->capsule->setAsGlobal();
 			$this->capsule->bootEloquent();
 		}

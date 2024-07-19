@@ -30,8 +30,8 @@ class MigrationMigrateCommand extends Command {
 		}
 
 		foreach ($execOutput as $execOutputItem) {
+			$execOutputItem = trim($execOutputItem);
 			if (preg_match('/\[OK|\[Success/iu', $execOutputItem)) {
-				$execOutputItem = trim($execOutputItem);
 				$output->writeln('<fg=green>'. $execOutputItem . '  </>');
 			}
 			else {
