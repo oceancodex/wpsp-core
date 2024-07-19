@@ -10,8 +10,8 @@ class {{ className }} extends BaseTemplates {
 
 	use InstancesTrait;
 
-	public mixed $label = '[WPSP] Template: {{ name }}';
-//	public mixed $path  = null;
+	public $label = '[WPSP] Template: {{ name }}';
+//	public $path  = null;
 
 	public function customProperties(): void {
 //		$this->path = Funcs::instance()->_getResourcesPath('/views/modules/web/templates/' . $this->name . '.blade.php');

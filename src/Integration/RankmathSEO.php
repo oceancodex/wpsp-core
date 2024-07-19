@@ -4,26 +4,26 @@ namespace WPSPCORE\Integration;
 
 class RankmathSEO {
 
-	public mixed $robots                       = null;
-	public mixed $canonical                    = null;
-	public mixed $title                        = null;
-	public mixed $description                  = null;
+	public $robots                       = null;
+	public $canonical                    = null;
+	public $title                        = null;
+	public $description                  = null;
 
-	public mixed $opengraphURL                 = null;
-	public mixed $opengraphTitle               = null;
-	public mixed $opengraphDescription         = null;
+	public $opengraphURL                 = null;
+	public $opengraphTitle               = null;
+	public $opengraphDescription         = null;
 
-	public mixed $schema                       = null;
-	public mixed $schemaPriority               = 10;
-	public mixed $schemaAcceptedArgs           = 0;
+	public $schema                       = null;
+	public $schemaPriority               = 10;
+	public $schemaAcceptedArgs           = 0;
 
-	public mixed $schemaWebpage                = null;
-	public mixed $schemaWebpagePriority        = 10;
-	public mixed $schemaWebpageAcceptedArgs    = 0;
+	public $schemaWebpage                = null;
+	public $schemaWebpagePriority        = 10;
+	public $schemaWebpageAcceptedArgs    = 0;
 
-	public mixed $schemaBreadcrumb             = null;
-	public mixed $schemaBreadcrumbPriority     = 10;
-	public mixed $schemaBreadcrumbAcceptedArgs = 0;
+	public $schemaBreadcrumb             = null;
+	public $schemaBreadcrumbPriority     = 10;
+	public $schemaBreadcrumbAcceptedArgs = 0;
 
 	/*
 	 *

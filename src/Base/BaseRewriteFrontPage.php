@@ -4,10 +4,10 @@ namespace WPSPCORE\Base;
 
 abstract class BaseRewriteFrontPage extends BaseInstances {
 
-	public mixed $path                 = null;
-	public mixed $rewriteIdent         = null;
-	public mixed $useTemplate          = false;
-	public mixed $rewriteFrontPageSlug = 'rewrite-front-pages';
+	public $path                 = null;
+	public $rewriteIdent         = null;
+	public $useTemplate          = false;
+	public $rewriteFrontPageSlug = 'rewrite-front-pages';
 
 	/*
 	 *

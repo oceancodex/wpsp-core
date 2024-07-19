@@ -3,15 +3,11 @@
 namespace WPSPCORE\Cache;
 
 use Psr\Cache\InvalidArgumentException;
-use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Cache\Adapter\MemcachedAdapter;
-use Symfony\Component\Cache\Adapter\RedisAdapter;
 use WPSPCORE\Base\BaseInstances;
 
 class Cache extends BaseInstances {
 
-	public DoctrineDbalAdapter|FilesystemAdapter|MemcachedAdapter|RedisAdapter|null $adapter          = null;
+	public ?object $adapter          = null;
 	public ?string $store            = null;
 	public ?array  $connectionParams = null;
 
@@ -19,7 +15,7 @@ class Cache extends BaseInstances {
 	 *
 	 */
 
-	public function prepare(): static {
+	public function prepare(): Cache {
 		$this->adapter = (new Adapter(
 			$this->funcs->_getMainPath(),
 			$this->funcs->_getRootNamespace(),
@@ -43,7 +39,7 @@ class Cache extends BaseInstances {
 	 *
 	 */
 
-	public function _getItem($key): \Symfony\Component\Cache\CacheItem|string {
+	public function _getItem($key) {
 		$key = $this->_getCacheKey($key);
 		try {
 			return $this->adapter->getItem($key);
@@ -86,7 +82,7 @@ class Cache extends BaseInstances {
 		}
 	}
 
-	public function _delete($key): bool|string {
+	public function _delete($key) {
 		$key = $this->_getCacheKey($key);
 		try {
 			return $this->adapter->delete($key);

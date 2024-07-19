@@ -9,8 +9,8 @@ abstract class BasePostType extends BaseInstances {
 
 	use ObjectPropertiesToArrayTrait;
 
-	public mixed $post_type = null;
-	public mixed $args      = null;
+	public $post_type = null;
+	public $args      = null;
 
 	/*
 	 *

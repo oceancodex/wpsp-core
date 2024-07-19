@@ -6,70 +6,70 @@ use WPSPCORE\Base\BaseData;
 use WPSPCORE\Base\BaseTaxonomy;
 
 class TaxonomyData extends BaseData {
-	public mixed $taxonomy;
-	public mixed $object_type;
+	public $taxonomy;
+	public $object_type;
 
 	// Labels.
-	public mixed $name;
-	public mixed $singular_name;
-	public mixed $search_items;
-	public mixed $popular_items;
-	public mixed $all_items;
-	public mixed $parent_item;
-	public mixed $parent_item_colon;
-	public mixed $name_field_description;
-	public mixed $slug_field_description;
-	public mixed $parent_field_description;
-	public mixed $desc_field_description;
-	public mixed $edit_item;
-	public mixed $view_item;
-	public mixed $update_item;
-	public mixed $add_new_item;
-	public mixed $new_item_name;
-	public mixed $separate_items_with_commas;
-	public mixed $add_or_remove_items;
-	public mixed $choose_from_most_used;
-	public mixed $not_found;
-	public mixed $no_terms;
-	public mixed $filter_by_item;
-	public mixed $items_list_navigation;
-	public mixed $items_list;
-	public mixed $most_used;
-	public mixed $back_to_items;
-	public mixed $item_link;
-	public mixed $item_link_description;
+	public $name;
+	public $singular_name;
+	public $search_items;
+	public $popular_items;
+	public $all_items;
+	public $parent_item;
+	public $parent_item_colon;
+	public $name_field_description;
+	public $slug_field_description;
+	public $parent_field_description;
+	public $desc_field_description;
+	public $edit_item;
+	public $view_item;
+	public $update_item;
+	public $add_new_item;
+	public $new_item_name;
+	public $separate_items_with_commas;
+	public $add_or_remove_items;
+	public $choose_from_most_used;
+	public $not_found;
+	public $no_terms;
+	public $filter_by_item;
+	public $items_list_navigation;
+	public $items_list;
+	public $most_used;
+	public $back_to_items;
+	public $item_link;
+	public $item_link_description;
 
 	// Args.
-	public mixed $labels;
-	public mixed $description;
-	public mixed $public;
-	public mixed $publicly_queryable;
-	public mixed $hierarchical;
-	public mixed $show_ui;
-	public mixed $show_in_menu;
-	public mixed $show_in_nav_menus;
-	public mixed $show_in_rest;
-	public mixed $rest_base;
-	public mixed $rest_namespace;
-	public mixed $rest_controller_class;
-	public mixed $show_tagcloud;
-	public mixed $show_in_quick_edit;
-	public mixed $show_admin_column;
-	public mixed $meta_box_cb;
-	public mixed $meta_box_sanitize_cb;
-	public mixed $capabilities;                 // manage_terms, edit_terms, delete_terms, assign_terms
-	public mixed $rewrite;                      // slug, with_front, hierarchical, ep_mask
-	public mixed $query_var;
-	public mixed $update_count_callback;
-	public mixed $default_term;                 // name, slug, description
-	public mixed $sort;
-	public mixed $args;
-	public mixed $_builtin;
+	public $labels;
+	public $description;
+	public $public;
+	public $publicly_queryable;
+	public $hierarchical;
+	public $show_ui;
+	public $show_in_menu;
+	public $show_in_nav_menus;
+	public $show_in_rest;
+	public $rest_base;
+	public $rest_namespace;
+	public $rest_controller_class;
+	public $show_tagcloud;
+	public $show_in_quick_edit;
+	public $show_admin_column;
+	public $meta_box_cb;
+	public $meta_box_sanitize_cb;
+	public $capabilities;                 // manage_terms, edit_terms, delete_terms, assign_terms
+	public $rewrite;                      // slug, with_front, hierarchical, ep_mask
+	public $query_var;
+	public $update_count_callback;
+	public $default_term;                 // name, slug, description
+	public $sort;
+	public $args;
+	public $_builtin;
 
 	// Custom properties.
-	public mixed $preparedName;
-	public mixed $taxonomyInstance;
-	public mixed $previousArgs;
+	public $preparedName;
+	public $taxonomyInstance;
+	public $previousArgs;
 
 	public function __construct(BaseTaxonomy $taxonomyInstance = null, $previousArgs = null) {
 		$this->taxonomyInstance = $taxonomyInstance;
@@ -97,7 +97,7 @@ class TaxonomyData extends BaseData {
 		$this->show_admin_column     = true;
 //		$this->meta_box_cb           = null;
 //		$this->meta_box_sanitize_cb  = null;
-//		$this->capabilities          = [];          // ['manage_terms', 'edit_terms', 'delete_terms', 'assign_terms']
+		$this->capabilities          = [];          // ['manage_terms', 'edit_terms', 'delete_terms', 'assign_terms']
 //		$this->rewrite               = [];          // true/false or ['slug', 'with_front', 'hierarchical', 'ep_mask']
 //		$this->query_var             = '';
 //		$this->update_count_callback = null;
@@ -152,6 +152,7 @@ class TaxonomyData extends BaseData {
 			?? $this->singular_name
 			?? $this->taxonomy;
 		unset($this->taxonomyInstance);
+		unset($this->previousArgs);
 	}
 
 }

@@ -4,15 +4,15 @@ namespace WPSPCORE\Base;
 
 abstract class BaseAdminPage extends BaseInstances {
 
-	public mixed $menu_title         = null;
-	public mixed $page_title         = null;
-	public mixed $capability         = null;
-	public mixed $menu_slug          = null;
-	public mixed $icon_url           = null;
-	public mixed $position           = null;
-	public mixed $isSubAdminPage     = false;
-	public mixed $parent_slug        = null;
-	public mixed $removeFirstSubmenu = false;
+	public $menu_title         = null;
+	public $page_title         = null;
+	public $capability         = null;
+	public $menu_slug          = null;
+	public $icon_url           = null;
+	public $position           = null;
+	public $isSubAdminPage     = false;
+	public $parent_slug        = null;
+	public $removeFirstSubmenu = false;
 
 	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $menu_slug = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);

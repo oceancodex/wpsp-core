@@ -4,15 +4,15 @@ namespace WPSPCORE\Data;
 
 class AdminPageData {
 
-	private mixed $menuTitle      = null;
-	private mixed $pageTitle      = null;
-	private mixed $capability     = null;
-	private mixed $menuSlug       = null;
-	private mixed $callback       = null;
-	private mixed $iconUrl        = null;
-	private mixed $position       = null;
-	private mixed $isSubAdminPage = false;
-	private mixed $parentSlug     = null;
+	private $menuTitle      = null;
+	private $pageTitle      = null;
+	private $capability     = null;
+	private $menuSlug       = null;
+	private $callback       = null;
+	private $iconUrl        = null;
+	private $position       = null;
+	private $isSubAdminPage = false;
+	private $parentSlug     = null;
 
 	public function getMenuTitle(): string {
 		return $this->menuTitle;

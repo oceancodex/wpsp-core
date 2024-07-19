@@ -4,9 +4,9 @@ namespace WPSPCORE\Base;
 
 abstract class BaseTemplates extends BaseInstances {
 
-	public mixed $name  = null;
-	public mixed $label = null;
-	public mixed $path  = null;
+	public $name  = null;
+	public $label = null;
+	public $path  = null;
 
 	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $name = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
