@@ -2,16 +2,20 @@
 
 namespace {{ rootNamespace }}\app\Extend\Components\ListTables;
 
+use Symfony\Contracts\Cache\ItemInterface;
+use {{ rootNamespace }}\app\Extend\Instances\Cache\Cache;
+use {{ rootNamespace }}\app\Models\PostsModel;
+use {{ rootNamespace }}\app\Models\SettingsModel;
 use {{ rootNamespace }}\Funcs;
-use WPSPCORE\Base\BaseListTable;
-use WPSPCORE\Traits\HttpRequestTrait;
+use {{ coreNamespace }}\Base\BaseListTable;
+use {{ coreNamespace }}\Traits\HttpRequestTrait;
 
 class {{ className }} extends BaseListTable {
 
 	use HttpRequestTrait;
 
-	public ?string $defaultOrder        = 'asc';
-	public ?string $defaultOrderby      = 'id';
+//	public ?string $defaultOrder        = 'asc';
+//	public ?string $defaultOrderBy      = 'id';
 	public ?array  $removeQueryVars     = [
 		'_wp_http_referer',
 		'_wpnonce',
@@ -39,21 +43,22 @@ class {{ className }} extends BaseListTable {
 	/**
 	 * Override construct to assign some variables.
 	 */
-	public function __construct($args = []) {
-		parent::__construct($args);
-		$this->page               = self::request()->get('page');
-		$this->paged              = self::request()->get('paged');
-		$this->tab                = self::request()->get('tab');
-		$this->type               = self::request()->get('type');
-		$this->search             = self::request()->get('s');
-		$this->option             = self::request()->get('c');
-		$this->orderby            = self::request()->get('orderby') ?: $this->orderby;
-		$this->order              = self::request()->get('order') ?: $this->order;
-		$this->url                = Funcs::instance()->_buildUrl(self::request()->getBaseUrl(), ['page' => $this->page, 'tab'  => $this->tab]);
-		$this->url                .= $this->search ? '&s=' . $this->search : '';
-		$this->url                .= $this->option ? '&c=' . $this->option : '';
-		$this->prefixScreenOption = Funcs::env('APP_SHORT_NAME', true) . '_' . $this->page;
-		$this->itemsPerPage       = $this->get_items_per_page($this->prefixScreenOption . '_items_per_page');
+	public function customProperties(): void {
+		$this->page         = self::request()->get('page');
+		$this->paged        = self::request()->get('paged');
+		$this->tab          = self::request()->get('tab');
+		$this->type         = self::request()->get('type');
+		$this->search       = self::request()->get('s');
+		$this->option       = self::request()->get('c');
+		$this->orderby      = self::request()->get('orderby') ?: $this->orderby;
+		$this->order        = self::request()->get('order') ?: $this->order;
+
+		$this->url          = Funcs::instance()->_buildUrl(self::request()->getBaseUrl(), ['page' => $this->page, 'tab' => $this->tab]);
+		$this->url          .= $this->search ? '&s=' . $this->search : '';
+		$this->url          .= $this->option ? '&c=' . $this->option : '';
+
+		$prefixScreenOption = Funcs::env('APP_SHORT_NAME', true) . '_' . $this->page;
+		$this->itemsPerPage = $this->get_items_per_page($prefixScreenOption . '_items_per_page');
 	}
 
 	/*
@@ -65,11 +70,37 @@ class {{ className }} extends BaseListTable {
 	 */
 
 	public function get_data(): array {
-		$accountsModel     = \{{ rootNamespace }}\app\Models\AccountsModel::query();
-		$this->total_items = $accountsModel->count();
+//		$model             = \{{ rootNamespace }}\app\Models\AccountsModel::query();
+		$model             = \{{ rootNamespace }}\app\Models\SettingsModel::query();
+//		$model             = \{{ rootNamespace }}\app\Models\VideosModel::query();
+
+		$this->total_items = $model->count();
+
+		/**
+		 * Cache total items.
+		 */
+//		$totalCacheKey = 'list_table_settings_total_items';
+//		Cache::delete($totalCacheKey);
+//		$this->total_items = Cache::get($totalCacheKey, function(ItemInterface $item) use ($model) {
+//			$item->expiresAfter(60); // Cache in seconds.
+//			return $model->count();
+//		});
+//		$this->total_items = $model->count();
+
 		$take              = $this->itemsPerPage;
 		$skip              = ($this->paged - 1) * $take;
-		return $accountsModel->orderBy($this->orderby, $this->order)->skip($skip)->take($take)->get()->toArray();
+
+		/**
+		 * Cache data.
+		 */
+//		$dataCacheKey = 'list_table_settings_' . $this->itemsPerPage . '_' . $this->paged;
+//		Cache::delete($dataCacheKey);
+//		return Cache::get($dataCacheKey, function (ItemInterface $item) use ($model, $take, $skip) {
+//			$item->expiresAfter(60); // Cache in seconds.
+//			return $model->orderBy($this->orderby, $this->order)->skip($skip)->take($take)->get()->toArray();
+//		});
+
+		return $model->orderBy($this->orderby, $this->order)->skip($skip)->take($take)->get()->toArray();
 	}
 
 	/**
@@ -79,24 +110,30 @@ class {{ className }} extends BaseListTable {
 	public function column_cb($item) {
 		return sprintf(
 			'<input type="checkbox" name="items[]" value="%s" />',
-			$item['id']
+			$item['_id'] ?? $item['id']
 		);
 	}
 
 	public function get_columns(): array {
 		return [
 			'cb'    => '<input type="checkbox" />',
-			'name'  => 'Name',
 			'id'    => 'ID',
-			'email' => 'Email',
+//			'_id'   => 'ID',
+//			'name'  => 'Name',
+//			'email' => 'Email',
+			'key'   => 'Key',
+			'value' => 'Value'
 		];
 	}
 
 	public function column_default($item, $column_name) {
 		switch ($column_name) {
-			case 'name':
 			case 'id':
-			case 'email':
+//			case '_id':
+//			case 'name':
+//			case 'email':
+			case 'key':
+			case 'value':
 			default:
 				return $item[$column_name];
 		}
@@ -104,9 +141,12 @@ class {{ className }} extends BaseListTable {
 
 	public function get_sortable_columns(): array {
 		return [
-			'name'  => ['name', false],
 			'id'    => ['id', false],
-			'email' => ['email', false],
+//			'_id'   => ['_id', false],
+//			'name'  => ['name', false],
+//			'email' => ['email', false],
+			'key'   => ['key', false],
+            'value' => ['value', false],
 		];
 	}
 
@@ -158,7 +198,7 @@ class {{ className }} extends BaseListTable {
 	public function get_views(): array {
 		return [
 			'all'       => '<a href="' . $this->url . '" class="' . (($this->type == 'all' || !$this->type) ? 'current' : '') . '">All <span class="count">(10)</span></a>',
-			'published' => '<a href="' . $this->url . '&type=published" class="' . ($this->type == 'published' ? 'current' : '') . '">Published <span class="count">(10)</span></a>',
+			'published' => '<a href="' . $this->url . '&type=published" class="' . ($this->type == 'published' ? 'current' : '') . '">Published <span class="count">(5)</span></a>',
 		];
 	}
 
@@ -185,7 +225,10 @@ class {{ className }} extends BaseListTable {
 
 			// Multi delete.
 			if ('delete' === $this->current_action()) {
-				echo '<pre style="z-index: 9999; position: relative; clear: both;">'; print_r(self::request()->query->all()); echo '</pre>';
+				$items = self::request()->get('items');
+				if (!empty($items)) {
+					SettingsModel::query()->whereIn('id', $items)->delete();
+				}
 				Funcs::notice(Funcs::trans('Deleted successfully'), 'success', true);
 			}
 
@@ -196,7 +239,8 @@ class {{ className }} extends BaseListTable {
 	/**
 	 * Extra table nav.
 	 */
-	protected function extra_tablenav($which): void {
+
+	public function extra_tablenav($which): void {
 
 		if ($which == 'top') {
 			echo '<div class="alignleft actions bulkactions">';
@@ -214,7 +258,7 @@ class {{ className }} extends BaseListTable {
 	 */
 
 	public function usort_reorder($a, $b): int {
-		$orderby = (!empty($_GET['orderby'])) ? $_GET['orderby'] : $this->defaultOrderby;
+		$orderby = (!empty($_GET['orderby'])) ? $_GET['orderby'] : $this->defaultOrderBy;
 		$order   = (!empty($_GET['order'])) ? $_GET['order'] : $this->defaultOrder;
 		$result  = strnatcmp($a[$orderby], $b[$orderby]);
 		return ($order === 'asc') ? $result : -$result;

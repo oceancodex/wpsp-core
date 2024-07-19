@@ -55,8 +55,18 @@ trait WebRouteTrait {
 	 *
 	 */
 
-	public function get($path, $callback, $useInitClass = false, $classArgs = [], $middleware = null): void {
-		if (!wp_doing_ajax() && $this->isPassedMiddleware($middleware, $this->request)) {
+	public function group($callback, $middlewares = null): void {
+		if ($this->isPassedMiddleware($middlewares, $this->request)) {
+			$callback();
+		}
+	}
+
+	/*
+	 *
+	 */
+
+	public function get($path, $callback, $useInitClass = false, $classArgs = [], $middlewares = null): void {
+		if (!wp_doing_ajax() && $this->isPassedMiddleware($middlewares, $this->request)) {
 			$classArgs = array_merge([$path], $classArgs ?? []);
 			$classArgs = array_merge([
 				$this->funcs->_getMainPath(),
@@ -68,12 +78,12 @@ trait WebRouteTrait {
 		}
 	}
 
-	public function post($path, $callback, $useInitClass = false, $classArgs = [], $middleware = null): void {
+	public function post($path, $callback, $useInitClass = false, $classArgs = [], $middlewares = null): void {
 		if (!wp_doing_ajax() && $this->request->isMethod('POST')) {
 			$requestPath = trim($this->request->getPathInfo(), '/\\');
 			if (
 				($this->request->get('page') == $path || preg_match('/' . $path . '/iu', $requestPath))
-				&& $this->isPassedMiddleware($middleware, $this->request)
+				&& $this->isPassedMiddleware($middlewares, $this->request)
 			) {
 				$classArgs = array_merge([$path], $classArgs ?? []);
 				$classArgs = array_merge([
@@ -91,8 +101,8 @@ trait WebRouteTrait {
 	 *
 	 */
 
-	public function hook($type, $hook, $callback, $useInitClass = false, $classArgs = [], $middleware = null, $priority = 10, $argsNumber = 0): void {
-		if ($this->isPassedMiddleware($middleware, $this->request)) {
+	public function hook($type, $hook, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 0): void {
+		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
 			if ($type == 'action') {
 				add_action($hook, $callback, $priority, $argsNumber);
@@ -103,19 +113,19 @@ trait WebRouteTrait {
 		}
 	}
 
-	public function action($hook, $callback, $useInitClass = false, $classArgs = [], $middleware = null, $priority = 10, $argsNumber = 0): void {
-		$this->hook('action', $hook, $callback, $useInitClass, $classArgs, $middleware, $priority, $argsNumber);
+	public function action($hook, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 0): void {
+		$this->hook('action', $hook, $callback, $useInitClass, $classArgs, $middlewares, $priority, $argsNumber);
 	}
 
-	public function filter($hook, $callback, $useInitClass = false, $classArgs = [], $middleware = null, $priority = 10, $argsNumber = 0): void {
-        $this->hook('filter', $hook, $callback, $useInitClass, $classArgs, $middleware, $priority, $argsNumber);
+	public function filter($hook, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 0): void {
+        $this->hook('filter', $hook, $callback, $useInitClass, $classArgs, $middlewares, $priority, $argsNumber);
     }
 
 	/*
 	 *
 	 */
 
-	public function nav_menu($menu, $callback, $useInitClass = false, $classArgs = [], $middleware = null): void {
+	public function nav_menu($menu, $callback, $useInitClass = false, $classArgs = [], $middlewares = null): void {
 		$classArgs = array_merge([$menu], $classArgs ?? []);
 		$classArgs = array_merge([
 			$this->funcs->_getMainPath(),
@@ -126,7 +136,7 @@ trait WebRouteTrait {
 		isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($menu) : $callback;
 	}
 
-	public function nav_location($location, $callback, $useInitClass = false, $classArgs = [], $middleware = null): void {
+	public function nav_location($location, $callback, $useInitClass = false, $classArgs = [], $middlewares = null): void {
 		$classArgs = array_merge([$location], $classArgs ?? []);
 		$classArgs = array_merge([
 			$this->funcs->_getMainPath(),
@@ -137,8 +147,8 @@ trait WebRouteTrait {
 		isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($location) : $callback;
 	}
 
-	public function template($name, $callback, $useInitClass = false, $classArgs = [], $middleware = null, $priority = 10, $argsNumber = 0): void {
-		if ($this->isPassedMiddleware($middleware, $this->request)) {
+	public function template($name, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 0): void {
+		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$classArgs = array_merge([$name], $classArgs ?? []);
 			$classArgs = array_merge([
 				$this->funcs->_getMainPath(),
@@ -150,8 +160,8 @@ trait WebRouteTrait {
 		}
 	}
 
-	public function meta_box($id, $callback, $useInitClass = false, $classArgs = [], $middleware = null, $priority = 10, $argsNumber = 0): void {
-		if ($this->isPassedMiddleware($middleware, $this->request)) {
+	public function meta_box($id, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 0): void {
+		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$classArgs = array_merge([$id], $classArgs ?? []);
 			$classArgs = array_merge([
 				$this->funcs->_getMainPath(),
@@ -163,8 +173,8 @@ trait WebRouteTrait {
 		}
 	}
 
-	public function taxonomy($taxonomy, $callback, $useInitClass = false, $classArgs = [], $middleware = null, $priority = 10, $argsNumber = 0): void {
-		if ($this->isPassedMiddleware($middleware, $this->request)) {
+	public function taxonomy($taxonomy, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 0): void {
+		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$classArgs = array_merge([$taxonomy], $classArgs ?? []);
 			$classArgs = array_merge([
 				$this->funcs->_getMainPath(),
@@ -176,15 +186,15 @@ trait WebRouteTrait {
 		}
 	}
 
-	public function shortcode($shortcode, $callback, $useInitClass = false, $classArgs = [], $middleware = null): void {
-		if ($this->isPassedMiddleware($middleware, $this->request)) {
+	public function shortcode($shortcode, $callback, $useInitClass = false, $classArgs = [], $middlewares = null): void {
+		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
 			add_shortcode($shortcode, $callback);
 		}
 	}
 
-	public function post_type($postType, $callback, $useInitClass = false, $classArgs = [], $middleware = null): void {
-		if ($this->isPassedMiddleware($middleware, $this->request)) {
+	public function post_type($postType, $callback, $useInitClass = false, $classArgs = [], $middlewares = null): void {
+		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			if (is_array($callback)) {
 				$classArgs = array_merge([$postType], $classArgs ?? []);
 				$classArgs = array_merge([

@@ -22,7 +22,21 @@ class MigrationDiffCommand extends Command {
 
 		$tablePrefix = $this->funcs->_getDBTablePrefix();
 
-		exec('php bin/migrations diff --filter-expression="/^'.$tablePrefix.'((?!cm_))/iu" -n');
+		exec('php bin/migrations diff --filter-expression="/^'.$tablePrefix.'((?!cm_))/iu" -n', $execOutput);
+		foreach ($execOutput as $execOutputItem) {
+			if ($execOutputItem) {
+				$execOutputItem = trim($execOutputItem);
+				if (preg_match('/generated/iu', $execOutputItem)) {
+					$output->writeln('<fg=green>'. $execOutputItem . '  </>');
+				}
+				elseif (preg_match('/warning/iu', $execOutputItem)) {
+					$output->writeln('<fg=yellow>'. $execOutputItem . '  </>');
+				}
+				else {
+					$output->writeln('<fg=blue>'. $execOutputItem . '  </>');
+				}
+			}
+		}
 
 		// Output message.
 //		$output->writeln('Diff.');

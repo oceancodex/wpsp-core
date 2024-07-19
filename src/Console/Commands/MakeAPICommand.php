@@ -35,10 +35,10 @@ class MakeAPICommand extends Command {
 			$pathQuestion = new Question('Please enter the path of the API end point: ');
 			$path         = $helper->ask($input, $output, $pathQuestion);
 
-			$namespaceQuestion = new Question('Please enter the namespace of the API end point: ');
+			$namespaceQuestion = new Question('Please enter the namespace of the API end point (blank is "'.$this->funcs->_getAppShortName().'"): ');
 			$namespace         = $helper->ask($input, $output, $namespaceQuestion);
 
-			$verQuestion = new Question('Please enter the ver of the API end point: ');
+			$verQuestion = new Question('Please enter the ver of the API end point (blank is "v1"): ');
 			$ver         = $helper->ask($input, $output, $verQuestion);
 
 			if (empty($path)) {
