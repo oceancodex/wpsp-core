@@ -20,7 +20,7 @@ class Environment {
 	}
 
 	public static function get(string $varName, $default = ''): ?string {
-		return getenv($varName) ?: $_SERVER[$varName] ?? ($_ENV[$varName] ?? $default);
+		return env($varName) ?: getenv($varName) ?: $_SERVER[$varName] ?? ($_ENV[$varName] ?? $default);
 	}
 
 }
