@@ -12,21 +12,21 @@
 		"ext-curl": "*",
 		"ext-intl": "*",
 		"ext-json": "*",
-		"dflydev/dot-access-data": "*",
-		"doctrine/doctrine-migrations-bundle": "*",
-		"doctrine/orm": "*",
-		"fakerphp/faker": "*",
-		"gedmo/doctrine-extensions": "*",
-		"hassankhan/config": "*",
-		"illuminate/database": "*",
-		"illuminate/translation": "*",
-		"illuminate/view": "*",
-		"mongodb/laravel-mongodb": "*",
-		"ocramius/generated-hydrator": "*",
-		"symfony/http-client": "*",
-		"symfony/rate-limiter": "*",
-		"vlucas/phpdotenv": "*",
-		"yahnis-elsts/plugin-update-checker": "*"
+		"dflydev/dot-access-data": "^3.0",
+		"doctrine/doctrine-migrations-bundle": "^3.3",
+		"doctrine/orm": "^3.2",
+		"fakerphp/faker": "^1.23",
+		"gedmo/doctrine-extensions": "^3.14",
+		"hassankhan/config": "^3.1",
+		"illuminate/database": "^v10.48.16",
+		"illuminate/translation": "^v10.48.16",
+		"illuminate/view": "^v10.48.16",
+		"mongodb/laravel-mongodb": "^4.6.0",
+		"ocramius/generated-hydrator": "^4.6",
+		"symfony/http-client": "^6.4",
+		"symfony/rate-limiter": "^6.4",
+		"vlucas/phpdotenv": "^5.6",
+		"yahnis-elsts/plugin-update-checker": "^5.4"
 	},
 	"config": {
 		"sort-packages": true
@@ -57,7 +57,5 @@
 		],
 		"post-create-project-cmd": [
 		]
-	},
-	"require-dev": {
 	}
 }
