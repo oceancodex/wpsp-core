@@ -12,12 +12,12 @@
 		"ext-curl": "*",
 		"ext-intl": "*",
 		"ext-json": "*",
-		"dflydev/dot-access-data": "^3.0",
-		"doctrine/doctrine-migrations-bundle": "^3.3",
+		"dflydev/dot-access-data": "^v3.0.3",
+		"doctrine/doctrine-migrations-bundle": "^3.3.1",
 		"doctrine/orm": "^2.19.6",
-		"fakerphp/faker": "^1.23",
-		"gedmo/doctrine-extensions": "^3.16",
-		"hassankhan/config": "^3.1",
+		"fakerphp/faker": "^v1.23.1",
+		"gedmo/doctrine-extensions": "^v3.16.1",
+		"hassankhan/config": "^3.1.0",
 		"illuminate/database": "^v9.52.16",
 		"illuminate/translation": "^v9.52.16",
 		"illuminate/view": "^v9.52.16",
@@ -25,8 +25,8 @@
 		"ocramius/generated-hydrator": "^4.4.0",
 		"symfony/http-client": "^v6.0.20",
 		"symfony/rate-limiter": "^v6.0.19",
-		"vlucas/phpdotenv": "^5.6",
-		"yahnis-elsts/plugin-update-checker": "^5.4"
+		"vlucas/phpdotenv": "^v5.6.0",
+		"yahnis-elsts/plugin-update-checker": "^v5.4"
 	},
 	"config": {
 		"sort-packages": true
