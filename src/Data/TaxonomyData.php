@@ -97,7 +97,7 @@ class TaxonomyData extends BaseData {
 		$this->show_admin_column     = true;
 //		$this->meta_box_cb           = null;
 //		$this->meta_box_sanitize_cb  = null;
-//		$this->capabilities          = [];          // ['manage_terms', 'edit_terms', 'delete_terms', 'assign_terms']
+		$this->capabilities          = [];          // ['manage_terms', 'edit_terms', 'delete_terms', 'assign_terms']
 //		$this->rewrite               = [];          // true/false or ['slug', 'with_front', 'hierarchical', 'ep_mask']
 //		$this->query_var             = '';
 //		$this->update_count_callback = null;
@@ -152,6 +152,7 @@ class TaxonomyData extends BaseData {
 			?? $this->singular_name
 			?? $this->taxonomy;
 		unset($this->taxonomyInstance);
+		unset($this->previousArgs);
 	}
 
 }
