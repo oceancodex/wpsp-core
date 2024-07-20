@@ -11,9 +11,13 @@ use WPSPCORE\Base\BaseInstances;
 
 class Cache extends BaseInstances {
 
-	public DoctrineDbalAdapter|FilesystemAdapter|MemcachedAdapter|RedisAdapter|null $adapter          = null;
-	public ?string $store            = null;
-	public ?array  $connectionParams = null;
+	/**
+	 * @var DoctrineDbalAdapter|FilesystemAdapter|MemcachedAdapter|RedisAdapter|null $adapter
+	 */
+	public mixed        $adapter          = null;
+	public ?string      $store            = null;
+	public ?array       $connectionParams = null;
+	public static ?self $instance         = null;
 
 	/*
 	 *
