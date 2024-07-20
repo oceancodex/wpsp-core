@@ -23,7 +23,7 @@ class Cache extends BaseInstances {
 	 *
 	 */
 
-	public function prepare(): Cache {
+	public function prepare(): ?self {
 		$this->adapter = (new Adapter(
 			$this->funcs->_getMainPath(),
 			$this->funcs->_getRootNamespace(),

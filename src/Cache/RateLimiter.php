@@ -2,23 +2,31 @@
 
 namespace WPSPCORE\Cache;
 
+use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\MemcachedAdapter;
+use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\RateLimiter\Storage\CacheStorage;
 use WPSPCORE\Base\BaseInstances;
 
 class RateLimiter extends BaseInstances {
 
-	protected ?string $key              = null;
-	protected ?string $store            = null;
-	protected ?array  $connectionParams = null;
-	protected ?object $adapter          = null;
-	protected ?array  $limiters         = null;
+	/**
+	 * @var DoctrineDbalAdapter|FilesystemAdapter|MemcachedAdapter|RedisAdapter|null $adapter
+	 */
+	protected           $adapter          = null;
+	protected ?array    $limiters         = null;
+	protected ?string   $key              = null;
+	protected ?string   $store            = null;
+	protected ?array    $connectionParams = null;
+	public static ?self $instance         = null;
 
 	/*
 	 *
 	 */
 
-	public function prepare(): RateLimiter {
+	public function prepare(): ?self {
 		$configs = $this->funcs->_config('rate-limiter');
 		if (!$this->adapter) {
 			$this->adapter = (new Adapter(
