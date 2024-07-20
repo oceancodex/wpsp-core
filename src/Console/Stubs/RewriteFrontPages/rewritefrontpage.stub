@@ -21,9 +21,9 @@ class {{ name_slugify }} extends BaseRewriteFrontPage {
 	 * Private properties.
 	 */
 
-	private mixed $currentURL     = null;
-	private mixed $queryVarGroup1 = null;
-	private mixed $seo            = null;
+	private mixed $currentURL          = null;
+	private mixed $queryVarGroup1      = null;
+	private mixed $seo                 = null;
 
 	/*
 	 *
