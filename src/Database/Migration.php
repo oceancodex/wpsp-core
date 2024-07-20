@@ -224,7 +224,11 @@ class Migration extends BaseInstances {
 		$databaseTableClasses = array_merge($databaseTableClasses, [$this->funcs->_getDBTableName('migration_versions')]);
 
 		$definedDatabaseTables = [];
+
+		// Get all table names from entity classes.
 		foreach ($databaseTableClasses as $databaseTableClass) {
+
+			// Get entity table name.
 			try {
 				$databaseTableName = $this->getEntityManager()->getClassMetadata($databaseTableClass)->getTableName();
 			}
@@ -236,6 +240,7 @@ class Migration extends BaseInstances {
 				$definedDatabaseTables[] = $databaseTableName;
 			}
 
+			// Get all join table names.
 			try {
 				$joinTables = $this->getEntityManager()->getClassMetadata($databaseTableClass)->getAssociationMappings();
 				foreach ($joinTables as $joinTable) {
@@ -252,6 +257,7 @@ class Migration extends BaseInstances {
 			}
 		}
 
+		// Get all table names from "createTable" statements in migration files.
 		$databaseTableMigrations = $this->funcs->_getAllFilesInFolder($this->funcs->_getMigrationPath());
 		foreach ($databaseTableMigrations as $databaseTableMigration) {
 			$fileContent    = Filesystem::instance()->get($databaseTableMigration['real_path']);
