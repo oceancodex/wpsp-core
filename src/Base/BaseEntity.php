@@ -7,18 +7,26 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\SoftDeleteable\Traits\SoftDeleteable;
 use Gedmo\Timestampable\Traits\Timestampable;
 
-#[Gedmo\SoftDeleteable(fieldName: 'deleted_at', timeAware: false, hardDelete: true)]
+/**
+ * @Gedmo\SoftDeleteable(fieldName="deleted_at", timeAware=false, hardDelete=true)
+ */
 abstract class BaseEntity {
 
 	use Timestampable, SoftDeleteable;
 
-	#[ORM\Column(name: 'created_at', type: 'datetime', nullable: true)]
+	/**
+	 * @ORM\Column(name="created_at", type="datetime", nullable=true)
+	 */
 	protected $createdAt;
 
-	#[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
+	/**
+	 * @ORM\Column(name="updated_at", type="datetime", nullable=true)
+	 */
 	protected $updatedAt;
 
-	#[ORM\Column(name: 'deleted_at', type: 'datetime', nullable: true)]
+	/**
+	 * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
+	 */
 	protected $deletedAt;
 
 	/*
