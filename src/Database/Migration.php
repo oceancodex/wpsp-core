@@ -234,7 +234,7 @@ class Migration extends BaseInstances {
 				}
 				catch (\Exception $e) {
 					$databaseTableName = null; // $databaseTableClass;
-					$this->funcs->_debug($e->getMessage(), true);
+					$this->funcs->_debug($e->getMessage());
 				}
 				if ($databaseTableName) {
 					$databaseTableName       = preg_replace('/^' . $this->funcs->_getDBTablePrefix() . '/iu', '', $databaseTableName);
@@ -255,7 +255,7 @@ class Migration extends BaseInstances {
 					}
 				}
 				catch (\Exception $e) {
-					$this->funcs->_debug($e->getMessage(), true);
+					$this->funcs->_debug($e->getMessage());
 				}
 			}
 		}
