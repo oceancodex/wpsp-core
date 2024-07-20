@@ -227,33 +227,36 @@ class Migration extends BaseInstances {
 
 		// Get all table names from entity classes.
 		foreach ($databaseTableClasses as $databaseTableClass) {
+			if (class_exists($databaseTableClass)) {
+				// Get entity table name.
+				try {
+					$databaseTableName = $this->getEntityManager()->getClassMetadata($databaseTableClass)->getTableName();
+				}
+				catch (\Exception $e) {
+					$databaseTableName = null; // $databaseTableClass;
+					$this->funcs->_debug($e->getMessage(), true);
+				}
+				if ($databaseTableName) {
+					$databaseTableName       = preg_replace('/^' . $this->funcs->_getDBTablePrefix() . '/iu', '', $databaseTableName);
+					$definedDatabaseTables[] = $databaseTableName;
+				}
 
-			// Get entity table name.
-			try {
-				$databaseTableName = $this->getEntityManager()->getClassMetadata($databaseTableClass)->getTableName();
-			}
-			catch (\Exception $e) {
-				$databaseTableName = null; // $databaseTableClass;
-			}
-			if ($databaseTableName) {
-				$databaseTableName       = preg_replace('/^' . $this->funcs->_getDBTablePrefix() . '/iu', '', $databaseTableName);
-				$definedDatabaseTables[] = $databaseTableName;
-			}
-
-			// Get all join table names.
-			try {
-				$joinTables = $this->getEntityManager()->getClassMetadata($databaseTableClass)->getAssociationMappings();
-				foreach ($joinTables as $joinTable) {
-					if (!empty($joinTable?->joinTable?->name)) {
-						$joinTableName = $joinTable?->joinTable?->name ?? null;
-						if ($joinTableName) {
-							$joinTableName           = preg_replace('/^' . $this->funcs->_getDBTablePrefix() . '/iu', '', $joinTableName);
-							$definedDatabaseTables[] = $joinTableName;
+				// Get all join table names.
+				try {
+					$joinTables = $this->getEntityManager()->getClassMetadata($databaseTableClass)->getAssociationMappings();
+					foreach ($joinTables as $joinTable) {
+						if (!empty($joinTable?->joinTable?->name)) {
+							$joinTableName = $joinTable?->joinTable?->name ?? null;
+							if ($joinTableName) {
+								$joinTableName           = preg_replace('/^' . $this->funcs->_getDBTablePrefix() . '/iu', '', $joinTableName);
+								$definedDatabaseTables[] = $joinTableName;
+							}
 						}
 					}
 				}
-			}
-			catch (\Exception $e) {
+				catch (\Exception $e) {
+					$this->funcs->_debug($e->getMessage(), true);
+				}
 			}
 		}
 
