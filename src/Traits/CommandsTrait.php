@@ -22,7 +22,7 @@ trait CommandsTrait {
 		$this->funcs         = new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv);
 	}
 
-	public function replaceNamespaces($content): array|string {
+	public function replaceNamespaces($content) {
 		$content = str_replace('{{ rootNamespace }}', $this->rootNamespace, $content);
 		return str_replace('{{ coreNamespace }}', $this->coreNamespace, $content);
 	}

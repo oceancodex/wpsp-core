@@ -25,7 +25,7 @@ abstract class BaseRoute extends BaseInstances {
 		return $passed;
 	}
 
-	public function prepareCallback($callback, $useInitClass = false, $classArgs = []): array|\Closure {
+	public function prepareCallback($callback, $useInitClass = false, $classArgs = []) {
 
 		// If callback is a closure.
 		if ($callback instanceof \Closure) {

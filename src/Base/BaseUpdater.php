@@ -15,7 +15,7 @@ abstract class BaseUpdater extends BaseInstances {
 	 *
 	 */
 
-	public function prepare(): static {
+	public function prepare(): ?self {
 		// Disable SSL verification.
 		if (!$this->sslVerify) {
 			add_filter('puc_request_info_options-' . $this->funcs->_getTextDomain(), function($options) {

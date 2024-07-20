@@ -23,7 +23,7 @@ class Cache extends BaseInstances {
 	 *
 	 */
 
-	public function prepare(): static {
+	public function prepare(): ?self {
 		$this->adapter = (new Adapter(
 			$this->funcs->_getMainPath(),
 			$this->funcs->_getRootNamespace(),
@@ -47,7 +47,7 @@ class Cache extends BaseInstances {
 	 *
 	 */
 
-	public function _getItem($key): \Symfony\Component\Cache\CacheItem|string {
+	public function _getItem($key) {
 		$key = $this->_getCacheKey($key);
 		try {
 			return $this->adapter->getItem($key);
@@ -90,7 +90,7 @@ class Cache extends BaseInstances {
 		}
 	}
 
-	public function _delete($key): bool|string {
+	public function _delete($key) {
 		$key = $this->_getCacheKey($key);
 		try {
 			return $this->adapter->delete($key);

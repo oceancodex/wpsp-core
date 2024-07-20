@@ -33,7 +33,7 @@ trait ScheduleRouteTrait {
 		});
 	}
 
-	public function interval(string $name, int|string $interval, string $display): void {
+	public function interval(string $name, $interval, string $display): void {
 		add_filter('cron_schedules', function($schedules) use ($name, $interval, $display) {
 			$schedules[$name] = [
 				'interval' => $interval,

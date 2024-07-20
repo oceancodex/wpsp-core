@@ -190,7 +190,7 @@ class Funcs {
 		return $this->_getDBTablePrefix() . 'cm_' . $name;
 	}
 
-	public function _getPathFromDir($targetDir, $path): array|string|null {
+	public function _getPathFromDir($targetDir, $path) {
 		return preg_replace('/^(.*?)' . $targetDir . '(.*?)$/iu', $targetDir . '$2', $path);
 	}
 
@@ -307,7 +307,7 @@ class Funcs {
 		return rtrim($path, '/\\');
 	}
 
-	public function _numberFormat($value, $precision = 0, $endWithZeros = true, $locale = 'vi', $currencyCode = 'vnd', $style = NumberFormatter::DECIMAL, $groupingUsed = true): array|string|null {
+	public function _numberFormat($value, $precision = 0, $endWithZeros = true, $locale = 'vi', $currencyCode = 'vnd', $style = NumberFormatter::DECIMAL, $groupingUsed = true) {
 		try {
 			if (!$value) return null;
 			$formatter = new NumberFormatter($locale, $style);

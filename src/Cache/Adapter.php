@@ -18,7 +18,7 @@ class Adapter extends BaseInstances {
 		$this->store = $this->funcs->_env('CACHE_STORE', true);
 	}
 
-	public function init($store = null, $connectionParams = null): DoctrineDbalAdapter|FilesystemAdapter|MemcachedAdapter|RedisAdapter|null {
+	public function init($store = null, $connectionParams = null) {
 		if ($store) $this->store = $store;
 		$cacheConfigs     = include($this->funcs->_getConfigPath() . '/cache.php');
 		$cachePrefix      = $cacheConfigs['prefix'];
