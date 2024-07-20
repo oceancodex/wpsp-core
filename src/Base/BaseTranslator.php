@@ -4,9 +4,8 @@ namespace WPSPCORE\Base;
 
 abstract class BaseTranslator extends BaseInstances {
 
-	public ?string      $textDomain = null;
-	public ?string      $relPath    = null;
-	public static ?self $instance   = null;
+	public ?string $textDomain = null;
+	public ?string $relPath    = null;
 
 	/*
 	 *

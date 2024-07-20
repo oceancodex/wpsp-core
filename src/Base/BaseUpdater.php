@@ -6,10 +6,9 @@ use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 abstract class BaseUpdater extends BaseInstances {
 
-	public bool         $sslVerify            = true;
-	public ?string      $checkForUpdatesLabel = null;
-	public ?string      $packageUrl           = null;
-	public static ?self $instance             = null;
+	public bool    $sslVerify            = true;
+	public ?string $checkForUpdatesLabel = null;
+	public ?string $packageUrl           = null;
 
 	/*
 	 *
