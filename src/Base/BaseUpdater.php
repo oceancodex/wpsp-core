@@ -6,27 +6,16 @@ use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 abstract class BaseUpdater extends BaseInstances {
 
-	public bool    $sslVerify            = true;
-	public ?string $checkForUpdatesLabel = null;
-	public ?string $packageUrl           = null;
+	public bool         $sslVerify            = true;
+	public ?string      $checkForUpdatesLabel = null;
+	public ?string      $packageUrl           = null;
+	public static ?self $instance             = null;
 
 	/*
 	 *
 	 */
 
-	protected function afterInstanceConstruct(): void {
-
-		// Custom properties.
-		$this->customProperties();
-
-	}
-
-	/*
-	 *
-	 */
-
-	public function init(): void {
-
+	public function prepare(): static {
 		// Disable SSL verification.
 		if (!$this->sslVerify) {
 			add_filter('puc_request_info_options-' . $this->funcs->_getTextDomain(), function($options) {
@@ -55,12 +44,18 @@ abstract class BaseUpdater extends BaseInstances {
 //			return null;
 		}
 
+		return $this;
 	}
 
 	/*
 	 *
 	 */
 
-	public function customProperties() {}
+	public function global(): void {
+		$globalUpdater = $this->funcs->_getAppShortName();
+		$globalUpdater = $globalUpdater . '_updater';
+		global ${$globalUpdater};
+		${$globalUpdater} = $this;
+	}
 
 }
