@@ -12,7 +12,7 @@ abstract class BaseTranslator extends BaseInstances {
 	 *
 	 */
 
-	public function prepare(): static {
+	public function prepare(): ?self {
 		load_plugin_textdomain(
 			$this->textDomain ?? $this->funcs->_getTextDomain(),
 			false,
