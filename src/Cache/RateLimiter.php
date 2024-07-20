@@ -26,7 +26,7 @@ class RateLimiter extends BaseInstances {
 	 *
 	 */
 
-	public function prepare(): static {
+	public function prepare(): ?self {
 		$configs = $this->funcs->_config('rate-limiter');
 		if (!$this->adapter) {
 			$this->adapter = (new Adapter(

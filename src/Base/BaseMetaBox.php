@@ -4,13 +4,13 @@ namespace WPSPCORE\Base;
 
 abstract class BaseMetaBox extends BaseInstances {
 
-	private mixed $id = null;
+	private mixed $id            = null;
 
-	public mixed $title         = 'Custom Meta Box';
-	public mixed $screen        = 'post';
-	public mixed $context       = 'advanced';
-	public mixed $priority      = 'default';
-	public mixed $callback_args = null;
+	public mixed  $title         = 'Custom Meta Box';
+	public mixed  $screen        = 'post';
+	public mixed  $context       = 'advanced';
+	public mixed  $priority      = 'default';
+	public mixed  $callback_args = null;
 
 	/*
 	 *

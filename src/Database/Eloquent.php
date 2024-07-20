@@ -5,7 +5,6 @@ namespace WPSPCORE\Database;
 use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
-use MongoDB\Laravel\Eloquent\Model;
 use WPSPCORE\Base\BaseInstances;
 use WPSPCORE\Filesystem\Filesystem;
 
