@@ -12,11 +12,15 @@ use WPSPCORE\Base\BaseInstances;
 
 class RateLimiter extends BaseInstances {
 
-	protected ?string                                                                  $key              = null;
-	protected ?string                                                                  $store            = null;
-	protected ?array                                                                   $connectionParams = null;
-	protected DoctrineDbalAdapter|FilesystemAdapter|MemcachedAdapter|RedisAdapter|null $adapter          = null;
-	protected ?array                                                                   $limiters         = null;
+	/**
+	 * @var DoctrineDbalAdapter|FilesystemAdapter|MemcachedAdapter|RedisAdapter|null $adapter
+	 */
+	protected mixed     $adapter          = null;
+	protected ?array    $limiters         = null;
+	protected ?string   $key              = null;
+	protected ?string   $store            = null;
+	protected ?array    $connectionParams = null;
+	public static ?self $instance         = null;
 
 	/*
 	 *
