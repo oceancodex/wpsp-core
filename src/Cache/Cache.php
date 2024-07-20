@@ -3,13 +3,21 @@
 namespace WPSPCORE\Cache;
 
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\MemcachedAdapter;
+use Symfony\Component\Cache\Adapter\RedisAdapter;
 use WPSPCORE\Base\BaseInstances;
 
 class Cache extends BaseInstances {
 
-	public ?object $adapter          = null;
-	public ?string $store            = null;
-	public ?array  $connectionParams = null;
+	/**
+	 * @var DoctrineDbalAdapter|FilesystemAdapter|MemcachedAdapter|RedisAdapter|null $adapter
+	 */
+	public              $adapter          = null;
+	public ?string      $store            = null;
+	public ?array       $connectionParams = null;
+	public static ?self $instance         = null;
 
 	/*
 	 *
