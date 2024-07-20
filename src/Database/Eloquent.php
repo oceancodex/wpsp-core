@@ -5,7 +5,6 @@ namespace WPSPCORE\Database;
 use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
-use MongoDB\Laravel\Eloquent\Model;
 use WPSPCORE\Base\BaseInstances;
 use WPSPCORE\Filesystem\Filesystem;
 
@@ -24,7 +23,7 @@ class Eloquent extends BaseInstances {
 
 			$this->capsule->getDatabaseManager()->extend('mongodb', function($config, $name) {
 				$config['name'] = $name;
-				return new \MongoDB\Laravel\Connection($config);
+				return new \Jenssegers\Mongodb\Connection($config);
 			});
 
 			global $wpspDatabaseConnections;
@@ -70,9 +69,9 @@ class Eloquent extends BaseInstances {
 	 */
 
 	public function dropDatabaseTable($tableName): string {
-		$this->funcs->_getAppEloquent()->getCapsule()->getDatabaseManager()->getSchemaBuilder()->withoutForeignKeyConstraints(function() use ($tableName) {
+//		$this->funcs->_getAppEloquent()->getCapsule()->getDatabaseManager()->getSchemaBuilder()->withoutForeignKeyConstraints(function() use ($tableName) {
 			$this->getCapsule()->getDatabaseManager()->getSchemaBuilder()->dropIfExists($tableName);
-		});
+//		});
 		return $tableName;
 	}
 
