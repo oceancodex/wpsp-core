@@ -17,20 +17,20 @@ class {{ className }} extends BaseAdminPage {
 
 	use InstancesTrait;
 
-	public mixed $menu_title            = '{{ name }}';
-//	public mixed $page_title            = '{{ name }}';
-	public mixed $capability            = 'manage_options';
-//	public mixed $menu_slug             = '{{ path_slugify }}';
-	public mixed $icon_url              = 'dashicons-admin-generic';
-	public mixed $position              = 2;
-//	public mixed $isSubAdminPage        = true;
-//	public mixed $parent_slug           = 'options-general.php';
-//	public mixed $removeFirstSubmenu    = false;
+	public mixed $menu_title          = '{{ name }}';
+//	public mixed $page_title          = '{{ name }}';
+	public mixed $capability          = 'manage_options';
+//	public mixed $menu_slug           = '{{ path_slugify }}';
+	public mixed $icon_url            = 'dashicons-admin-generic';
+	public mixed $position            = 2;
+//	public mixed $isSubAdminPage      = true;
+//	public mixed $parent_slug         = 'options-general.php';
+//	public mixed $removeFirstSubmenu  = false;
 
-//	private mixed $checkDatabase        = null;
-	private mixed $table                = null;
-	private mixed $currentTab           = null;
-	private mixed $currentPage          = null;
+//	private mixed $checkDatabase      = null;
+	private mixed $table              = null;
+	private mixed $currentTab         = null;
+	private mixed $currentPage        = null;
 
 	/*
 	 *
@@ -96,10 +96,10 @@ class {{ className }} extends BaseAdminPage {
 //		if ($this->request->get('updated') && $this->parent_slug !== 'options-general.php' && $this->request->get('tab') !== 'table') {
 //			Funcs::notice(Funcs::trans('Updated successfully', true), 'success');
 //		}
-//
-//		$requestParams = $this->request->query->all();
-//		$menuSlug      = $this->getMenuSlug();
-//
+
+		$requestParams = $this->request->query->all();
+		$menuSlug      = $this->getMenuSlug();
+
 		$table = $this->table;
 
 		echo Funcs::view('modules.web.admin-pages.{{ path }}.main', compact(
