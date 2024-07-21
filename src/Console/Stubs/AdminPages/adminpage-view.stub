@@ -17,20 +17,20 @@ class {{ className }} extends BaseAdminPage {
 
 	use InstancesTrait;
 
-	public $menu_title            = '{{ name }}';
-//	public $page_title            = '{{ name }}';
-	public $capability            = 'manage_options';
-//	public $menu_slug             = '{{ path_slugify }}';
-	public $icon_url              = 'dashicons-admin-generic';
-	public $position              = 2;
-//	public $isSubAdminPage        = true;
-//	public $parent_slug           = 'options-general.php';
-//	public $removeFirstSubmenu    = false;
+	public $menu_title          = '{{ name }}';
+//	public $page_title          = '{{ name }}';
+	public $capability          = 'manage_options';
+//	public $menu_slug           = '{{ path_slugify }}';
+	public $icon_url            = 'dashicons-admin-generic';
+	public $position            = 2;
+//	public $isSubAdminPage      = true;
+//	public $parent_slug         = 'options-general.php';
+//	public $removeFirstSubmenu  = false;
 
-//	private $checkDatabase        = null;
-	private $table                = null;
-	private $currentTab           = null;
-	private $currentPage          = null;
+//	private $checkDatabase      = null;
+	private $table              = null;
+	private $currentTab         = null;
+	private $currentPage        = null;
 
 	/*
 	 *
@@ -96,10 +96,10 @@ class {{ className }} extends BaseAdminPage {
 //		if ($this->request->get('updated') && $this->parent_slug !== 'options-general.php' && $this->request->get('tab') !== 'table') {
 //			Funcs::notice(Funcs::trans('Updated successfully', true), 'success');
 //		}
-//
-//		$requestParams = $this->request->query->all();
-//		$menuSlug      = $this->getMenuSlug();
-//
+
+		$requestParams = $this->request->query->all();
+		$menuSlug      = $this->getMenuSlug();
+
 		$table = $this->table;
 
 		echo Funcs::view('modules.web.admin-pages.{{ path }}.main', compact(
