@@ -4,7 +4,6 @@ namespace WPSPCORE\Data;
 
 use WPSPCORE\Base\BaseData;
 use WPSPCORE\Base\BaseNavigationMenu;
-use WPSPCORE\Base\BasePostType;
 
 class NavigationMenuData extends BaseData {
 
