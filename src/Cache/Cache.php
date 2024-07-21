@@ -14,10 +14,9 @@ class Cache extends BaseInstances {
 	/**
 	 * @var DoctrineDbalAdapter|FilesystemAdapter|MemcachedAdapter|RedisAdapter|null $adapter
 	 */
-	public              $adapter          = null;
-	public ?string      $store            = null;
-	public ?array       $connectionParams = null;
-	public static ?self $instance         = null;
+	public $adapter          = null;
+	public $store            = null;
+	public $connectionParams = null;
 
 	/*
 	 *

@@ -86,7 +86,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			$adminPage = $this->isSubAdminPage ? $this->addSubMenuPage() : $this->addMenuPage();
 			if ($this->removeFirstSubmenu) {
 				add_filter('parent_file', function($parent_file) {
-					remove_submenu_page( $this->menu_slug, $this->menu_slug);
+					remove_submenu_page($this->menu_slug, $this->menu_slug);
 					return $parent_file;
 				});
 			}
@@ -106,7 +106,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	private function highlightCurrentMenu(): void {
 		$currentRequest = $this->request->getRequestUri();
-		if (preg_match('/page='. $this->menu_slug. '$/', $currentRequest)) {
+		if (preg_match('/page=' . $this->menu_slug . '$/', $currentRequest)) {
 			add_filter('submenu_file', function($submenu_file) {
 				return $this->menu_slug;
 			});

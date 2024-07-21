@@ -3,7 +3,6 @@
 namespace WPSPCORE\Base;
 
 use WPSPCORE\Data\NavigationMenuData;
-use WPSPCORE\Data\PostTypeData;
 use WPSPCORE\Traits\ObjectPropertiesToArrayTrait;
 
 abstract class BaseNavigationMenu extends BaseInstances {
@@ -48,6 +47,14 @@ abstract class BaseNavigationMenu extends BaseInstances {
 			if (property_exists($this->args, $key)) {
 				$this->args->{$key} = $value;
 			}
+		}
+
+		// Unset "items_wrap" if it's empty.
+		if (isset($this->items_wrap) && $this->items_wrap) {
+			$this->args->items_wrap = $this->items_wrap;
+		}
+		else {
+			unset($this->args->items_wrap);
 		}
 	}
 

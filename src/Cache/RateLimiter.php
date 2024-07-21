@@ -15,12 +15,11 @@ class RateLimiter extends BaseInstances {
 	/**
 	 * @var DoctrineDbalAdapter|FilesystemAdapter|MemcachedAdapter|RedisAdapter|null $adapter
 	 */
-	protected           $adapter          = null;
-	protected ?array    $limiters         = null;
-	protected ?string   $key              = null;
-	protected ?string   $store            = null;
-	protected ?array    $connectionParams = null;
-	public static ?self $instance         = null;
+	protected $adapter          = null;
+	protected $limiters         = null;
+	protected $key              = null;
+	protected $store            = null;
+	protected $connectionParams = null;
 
 	/*
 	 *
