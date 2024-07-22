@@ -3,8 +3,8 @@
 namespace {{ rootNamespace }}\app\Http\Controllers;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use {{ rootNamespace }}\Funcs;
 use {{ coreNamespace }}\Base\BaseController;
-use {{ coreNamespace }}\Funcs;
 
 class {{ className }} extends BaseController {
 
