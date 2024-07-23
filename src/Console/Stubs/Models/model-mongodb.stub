@@ -1,7 +1,7 @@
 <?php
 namespace {{ rootNamespace }}\app\Models;
 
-use Jenssegers\Mongodb\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use {{ rootNamespace }}\app\Traits\ModelsTrait;
 use {{ coreNamespace }}\Traits\ObserversTrait;

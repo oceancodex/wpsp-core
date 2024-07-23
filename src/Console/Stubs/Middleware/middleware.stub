@@ -11,12 +11,7 @@ class {{ className }} extends BaseMiddleware {
 
 	use InstancesTrait;
 
-	/**
-	 * @param Request|WP_REST_Request $request
-	 *
-	 * @return bool
-	 */
-    public function handle($request): bool {
+    public function handle(Request|WP_REST_Request $request): bool {
         return true;
     }
 

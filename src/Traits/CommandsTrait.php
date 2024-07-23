@@ -38,63 +38,29 @@ trait CommandsTrait {
 	 *
 	 */
 
-	public function getWebRouteContent(): string {
-		return Filesystem::get($this->mainPath . '/routes/WebRoute.php');
-	}
-
-	public function getApiRouteContent(): string {
-		return Filesystem::get($this->mainPath . '/routes/ApiRoute.php');
-	}
-
-	public function getAjaxRouteContent(): string {
-		return Filesystem::get($this->mainPath . '/routes/AjaxRoute.php');
+	public function getRouteContent($routeName): string {
+		return Filesystem::get($this->mainPath . '/routes/'.$routeName.'.php');
 	}
 
 	/*
 	 *
 	 */
 
-	public function saveWebRouteContent($content): void {
-		Filesystem::instance()->put($this->mainPath . '/routes/WebRoute.php', $content);
-	}
-
-	public function saveApiRouteContent($content): void {
-		Filesystem::instance()->put($this->mainPath . '/routes/ApiRoute.php', $content);
-	}
-
-	public function saveAjaxRouteContent($content): void {
-		Filesystem::instance()->put($this->mainPath . '/routes/AjaxRoute.php', $content);
+	public function saveRouteContent($routeName, $content): void {
+		Filesystem::instance()->put($this->mainPath . '/routes/'.$routeName.'.php', $content);
 	}
 
 	/*
 	 *
 	 */
 
-	public function addClassToWebRoute($findFunction, $newLineForFindFunction, $newLineUseClass): void {
-		$webRouteContent = $this->getWebRouteContent();
-		$webRouteContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{/iu', 'public function ' . $findFunction . "$1{\n" . $newLineForFindFunction, $webRouteContent);
-		if (!strpos($webRouteContent, $newLineUseClass) !== false) {
-			$webRouteContent = preg_replace('/(\n\s*)class WebRoute extends/iu', "\n" . $newLineUseClass . '$1class WebRoute extends', $webRouteContent);
+	public function addClassToRoute($routeName, $findFunction, $newLineForFindFunction, $newLineUseClass): void {
+		$routeContent = $this->getRouteContent($routeName);
+		$routeContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{/iu', 'public function ' . $findFunction . "$1{\n" . $newLineForFindFunction, $routeContent);
+		if (!strpos($routeContent, $newLineUseClass) !== false) {
+			$routeContent = preg_replace('/(\n\s*)class '.$routeName.' extends/iu', "\n" . $newLineUseClass . '$1class '.$routeName.' extends', $routeContent);
 		}
-		$this->saveWebRouteContent($webRouteContent);
-	}
-
-	public function addClassToApiRoute($findFunction, $newLineForFindFunction, $newLineUseClass): void {
-		$apiRouteContent = $this->getApiRouteContent();
-		$apiRouteContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{/iu', 'public function ' . $findFunction . "$1{\n" . $newLineForFindFunction, $apiRouteContent);
-		if (!strpos($apiRouteContent, $newLineUseClass) !== false) {
-			$apiRouteContent = preg_replace('/(\n\s*)class ApiRoute extends/iu', "\n" . $newLineUseClass . '$1class ApiRoute extends', $apiRouteContent);
-		}
-		$this->saveApiRouteContent($apiRouteContent);
-	}
-
-	public function addClassToAjaxRoute($findFunction, $newLineForFindFunction, $newLineUseClass): void {
-		$ajaxRouteContent = $this->getAjaxRouteContent();
-		$ajaxRouteContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{/iu', 'public function ' . $findFunction . "$1{\n" . $newLineForFindFunction, $ajaxRouteContent);
-		if (!strpos($ajaxRouteContent, $newLineUseClass) !== false) {
-			$ajaxRouteContent = preg_replace('/(\n\s*)class AjaxRoute extends/iu', "\n" . $newLineUseClass . '$1class AjaxRoute extends', $ajaxRouteContent);
-		}
-		$this->saveAjaxRouteContent($ajaxRouteContent);
+		$this->saveRouteContent($routeName, $routeContent);
 	}
 
 }
