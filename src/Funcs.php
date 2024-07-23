@@ -424,8 +424,8 @@ class Funcs {
 		if ($echo) echo $notice;
 	}
 
-	public function _buildUrl($baseUrl, $args): string {
-		return add_query_arg($args, $baseUrl);
+	public function _buildUrl($baseUrl = null, $args = []): string {
+		return add_query_arg($args ?? [], $baseUrl ?? '');
 	}
 
 	public function _nonceName($name = null): string {
