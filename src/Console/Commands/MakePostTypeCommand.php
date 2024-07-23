@@ -67,7 +67,7 @@ class MakePostTypeCommand extends Command {
 		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
-		$this->addClassToWebRoute('post_types', $func, $use);
+		$this->addClassToRoute('PostTypes', 'post_types', $func, $use);
 
 		// Output message.
 		$output->writeln('Created new post type: "' . $name . '"');
