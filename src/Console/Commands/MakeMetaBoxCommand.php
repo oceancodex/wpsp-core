@@ -84,7 +84,7 @@ class MakeMetaBoxCommand extends Command {
 		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
-		$this->addClassToWebRoute('meta_boxes', $func, $use);
+		$this->addClassToRoute('MetaBoxes', 'meta_boxes', $func, $use);
 
 		// Output message.
 		$output->writeln('Created new meta box: "' . $id . '"');

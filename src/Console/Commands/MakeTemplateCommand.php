@@ -72,7 +72,7 @@ class MakeTemplateCommand extends Command {
 		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
-		$this->addClassToWebRoute('templates', $func, $use);
+		$this->addClassToRoute('Templates', 'templates', $func, $use);
 
 		// Output message.
 		$output->writeln('Created new page template: "' . $name . '"');
