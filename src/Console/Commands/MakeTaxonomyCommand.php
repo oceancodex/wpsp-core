@@ -67,7 +67,7 @@ class MakeTaxonomyCommand extends Command {
 		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
-		$this->addClassToWebRoute('taxonomies', $func, $use);
+		$this->addClassToRoute('Taxonomies', 'taxonomies', $func, $use);
 
 		// Output message.
 		$output->writeln('Created new taxonomy: "' . $name . '"');
