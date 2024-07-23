@@ -85,7 +85,7 @@ class MakeShortcodeCommand extends Command {
 		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
-		$this->addClassToWebRoute('shortcodes', $func, $use);
+		$this->addClassToRoute('Shortcodes', 'shortcodes', $func, $use);
 
 		// Output message.
 		$output->writeln('Created new shortcode: "' . $name . '"');

@@ -128,7 +128,7 @@ class MakeAdminPageCommand extends Command {
 		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
-		$this->addClassToWebRoute('admin_pages', $func, $use);
+		$this->addClassToRoute('AdminPages', 'admin_pages', $func, $use);
 
 		// Output message.
 		$output->writeln('Created new admin page: "' . $path . '"');

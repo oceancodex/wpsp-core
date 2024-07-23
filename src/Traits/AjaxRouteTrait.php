@@ -4,8 +4,11 @@ namespace WPSPCORE\Traits;
 
 trait AjaxRouteTrait {
 
+	use HookRunnerTrait, GroupRoutesTrait;
+
 	public function init(): void {
 		$this->apis();
+		$this->hooks();
 	}
 
 	/*
@@ -13,16 +16,6 @@ trait AjaxRouteTrait {
 	 */
 
 	public function apis() {}
-
-	/*
-	 *
-	 */
-
-	public function group($callback, $middlewares = null): void {
-		if ($this->isPassedMiddleware($middlewares, $this->request)) {
-			$callback();
-		}
-	}
 
 	/*
 	 *

@@ -112,7 +112,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
-		$this->addClassToWebRoute('rewrite_front_pages', $func, $use);
+		$this->addClassToRoute('RewriteFrontPages', 'rewrite_front_pages', $func, $use);
 
 		// Output message.
 		$output->writeln('Created new rewrite front page: "' . $path . '"');

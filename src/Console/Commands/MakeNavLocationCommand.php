@@ -60,7 +60,7 @@ class MakeNavLocationCommand extends Command {
 		$use = $this->replaceNamespaces($use);
 
 		// Add class to route.
-		$this->addClassToWebRoute('nav_locations', $func, $use);
+		$this->addClassToRoute('NavLocations', 'nav_locations', $func, $use);
 
 		// Output message.
 		$output->writeln('Created new navigation menu location: "' . $name . '"');
