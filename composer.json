@@ -23,7 +23,6 @@
 		"illuminate/translation": "^v8.83.27",
 		"illuminate/view": "^v8.83.27",
 		"ocramius/generated-hydrator": "^4.0.0",
-		"spatie/ignition": "^0.0.1",
 		"symfony/http-client": "^v5.4.41",
 		"symfony/rate-limiter": "^v5.4.40",
 		"vlucas/phpdotenv": "^v5.6.0",
