@@ -4,15 +4,17 @@ namespace WPSPCORE\Base;
 
 abstract class BaseAdminPage extends BaseInstances {
 
-	public $menu_title         = null;
-	public $page_title         = null;
-	public $capability         = null;
-	public $menu_slug          = null;
-	public $icon_url           = null;
-	public $position           = null;
-	public $isSubAdminPage     = false;
-	public $parent_slug        = null;
-	public $removeFirstSubmenu = false;
+	public $menu_title                  = null;
+	public $page_title                  = null;
+	public $capability                  = null;
+	public $menu_slug                   = null;
+	public $icon_url                    = null;
+	public $position                    = null;
+	public $parent_slug                 = null;
+	public $callback_index              = true;
+	public $is_submenu_page             = false;
+	public $remove_first_submenu        = false;
+	public $urls_highlight_current_menu = null;
 
 	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $menu_slug = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
@@ -59,32 +61,34 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	private function addMenuPage(): string {
+		$callback = $this->callback_index ? [$this, 'index'] : null;
 		return add_menu_page(
 			$this->page_title,
 			$this->menu_title,
 			$this->capability,
 			$this->menu_slug,
-			[$this, 'index'],
+			$callback,
 			$this->icon_url,
 			$this->position
 		);
 	}
 
 	private function addSubMenuPage(): string {
+		$callback = $this->callback_index ? [$this, 'index'] : null;
 		return add_submenu_page(
 			$this->parent_slug,
 			$this->page_title,
 			$this->menu_title,
 			$this->capability,
 			$this->menu_slug,
-			[$this, 'index']
+			$callback
 		);
 	}
 
 	private function addAdminMenuPage(): void {
 		add_action('admin_menu', function() {
-			$adminPage = $this->isSubAdminPage ? $this->addSubMenuPage() : $this->addMenuPage();
-			if ($this->removeFirstSubmenu) {
+			$adminPage = $this->is_submenu_page ? $this->addSubMenuPage() : $this->addMenuPage();
+			if ($this->remove_first_submenu) {
 				add_filter('parent_file', function($parent_file) {
 					remove_submenu_page($this->menu_slug, $this->menu_slug);
 					return $parent_file;
@@ -106,10 +110,23 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	private function highlightCurrentMenu(): void {
 		$currentRequest = $this->request->getRequestUri();
-		if (preg_match('/page=' . $this->menu_slug . '$/', $currentRequest)) {
+		if (preg_match('/' . $this->menu_slug . '$/', $currentRequest)) {
 			add_filter('submenu_file', function($submenu_file) {
 				return $this->menu_slug;
 			});
+		}
+		if (is_array($this->urls_highlight_current_menu)) {
+			foreach ($this->urls_highlight_current_menu as $url_highlight_current_menu) {
+				if (preg_match($url_highlight_current_menu, $currentRequest)) {
+					add_filter('parent_file', function($parent_file) {
+						return $this->parent_slug;
+					});
+					add_filter('submenu_file', function($submenu_file) {
+						return $this->menu_slug;
+					});
+					break;
+				}
+			}
 		}
 	}
 
@@ -183,8 +200,8 @@ abstract class BaseAdminPage extends BaseInstances {
 		$this->position = $position;
 	}
 
-	public function setIsSubAdminPage($isSubAdminPage): void {
-		$this->isSubAdminPage = $isSubAdminPage;
+	public function setIsSubAdminPage($is_submenu_page): void {
+		$this->is_submenu_page = $is_submenu_page;
 	}
 
 	public function setParentSlug($parent_slug): void {
@@ -216,7 +233,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	}
 
 	public function getIsSubAdminPage(): bool {
-		return $this->isSubAdminPage;
+		return $this->is_submenu_page;
 	}
 
 	public function getParentSlug(): ?string {

@@ -31,6 +31,8 @@
 		"vlucas/phpdotenv": "^v5.6.0",
 		"yahnis-elsts/plugin-update-checker": "^v5.4"
 	},
+	"require-dev": {
+	},
 	"config": {
 		"sort-packages": true
 	},
