@@ -25,11 +25,13 @@
 		"illuminate/translation": "^v9.52.16",
 		"illuminate/view": "^v9.52.16",
 		"ocramius/generated-hydrator": "^4.4.0",
-		"spatie/ignition": "^1.15.0",
 		"symfony/http-client": "^v6.0.20",
 		"symfony/rate-limiter": "^v6.0.19",
 		"vlucas/phpdotenv": "^v5.6.0",
 		"yahnis-elsts/plugin-update-checker": "^v5.4"
+	},
+	"require-dev": {
+		"spatie/ignition": "^1.15.0"
 	},
 	"config": {
 		"sort-packages": true

@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\app\Extend\Components\MetaBoxes\{{ id_slugify }} as MetaBox_{{ id_slugify }};
+use {{ rootNamespace }}\app\Extend\Components\MetaBoxes\{{ id_slugify }};

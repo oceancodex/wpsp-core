@@ -23,7 +23,7 @@ class Eloquent extends BaseInstances {
 
 			$this->capsule->getDatabaseManager()->extend('mongodb', function($config, $name) {
 				$config['name'] = $name;
-				return new \Jenssegers\Mongodb\Connection($config);
+				return new \MongoDB\Laravel\Connection($config);
 			});
 
 			global $wpspDatabaseConnections;
