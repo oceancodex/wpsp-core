@@ -17,20 +17,21 @@ class {{ className }} extends BaseAdminPage {
 
 	use InstancesTrait;
 
-	public mixed $menu_title          = '{{ name }}';
-//	public mixed $page_title          = '{{ name }}';
-	public mixed $capability          = 'manage_options';
-//	public mixed $menu_slug           = '{{ path_slugify }}';
-	public mixed $icon_url            = 'dashicons-admin-generic';
-	public mixed $position            = 2;
-//	public mixed $isSubAdminPage      = true;
-//	public mixed $parent_slug         = 'options-general.php';
-//	public mixed $removeFirstSubmenu  = false;
+	public mixed $menu_title           = '{{ name }}';
+//	public mixed $page_title           = '{{ name }}';
+	public mixed $capability           = 'manage_options';
+//	public mixed $menu_slug            = '{{ path_slugify }}';
+	public mixed $icon_url             = 'dashicons-admin-generic';
+	public mixed $position             = 2;
+//	public mixed $parent_slug          = 'options-general.php';
+//	public mixed $with_callback        = true;
+//	public mixed $is_submenu_page      = false;
+//	public mixed $remove_first_submenu = false;
 
-//	private mixed $checkDatabase      = null;
-	private mixed $table              = null;
-	private mixed $currentTab         = null;
-	private mixed $currentPage        = null;
+//	private mixed $checkDatabase       = null;
+	private mixed $table               = null;
+	private mixed $currentTab          = null;
+	private mixed $currentPage         = null;
 
 	/*
 	 *
