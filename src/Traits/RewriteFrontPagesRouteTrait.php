@@ -7,8 +7,25 @@ trait RewriteFrontPagesRouteTrait {
 	use HookRunnerTrait, GroupRoutesTrait;
 
 	public function init(): void {
+		$this->addQueryVars();
+
 		$this->rewrite_front_pages();
 		$this->hooks();
+	}
+
+	/*
+	 *
+	 */
+
+	private function addQueryVars(): void {
+		$this->filter('query_vars', function($query_vars) {
+			$query_vars[] = 'is_rewrite';
+			$query_vars[] = $this->funcs->_config('app.short_name') . '_rewrite_ident';
+			for ($i = 1; $i <= 10; $i++) {
+				$query_vars[] = $this->funcs->_config('app.short_name') . '_rewrite_group_'. $i;
+			}
+			return $query_vars;
+		}, true, null, null, 10, 1);
 	}
 
 	/*
