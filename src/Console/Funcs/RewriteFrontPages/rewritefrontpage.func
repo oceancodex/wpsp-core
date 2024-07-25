@@ -1,4 +1,4 @@
-		$this->get('{{ path }}\/?$', [RewriteFrontPage_{{ name_slugify }}::class, 'init'], true, null, [
+		$this->get('{{ path }}\/?$', [{{ name_slugify }}::class, 'init'], true, null, [
 //			'relation' => 'OR',
 //			[AdministratorCapability::class, 'handle'],
 //			[EditorCapability::class, 'handle']
