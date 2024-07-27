@@ -21,16 +21,6 @@ trait AdminPagesRouteTrait {
 	 *
 	 */
 
-	public function group($callback, $middlewares = null): void {
-		if ($this->isPassedMiddleware($middlewares, $this->request)) {
-			$callback();
-		}
-	}
-
-	/*
-	 *
-	 */
-
 	public function get($path, $callback, $useInitClass = false, $classArgs = [], $middlewares = null): void {
 		if (!wp_doing_ajax() && $this->isPassedMiddleware($middlewares, $this->request)) {
 			$classArgs = array_merge([$path], $classArgs ?? []);
