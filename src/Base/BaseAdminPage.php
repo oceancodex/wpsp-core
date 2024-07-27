@@ -88,12 +88,6 @@ abstract class BaseAdminPage extends BaseInstances {
 	private function addAdminMenuPage(): void {
 		add_action('admin_menu', function() {
 			$adminPage = $this->is_submenu_page ? $this->addSubMenuPage() : $this->addMenuPage();
-			if ($this->remove_first_submenu) {
-				add_filter('parent_file', function($parent_file) {
-					remove_submenu_page($this->menu_slug, $this->menu_slug);
-					return $parent_file;
-				});
-			}
 			add_action('load-' . $adminPage, function() use ($adminPage) {
 				// Enqueue scripts.
 				add_action('admin_enqueue_scripts', [$this, 'assets']);
@@ -105,6 +99,13 @@ abstract class BaseAdminPage extends BaseInstances {
 				$this->afterLoad($adminPage);
 			});
 		});
+
+		if ($this->remove_first_submenu) {
+			add_action('admin_menu', function() {
+				remove_submenu_page($this->menu_slug, $this->menu_slug);
+			}, 99999999);
+		}
+
 		$this->afterAddAdminMenuPage();
 	}
 
