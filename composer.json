@@ -9,7 +9,6 @@
 		"php": "^8.2",
 		"illuminate/filesystem": "^v11.18.1",
 		"oceancodex/wpsp-config": "^8.2.0",
-		"spatie/ignition": "^1.15.0",
 		"symfony/http-client": "^v7.1.2",
 		"vlucas/phpdotenv": "^v5.6.0",
 		"yahnis-elsts/plugin-update-checker": "^v5.4"
