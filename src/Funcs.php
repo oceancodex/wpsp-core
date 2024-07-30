@@ -270,16 +270,6 @@ class Funcs {
 		}
 	}
 
-	public function _convertObjectToArray($object): array {
-		if (is_object($object)) {
-			$config        = new \GeneratedHydrator\Configuration(get_class($object));
-			$hydratorClass = $config->createFactory()->getHydratorClass();
-			$hydrator      = new $hydratorClass();
-			return $hydrator->extract($object);
-		}
-		return [];
-	}
-
 	public function _commentTokens(): array {
 		$commentTokens = [T_COMMENT];
 
