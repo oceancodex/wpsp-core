@@ -2,8 +2,8 @@
 
 namespace WPSPCORE\Traits;
 
+use Filesystem;
 use Symfony\Component\Console\Command\Command;
-use WPSPCORE\Filesystem\Filesystem;
 use WPSPCORE\Funcs;
 
 trait CommandsTrait {
