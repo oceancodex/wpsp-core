@@ -383,7 +383,7 @@ class Funcs {
 			return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
 		}
 		catch (\Exception|\Throwable $e) {
-			return null;
+			return '<div class="wrap"><div class="notice notice-error"><p>'.$e->getMessage().'</p></div></div>';
 		}
 	}
 
