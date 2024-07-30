@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Base;
 
-use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+use WPSPCORE\Updater\PucFactory;
 
 abstract class BaseUpdater extends BaseInstances {
 

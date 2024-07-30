@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Http;
 
-use Symfony\Component\HttpFoundation\Request;
+use WPSPCORE\HttpFoundation\Request;
 
 abstract class HttpFoundation {
 

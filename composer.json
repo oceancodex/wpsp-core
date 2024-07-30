@@ -9,9 +9,9 @@
 		"php": "^8.2",
 		"oceancodex/wpsp-config": "^8.2.0",
 		"oceancodex/wpsp-file-system": "^8.2.0",
-		"symfony/http-foundation": "^v7.1.3",
-		"vlucas/phpdotenv": "^v5.6.0",
-		"yahnis-elsts/plugin-update-checker": "^v5.4"
+		"oceancodex/wpsp-http-foundation": "^8.2.0",
+		"oceancodex/wpsp-environment": "^8.2.0",
+		"oceancodex/wpsp-updater": "^8.2.0"
 	},
 	"config": {
 		"sort-packages": true
