@@ -1,5 +1,0 @@
-		$this->get('{{ path }}', [ApiController::class, 'wpsp'], true, null, [
-//			'relation' => 'OR',
-//			[ApiAuthentication::class, 'handle'],
-//			[EditorCapability::class, 'handle']
-		], {{ namespace }}, {{ ver }});

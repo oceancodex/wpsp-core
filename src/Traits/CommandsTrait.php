@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Traits;
 
-use Filesystem;
+use WPSPCORE\FileSystem\FileSystem;
 use Symfony\Component\Console\Command\Command;
 use WPSPCORE\Funcs;
 
@@ -39,7 +39,7 @@ trait CommandsTrait {
 	 */
 
 	public function getRouteContent($routeName): string {
-		return Filesystem::get($this->mainPath . '/routes/'.$routeName.'.php');
+		return FileSystem::get($this->mainPath . '/routes/'.$routeName.'.php');
 	}
 
 	/*
@@ -47,7 +47,7 @@ trait CommandsTrait {
 	 */
 
 	public function saveRouteContent($routeName, $content): void {
-		Filesystem::instance()->put($this->mainPath . '/routes/'.$routeName.'.php', $content);
+		FileSystem::put($this->mainPath . '/routes/'.$routeName.'.php', $content);
 	}
 
 	/*
