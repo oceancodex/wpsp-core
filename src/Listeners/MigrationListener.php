@@ -8,6 +8,7 @@ use Doctrine\Migrations\Event\MigrationsVersionEventArgs;
 use Doctrine\Migrations\Events;
 
 class MigrationListener implements EventSubscriber {
+
 	public function getSubscribedEvents(): array {
 		return [
 			Events::onMigrationsMigrating,
@@ -37,4 +38,5 @@ class MigrationListener implements EventSubscriber {
 	public function onMigrationsVersionSkipped(MigrationsVersionEventArgs $args): void {
 		// ...
 	}
+
 }
