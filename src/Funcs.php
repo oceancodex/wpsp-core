@@ -5,8 +5,9 @@ namespace WPSPCORE;
 use Carbon\Carbon;
 use NumberFormatter;
 use WPSPCORE\Database\Eloquent;
-use WPSPCORE\Database\Migration;
 use WPSPCORE\Environment\Environment;
+use WPSPCORE\Finder\Finder;
+use WPSPCORE\Migration\Migration;
 use WPSPCORE\View\Blade;
 
 class Funcs {
@@ -58,7 +59,7 @@ class Funcs {
 	/**
 	 * @return Migration
 	 */
-	public function _getAppMigration(): Migration {
+	public function _getAppMigration(): ?Migration {
 		$globalMigration = $this->_getAppShortName() . '_migration';
 		global ${$globalMigration};
 		return ${$globalMigration};
@@ -156,7 +157,7 @@ class Funcs {
 	 */
 
 	public function _getAllFilesInFolder(string $path): array {
-		$finder = new \Symfony\Component\Finder\Finder();
+		$finder = new Finder();
 		$finder->files()->in($path);
 		foreach ($finder as $file) {
 			$files[] = [
@@ -269,16 +270,6 @@ class Funcs {
 		}
 	}
 
-	public function _convertObjectToArray($object): array {
-		if (is_object($object)) {
-			$config        = new \GeneratedHydrator\Configuration(get_class($object));
-			$hydratorClass = $config->createFactory()->getHydratorClass();
-			$hydrator      = new $hydratorClass();
-			return $hydrator->extract($object);
-		}
-		return [];
-	}
-
 	public function _commentTokens(): array {
 		$commentTokens = [T_COMMENT];
 
@@ -366,37 +357,43 @@ class Funcs {
 		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
 	}
 
-	public function _view($viewName, $data = [], $mergeData = []): \Illuminate\Contracts\View\View {
-		if (!Blade::$BLADE) {
-			$views        = $this->_getResourcesPath('/views');
-			$cache        = $this->_getStoragePath('/framework/views');
-			Blade::$BLADE = new Blade([$views], $cache);
-		}
-		$shareVariables = [];
+	public function _view($viewName, $data = [], $mergeData = []) {
 		try {
+			if (!Blade::$BLADE) {
+				$views        = $this->_getResourcesPath('/views');
+				$cache        = $this->_getStoragePath('/framework/views');
+				Blade::$BLADE = new Blade([$views], $cache);
+			}
+			$shareVariables = [];
 			$shareClass     = '\\' . $this->_getRootNamespace() . '\\app\\View\\Share';
 			$shareVariables = array_merge($shareVariables, (new $shareClass())->variables());
+			global $notice;
+			$shareVariables = array_merge($shareVariables, ['notice' => $notice]);
+			Blade::$BLADE->view()->share($shareVariables);
+			return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
 		}
-		catch (\Exception $e) {
+		catch (\Exception|\Throwable $e) {
+			return '<div class="wrap"><div class="notice notice-error"><p>'.$e->getMessage().'</p></div></div>';
 		}
-		global $notice;
-		$shareVariables = array_merge($shareVariables, ['notice' => $notice]);
-		Blade::$BLADE->view()->share($shareVariables);
-		return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
 	}
 
 	public function _trans($string, $wordpress = false) {
-		if ($wordpress) {
-			return __($string, $this->_getTextDomain());
-		}
-		else {
-			global $translator;
-			if (!$translator) {
-				$translationPath   = $this->_getResourcesPath() . '/lang';
-				$translationLoader = new \Illuminate\Translation\FileLoader(new \Illuminate\Filesystem\Filesystem, $translationPath);
-				$translator        = new \Illuminate\Translation\Translator($translationLoader, $this->_config('app.locale'));
+		try {
+			if ($wordpress) {
+				return __($string, $this->_getTextDomain());
 			}
-			return $translator->has($string) ? $translator->get($string) : $translator->get($string, [], $this->_config('app.fallback_locale'));
+			else {
+				global $translator;
+				if (!$translator) {
+					$translationPath   = $this->_getResourcesPath() . '/lang';
+					$translationLoader = new \WPSPCORE\Translation\FileLoader(new \Illuminate\Filesystem\Filesystem, $translationPath);
+					$translator        = new \WPSPCORE\Translation\Translator($translationLoader, $this->_config('app.locale'));
+				}
+				return $translator->has($string) ? $translator->get($string) : $translator->get($string, [], $this->_config('app.fallback_locale'));
+			}
+		}
+		catch (\Exception|\Throwable $e) {
+			return $string;
 		}
 	}
 

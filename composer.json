@@ -1,33 +1,18 @@
 {
 	"name": "oceancodex/wpsp-core",
-	"version": "8.0.1",
+	"version": "8.0.0",
 	"description": "WordPress Starter Plugin - Core",
 	"keywords": [
 	],
 	"license": "MIT",
 	"require": {
 		"php": "^8.0",
-		"ext-ctype": "*",
-		"ext-json": "*",
-		"ext-pcre": "*",
-		"ext-pdo": "*",
-		"ext-mbstring": "*",
-		"ext-tokenizer": "*",
-		"dflydev/dot-access-data": "^v3.0.3",
-		"doctrine/doctrine-migrations-bundle": "^3.3.1",
-		"doctrine/orm": "^2.19.6",
-		"fakerphp/faker": "^v1.23.1",
-		"gedmo/doctrine-extensions": "^v3.16.1",
-		"hassankhan/config": "^3.1.0",
-		"illuminate/database": "^v9.52.16",
-		"illuminate/translation": "^v9.52.16",
-		"illuminate/view": "^v9.52.16",
-		"ocramius/generated-hydrator": "^4.4.0",
-		"spatie/ignition": "^1.15.0",
-		"symfony/http-client": "^v6.0.20",
-		"symfony/rate-limiter": "^v6.0.19",
-		"vlucas/phpdotenv": "^v5.6.0",
-		"yahnis-elsts/plugin-update-checker": "^v5.4"
+		"oceancodex/wpsp-config": "^8.0.0",
+		"oceancodex/wpsp-console": "^8.0.0",
+		"oceancodex/wpsp-environment": "^8.0.0",
+		"oceancodex/wpsp-file-system": "^8.0.0",
+		"oceancodex/wpsp-http-foundation": "^8.0.0",
+		"oceancodex/wpsp-updater": "^8.0.0"
 	},
 	"config": {
 		"sort-packages": true
