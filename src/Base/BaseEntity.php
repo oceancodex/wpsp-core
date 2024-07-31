@@ -3,14 +3,8 @@ namespace WPSPCORE\Base;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
-use Gedmo\SoftDeleteable\Traits\SoftDeleteable;
-use Gedmo\Timestampable\Traits\Timestampable;
 
-#[Gedmo\SoftDeleteable(fieldName: 'deleted_at', timeAware: false, hardDelete: true)]
 abstract class BaseEntity {
-
-	use Timestampable, SoftDeleteable;
 
 	#[ORM\Column(name: 'created_at', type: 'datetime', nullable: true)]
 	protected $createdAt;
