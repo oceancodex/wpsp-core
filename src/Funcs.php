@@ -415,9 +415,12 @@ class Funcs {
 		return null;
 	}
 
-	public function _notice($message = '', $type = 'info', $echo = false, $class = null, $dismiss = true): void {
+	public function _notice($message = '', $type = 'info', $echo = false, $wrap = false, $class = null, $dismiss = true): void {
 		global $notice;
 		$notice = '<div class="notice ' . $class . ' notice-' . $type . ' is-dismissible"><p>' . $message . '</p></div>';
+		if ($wrap) {
+			$notice = '<div class="wrap">'. $notice. '</div>';
+		}
 		if ($echo) echo $notice;
 	}
 
