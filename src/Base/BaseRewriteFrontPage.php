@@ -78,7 +78,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	public function maybeNoTemplate(): void {
 		if (!$this->useTemplate) {
 			add_filter('template_include', function($template) {
-				return $this->funcs->_getResourcesPath('/views/modules/web/rewrite-front-pages/layout/base.blade.php');
+				return $this->funcs->_getResourcesPath('/views/modules/rewrite-front-pages/layout/base.blade.php');
 			});
 		}
 	}

@@ -27,8 +27,8 @@ class Funcs {
 	 *
 	 */
 
-	public function _getMainPath(): string {
-		return rtrim($this->mainPath, '/\\');
+	public function _getMainPath($path = null): string {
+		return rtrim($this->mainPath, '/\\') . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
 	public function _getRootNamespace(): ?string {
@@ -334,19 +334,19 @@ class Funcs {
 
 	public function _prefixArrayKeys(array $array, ?string $prefix = null): array {
 		$results = [];
-        foreach ($array as $key => $value) {
-            $results[$prefix . $key] = $value;
-        }
-        return $results;
+		foreach ($array as $key => $value) {
+			$results[$prefix . $key] = $value;
+		}
+		return $results;
 	}
 
 	public function _removePrefixArrayKeys(array $array, ?string $prefix = null): array {
 		$results = [];
-        foreach ($array as $key => $value) {
-			$key = preg_replace('/'.$prefix.'/iu', '', $key);
-            $results[$key] = $value;
-        }
-        return $results;
+		foreach ($array as $key => $value) {
+			$key           = preg_replace('/' . $prefix . '/iu', '', $key);
+			$results[$key] = $value;
+		}
+		return $results;
 	}
 
 	/*
@@ -373,7 +373,7 @@ class Funcs {
 			return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
 		}
 		catch (\Exception|\Throwable $e) {
-			return '<div class="wrap"><div class="notice notice-error"><p>'.$e->getMessage().'</p></div></div>';
+			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
 		}
 	}
 
@@ -419,7 +419,7 @@ class Funcs {
 		global $notice;
 		$notice = '<div class="notice ' . $class . ' notice-' . $type . ' is-dismissible"><p>' . $message . '</p></div>';
 		if ($wrap) {
-			$notice = '<div class="wrap">'. $notice. '</div>';
+			$notice = '<div class="wrap">' . $notice . '</div>';
 		}
 		if ($echo) echo $notice;
 	}
