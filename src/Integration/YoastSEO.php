@@ -25,6 +25,10 @@ class YoastSEO {
 	public mixed $schemaBreadcrumbPriority     = 10;
 	public mixed $schemaBreadcrumbAcceptedArgs = 0;
 
+	public mixed $breadcrumbs                  = [];
+	public mixed $breadcrumbsPriority          = 10;
+	public mixed $breadcrumbsAcceptedArgs      = 0;
+
 	/*
 	 *
 	 */
@@ -40,6 +44,7 @@ class YoastSEO {
 		$this->schema();
 		$this->schemaWebpage();
 		$this->schemaBreadcrumb();
+		$this->breadcrumbs();
 	}
 
 	/*
@@ -131,6 +136,14 @@ class YoastSEO {
 				$this->schemaWebpageAcceptedArgs
 			);
 		}
+	}
+
+	public function breadcrumbs(): void {
+		add_filter('wpseo_breadcrumb_links',
+			$this->breadcrumbs,
+			$this->breadcrumbsPriority,
+			$this->breadcrumbsAcceptedArgs
+		);
 	}
 
 	/*
