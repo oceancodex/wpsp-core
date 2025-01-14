@@ -150,6 +150,20 @@ class YoastSEO {
 	 *
 	 */
 
+	public function setBreadcrumbs($breadcrumbs, $priority = 10, $accepted_args = 0): void {
+		$this->breadcrumbs             = $breadcrumbs;
+		$this->breadcrumbsPriority     = $priority;
+		$this->breadcrumbsAcceptedArgs = $accepted_args;
+	}
+
+	public function getBreadcrumbs() {
+		return $this->breadcrumbs;
+	}
+
+	/*
+	 *
+	 */
+
 	public function setRobots($robots): void {
 		$this->robots = $robots;
 	}
