@@ -144,19 +144,23 @@ class YoastSEO {
 	}
 
 	public function breadcrumbLinks(): void {
-		add_filter('wpseo_breadcrumb_links',
-			$this->breadcrumbLinks,
-			$this->breadcrumbLinksPriority,
-			$this->breadcrumbLinksAcceptedArgs
-		);
+		if (is_callable($this->breadcrumbLinks)) {
+			add_filter('wpseo_breadcrumb_links',
+				$this->breadcrumbLinks,
+				$this->breadcrumbLinksPriority,
+				$this->breadcrumbLinksAcceptedArgs
+			);
+		}
 	}
 
 	public function breadcrumbSingleLink(): void {
-		add_filter('wpseo_breadcrumb_single_link',
-			$this->breadcrumbSingleLink,
-			$this->breadcrumbSingleLinkPriority,
-			$this->breadcrumbSingleLinkAcceptedArgs
-		);
+		if (is_callable($this->breadcrumbSingleLink)) {
+			add_filter('wpseo_breadcrumb_single_link',
+				$this->breadcrumbSingleLink,
+				$this->breadcrumbSingleLinkPriority,
+				$this->breadcrumbSingleLinkAcceptedArgs
+			);
+		}
 	}
 
 	/*
