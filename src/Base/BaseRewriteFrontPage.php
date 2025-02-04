@@ -27,10 +27,10 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	public function init($path = null): void {
 		if ($path) {
 			// Prepare string matches.
-			preg_match('/\(.+?\)/iu', $path, $groupMatches);
+			preg_match_all('/\(.+?\)/iu', $path, $groupMatches);
 			$stringMatches = '';
-			if (!empty($groupMatches)) {
-				foreach ($groupMatches as $groupMatchKey => $groupMatch) {
+			if (!empty($groupMatches) && !empty($groupMatches[0])) {
+				foreach ($groupMatches[0] as $groupMatchKey => $groupMatch) {
 					$stringMatches .= '&' . $this->funcs->_config('app.short_name') . '_rewrite_group_' . ($groupMatchKey + 1) . '=$matches[' . ($groupMatchKey + 1) . ']';
 				}
 			}
