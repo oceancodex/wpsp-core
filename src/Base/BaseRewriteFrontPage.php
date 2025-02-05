@@ -4,10 +4,11 @@ namespace WPSPCORE\Base;
 
 abstract class BaseRewriteFrontPage extends BaseInstances {
 
-	public $path                 = null;
-	public $rewriteIdent         = null;
-	public $useTemplate          = false;
-	public $rewriteFrontPageSlug = 'rewrite-front-pages';
+	public $path                     = null;
+	public $rewriteIdent             = null;
+	public $useTemplate              = false;
+	public $rewriteFrontPageSlug     = 'rewrite-front-pages';
+	public $rewriteFrontPagePostType = 'page';
 
 	/*
 	 *
@@ -26,10 +27,10 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	public function init($path = null): void {
 		if ($path) {
 			// Prepare string matches.
-			preg_match('/\(.+?\)/iu', $path, $groupMatches);
+			preg_match_all('/\(.+?\)/iu', $path, $groupMatches);
 			$stringMatches = '';
-			if (!empty($groupMatches)) {
-				foreach ($groupMatches as $groupMatchKey => $groupMatch) {
+			if (!empty($groupMatches) && !empty($groupMatches[0])) {
+				foreach ($groupMatches[0] as $groupMatchKey => $groupMatch) {
 					$stringMatches .= '&' . $this->funcs->_config('app.short_name') . '_rewrite_group_' . ($groupMatchKey + 1) . '=$matches[' . ($groupMatchKey + 1) . ']';
 				}
 			}
@@ -38,11 +39,11 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			}
 
 			// Rewrite rule.
-			add_rewrite_rule($path, 'index.php?post_type=page&pagename=' . $this->rewriteFrontPageSlug . '&is_rewrite=true' . $stringMatches, 'top');
+			add_rewrite_rule($path, 'index.php?post_type=' . $this->rewriteFrontPagePostType . '&pagename=' . $this->rewriteFrontPageSlug . '&is_rewrite=true' . $stringMatches, 'top');
 
 			if (!is_admin()) {
 				// Access URL that match rewrite rule.
-				add_action('wp', function() use ($path) {
+				add_action('wp', function () use ($path) {
 					$requestPath = trim($this->request->getPathInfo(), '/\\');
 					if (preg_match('/' . $path . '/iu', $requestPath)) {
 						$this->maybeNoTemplate();
@@ -77,7 +78,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 
 	public function maybeNoTemplate(): void {
 		if (!$this->useTemplate) {
-			add_filter('template_include', function($template) {
+			add_filter('template_include', function ($template) {
 				return $this->funcs->_getResourcesPath('/views/modules/rewrite-front-pages/layout/base.blade.php');
 			});
 		}

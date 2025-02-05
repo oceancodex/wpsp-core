@@ -4,26 +4,34 @@ namespace WPSPCORE\Integration;
 
 class YoastSEO {
 
-	public $robots                       = null;
-	public $canonical                    = null;
-	public $title                        = null;
-	public $description                  = null;
+	public $robots                            = null;
+	public $canonical                         = null;
+	public $title                             = null;
+	public $description                       = null;
 
-	public $opengraphURL                 = null;
-	public $opengraphTitle               = null;
-	public $opengraphDescription         = null;
+	public $opengraphURL                      = null;
+	public $opengraphTitle                    = null;
+	public $opengraphDescription              = null;
 
-	public $schema                       = null;
-	public $schemaPriority               = 10;
-	public $schemaAcceptedArgs           = 0;
+	public $schema                            = null;
+	public $schemaPriority                    = 10;
+	public $schemaAcceptedArgs                = 0;
 
-	public $schemaWebpage                = null;
-	public $schemaWebpagePriority        = 10;
-	public $schemaWebpageAcceptedArgs    = 0;
+	public $schemaWebpage                     = null;
+	public $schemaWebpagePriority             = 10;
+	public $schemaWebpageAcceptedArgs         = 0;
 
-	public $schemaBreadcrumb             = null;
-	public $schemaBreadcrumbPriority     = 10;
-	public $schemaBreadcrumbAcceptedArgs = 0;
+	public $schemaBreadcrumb                  = null;
+	public $schemaBreadcrumbPriority          = 10;
+	public $schemaBreadcrumbAcceptedArgs      = 0;
+
+	public $breadcrumbLinks                   = [];
+	public $breadcrumbLinksPriority           = 10;
+	public $breadcrumbLinksAcceptedArgs       = 0;
+
+	public $breadcrumbSingleLink              = [];
+	public $breadcrumbSingleLinkPriority      = 10;
+	public $breadcrumbSingleLinkAcceptedArgs  = 0;
 
 	/*
 	 *
@@ -40,6 +48,8 @@ class YoastSEO {
 		$this->schema();
 		$this->schemaWebpage();
 		$this->schemaBreadcrumb();
+		$this->breadcrumbLinks();
+		$this->breadcrumbSingleLink();
 	}
 
 	/*
@@ -131,6 +141,50 @@ class YoastSEO {
 				$this->schemaWebpageAcceptedArgs
 			);
 		}
+	}
+
+	public function breadcrumbLinks(): void {
+		if (is_callable($this->breadcrumbLinks)) {
+			add_filter('wpseo_breadcrumb_links',
+				$this->breadcrumbLinks,
+				$this->breadcrumbLinksPriority,
+				$this->breadcrumbLinksAcceptedArgs
+			);
+		}
+	}
+
+	public function breadcrumbSingleLink(): void {
+		if (is_callable($this->breadcrumbSingleLink)) {
+			add_filter('wpseo_breadcrumb_single_link',
+				$this->breadcrumbSingleLink,
+				$this->breadcrumbSingleLinkPriority,
+				$this->breadcrumbSingleLinkAcceptedArgs
+			);
+		}
+	}
+
+	/*
+	 *
+	 */
+
+	public function setBreadcrumbLinks($breadcrumbLinks, $priority = 10, $accepted_args = 0): void {
+		$this->breadcrumbLinks             = $breadcrumbLinks;
+		$this->breadcrumbLinksPriority     = $priority;
+		$this->breadcrumbLinksAcceptedArgs = $accepted_args;
+	}
+
+	public function getBreadcrumbLinks() {
+		return $this->breadcrumbLinks;
+	}
+
+	public function setBreadcrumbSingleLink($breadcrumbSingleLink, $priority = 10, $accepted_args = 0): void {
+		$this->breadcrumbSingleLink             = $breadcrumbSingleLink;
+		$this->breadcrumbSingleLinkPriority     = $priority;
+		$this->breadcrumbSingleLinkAcceptedArgs = $accepted_args;
+	}
+
+	public function getBreadcrumbSingleLink() {
+		return $this->breadcrumbSingleLink;
 	}
 
 	/*
