@@ -21,7 +21,7 @@ trait TemplatesRouteTrait {
 	 *
 	 */
 
-	public function template($name, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 0): void {
+	public function template($name, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$classArgs = array_merge([$name], $classArgs ?? []);
 			$classArgs = array_merge([

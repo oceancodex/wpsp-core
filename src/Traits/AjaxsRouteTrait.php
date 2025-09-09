@@ -2,12 +2,12 @@
 
 namespace WPSPCORE\Traits;
 
-trait AjaxRouteTrait {
+trait AjaxsRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
 	public function init(): void {
-		$this->apis();
+		$this->ajaxs();
 		$this->hooks();
 	}
 
@@ -15,7 +15,7 @@ trait AjaxRouteTrait {
 	 *
 	 */
 
-	public function apis() {}
+	public function ajaxs() {}
 
 	/*
 	 *

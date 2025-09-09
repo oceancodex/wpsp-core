@@ -20,7 +20,7 @@ trait TaxonomiesRouteTrait {
 	 *
 	 */
 
-	public function taxonomy($taxonomy, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 0): void {
+	public function taxonomy($taxonomy, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$classArgs = array_merge([$taxonomy], $classArgs ?? []);
 			$classArgs = array_merge([

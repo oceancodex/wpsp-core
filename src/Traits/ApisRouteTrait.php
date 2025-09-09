@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Traits;
 
-trait ApiRouteTrait {
+trait ApisRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
