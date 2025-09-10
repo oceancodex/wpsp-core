@@ -11,10 +11,12 @@ abstract class BaseInstances {
 	public ?string  $rootNamespace = null;
 	public ?string  $prefixEnv     = null;
 	public ?Request $request       = null;
+	public ?string  $locale        = null;
 
 	public ?Funcs $funcs = null;
 
 	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
+		$this->locale = get_locale();
 		if (!$this->request) $this->request = Request::createFromGlobals();
 		$this->beforeConstruct();
 		$this->beforeInstanceConstruct();
