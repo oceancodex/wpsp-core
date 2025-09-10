@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Traits;
 
-trait ScheduleRouteTrait {
+trait SchedulesRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
@@ -17,6 +17,7 @@ trait ScheduleRouteTrait {
 	 */
 
 	public function intervals() {}
+
 	public function schedules() {}
 
 	/*
