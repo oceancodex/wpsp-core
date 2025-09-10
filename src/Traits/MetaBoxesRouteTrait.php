@@ -20,7 +20,7 @@ trait MetaBoxesRouteTrait {
 	 *
 	 */
 
-	public function meta_box($id, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 0): void {
+	public function meta_box($id, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$classArgs = array_merge([$id], $classArgs ?? []);
 			$classArgs = array_merge([
