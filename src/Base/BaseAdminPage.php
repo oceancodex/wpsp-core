@@ -118,6 +118,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		}
 		if (is_array($this->urls_highlight_current_menu)) {
 			foreach ($this->urls_highlight_current_menu as $url_highlight_current_menu) {
+				$url_highlight_current_menu = '/' . preg_quote($url_highlight_current_menu, '/') . '/iu';
 				if (preg_match($url_highlight_current_menu, $currentRequest)) {
 					add_filter('parent_file', function($parent_file) {
 						return $this->parent_slug;
