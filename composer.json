@@ -1,12 +1,12 @@
 {
 	"name": "oceancodex/wpsp-core",
-	"version": "8.2.0",
+	"version": "8.3.0",
 	"description": "WordPress Starter Plugin - Core",
 	"keywords": [
 	],
 	"license": "MIT",
 	"require": {
-		"php": "^8.2"
+		"php": "^8.3"
 	},
 	"config": {
 		"sort-packages": true
