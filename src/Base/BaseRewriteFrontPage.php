@@ -9,13 +9,17 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	public mixed $useTemplate              = false;
 	public mixed $rewriteFrontPageSlug     = 'rewrite-front-pages';
 	public mixed $rewriteFrontPagePostType = 'page';
+	public mixed $callback_function        = null;
+	public mixed $custom_properties        = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $path = null) {
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $path = null, $callback_function = null, $custom_properties = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
+		$this->callback_function = $callback_function;
+		$this->custom_properties = $custom_properties;
 		$this->overridePath($path);
 		$this->customProperties();
 	}
@@ -47,7 +51,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 					$requestPath = trim($this->request->getPathInfo(), '/\\');
 					if (preg_match('/' . $path . '/iu', $requestPath)) {
 						$this->maybeNoTemplate();
-						$this->access();
+						$this->{$this->callback_function}(); // $this->access();
 					}
 				});
 			}
@@ -68,7 +72,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 *
 	 */
 
-	abstract public function access();
+//	abstract public function access();
 
 	abstract public function customProperties();
 
