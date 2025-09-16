@@ -21,15 +21,15 @@ trait TemplatesRouteTrait {
 	 *
 	 */
 
-	public function template($name, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
+	public function template($name, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
-			$classArgs = array_merge([$name], $classArgs ?? []);
-			$classArgs = array_merge([
+			$customProperties = array_merge([$name], $customProperties ?? []);
+			$customProperties = array_merge([
 				$this->funcs->_getMainPath(),
 				$this->funcs->_getRootNamespace(),
 				$this->funcs->_getPrefixEnv()
-			], $classArgs);
-			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
+			], $customProperties);
+			$callback = $this->prepareCallback($callback, $useInitClass, $customProperties);
 			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($name) : $callback;
 		}
 	}

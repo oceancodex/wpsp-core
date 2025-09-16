@@ -4,21 +4,24 @@ namespace WPSPCORE\Base;
 
 abstract class BaseMetaBox extends BaseInstances {
 
-	private mixed $id            = null;
-
-	public mixed  $title         = 'Custom Meta Box';
-	public mixed  $screen        = 'post';
-	public mixed  $context       = 'advanced';
-	public mixed  $priority      = 'default';
-	public mixed  $callback_args = null;
+	private mixed $id                = null;
+	private mixed $callback_function = 'index';
+	public mixed  $title             = 'Custom Meta Box';
+	public mixed  $screen            = 'post';
+	public mixed  $context           = 'advanced';
+	public mixed  $priority          = 'default';
+	public mixed  $callback_args     = null;
+	public mixed  $customProperties  = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $id = null) {
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $id = null, $callback_function = null, $customProperties = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
 		$this->id = $id;
+		$this->callback_function = $callback_function;
+		$this->customProperties = $customProperties;
 		$this->customProperties();
 	}
 
@@ -31,7 +34,7 @@ abstract class BaseMetaBox extends BaseInstances {
 			add_meta_box(
 				$this->id,
 				$this->title,
-				[$this, 'index'],
+				[$this, $this->callback_function],
 				$this->screen,
 				$this->context,
 				$this->priority,

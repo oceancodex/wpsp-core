@@ -11,13 +11,16 @@ abstract class BaseAdminPage extends BaseInstances {
 	public mixed  $icon_url                    = null;
 	public mixed  $position                    = null;
 	public mixed  $parent_slug                 = null;
-	public mixed  $callback_index              = true;
 	public mixed  $is_submenu_page             = false;
 	public mixed  $remove_first_submenu        = false;
 	public ?array $urls_highlight_current_menu = null;
+	public mixed  $custom_properties           = null;
+	public mixed  $callback_function           = null;
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $menu_slug = null) {
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $menu_slug = null, $callback_function = null, $custom_properties = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
+		$this->callback_function = $callback_function;
+		$this->custom_properties = $custom_properties;
 		$this->overrideMenuSlug($menu_slug);
 		$this->customProperties();
 	}
@@ -61,7 +64,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	private function addMenuPage(): string {
-		$callback = $this->callback_index ? [$this, 'index'] : null;
+		$callback = $this->callback_function ? [$this, $this->callback_function] : null;
 		return add_menu_page(
 			$this->page_title,
 			$this->menu_title,
@@ -74,7 +77,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	}
 
 	private function addSubMenuPage(): string {
-		$callback = $this->callback_index ? [$this, 'index'] : null;
+		$callback = $this->callback_function ? [$this, $this->callback_function] : null;
 		return add_submenu_page(
 			$this->parent_slug,
 			$this->page_title,
@@ -163,7 +166,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	abstract public function index();
+//	abstract public function index();
 
 	abstract public function styles();
 

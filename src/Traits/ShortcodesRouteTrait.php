@@ -20,9 +20,9 @@ trait ShortcodesRouteTrait {
 	 *
 	 */
 
-	public function shortcode($shortcode, $callback, $useInitClass = false, $classArgs = [], $middlewares = null): void {
+	public function shortcode($shortcode, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
-			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
+			$callback = $this->prepareCallback($callback, $useInitClass, $customProperties);
 			add_shortcode($shortcode, $callback);
 		}
 	}
