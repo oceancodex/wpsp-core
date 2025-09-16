@@ -11,17 +11,17 @@ abstract class BaseMetaBox extends BaseInstances {
 	public mixed  $context           = 'advanced';
 	public mixed  $priority          = 'default';
 	public mixed  $callback_args     = null;
-	public mixed  $customProperties  = null;
+	public mixed  $custom_properties = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $id = null, $callback_function = null, $customProperties = null) {
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $id = null, $callback_function = null, $custom_properties = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
 		$this->id = $id;
 		$this->callback_function = $callback_function;
-		$this->customProperties = $customProperties;
+		$this->custom_properties = $custom_properties;
 		$this->customProperties();
 	}
 
@@ -47,7 +47,7 @@ abstract class BaseMetaBox extends BaseInstances {
 	 *
 	 */
 
-	abstract public function index($post, $meta_box);
+//	abstract public function index($post, $meta_box);
 
 	abstract public function customProperties();
 

@@ -14,6 +14,7 @@ trait MetaBoxesRouteTrait {
 	/*
      *
      */
+
 	public function meta_boxes() {}
 
 	/*
@@ -22,7 +23,7 @@ trait MetaBoxesRouteTrait {
 
 	public function meta_box($id, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
-			$customProperties = array_merge([$id, $callback[1]], $customProperties ?? []);
+			$customProperties = array_merge([$id, $callback[1]], ['custom_properties' => $customProperties ?? []]);
 			$customProperties = array_merge([
 				$this->funcs->_getMainPath(),
 				$this->funcs->_getRootNamespace(),

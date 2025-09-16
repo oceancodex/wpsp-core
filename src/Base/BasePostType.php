@@ -9,17 +9,19 @@ abstract class BasePostType extends BaseInstances {
 
 	use ObjectPropertiesToArrayTrait;
 
-	public mixed $post_type        = null;
-	public mixed $args             = null;
-	public mixed $customProperties = null;
+	public mixed $post_type         = null;
+	public mixed $args              = null;
+	public mixed $callback_function = null;
+	public mixed $custom_properties = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $postType = null, $customProperties = null) {
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $postType = null, $callback_function = null, $custom_properties = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->customProperties = $customProperties;
+		$this->callback_function = $callback_function;
+		$this->custom_properties = $custom_properties;
 		$this->overridePostType($postType);
 		$this->prepareArguments();
 		$this->customProperties();
@@ -31,8 +33,9 @@ abstract class BasePostType extends BaseInstances {
 	 */
 
 	public function init($postType = null): void {
-		if ($this->post_type) {
-			register_post_type($this->post_type, $this->args);
+		$postType = $this->post_type ?? $postType;
+		if ($postType) {
+			register_post_type($postType, $this->args);
 		}
 	}
 

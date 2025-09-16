@@ -114,7 +114,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	private function highlightCurrentMenu(): void {
 		$currentRequest = $this->request->getRequestUri();
-		if (preg_match('/' . $this->menu_slug . '$|' . $this->menu_slug . '&updated=true$/', $currentRequest)) {
+		if (preg_match('/' . preg_quote($this->menu_slug, '/') . '$|' . preg_quote($this->menu_slug, '/') . '&updated=true$/', $currentRequest)) {
 			add_filter('submenu_file', function($submenu_file) {
 				return $this->menu_slug;
 			});
