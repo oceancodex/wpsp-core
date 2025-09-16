@@ -9,7 +9,7 @@ abstract class BaseNavigationMenu extends BaseInstances {
 
 	use ObjectPropertiesToArrayTrait;
 
-	public              $args     = null;
+	public mixed        $args     = null;
 	public static ?self $instance = null;
 
 	/*
