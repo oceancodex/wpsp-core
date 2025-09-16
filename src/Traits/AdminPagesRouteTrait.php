@@ -22,7 +22,11 @@ trait AdminPagesRouteTrait {
 	 */
 
 	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
-		if (!wp_doing_ajax() && $this->isPassedMiddleware($middlewares, $this->request)) {
+		if (
+			is_admin()
+			&& !wp_doing_ajax()
+			&& $this->isPassedMiddleware($middlewares, $this->request)
+		) {
 			$customProperties = array_merge([$path, $callback[1]], ['custom_properties' => $customProperties ?? []]);
 			$customProperties = array_merge([
 				$this->funcs->_getMainPath(),
@@ -36,8 +40,10 @@ trait AdminPagesRouteTrait {
 	}
 
 	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
-		if (!wp_doing_ajax() && $this->request->isMethod('POST')) {
-			$this->executeHiddenMethod($path, $callback, $useInitClass, $customProperties, $middlewares);
+		if (is_admin() && !wp_doing_ajax()) {
+			if ($this->request->isMethod('POST')) {
+				$this->executeHiddenMethod($path, $callback, $useInitClass, $customProperties, $middlewares);
+			}
 		}
 	}
 
