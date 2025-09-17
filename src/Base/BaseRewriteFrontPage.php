@@ -29,6 +29,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 */
 
 	public function init($path = null): void {
+		$path = $this->path ?? $path;
 		if ($path) {
 			// Prepare string matches.
 			preg_match_all('/\(.+?\)/iu', $path, $groupMatches);
@@ -45,9 +46,26 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			// Rewrite rule.
 			add_rewrite_rule($path, 'index.php?post_type=' . $this->rewriteFrontPagePostType . '&pagename=' . $this->rewriteFrontPageSlug . '&is_rewrite=true' . $stringMatches, 'top');
 
+			add_action('parse_request', function($wp) use ($path, $stringMatches) {
+				if (preg_match('/' . $path . '/iu', $wp->request)) {
+					$stringMatches = ltrim($stringMatches, '&');
+					parse_str($stringMatches, $stringMatchesArr);
+
+					unset($wp->query_vars['attachment']);
+
+					$wp->query_vars['is_rewrite'] = true;
+					$wp->query_vars['pagename']   = $this->rewriteFrontPageSlug;
+					$wp->query_vars['post_type']  = $this->rewriteFrontPagePostType;
+
+					foreach ($stringMatchesArr as $stringMatchesArrKey => $stringMatchesArrValue) {
+						$wp->query_vars[$stringMatchesArrKey] = $stringMatchesArrValue;
+					}
+				}
+			}, 9999);
+
 			if (!is_admin()) {
 				// Access URL that match rewrite rule.
-				add_action('wp', function () use ($path) {
+				add_action('wp', function() use ($path) {
 					$requestPath = trim($this->request->getPathInfo(), '/\\');
 					if (preg_match('/' . $path . '/iu', $requestPath)) {
 						$this->maybeNoTemplate();
@@ -82,7 +100,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 
 	public function maybeNoTemplate(): void {
 		if (!$this->useTemplate) {
-			add_filter('template_include', function ($template) {
+			add_filter('template_include', function($template) {
 				return $this->funcs->_getResourcesPath('/views/modules/rewrite-front-pages/layout/base.blade.php');
 			});
 		}
