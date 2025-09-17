@@ -44,7 +44,7 @@ abstract class BaseSeeder extends Seeder {
 		}
 	}
 
-	public function call($class, $silent = false, array $parameters = []): static {
+	public function call($class, $silent = false, array $parameters = []) {
 		$classes = Arr::wrap($class);
 		foreach ($classes as $class) {
 			$seeder    = $this->resolve($class);
