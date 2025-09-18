@@ -8,15 +8,19 @@ abstract class BaseNavigationLocation extends BaseInstances {
 
 	use ObjectPropertiesToArrayTrait;
 
-	public ?string $location    = null;
-	public ?string $description = null;
+	public ?string $location          = null;
+	public ?string $description       = null;
+	public mixed   $callback_function = null;
+	public mixed   $custom_properties = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $location = null) {
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $location = null, $callback_function = null, $custom_properties = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
+		$this->callback_function = $callback_function;
+		$this->custom_properties = $custom_properties;
 		$this->overrideLocation($location);
 		$this->customProperties();
 	}

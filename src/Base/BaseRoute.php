@@ -25,7 +25,7 @@ abstract class BaseRoute extends BaseInstances {
 		return $passed;
 	}
 
-	public function prepareCallback($callback, $useInitClass = false, $classArgs = []) {
+	public function prepareCallback($callback, $useInitClass = false, $customProperties = []) {
 
 		// If callback is a closure.
 		if ($callback instanceof \Closure) {
@@ -35,10 +35,10 @@ abstract class BaseRoute extends BaseInstances {
 		// If callback is an array with class and method.
 		if (is_array($callback)) {
 			if ($useInitClass) {
-				$class = $this->getInitClass($callback[0], $useInitClass, $classArgs);
+				$class = $this->getInitClass($callback[0], $useInitClass, $customProperties);
 			}
 			else {
-				$class = new $callback[0](...$classArgs ?? []);
+				$class = new $callback[0](...$customProperties ?? []);
 			}
 			return [$class, $callback[1]];
 		}
@@ -50,12 +50,12 @@ abstract class BaseRoute extends BaseInstances {
 
 	}
 
-	public function prepareClass($callback, $useInitClass = false, $classArgs = []) {
+	public function prepareClass($callback, $useInitClass = false, $customProperties = []) {
 		if ($useInitClass) {
-			$class = $this->getInitClass($callback[0], $useInitClass, $classArgs);
+			$class = $this->getInitClass($callback[0], $useInitClass, $customProperties);
 		}
 		else {
-			$class = $callback[0](...$classArgs ?? []);
+			$class = $callback[0](...$customProperties ?? []);
 		}
 		return $class;
 	}
@@ -72,10 +72,10 @@ abstract class BaseRoute extends BaseInstances {
 		$this->initClasses = $initClasses;
 	}
 
-	private function getInitClass($className, $addInitClass = false, $classArgs = []) {
+	private function getInitClass($className, $addInitClass = false, $customProperties = []) {
 		$initClass = $this->getInitClasses()[$className] ?? null;
 		if (!$initClass) {
-			$initClass = new $className(...$classArgs ?? []);
+			$initClass = new $className(...$customProperties ?? []);
 			if ($addInitClass) $this->addInitClass($className, $initClass);
 		}
 		return $initClass;

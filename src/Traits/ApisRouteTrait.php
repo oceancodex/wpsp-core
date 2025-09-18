@@ -21,40 +21,40 @@ trait ApisRouteTrait {
 	 *
 	 */
 
-	public function get($path, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $namespace = null, $version = null): void {
-		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $classArgs, $middlewares, $namespace, $version);
+	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null): void {
+		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 	}
 
-	public function post($path, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $namespace = null, $version = null): void {
-		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $classArgs, $middlewares, $namespace, $version);
+	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null): void {
+		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 	}
 
-	public function put($path, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $namespace = null, $version = null): void {
-		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $classArgs, $middlewares, $namespace, $version);
+	public function put($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null): void {
+		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 	}
 
-	public function delete($path, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $namespace = null, $version = null): void {
-		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $classArgs, $middlewares, $namespace, $version);
+	public function delete($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null): void {
+		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 	}
 
-	public function patch($path, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $namespace = null, $version = null): void {
-		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $classArgs, $middlewares, $namespace, $version);
+	public function patch($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null): void {
+		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 	}
 
 	/*
 	 *
 	 */
 
-	public function restApiInit($path, $method, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $namespace = null, $version = null): void {
-		add_action('rest_api_init', function () use ($path, $method, $callback, $useInitClass, $classArgs, $middlewares, $namespace, $version) {
-			$this->registerRestRoute($path, $method, $callback, $useInitClass, $classArgs, $middlewares, $namespace, $version);
+	public function restApiInit($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null): void {
+		add_action('rest_api_init', function () use ($path, $method, $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version) {
+			$this->registerRestRoute($path, $method, $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 		});
 	}
 
-	public function registerRestRoute($path, $method, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $namespace = null, $version = null): void {
+	public function registerRestRoute($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null): void {
 		register_rest_route(($namespace ?? $this->funcs->_config('app.short_name')) . '/' . ($version ?? 'v1'), $path, [
 			'methods'             => $method,
-			'callback'            => $this->prepareCallback($callback, $useInitClass, $classArgs),
+			'callback'            => $this->prepareCallback($callback, $useInitClass, $customProperties),
 			'args'                => [
 //				'id' => [
 //					'validate_callback' => function($param, $request, $key) {
