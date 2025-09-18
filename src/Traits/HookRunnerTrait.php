@@ -21,9 +21,9 @@ trait HookRunnerTrait {
 	 *
 	 */
 
-	public function hook($type, $hook, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
+	public function hook($type, $hook, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
-			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
+			$callback = $this->prepareCallback($callback, $useInitClass, $customProperties);
 			if ($type == 'action') {
 				add_action($hook, $callback, $priority, $argsNumber);
 			}
@@ -33,21 +33,21 @@ trait HookRunnerTrait {
 		}
 	}
 
-	public function action($hook, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
-		$this->hook('action', $hook, $callback, $useInitClass, $classArgs, $middlewares, $priority, $argsNumber);
+	public function action($hook, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
+		$this->hook('action', $hook, $callback, $useInitClass, $customProperties, $middlewares, $priority, $argsNumber);
 	}
 
-	public function filter($hook, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
-		$this->hook('filter', $hook, $callback, $useInitClass, $classArgs, $middlewares, $priority, $argsNumber);
+	public function filter($hook, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
+		$this->hook('filter', $hook, $callback, $useInitClass, $customProperties, $middlewares, $priority, $argsNumber);
 	}
 
 	/*
 	 *
 	 */
 
-	public function remove_hook($type, $hook, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10): void {
+	public function remove_hook($type, $hook, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10): void {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
-			$callback = $this->prepareCallback($callback, $useInitClass, $classArgs);
+			$callback = $this->prepareCallback($callback, $useInitClass, $customProperties);
 			if ($type == 'action') {
 				remove_action($hook, $callback, $priority);
 			}
@@ -57,12 +57,12 @@ trait HookRunnerTrait {
 		}
 	}
 
-	public function remove_action($hook, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10): void {
-		$this->remove_hook('action', $hook, $callback, $useInitClass, $classArgs, $middlewares, $priority);
+	public function remove_action($hook, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10): void {
+		$this->remove_hook('action', $hook, $callback, $useInitClass, $customProperties, $middlewares, $priority);
 	}
 
-	public function remove_filter($hook, $callback, $useInitClass = false, $classArgs = [], $middlewares = null, $priority = 10): void {
-		$this->remove_hook('filter', $hook, $callback, $useInitClass, $classArgs, $middlewares, $priority);
+	public function remove_filter($hook, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10): void {
+		$this->remove_hook('filter', $hook, $callback, $useInitClass, $customProperties, $middlewares, $priority);
 	}
 
 }

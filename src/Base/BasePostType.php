@@ -11,13 +11,17 @@ abstract class BasePostType extends BaseInstances {
 
 	public $post_type = null;
 	public $args      = null;
+	public $callback_function = null;
+	public $custom_properties = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $postType = null) {
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $postType = null, $callback_function = null, $custom_properties = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
+		$this->callback_function = $callback_function;
+		$this->custom_properties = $custom_properties;
 		$this->overridePostType($postType);
 		$this->prepareArguments();
 		$this->customProperties();
@@ -29,8 +33,9 @@ abstract class BasePostType extends BaseInstances {
 	 */
 
 	public function init($postType = null): void {
-		if ($this->post_type) {
-			register_post_type($this->post_type, $this->args);
+		$postType = $this->post_type ?? $postType;
+		if ($postType) {
+			register_post_type($postType, $this->args);
 		}
 	}
 

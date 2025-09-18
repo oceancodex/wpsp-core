@@ -27,7 +27,11 @@ abstract class BaseNavigationMenu extends BaseInstances {
 
 	public static function render() {
 		self::instance()->args->echo = false;
-		return wp_nav_menu(self::instance()->args->toArray());
+		$args = self::instance()->args->toArray();
+		if (wp_get_nav_menu_object($args['menu'])) {
+			return wp_nav_menu($args);
+		}
+		return false;
 	}
 
 	protected static function instance(): ?self {

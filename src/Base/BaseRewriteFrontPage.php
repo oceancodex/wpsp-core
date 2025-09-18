@@ -9,13 +9,17 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	public $useTemplate              = false;
 	public $rewriteFrontPageSlug     = 'rewrite-front-pages';
 	public $rewriteFrontPagePostType = 'page';
+	public $callback_function        = null;
+	public $custom_properties        = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $path = null) {
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $path = null, $callback_function = null, $custom_properties = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
+		$this->callback_function = $callback_function;
+		$this->custom_properties = $custom_properties;
 		$this->overridePath($path);
 		$this->customProperties();
 	}
@@ -25,6 +29,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 */
 
 	public function init($path = null): void {
+		$path = $this->path ?? $path;
 		if ($path) {
 			// Prepare string matches.
 			preg_match_all('/\(.+?\)/iu', $path, $groupMatches);
@@ -41,13 +46,31 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			// Rewrite rule.
 			add_rewrite_rule($path, 'index.php?post_type=' . $this->rewriteFrontPagePostType . '&pagename=' . $this->rewriteFrontPageSlug . '&is_rewrite=true' . $stringMatches, 'top');
 
+			// Fix "404" for custom permalinks.
+			add_action('parse_request', function($wp) use ($path, $stringMatches) {
+				if (preg_match('/' . $path . '/iu', $wp->request)) {
+					$stringMatches = ltrim($stringMatches, '&');
+					parse_str($stringMatches, $stringMatchesArr);
+
+					unset($wp->query_vars['attachment']);
+
+					$wp->query_vars['is_rewrite'] = true;
+					$wp->query_vars['pagename']   = $this->rewriteFrontPageSlug;
+					$wp->query_vars['post_type']  = $this->rewriteFrontPagePostType;
+
+					foreach ($stringMatchesArr as $stringMatchesArrKey => $stringMatchesArrValue) {
+						$wp->query_vars[$stringMatchesArrKey] = $stringMatchesArrValue;
+					}
+				}
+			}, 9999);
+
 			if (!is_admin()) {
 				// Access URL that match rewrite rule.
-				add_action('wp', function () use ($path) {
+				add_action('wp', function() use ($path) {
 					$requestPath = trim($this->request->getPathInfo(), '/\\');
 					if (preg_match('/' . $path . '/iu', $requestPath)) {
 						$this->maybeNoTemplate();
-						$this->access();
+						$this->{$this->callback_function}(); // $this->access();
 					}
 				});
 			}
@@ -68,7 +91,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 *
 	 */
 
-	abstract public function access();
+//	abstract public function access();
 
 	abstract public function customProperties();
 
@@ -78,7 +101,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 
 	public function maybeNoTemplate(): void {
 		if (!$this->useTemplate) {
-			add_filter('template_include', function ($template) {
+			add_filter('template_include', function($template) {
 				return $this->funcs->_getResourcesPath('/views/modules/rewrite-front-pages/layout/base.blade.php');
 			});
 		}
