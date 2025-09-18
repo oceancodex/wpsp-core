@@ -1,18 +1,18 @@
 {
 	"name": "oceancodex/wpsp-core",
-	"version": "8.3.0",
+	"version": "8.4.0",
 	"description": "WordPress Starter Plugin - Core",
 	"keywords": [
 	],
 	"license": "MIT",
 	"require": {
-		"php": "^8.3",
-		"oceancodex/wpsp-config": "^8.3.0",
-		"oceancodex/wpsp-console": "^8.3.0",
-		"oceancodex/wpsp-environment": "^8.3.0",
-		"oceancodex/wpsp-file-system": "^8.3.0",
-		"oceancodex/wpsp-http-foundation": "^8.3.0",
-		"oceancodex/wpsp-updater": "^8.3.0"
+		"php": "^8.4",
+		"oceancodex/wpsp-config": "^8.4.0",
+		"oceancodex/wpsp-console": "^8.4.0",
+		"oceancodex/wpsp-environment": "^8.4.0",
+		"oceancodex/wpsp-file-system": "^8.4.0",
+		"oceancodex/wpsp-http-foundation": "^8.4.0",
+		"oceancodex/wpsp-updater": "^8.4.0"
 	},
 	"config": {
 		"sort-packages": true
