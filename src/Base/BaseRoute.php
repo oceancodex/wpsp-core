@@ -38,7 +38,7 @@ abstract class BaseRoute extends BaseInstances {
 				$class = $this->getInitClass($callback[0], $useInitClass, $customProperties);
 			}
 			else {
-				$class = new $callback[0](...$customProperties ?? []);
+				$class = new $callback[0](...array_values($customProperties ?? []));
 			}
 			return [$class, $callback[1]];
 		}
@@ -55,7 +55,7 @@ abstract class BaseRoute extends BaseInstances {
 			$class = $this->getInitClass($callback[0], $useInitClass, $customProperties);
 		}
 		else {
-			$class = $callback[0](...$customProperties ?? []);
+			$class = $callback[0](...array_values($customProperties ?? []));
 		}
 		return $class;
 	}
@@ -75,7 +75,7 @@ abstract class BaseRoute extends BaseInstances {
 	private function getInitClass($className, $addInitClass = false, $customProperties = []) {
 		$initClass = $this->getInitClasses()[$className] ?? null;
 		if (!$initClass) {
-			$initClass = new $className(...$customProperties ?? []);
+			$initClass = new $className(...array_values($customProperties ?? []));
 			if ($addInitClass) $this->addInitClass($className, $initClass);
 		}
 		return $initClass;
