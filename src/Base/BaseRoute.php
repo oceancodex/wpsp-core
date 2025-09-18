@@ -55,7 +55,7 @@ abstract class BaseRoute extends BaseInstances {
 			$class = $this->getInitClass($callback[0], $useInitClass, $customProperties);
 		}
 		else {
-			$class = $callback[0](...$customProperties ?? []);
+			$class = new $callback[0](...$customProperties ?? []);
 		}
 		return $class;
 	}
