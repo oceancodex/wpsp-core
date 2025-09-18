@@ -195,7 +195,7 @@ class YoastSEO {
 		$this->robots = $robots;
 	}
 
-	public function getRobots(): mixed {
+	public function getRobots() {
 		return $this->robots;
 	}
 
@@ -203,7 +203,7 @@ class YoastSEO {
 		$this->canonical = $canonical;
 	}
 
-	public function getCanonical(): mixed {
+	public function getCanonical() {
 		return $this->canonical;
 	}
 
@@ -222,7 +222,7 @@ class YoastSEO {
 		});
 	}
 
-	public function getTitle(): mixed {
+	public function getTitle() {
 		return $this->title;
 	}
 
@@ -230,7 +230,7 @@ class YoastSEO {
 		$this->description = $description;
 	}
 
-	public function getDescription(): mixed {
+	public function getDescription() {
 		return $this->description;
 	}
 
@@ -238,7 +238,7 @@ class YoastSEO {
 		$this->opengraphTitle = $opengraphTitle;
 	}
 
-	public function getOpengraphTitle(): mixed {
+	public function getOpengraphTitle() {
 		return $this->opengraphTitle;
 	}
 
@@ -246,7 +246,7 @@ class YoastSEO {
 		$this->opengraphDescription = $opengraphDescription;
 	}
 
-	public function getOpengraphDescription(): mixed {
+	public function getOpengraphDescription() {
 		return $this->opengraphDescription;
 	}
 
@@ -254,7 +254,7 @@ class YoastSEO {
 		$this->opengraphURL = $opengraphURL;
 	}
 
-	public function getOpengraphURL(): mixed {
+	public function getOpengraphURL() {
 		return $this->opengraphURL;
 	}
 
@@ -268,7 +268,7 @@ class YoastSEO {
 		$this->schemaAcceptedArgs = $accepted_args;
 	}
 
-	public function getSchema(): mixed {
+	public function getSchema() {
 		return $this->schema;
 	}
 
@@ -278,7 +278,7 @@ class YoastSEO {
 		$this->schemaWebpageAcceptedArgs = $accepted_args;
 	}
 
-	public function getSchemaWebpage(): mixed {
+	public function getSchemaWebpage() {
 		return $this->schemaWebpage;
 	}
 
@@ -288,7 +288,7 @@ class YoastSEO {
 		$this->schemaBreadcrumbAcceptedArgs = $accepted_args;
 	}
 
-	public function getSchemaBreadcrumb(): mixed {
+	public function getSchemaBreadcrumb() {
 		return $this->schemaBreadcrumb;
 	}
 
