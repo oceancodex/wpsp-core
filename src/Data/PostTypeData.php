@@ -180,14 +180,26 @@ class PostTypeData extends BaseData {
 	}
 
 	public function prepareCustomVariables(): void {
-		$this->preparedName = $this->previousArgs->labels['name']
-			?? $this->previousArgs->labels['singular_name']
-			?? $this->postTypeInstance->args->labels['name']
-			?? $this->postTypeInstance->args->labels['singular_name']
-			?? $this->postTypeInstance->post_type
-			?? $this->name
-			?? $this->singular_name
-			?? $this->post_type;
+		if ($this->previousArgs) {
+			$this->preparedName = $this->previousArgs->labels['name']
+				?? $this->previousArgs->labels['singular_name']
+				?? $this->postTypeInstance->args->labels['name']
+				?? $this->postTypeInstance->args->labels['singular_name']
+				?? $this->postTypeInstance->post_type
+				?? $this->name
+				?? $this->singular_name
+				?? $this->post_type
+				?? null;
+		}
+		else {
+			$this->preparedName = $this->postTypeInstance->name
+				?? $this->postTypeInstance->singular_name
+				?? $this->postTypeInstance->post_type
+				?? $this->name
+				?? $this->singular_name
+				?? $this->post_type
+				?? null;
+		}
 		unset($this->postTypeInstance);
 	}
 
