@@ -52,9 +52,9 @@ trait AdminPagesRouteTrait {
 	 */
 
 	public function executeHiddenMethod($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
-		$requestPath = trim($this->request->getPathInfo(), '/\\');
+		$requestPath = trim($this->request->getRequestUri(), '/\\');
 		if (
-			($this->request->get('page') == $path || preg_match('/' . $path . '/iu', $requestPath))
+			($this->request->get('page') == $path || preg_match('/' . preg_quote($path, '/') . '/iu', $requestPath))
 			&& $this->isPassedMiddleware($middlewares, $this->request)
 		) {
 			$customProperties = array_merge([$path], ['custom_properties' => $customProperties ?? []]);
