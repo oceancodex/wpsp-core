@@ -7,15 +7,16 @@ use WPSPCORE\Funcs;
 
 abstract class BaseInstances {
 
-	public ?string  $mainPath      = null;
-	public ?string  $rootNamespace = null;
-	public ?string  $prefixEnv     = null;
-	public ?Request $request       = null;
-	public ?string  $locale        = null;
+	public ?string  $mainPath         = null;
+	public ?string  $rootNamespace    = null;
+	public ?string  $prefixEnv        = null;
+	public ?Request $request          = null;
+	public ?string  $locale           = null;
+	public ?array   $customProperties = [];
 
-	public ?Funcs $funcs = null;
+	public ?Funcs   $funcs            = null;
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $customProperties = []) {
 		$this->locale = get_locale();
 		if (!$this->request) $this->request = Request::createFromGlobals();
 		$this->beforeConstruct();
@@ -23,6 +24,7 @@ abstract class BaseInstances {
 		if ($mainPath) $this->mainPath = $mainPath;
 		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
 		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
+		if (!empty($customProperties)) $this->customProperties = $customProperties;
 		$this->prepareFuncs();
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();
