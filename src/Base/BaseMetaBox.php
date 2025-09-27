@@ -29,7 +29,7 @@ abstract class BaseMetaBox extends BaseInstances {
 	 *
 	 */
 
-	public function init(string $post_type = null, \WP_Post $post = null): void {
+	public function init(?string $post_type = null, ?\WP_Post $post = null): void {
 		if ($this->id) {
 			add_meta_box(
 				$this->id,

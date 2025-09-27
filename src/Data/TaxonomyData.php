@@ -71,7 +71,7 @@ class TaxonomyData extends BaseData {
 	public mixed $taxonomyInstance;
 	public mixed $previousArgs;
 
-	public function __construct(BaseTaxonomy $taxonomyInstance = null, $previousArgs = null) {
+	public function __construct(?BaseTaxonomy $taxonomyInstance = null, $previousArgs = null) {
 		$this->taxonomyInstance = $taxonomyInstance;
 		$this->previousArgs     = $previousArgs;
 		$this->prepareCustomVariables();

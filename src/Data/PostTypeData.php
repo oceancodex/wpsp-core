@@ -92,7 +92,7 @@ class PostTypeData extends BaseData {
 	public mixed $postTypeInstance;
 	public mixed $previousArgs;
 
-	public function __construct(BasePostType $postTypeInstance = null, $previousArgs = null) {
+	public function __construct(?BasePostType $postTypeInstance = null, $previousArgs = null) {
 		$this->postTypeInstance = $postTypeInstance;
 		$this->previousArgs     = $previousArgs;
 		$this->prepareCustomVariables();
