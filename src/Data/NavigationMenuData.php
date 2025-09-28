@@ -33,7 +33,7 @@ class NavigationMenuData extends BaseData {
 	// Custom properties.
 //	public mixed $navigationMenuInstance;
 
-	public function __construct(BaseNavigationMenu $navigationMenuInstance = null) {
+	public function __construct(BaseNavigationMenu $navigationMenuInstance) {
 //		$this->navigationMenuInstance = $navigationMenuInstance;
 //		$this->prepareCustomVariables();
 		$this->prepareArgs();
