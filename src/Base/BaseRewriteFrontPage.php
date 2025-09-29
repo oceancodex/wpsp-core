@@ -48,7 +48,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 
 			// Fix "404" for custom permalinks.
 			add_action('parse_request', function($wp) use ($path, $stringMatches) {
-				if (preg_match('/' . $path . '/iu', $wp->request)) {
+				if (preg_match('/' . $path . '/iu', $this->request->getUri())) {
 					$stringMatches = ltrim($stringMatches, '&');
 					parse_str($stringMatches, $stringMatchesArr);
 
@@ -64,7 +64,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 						$wp->query_vars[$stringMatchesArrKey] = $stringMatchesArrValue;
 					}
 				}
-			}, 9999);
+			}, 10);
 
 			if (!is_admin()) {
 				// Access URL that match rewrite rule.
