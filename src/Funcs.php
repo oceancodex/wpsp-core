@@ -86,8 +86,8 @@ class Funcs {
 		return $this->_getMainPath() . '/main.php';
 	}
 
-	public function _getAppPath(): string {
-		return $this->_getMainPath() . '/app';
+	public function _getAppPath($path = null): string {
+		return $this->_getMainPath() . '/app' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
 	public function _getControllerPath(): string {
