@@ -65,7 +65,8 @@ trait ApisRouteTrait {
 			'permission_callback' => function (\WP_REST_Request $request) use ($middlewares) {
 				return $this->isPassedMiddleware($middlewares, $request);
 			},
-		]);
+		],
+		true);
 	}
 
 }
