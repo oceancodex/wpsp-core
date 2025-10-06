@@ -369,7 +369,7 @@ class Funcs extends BaseInstances {
 		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
 	}
 
-	public function _view($viewName, $data = [], $mergeData = []) {
+	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
 		try {
 			if (!Blade::$BLADE) {
 				$views        = $this->_getResourcesPath('/views');
@@ -378,15 +378,26 @@ class Funcs extends BaseInstances {
 			}
 			$shareVariables = [];
 			$shareClass     = '\\' . $this->_getRootNamespace() . '\\app\\View\\Share';
-			$shareVariables = array_merge($shareVariables, (new $shareClass())->variables());
+			$shareVariables = array_merge($shareVariables, $shareClass::instance()->variables());
 			global $notice;
 			$shareVariables = array_merge($shareVariables, ['notice' => $notice]);
 			Blade::$BLADE->view()->share($shareVariables);
+			if (!$viewName && $instance) {
+				return Blade::$BLADE->view();
+			}
 			return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
 		}
 		catch (\Exception|\Throwable $e) {
 			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
 		}
+	}
+
+	public function _viewInstance() {
+		return $this->_view(null, [], [], true);
+	}
+
+	public function _viewInject($views, $callback) {
+		return $this->_viewInstance()->composer($views, $callback);
 	}
 
 	public function _trans($string, $wordpress = false) {
