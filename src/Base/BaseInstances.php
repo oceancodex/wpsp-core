@@ -17,7 +17,7 @@ abstract class BaseInstances {
 	public ?Funcs   $funcs            = null;
 
 	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $customProperties = []) {
-		$this->locale = get_locale();
+		$this->locale = function_exists('get_locale') ? get_locale() : 'en';
 		if (!$this->request) $this->request = Request::createFromGlobals();
 		$this->beforeConstruct();
 		$this->beforeInstanceConstruct();
