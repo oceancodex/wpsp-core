@@ -19,7 +19,7 @@ abstract class HttpFoundation {
 	 */
 
 	public function wantJson(): bool {
-		return $this->request->headers['Accept'] === 'application/json';
+		return $this->request->headers->get('Accept') === 'application/json';
 	}
 
 }
