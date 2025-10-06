@@ -4,24 +4,25 @@ namespace WPSPCORE;
 
 use Carbon\Carbon;
 use NumberFormatter;
+use WPSPCORE\Base\BaseInstances;
 use WPSPCORE\Database\Eloquent;
 use WPSPCORE\Environment\Environment;
 use WPSPCORE\Finder\Finder;
 use WPSPCORE\Migration\Migration;
 use WPSPCORE\View\Blade;
 
-class Funcs {
+class Funcs extends BaseInstances {
 
 	public ?string $mainPath      = null;
 	public ?string $rootNamespace = null;
 	public ?string $prefixEnv     = null;
 
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
-		if ($mainPath) $this->mainPath = $mainPath;
-		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
-		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
-	}
+//	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
+//		if ($mainPath) $this->mainPath = $mainPath;
+//		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
+//		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
+//	}
 
 	/*
 	 *
@@ -42,6 +43,17 @@ class Funcs {
 	/*
 	 *
 	 */
+
+	public function _getBearerToken(): ?string {
+		$token = $this->request->headers->get('Authorization');
+		if (!$token) {
+			return null;
+		}
+		if (preg_match('/Bearer\s+(.*?)$/iu', $token, $matches)) {
+			return trim($matches[1]);
+		}
+		return null;
+	}
 
 	public function _getAppShortName(): ?string {
 		return $this->_env('APP_SHORT_NAME', true);

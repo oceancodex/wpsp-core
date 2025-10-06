@@ -25,7 +25,7 @@ abstract class BaseInstances {
 		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
 		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
 		if (!empty($customProperties)) $this->customProperties = $customProperties;
-		$this->prepareFuncs();
+		if (!isset($customProperties['prepare_funcs'])) $this->prepareFuncs();
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();
 	}
@@ -38,7 +38,10 @@ abstract class BaseInstances {
 		$this->funcs = new Funcs(
 			$this->mainPath,
 			$this->rootNamespace,
-			$this->prefixEnv
+			$this->prefixEnv,
+			[
+				'prepare_funcs' => false
+			]
 		);
 	}
 
