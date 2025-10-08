@@ -34,6 +34,14 @@ abstract class BaseInstances {
 	 *
 	 */
 
+	public function wantJson(): bool {
+		return $this->request->headers->get('Accept') === 'application/json';
+	}
+
+	/*
+	 *
+	 */
+
 	protected function prepareFuncs(): void {
 		$this->funcs = new Funcs(
 			$this->mainPath,
