@@ -310,6 +310,56 @@ class Funcs extends BaseInstances {
 		return rtrim($path, '/\\');
 	}
 
+	public function _normalizeDateTime($value): \DateTimeInterface {
+		$tz      = wp_timezone();
+		$now     = new \DateTimeImmutable('now', $tz);
+		$default = $now;
+
+		if (empty($value)) {
+			return $default;
+		}
+
+		if ($value instanceof \DateTimeInterface) {
+			return $value;
+		}
+
+		if (is_numeric($value)) {
+			try {
+				return (new \DateTimeImmutable('@' . (int)$value))->setTimezone($tz);
+			}
+			catch (\Exception) {
+				return $default;
+			}
+		}
+
+		// Nếu là chuỗi định dạng ngày hợp lệ
+		try {
+			$parsed = new \DateTimeImmutable($value, $tz);
+			if ($parsed >= $now) {
+				return $parsed;
+			}
+		}
+		catch (\Exception) {
+			// bỏ qua
+		}
+
+		// Nếu là chuỗi kiểu “1 year”, “6 months”, “2 weeks”...
+		try {
+			$interval = date_interval_create_from_date_string($value);
+			if ($interval instanceof \DateInterval) {
+				$future = $now->add($interval);
+				if ($future >= $now) {
+					return $future;
+				}
+			}
+		}
+		catch (\Exception) {
+			// không parse được
+		}
+
+		return $default;
+	}
+
 	public function _numberFormat($value, $precision = 0, $endWithZeros = true, $locale = 'vi', $currencyCode = 'vnd', $style = NumberFormatter::DECIMAL, $groupingUsed = true) {
 		try {
 			if (!$value) return null;
