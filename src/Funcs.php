@@ -415,15 +415,6 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _auth($guard = null) {
-		if (class_exists('\WPSPCORE\Auth\Auth')) {
-			return \WPSPCORE\Auth\Auth::instance($this->mainPath, $this->rootNamespace, $this->prefixEnv)->guard($guard);
-		}
-		else {
-			return null;
-		}
-	}
-
 	public function _asset($path, $secure = null): string {
 		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
 	}
