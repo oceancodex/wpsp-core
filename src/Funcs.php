@@ -36,7 +36,7 @@ class Funcs extends BaseInstances {
 		return $this->rootNamespace;
 	}
 
-	public function _getPrefixEnv() {
+	public function _getPrefixEnv(): ?string {
 		return $this->prefixEnv;
 	}
 
@@ -415,6 +415,15 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
+	public function _auth($guard = null) {
+		if (class_exists('\WPSPCORE\Auth\Auth')) {
+			return \WPSPCORE\Auth\Auth::instance($this->mainPath, $this->rootNamespace, $this->prefixEnv)->guard($guard);
+		}
+		else {
+			return null;
+		}
+	}
+
 	public function _asset($path, $secure = null): string {
 		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
 	}
@@ -424,7 +433,16 @@ class Funcs extends BaseInstances {
 			if (!Blade::$BLADE) {
 				$views        = $this->_getResourcesPath('/views');
 				$cache        = $this->_getStoragePath('/framework/views');
-				Blade::$BLADE = new Blade([$views], $cache);
+				Blade::$BLADE = new Blade(
+					$this->_getMainPath(),
+					$this->_getRootNamespace(),
+					$this->_getPrefixEnv(),
+					[
+						'funcs' => $this,
+					],
+					[$views],
+					$cache
+				);
 			}
 			$shareVariables = [];
 			$shareClass     = '\\' . $this->_getRootNamespace() . '\\app\\View\\Share';
