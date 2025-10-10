@@ -43,14 +43,15 @@ abstract class BaseInstances {
 	 */
 
 	protected function prepareFuncs(): void {
-		$this->funcs = new Funcs(
-			$this->mainPath,
-			$this->rootNamespace,
-			$this->prefixEnv,
-			[
-				'prepare_funcs' => false
-			]
-		);
+//		$this->funcs = new Funcs(
+////			$this->mainPath,
+////			$this->rootNamespace,
+////			$this->prefixEnv,
+////			[
+////				'prepare_funcs' => false
+////			]
+////		);
+		$this->funcs = Funcs::getInstance();
 	}
 
 	/*
