@@ -8,10 +8,10 @@ abstract class BaseNavigationLocation extends BaseInstances {
 
 	use ObjectPropertiesToArrayTrait;
 
-	public ?string $location          = null;
-	public ?string $description       = null;
-	public mixed   $callback_function = null;
-	public mixed   $custom_properties = null;
+	public $location          = null;
+	public $description       = null;
+	public $callback_function = null;
+	public $custom_properties = null;
 
 	/*
 	 *
@@ -29,7 +29,7 @@ abstract class BaseNavigationLocation extends BaseInstances {
 	 *
 	 */
 
-	public function init($location = null): void {
+	public function init($location = null) {
 		if ($this->location) {
 			register_nav_menu($this->location, $this->description);
 		}
@@ -44,7 +44,7 @@ abstract class BaseNavigationLocation extends BaseInstances {
 	 *
 	 */
 
-	public function overrideLocation($location = null): void {
+	public function overrideLocation($location = null) {
 		if ($location && !$this->location) {
 			$this->location = $location;
 		}
