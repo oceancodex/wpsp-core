@@ -19,7 +19,7 @@ abstract class BaseTemplates extends BaseInstances {
 	 *
 	 */
 
-	public function init($name = null): void {
+	public function init($name = null) {
 		if ($this->name) {
 			add_filter('theme_page_templates', function($templates) {
 				$name = $this->name;
@@ -45,7 +45,7 @@ abstract class BaseTemplates extends BaseInstances {
 	 *
 	 */
 
-	private function templateInclude(): void {
+	private function templateInclude() {
 		if ($this->mainPath) {
 			add_filter('template_include', function($template) {
 				global $post;

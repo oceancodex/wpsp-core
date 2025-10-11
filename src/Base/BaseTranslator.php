@@ -4,14 +4,14 @@ namespace WPSPCORE\Base;
 
 abstract class BaseTranslator extends BaseInstances {
 
-	public ?string $textDomain = null;
-	public ?string $relPath    = null;
+	public $textDomain = null;
+	public $relPath    = null;
 
 	/*
 	 *
 	 */
 
-	public function prepare(): ?self {
+	public function prepare() {
 		$loaded = load_plugin_textdomain(
 			$this->textDomain ?? $this->funcs->_getTextDomain(),
 			false,
@@ -24,7 +24,7 @@ abstract class BaseTranslator extends BaseInstances {
 	 *
 	 */
 
-	public function global(): void {
+	public function global() {
 		$globalTranslator = $this->funcs->_getAppShortName();
 		$globalTranslator = $globalTranslator . '_translator';
 		global ${$globalTranslator};

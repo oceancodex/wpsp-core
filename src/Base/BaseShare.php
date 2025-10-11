@@ -2,6 +2,8 @@
 
 namespace WPSPCORE\Base;
 
-abstract class BaseShare {
-	abstract public function variables(): array;
+abstract class BaseShare extends BaseInstances {
+
+	abstract public function variables();
+
 }

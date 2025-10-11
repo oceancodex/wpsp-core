@@ -28,7 +28,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 *
 	 */
 
-	public function init($path = null): void {
+	public function init($path = null) {
 		$path = $this->path ?? $path;
 		if ($path) {
 			// Prepare string matches.
@@ -48,13 +48,16 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 
 			// Fix "404" for custom permalinks.
 			add_action('parse_request', function($wp) use ($path, $stringMatches) {
-				if (preg_match('/' . $path . '/iu', $wp->request)) {
+				if (preg_match('/' . $path . '/iu', $this->request->getUri())) {
 					$stringMatches = ltrim($stringMatches, '&');
 					parse_str($stringMatches, $stringMatchesArr);
 
 					unset($wp->query_vars['attachment']);
+					unset($wp->query_vars['page']);
+					unset($wp->query_vars['name']);
 
 					$wp->query_vars['is_rewrite'] = true;
+//					$wp->query_vars['page']   = $this->rewriteFrontPageSlug;
 					$wp->query_vars['pagename']   = $this->rewriteFrontPageSlug;
 					$wp->query_vars['post_type']  = $this->rewriteFrontPagePostType;
 
@@ -62,7 +65,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 						$wp->query_vars[$stringMatchesArrKey] = $stringMatchesArrValue;
 					}
 				}
-			}, 9999);
+			}, 10);
 
 			if (!is_admin()) {
 				// Access URL that match rewrite rule.
@@ -81,7 +84,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 *
 	 */
 
-	private function overridePath($path = null): void {
+	private function overridePath($path = null) {
 		if ($path && !$this->path) {
 			$this->path = $path;
 		}
@@ -99,7 +102,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 *
 	 */
 
-	public function maybeNoTemplate(): void {
+	public function maybeNoTemplate() {
 		if (!$this->useTemplate) {
 			add_filter('template_include', function($template) {
 				return $this->funcs->_getResourcesPath('/views/modules/rewrite-front-pages/layout/base.blade.php');

@@ -33,13 +33,13 @@ class NavigationMenuData extends BaseData {
 	// Custom properties.
 //	public $navigationMenuInstance;
 
-	public function __construct(BaseNavigationMenu $navigationMenuInstance = null) {
+	public function __construct($navigationMenuInstance) {
 //		$this->navigationMenuInstance = $navigationMenuInstance;
 //		$this->prepareCustomVariables();
 		$this->prepareArgs();
 	}
 
-	private function prepareArgs(): void {
+	private function prepareArgs() {
 //		$this->menu                 = '';
 		$this->menu_class           = 'menu';
 //		$this->menu_id              = '';
@@ -60,7 +60,7 @@ class NavigationMenuData extends BaseData {
 //		$this->item_spacing         = '';
 	}
 
-//	private function prepareCustomVariables(): void {
+//	private function prepareCustomVariables() {
 //		unset($this->navigationMenuInstance);
 //	}
 

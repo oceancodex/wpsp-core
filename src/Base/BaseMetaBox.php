@@ -19,7 +19,7 @@ abstract class BaseMetaBox extends BaseInstances {
 
 	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $id = null, $callback_function = null, $custom_properties = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->id = $id;
+		$this->id                = $id;
 		$this->callback_function = $callback_function;
 		$this->custom_properties = $custom_properties;
 		$this->customProperties();
@@ -29,7 +29,7 @@ abstract class BaseMetaBox extends BaseInstances {
 	 *
 	 */
 
-	public function init(string $post_type = null, \WP_Post $post = null): void {
+	public function init($post_type = null, $post = null) {
 		if ($this->id) {
 			add_meta_box(
 				$this->id,

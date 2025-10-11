@@ -33,7 +33,7 @@ abstract class BaseTaxonomy extends BaseInstances {
 	 *
 	 */
 
-	public function init($taxonomy = null): void {
+	public function init($taxonomy = null) {
 		$taxonomy = $this->taxonomy ?? $taxonomy;
 		if ($taxonomy) {
 			register_taxonomy($taxonomy, $this->object_type, $this->args);
@@ -44,13 +44,13 @@ abstract class BaseTaxonomy extends BaseInstances {
 	 *
 	 */
 
-	protected function overrideTaxonomy($taxonomy = null): void {
+	protected function overrideTaxonomy($taxonomy = null) {
 		if ($taxonomy && !$this->taxonomy) {
 			$this->taxonomy = $taxonomy;
 		}
 	}
 
-	protected function prepareArguments($args = null): void {
+	protected function prepareArguments($args = null) {
 		$this->args = new TaxonomyData($this, $args);
 		foreach ($this->toArray() as $key => $value) {
 			if (property_exists($this->args, $key)) {

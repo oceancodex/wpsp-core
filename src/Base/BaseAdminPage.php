@@ -29,7 +29,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	public function overrideMenuSlug($menu_slug = null): void {
+	public function overrideMenuSlug($menu_slug = null) {
 		if ($menu_slug && !$this->menu_slug) {
 			$this->menu_slug = $menu_slug;
 		}
@@ -39,7 +39,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	public function init($path = null): void {
+	public function init($path = null) {
 		$this->beforeInit();
 		$this->addAdminMenuPage();
 		$this->saveScreenOptions();
@@ -63,7 +63,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	private function addMenuPage(): string {
+	private function addMenuPage() {
 		$callback = $this->callback_function ? [$this, $this->callback_function] : null;
 		return add_menu_page(
 			$this->page_title,
@@ -76,7 +76,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		);
 	}
 
-	private function addSubMenuPage(): string {
+	private function addSubMenuPage() {
 		$callback = $this->callback_function ? [$this, $this->callback_function] : null;
 		return add_submenu_page(
 			$this->parent_slug,
@@ -88,7 +88,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		);
 	}
 
-	private function addAdminMenuPage(): void {
+	private function addAdminMenuPage() {
 		add_action('admin_menu', function() {
 			$adminPage = $this->is_submenu_page ? $this->addSubMenuPage() : $this->addMenuPage();
 			add_action('load-' . $adminPage, function() use ($adminPage) {
@@ -112,7 +112,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		$this->afterAddAdminMenuPage();
 	}
 
-	private function highlightCurrentMenu(): void {
+	private function highlightCurrentMenu() {
 		$currentRequest = $this->request->getRequestUri();
 		if (preg_match('/' . preg_quote($this->menu_slug, '/') . '$|' . preg_quote($this->menu_slug, '/') . '&updated=true$/', $currentRequest)) {
 			add_filter('submenu_file', function($submenu_file) {
@@ -135,7 +135,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		}
 	}
 
-	private function saveScreenOptions(): void {
+	private function saveScreenOptions() {
 		$itemsPerPageKey = 'set_screen_option_' . $this->funcs->_env('APP_SHORT_NAME', true) . '_' . $this->menu_slug . '_items_per_page';
 		add_filter($itemsPerPageKey, function($default, $option, $value) {
 			return $value;
@@ -146,13 +146,13 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	public function assets(): void {
+	public function assets() {
 		$this->styles();
 		$this->scripts();
 		$this->localizeScripts();
 	}
 
-	public function screenOptions($adminPage): void {
+	public function screenOptions($adminPage) {
 		$screen = get_current_screen();
 		if (!is_object($screen) || $screen->id != $adminPage) return;
 		$args = [
@@ -180,68 +180,68 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	public function setMenutitle($menu_title): void {
+	public function setMenutitle($menu_title) {
 		$this->menu_title = $menu_title;
 	}
 
-	public function setPageTitle($page_title): void {
+	public function setPageTitle($page_title) {
 		$this->page_title = $page_title;
 	}
 
-	public function setCapability($capability): void {
+	public function setCapability($capability) {
 		$this->capability = $capability;
 	}
 
-	public function setMenuSlug($menu_slug): BaseAdminPage {
+	public function setMenuSlug($menu_slug) {
 		$this->menu_slug = $menu_slug;
 		return $this;
 	}
 
-	public function setIconUrl($icon_url): void {
+	public function setIconUrl($icon_url) {
 		$this->icon_url = $icon_url;
 	}
 
-	public function setPosition($position): void {
+	public function setPosition($position) {
 		$this->position = $position;
 	}
 
-	public function setIsSubAdminPage($is_submenu_page): void {
+	public function setIsSubAdminPage($is_submenu_page) {
 		$this->is_submenu_page = $is_submenu_page;
 	}
 
-	public function setParentSlug($parent_slug): void {
+	public function setParentSlug($parent_slug) {
 		$this->parent_slug = $parent_slug;
 	}
 
-	public function getMenuTitle(): string {
+	public function getMenuTitle() {
 		return $this->menu_title;
 	}
 
-	public function getPageTitle(): string {
+	public function getPageTitle() {
 		return $this->page_title;
 	}
 
-	public function getCapability(): string {
+	public function getCapability() {
 		return $this->capability;
 	}
 
-	public function getMenuSlug(): string {
+	public function getMenuSlug() {
 		return $this->menu_slug;
 	}
 
-	public function getIconUrl(): string {
+	public function getIconUrl() {
 		return $this->icon_url;
 	}
 
-	public function getPosition(): int {
+	public function getPosition() {
 		return $this->position;
 	}
 
-	public function getIsSubAdminPage(): bool {
+	public function getIsSubAdminPage() {
 		return $this->is_submenu_page;
 	}
 
-	public function getParentSlug(): ?string {
+	public function getParentSlug() {
 		return $this->parent_slug;
 	}
 

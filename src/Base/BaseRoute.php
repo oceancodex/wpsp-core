@@ -3,7 +3,7 @@ namespace WPSPCORE\Base;
 
 abstract class BaseRoute extends BaseInstances {
 
-	public ?array $initClasses = null;
+	public $initClasses = null;
 
 	/*
 	 *
@@ -38,7 +38,7 @@ abstract class BaseRoute extends BaseInstances {
 				$class = $this->getInitClass($callback[0], $useInitClass, $customProperties);
 			}
 			else {
-				$class = new $callback[0](...array_values($customProperties ?? []));
+				$class = new $callback[0](...$customProperties ?? []);
 			}
 			return [$class, $callback[1]];
 		}
@@ -55,7 +55,7 @@ abstract class BaseRoute extends BaseInstances {
 			$class = $this->getInitClass($callback[0], $useInitClass, $customProperties);
 		}
 		else {
-			$class = $callback[0](...array_values($customProperties ?? []));
+			$class = new $callback[0](...$customProperties ?? []);
 		}
 		return $class;
 	}
@@ -64,24 +64,24 @@ abstract class BaseRoute extends BaseInstances {
 	 *
 	 */
 
-	private function getInitClasses(): ?array {
+	private function getInitClasses() {
 		return $this->initClasses;
 	}
 
-	private function setInitClasses($initClasses): void {
+	private function setInitClasses($initClasses) {
 		$this->initClasses = $initClasses;
 	}
 
 	private function getInitClass($className, $addInitClass = false, $customProperties = []) {
 		$initClass = $this->getInitClasses()[$className] ?? null;
 		if (!$initClass) {
-			$initClass = new $className(...array_values($customProperties ?? []));
+			$initClass = new $className(...$customProperties ?? []);
 			if ($addInitClass) $this->addInitClass($className, $initClass);
 		}
 		return $initClass;
 	}
 
-	private function addInitClass($className, $classInstance): void {
+	private function addInitClass($className, $classInstance) {
 		$initClasses             = $this->getInitClasses();
 		$initClasses[$className] = $classInstance;
 		$this->setInitClasses($initClasses);

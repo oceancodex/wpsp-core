@@ -71,7 +71,7 @@ class TaxonomyData extends BaseData {
 	public $taxonomyInstance;
 	public $previousArgs;
 
-	public function __construct(BaseTaxonomy $taxonomyInstance = null, $previousArgs = null) {
+	public function __construct($taxonomyInstance = null, $previousArgs = null) {
 		$this->taxonomyInstance = $taxonomyInstance;
 		$this->previousArgs     = $previousArgs;
 		$this->prepareCustomVariables();
@@ -79,7 +79,7 @@ class TaxonomyData extends BaseData {
 		$this->prepareLabels();
 	}
 
-	public function prepareArgs(): void {
+	public function prepareArgs() {
 		$this->labels                = [];
 		$this->description           = '';
 		$this->public                = true;
@@ -107,7 +107,7 @@ class TaxonomyData extends BaseData {
 //		$this->_builtin              = true;
 	}
 
-	public function prepareLabels(): void {
+	public function prepareLabels() {
 		$this->labels['name']                       = $this->preparedName;
 		$this->labels['singular_name']              = $this->preparedName;
 		$this->labels['search_items']               = 'Search ' . $this->preparedName;
@@ -142,7 +142,7 @@ class TaxonomyData extends BaseData {
 		}
 	}
 
-	public function prepareCustomVariables(): void {
+	public function prepareCustomVariables() {
 		$this->preparedName = $this->previousArgs->labels['name']
 			?? $this->previousArgs->labels['singular_name']
 			?? $this->taxonomyInstance->args->labels['name']

@@ -6,13 +6,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 trait HttpRequestTrait {
 
-	public static ?Request $request = null;
+	/** @var Request|null */
+	public static $request = null;
 
 	/*
 	 * 
 	 */
 
-	public static function request(): ?Request {
+	public static function request() {
 		if (!self::$request) {
 			self::$request = Request::createFromGlobals();
 		}

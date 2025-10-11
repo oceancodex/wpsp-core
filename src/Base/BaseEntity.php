@@ -1,51 +1,44 @@
 <?php
 namespace WPSPCORE\Base;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 abstract class BaseEntity {
 
-	/**
-	 * @ORM\Column(name="created_at", type="datetime", nullable=true)
-	 */
+	#[ORM\Column(name: 'created_at', type: 'datetime', nullable: true)]
 	protected $createdAt;
 
-	/**
-	 * @ORM\Column(name="updated_at", type="datetime", nullable=true)
-	 */
+	#[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
 	protected $updatedAt;
 
-	/**
-	 * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
-	 */
+	#[ORM\Column(name: 'deleted_at', type: 'datetime', nullable: true)]
 	protected $deletedAt;
 
 	/*
 	 *
 	 */
 
-	public function setCreatedAt(DateTime $createdAt): void {
+	public function setCreatedAt($createdAt) {
 		$this->createdAt = $createdAt;
 	}
 
-	public function getCreatedAt(): DateTime {
+	public function getCreatedAt() {
 		return $this->createdAt;
 	}
 
-	public function setUpdatedAt(DateTime $updatedAt): void {
+	public function setUpdatedAt($updatedAt) {
 		$this->updatedAt = $updatedAt;
 	}
 
-	public function getUpdatedAt(): DateTime {
+	public function getUpdatedAt() {
 		return $this->updatedAt;
 	}
 
-	public function setDeletedAt($deletedAt): void {
+	public function setDeletedAt($deletedAt) {
 		$this->deletedAt = $deletedAt;
 	}
 
-	public function getDeletedAt(): DateTime {
+	public function getDeletedAt() {
 		return $this->deletedAt;
 	}
 
