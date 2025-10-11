@@ -8,12 +8,12 @@ abstract class BaseRole extends BaseInstances {
 
 	use ObjectPropertiesToArrayTrait;
 
-	public mixed $role              = null;
-	public mixed $callback_function = null;
-	public mixed $custom_properties = null;
+	public $role              = null;
+	public $callback_function = null;
+	public $custom_properties = null;
 
-	public mixed $display_name      = null;
-	public mixed $capabilities      = [];
+	public $display_name      = null;
+	public $capabilities      = [];
 
 	/*
 	 *
@@ -31,7 +31,7 @@ abstract class BaseRole extends BaseInstances {
 	 *
 	 */
 
-	public function init($role = null): void {
+	public function init($role = null) {
 		$role = $this->role ?? $role;
 		if ($role) {
 			$role = add_role(
@@ -51,7 +51,7 @@ abstract class BaseRole extends BaseInstances {
 	 *
 	 */
 
-	protected function overrideRole($role = null): void {
+	protected function overrideRole($role = null) {
 		if ($role && !$this->role) {
 			$this->role = $role;
 		}

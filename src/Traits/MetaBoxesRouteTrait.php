@@ -6,7 +6,7 @@ trait MetaBoxesRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
-	public function init(): void {
+	public function init() {
 		$this->meta_boxes();
 		$this->hooks();
 	}
@@ -21,7 +21,7 @@ trait MetaBoxesRouteTrait {
 	 *
 	 */
 
-	public function meta_box($id, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
+	public function meta_box($id, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$customProperties = array_merge([$id, $callback[1]], ['custom_properties' => $customProperties ?? []]);
 			$customProperties = array_merge([

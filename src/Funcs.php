@@ -15,9 +15,9 @@ class Funcs extends BaseInstances {
 
 	private static $coreFuncsInstance = null;
 
-	public ?string $mainPath      = null;
-	public ?string $rootNamespace = null;
-	public ?string $prefixEnv     = null;
+	public $mainPath      = null;
+	public $rootNamespace = null;
+	public $prefixEnv     = null;
 
 
 //	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
@@ -37,15 +37,15 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _getMainPath($path = null): string {
+	public function _getMainPath($path = null) {
 		return rtrim($this->mainPath, '/\\') . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getRootNamespace(): ?string {
+	public function _getRootNamespace() {
 		return $this->rootNamespace;
 	}
 
-	public function _getPrefixEnv(): ?string {
+	public function _getPrefixEnv() {
 		return $this->prefixEnv;
 	}
 
@@ -53,7 +53,7 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _getBearerToken(): ?string {
+	public function _getBearerToken() {
 		$token = $this->request->headers->get('Authorization');
 		if (!$token) {
 			return null;
@@ -64,14 +64,14 @@ class Funcs extends BaseInstances {
 		return null;
 	}
 
-	public function _getAppShortName(): ?string {
+	public function _getAppShortName() {
 		return $this->_env('APP_SHORT_NAME', true);
 	}
 
 	/**
 	 * @return Eloquent
 	 */
-	public function _getAppEloquent(): Eloquent {
+	public function _getAppEloquent() {
 		$globalEloquent = $this->_getAppShortName() . '_eloquent';
 		global ${$globalEloquent};
 		return ${$globalEloquent};
@@ -80,17 +80,17 @@ class Funcs extends BaseInstances {
 	/**
 	 * @return Migration
 	 */
-	public function _getAppMigration(): ?Migration {
+	public function _getAppMigration() {
 		$globalMigration = $this->_getAppShortName() . '_migration';
 		global ${$globalMigration};
 		return ${$globalMigration};
 	}
 
-	public function _getMainBaseName(): string {
+	public function _getMainBaseName() {
 		return basename($this->_getMainPath());
 	}
 
-	public function _getSitePath(): string {
+	public function _getSitePath() {
 		if (defined('WP_CONTENT_DIR')) {
 			$path = WP_CONTENT_DIR;
 			$path = preg_replace('/wp-content$/iu', '', $path);
@@ -103,73 +103,73 @@ class Funcs extends BaseInstances {
 		return $path;
 	}
 
-	public function _getMainFilePath(): string {
+	public function _getMainFilePath() {
 		return $this->_getMainPath() . '/main.php';
 	}
 
-	public function _getAppPath($path = null): string {
+	public function _getAppPath($path = null) {
 		return $this->_getMainPath() . '/app' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getControllerPath(): string {
+	public function _getControllerPath() {
 		return $this->_getAppPath() . '/Http/Controllers';
 	}
 
-	public function _getConfigPath(): string {
+	public function _getConfigPath() {
 		return $this->_getMainPath() . '/config';
 	}
 
-	public function _getRoutesPath(): string {
+	public function _getRoutesPath() {
 		return $this->_getMainPath() . '/routes';
 	}
 
-	public function _getResourcesPath($path = null): string {
+	public function _getResourcesPath($path = null) {
 		return $this->_getMainPath() . '/resources' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getStoragePath($path = null): string {
+	public function _getStoragePath($path = null) {
 		return $this->_getMainPath() . '/storage' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getDatabasePath(): string {
+	public function _getDatabasePath() {
 		return $this->_getMainPath() . '/database';
 	}
 
-	public function _getMigrationPath(): string {
+	public function _getMigrationPath() {
 		return $this->_getDatabasePath() . '/migrations';
 	}
 
-	public function _getMainUrl(): string {
+	public function _getMainUrl() {
 		if (!function_exists('plugin_dir_url')) {
 			require($this->_getSitePath() . '/wp-admin/includes/plugin.php');
 		}
 		return rtrim(plugin_dir_url($this->_getMainFilePath()), '/\\');
 	}
 
-	public function _getPublicUrl(): string {
+	public function _getPublicUrl() {
 		return $this->_getMainUrl() . '/public';
 	}
 
-	public function _getPublicPath($path = null): string {
+	public function _getPublicPath($path = null) {
 		return $this->_getMainPath() . '/public' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getPluginData(): array {
+	public function _getPluginData() {
 		if (!function_exists('get_plugin_data')) {
 			require($this->_getSitePath() . '/wp-admin/includes/plugin.php');
 		}
 		return get_plugin_data($this->_getMainFilePath());
 	}
 
-	public function _getVersion(): string {
+	public function _getVersion() {
 		return $this->_getPluginData()['Version'];
 	}
 
-	public function _getTextDomain(): string {
+	public function _getTextDomain() {
 		return $this->_getPluginData()['TextDomain'];
 	}
 
-	public function _getRequiresPhp(): string {
+	public function _getRequiresPhp() {
 		return $this->_getPluginData()['RequiresPHP'];
 	}
 
@@ -177,7 +177,7 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _getAllFilesInFolder(string $path): array {
+	public function _getAllFilesInFolder($path) {
 		$finder = new Finder();
 		$finder->files()->in($path);
 		foreach ($finder as $file) {
@@ -190,7 +190,7 @@ class Funcs extends BaseInstances {
 		return $files ?? [];
 	}
 
-	public function _getDBTablePrefix($withWpdbPrefix = true): string {
+	public function _getDBTablePrefix($withWpdbPrefix = true) {
 		if ($withWpdbPrefix) {
 			global $wpdb;
 			return ($wpdb->prefix ?? 'wp_') . $this->_env('DB_TABLE_PREFIX', true);
@@ -200,15 +200,15 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _getDBCustomMigrationTablePrefix(): string {
+	public function _getDBCustomMigrationTablePrefix() {
 		return $this->_getDBTablePrefix() . 'cm_';
 	}
 
-	public function _getDBTableName($name): string {
+	public function _getDBTableName($name) {
 		return $this->_getDBTablePrefix() . $name;
 	}
 
-	public function _getDBCustomMigrationTableName($name): string {
+	public function _getDBCustomMigrationTableName($name) {
 		return $this->_getDBTablePrefix() . 'cm_' . $name;
 	}
 
@@ -216,7 +216,7 @@ class Funcs extends BaseInstances {
 		return preg_replace('/^(.*?)' . $targetDir . '(.*?)$/iu', $targetDir . '$2', $path);
 	}
 
-	public function _getAllClassesInDir(string $namespace = __NAMESPACE__, string $path = __DIR__): array {
+	public function _getAllClassesInDir($namespace = __NAMESPACE__, $path = __DIR__) {
 		$finder = new \Symfony\Component\Finder\Finder();
 		$finder->files()->in($path)->name('*.php');
 		foreach ($finder as $file) {
@@ -234,7 +234,7 @@ class Funcs extends BaseInstances {
 		return $classes ?? [];
 	}
 
-	public function _getArrItemByKeyDots(array $array, string $key) {
+	public function _getArrItemByKeyDots($array, $key) {
 		try {
 			$configs = new \Dflydev\DotAccessData\Data($array);
 			return $configs->get($key) ?? null;
@@ -244,7 +244,7 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _getArrItemByKeyValue(array $arr, $key, $value = null, $operator = 'equals', $single = true) {
+	public function _getArrItemByKeyValue($arr, $key, $value = null, $operator = 'equals', $single = true) {
 		try {
 			$result = [];
 			foreach ($arr as $item) {
@@ -291,7 +291,7 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _commentTokens(): array {
+	public function _commentTokens() {
 		$commentTokens = [T_COMMENT];
 
 		if (defined('T_DOC_COMMENT')) {
@@ -304,22 +304,22 @@ class Funcs extends BaseInstances {
 		return $commentTokens;
 	}
 
-	public function _trailingslash($path): string {
+	public function _trailingslash($path) {
 		return str_replace('\\', '/', $path);
 	}
 
-	public function _trailingslashit($path): string {
+	public function _trailingslashit($path) {
 		$path = str_replace('\\', '/', $path);
 		$path = rtrim($path, '/\\');
 		return $path . '/';
 	}
 
-	public function _untrailingslashit($path): string {
+	public function _untrailingslashit($path) {
 		$path = str_replace('\\', '/', $path);
 		return rtrim($path, '/\\');
 	}
 
-	public function _normalizeDateTime($value): \DateTimeInterface {
+	public function _normalizeDateTime($value) {
 		$tz      = wp_timezone();
 		$now     = new \DateTimeImmutable('now', $tz);
 		$default = $now;
@@ -334,7 +334,7 @@ class Funcs extends BaseInstances {
 
 		if (is_numeric($value)) {
 			try {
-				return (new \DateTimeImmutable('@' . (int)$value))->setTimezone($tz);
+				return (new \DateTimeImmutable('@' . $value))->setTimezone($tz);
 			}
 			catch (\Exception) {
 				return $default;
@@ -394,7 +394,7 @@ class Funcs extends BaseInstances {
 		return $value;
 	}
 
-	public function _dateDiffForHumans($dateString, $format = 'H:i:s - d/m/Y'): string {
+	public function _dateDiffForHumans($dateString, $format = 'H:i:s - d/m/Y') {
 		try {
 			return Carbon::createFromFormat($format, $dateString, wp_timezone_string())->locale(get_locale())->diffForHumans();
 		}
@@ -403,7 +403,7 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _prefixArrayKeys(array $array, ?string $prefix = null): array {
+	public function _prefixArrayKeys($array, $prefix = null) {
 		$results = [];
 		foreach ($array as $key => $value) {
 			$results[$prefix . $key] = $value;
@@ -411,7 +411,7 @@ class Funcs extends BaseInstances {
 		return $results;
 	}
 
-	public function _removePrefixArrayKeys(array $array, ?string $prefix = null): array {
+	public function _removePrefixArrayKeys($array, $prefix = null) {
 		$results = [];
 		foreach ($array as $key => $value) {
 			$key           = preg_replace('/' . $prefix . '/iu', '', $key);
@@ -424,7 +424,7 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _asset($path, $secure = null): string {
+	public function _asset($path, $secure = null) {
 		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
 	}
 
@@ -506,7 +506,7 @@ class Funcs extends BaseInstances {
 		return null;
 	}
 
-	public function _notice($message = '', $type = 'info', $echo = false, $wrap = false, $class = null, $dismiss = true): void {
+	public function _notice($message = '', $type = 'info', $echo = false, $wrap = false, $class = null, $dismiss = true) {
 		global $notice;
 		$notice = '<div class="notice ' . $class . ' notice-' . $type . ' is-dismissible"><p>' . $message . '</p></div>';
 		if ($wrap) {
@@ -515,11 +515,11 @@ class Funcs extends BaseInstances {
 		if ($echo) echo $notice;
 	}
 
-	public function _buildUrl($baseUrl = null, $args = []): string {
+	public function _buildUrl($baseUrl = null, $args = []) {
 		return add_query_arg($args ?? [], $baseUrl ?? '');
 	}
 
-	public function _nonceName($name = null): string {
+	public function _nonceName($name = null) {
 		return $this->_env('APP_SHORT_NAME', true) . ($name ? '_' . $name : '') . '_nonce';
 	}
 
@@ -527,11 +527,11 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _env($var, $addPrefix = false, $default = null): ?string {
+	public function _env($var, $addPrefix = false, $default = null) {
 		return Environment::get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
 	}
 
-	public function _debug($message = '', $print = false, bool $varDump = false): void {
+	public function _debug($message = '', $print = false, $varDump = false) {
 
 		// If "var_dump" mode is OFF.
 		if ($varDump) {
@@ -563,7 +563,7 @@ class Funcs extends BaseInstances {
 
 	}
 
-	public function _locale(): string {
+	public function _locale() {
 		if (function_exists('get_locale')) {
 			return get_locale();
 		}
@@ -572,7 +572,7 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _response($success = false, $data = [], $message = '', $code = 204): array {
+	public function _response($success = false, $data = [], $message = '', $code = 204) {
 		return [
 			'success' => $success,
 			'message' => $message,

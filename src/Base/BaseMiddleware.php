@@ -2,11 +2,11 @@
 
 namespace WPSPCORE\Base;
 
-use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
-use WP_REST_Request;
-
 abstract class BaseMiddleware extends BaseInstances {
 
-	abstract public function handle(HttpFoundationRequest|WP_REST_Request $request): bool;
+	/**
+	 * @var $request \Symfony\Component\HttpFoundation\Request|\WP_REST_Request
+	 */
+	abstract public function handle($request);
 
 }

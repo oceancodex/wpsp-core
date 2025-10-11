@@ -7,92 +7,92 @@ use WPSPCORE\Base\BasePostType;
 
 class PostTypeData extends BaseData {
 
-	public mixed $post_type;
+	public $post_type;
 
 	// Labels.
-	public mixed $name;
-	public mixed $singular_name;
-	public mixed $add_new;
-	public mixed $add_new_item;
-	public mixed $edit_item;
-	public mixed $new_item;
-	public mixed $view_item;
-	public mixed $view_items;
-	public mixed $search_items;
-	public mixed $not_found;
-	public mixed $not_found_in_trash;
-	public mixed $parent_item_colon;
-	public mixed $all_items;
-	public mixed $archives;
-	public mixed $attributes;
-	public mixed $insert_into_item;
-	public mixed $uploaded_to_this_item;
-	public mixed $featured_image;
-	public mixed $set_featured_image;
-	public mixed $remove_featured_image;
-	public mixed $use_featured_image;
-	public mixed $menu_name;
-	public mixed $filter_items_list;
-	public mixed $filter_by_date;
-	public mixed $items_list_navigation;
-	public mixed $items_list;
-	public mixed $item_published;
-	public mixed $item_published_privately;
-	public mixed $item_reverted_to_draft;
-	public mixed $item_trashed;
-	public mixed $item_scheduled;
-	public mixed $item_updated;
-	public mixed $item_link;
-	public mixed $item_link_description;
+	public $name;
+	public $singular_name;
+	public $add_new;
+	public $add_new_item;
+	public $edit_item;
+	public $new_item;
+	public $view_item;
+	public $view_items;
+	public $search_items;
+	public $not_found;
+	public $not_found_in_trash;
+	public $parent_item_colon;
+	public $all_items;
+	public $archives;
+	public $attributes;
+	public $insert_into_item;
+	public $uploaded_to_this_item;
+	public $featured_image;
+	public $set_featured_image;
+	public $remove_featured_image;
+	public $use_featured_image;
+	public $menu_name;
+	public $filter_items_list;
+	public $filter_by_date;
+	public $items_list_navigation;
+	public $items_list;
+	public $item_published;
+	public $item_published_privately;
+	public $item_reverted_to_draft;
+	public $item_trashed;
+	public $item_scheduled;
+	public $item_updated;
+	public $item_link;
+	public $item_link_description;
 
 	// Args.
-	public mixed $label;
-	public mixed $labels;
-	public mixed $description;
-	public mixed $public;
-	public mixed $hierarchical;
-	public mixed $exclude_from_search;
-	public mixed $publicly_queryable;
-	public mixed $show_ui;
-	public mixed $show_in_menu;
-	public mixed $show_in_nav_menus;
-	public mixed $show_in_admin_bar;
-	public mixed $show_in_rest;
-	public mixed $rest_base;
-	public mixed $rest_namespace;
-	public mixed $rest_controller_class;
-	public mixed $autosave_rest_controller_class;
-	public mixed $revisions_rest_controller_class;
-	public mixed $late_route_registration;
-	public mixed $menu_position;
-	public mixed $menu_icon;
-	public mixed $capability_type;
-	public mixed $capabilities;
-	public mixed $map_meta_cap;
-	public mixed $supports;
-	public mixed $register_meta_box_cb;
-	public mixed $taxonomies;
-	public mixed $has_archive;
-	public mixed $rewrite;
-//	public mixed $slug;
-//	public mixed $with_front;
-//	public mixed $feeds;
-//	public mixed $pages;
-//	public mixed $ep_mask;
-	public mixed $can_export;
-	public mixed $delete_with_user;
-	public mixed $template;
-	public mixed $template_lock;
-	public mixed $_builtin;
-//	public mixed $_edit_link;                           // Warning: This attribute may affect post editing.
-//	public mixed $query_var;                            // Warning: This attribute can affect article viewing beyond the frontend.
+	public $label;
+	public $labels;
+	public $description;
+	public $public;
+	public $hierarchical;
+	public $exclude_from_search;
+	public $publicly_queryable;
+	public $show_ui;
+	public $show_in_menu;
+	public $show_in_nav_menus;
+	public $show_in_admin_bar;
+	public $show_in_rest;
+	public $rest_base;
+	public $rest_namespace;
+	public $rest_controller_class;
+	public $autosave_rest_controller_class;
+	public $revisions_rest_controller_class;
+	public $late_route_registration;
+	public $menu_position;
+	public $menu_icon;
+	public $capability_type;
+	public $capabilities;
+	public $map_meta_cap;
+	public $supports;
+	public $register_meta_box_cb;
+	public $taxonomies;
+	public $has_archive;
+	public $rewrite;
+//	public $slug;
+//	public $with_front;
+//	public $feeds;
+//	public $pages;
+//	public $ep_mask;
+	public $can_export;
+	public $delete_with_user;
+	public $template;
+	public $template_lock;
+	public $_builtin;
+//	public $_edit_link;                           // Warning: This attribute may affect post editing.
+//	public $query_var;                            // Warning: This attribute can affect article viewing beyond the frontend.
 
 	// Custom properties.
-	public mixed $preparedName = null;
-	public mixed $postTypeInstance;
-	public mixed $previousArgs;
+	public $preparedName = null;
+	public $postTypeInstance;
+	public $previousArgs;
 
-	public function __construct(?BasePostType $postTypeInstance = null, $previousArgs = null) {
+	public function __construct($postTypeInstance = null, $previousArgs = null) {
 		$this->postTypeInstance = $postTypeInstance;
 		$this->previousArgs     = $previousArgs;
 		$this->prepareCustomVariables();
@@ -100,7 +100,7 @@ class PostTypeData extends BaseData {
 		$this->prepareLabels();
 	}
 
-	public function prepareArgs(): void {
+	public function prepareArgs() {
 		$this->label                           = null;
 		$this->labels                          = [];
 		$this->description                     = '';
@@ -138,7 +138,7 @@ class PostTypeData extends BaseData {
 //		$this->_edit_link                      = '';
 	}
 
-	public function prepareLabels(): void {
+	public function prepareLabels() {
 		$this->labels['name']                     = $this->previousArgs->labels['name'] ?? $this->preparedName;
 		$this->labels['singular_name']            = $this->previousArgs->labels['singular_name'] ?? $this->preparedName;
 		$this->labels['add_new']                  = $this->previousArgs->labels['add_new'] ?? 'Add new ' . $this->preparedName;
@@ -179,7 +179,7 @@ class PostTypeData extends BaseData {
 		}
 	}
 
-	public function prepareCustomVariables(): void {
+	public function prepareCustomVariables() {
 		if ($this->previousArgs) {
 			$this->preparedName = $this->previousArgs->labels['name']
 				?? $this->previousArgs->labels['singular_name']

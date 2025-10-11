@@ -6,7 +6,7 @@ trait TaxonomiesRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
-	public function init(): void {
+	public function init() {
 		$this->taxonomies();
 	}
 
@@ -20,7 +20,7 @@ trait TaxonomiesRouteTrait {
 	 *
 	 */
 
-	public function taxonomy($taxonomy, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
+	public function taxonomy($taxonomy, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$customProperties = array_merge([$taxonomy, $callback[1]], ['custom_properties' => $customProperties ?? []]);
 			$customProperties = array_merge([

@@ -4,9 +4,9 @@ namespace WPSPCORE\Base;
 
 abstract class BaseShortcode extends BaseInstances {
 
-	public mixed $shortcode         = null;
-	public mixed $callback_function = null;
-	public mixed $custom_properties = null;
+	public $shortcode         = null;
+	public $callback_function = null;
+	public $custom_properties = null;
 
 	/*
 	 *
@@ -24,7 +24,7 @@ abstract class BaseShortcode extends BaseInstances {
 	 *
 	 */
 
-	public function init($shortcode = null): void {
+	public function init($shortcode = null) {
 		$callback = $this->callback_function ? [$this, $this->callback_function] : null;
 		$shortcode = $this->shortcode ?? $shortcode;
 		if ($shortcode) {
@@ -36,7 +36,7 @@ abstract class BaseShortcode extends BaseInstances {
 	 *
 	 */
 
-	protected function overrideShortcode($shortcode = null): void {
+	protected function overrideShortcode($shortcode = null) {
 		if ($shortcode && !$this->shortcode) {
 			$this->shortcode = $shortcode;
 		}

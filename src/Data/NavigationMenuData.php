@@ -7,39 +7,39 @@ use WPSPCORE\Base\BaseNavigationMenu;
 
 class NavigationMenuData extends BaseData {
 
-	public mixed $location;
-	public mixed $description;
+	public $location;
+	public $description;
 
 	// Args.
-	public mixed $menu;
-	public mixed $menu_class;
-	public mixed $menu_id;
-	public mixed $container;
-	public mixed $container_class;
-	public mixed $container_id;
-	public mixed $container_aria_label;
-	public mixed $fallback_cb;
-	public mixed $before;
-	public mixed $after;
-	public mixed $link_before;
-	public mixed $link_after;
-	public mixed $echo;
-	public mixed $depth;
-	public mixed $walker;
-	public mixed $theme_location;
-	public mixed $items_wrap;
-	public mixed $item_spacing;
+	public $menu;
+	public $menu_class;
+	public $menu_id;
+	public $container;
+	public $container_class;
+	public $container_id;
+	public $container_aria_label;
+	public $fallback_cb;
+	public $before;
+	public $after;
+	public $link_before;
+	public $link_after;
+	public $echo;
+	public $depth;
+	public $walker;
+	public $theme_location;
+	public $items_wrap;
+	public $item_spacing;
 
 	// Custom properties.
-//	public mixed $navigationMenuInstance;
+//	public $navigationMenuInstance;
 
-	public function __construct(BaseNavigationMenu $navigationMenuInstance) {
+	public function __construct($navigationMenuInstance) {
 //		$this->navigationMenuInstance = $navigationMenuInstance;
 //		$this->prepareCustomVariables();
 		$this->prepareArgs();
 	}
 
-	private function prepareArgs(): void {
+	private function prepareArgs() {
 //		$this->menu                 = '';
 		$this->menu_class           = 'menu';
 //		$this->menu_id              = '';
@@ -60,7 +60,7 @@ class NavigationMenuData extends BaseData {
 //		$this->item_spacing         = '';
 	}
 
-//	private function prepareCustomVariables(): void {
+//	private function prepareCustomVariables() {
 //		unset($this->navigationMenuInstance);
 //	}
 

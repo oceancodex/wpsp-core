@@ -6,7 +6,7 @@ trait ShortcodesRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
-	public function init(): void {
+	public function init() {
 		$this->shortcodes();
 		$this->hooks();
 	}
@@ -21,7 +21,7 @@ trait ShortcodesRouteTrait {
 	 *
 	 */
 
-	public function shortcode($shortcode, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
+	public function shortcode($shortcode, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$customProperties = array_merge([$shortcode, $callback[1]], ['custom_properties' => $customProperties ?? []]);
 			$customProperties = array_merge([

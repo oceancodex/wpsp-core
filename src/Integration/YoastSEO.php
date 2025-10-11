@@ -4,40 +4,40 @@ namespace WPSPCORE\Integration;
 
 class YoastSEO {
 
-	public mixed $robots                            = null;
-	public mixed $canonical                         = null;
-	public mixed $title                             = null;
-	public mixed $description                       = null;
+	public $robots                            = null;
+	public $canonical                         = null;
+	public $title                             = null;
+	public $description                       = null;
 
-	public mixed $opengraphURL                      = null;
-	public mixed $opengraphTitle                    = null;
-	public mixed $opengraphDescription              = null;
+	public $opengraphURL                      = null;
+	public $opengraphTitle                    = null;
+	public $opengraphDescription              = null;
 
-	public mixed $schema                            = null;
-	public mixed $schemaPriority                    = 10;
-	public mixed $schemaAcceptedArgs                = 0;
+	public $schema                            = null;
+	public $schemaPriority                    = 10;
+	public $schemaAcceptedArgs                = 0;
 
-	public mixed $schemaWebpage                     = null;
-	public mixed $schemaWebpagePriority             = 10;
-	public mixed $schemaWebpageAcceptedArgs         = 0;
+	public $schemaWebpage                     = null;
+	public $schemaWebpagePriority             = 10;
+	public $schemaWebpageAcceptedArgs         = 0;
 
-	public mixed $schemaBreadcrumb                  = null;
-	public mixed $schemaBreadcrumbPriority          = 10;
-	public mixed $schemaBreadcrumbAcceptedArgs      = 0;
+	public $schemaBreadcrumb                  = null;
+	public $schemaBreadcrumbPriority          = 10;
+	public $schemaBreadcrumbAcceptedArgs      = 0;
 
-	public mixed $breadcrumbLinks                   = [];
-	public mixed $breadcrumbLinksPriority           = 10;
-	public mixed $breadcrumbLinksAcceptedArgs       = 0;
+	public $breadcrumbLinks                   = [];
+	public $breadcrumbLinksPriority           = 10;
+	public $breadcrumbLinksAcceptedArgs       = 0;
 
-	public mixed $breadcrumbSingleLink              = [];
-	public mixed $breadcrumbSingleLinkPriority      = 10;
-	public mixed $breadcrumbSingleLinkAcceptedArgs  = 0;
+	public $breadcrumbSingleLink              = [];
+	public $breadcrumbSingleLinkPriority      = 10;
+	public $breadcrumbSingleLinkAcceptedArgs  = 0;
 
 	/*
 	 *
 	 */
 
-	public function apply(): void {
+	public function apply() {
 		$this->robots();
 		$this->canonical();
 		$this->ogURL();
@@ -56,7 +56,7 @@ class YoastSEO {
 	 * Runner.
 	 */
 
-	public function robots(): void {
+	public function robots() {
 		if ($this->robots) {
 			add_filter('wpseo_robots', function($robots, $presentation) {
 				return $this->robots;
@@ -64,7 +64,7 @@ class YoastSEO {
 		}
 	}
 
-	public function canonical(): void {
+	public function canonical() {
 		if ($this->canonical) {
 			add_filter('wpseo_canonical', function($canonical) {
 				return $this->canonical;
@@ -72,7 +72,7 @@ class YoastSEO {
 		}
 	}
 
-	public function title(): void {
+	public function title() {
 		if ($this->title) {
 			add_filter('wpseo_title', function($title) {
 				return $this->title;
@@ -83,7 +83,7 @@ class YoastSEO {
 		}
 	}
 
-	public function description(): void {
+	public function description() {
 		if ($this->description) {
 			add_filter('wpseo_metadesc', function($description) {
 				return $this->description;
@@ -91,7 +91,7 @@ class YoastSEO {
 		}
 	}
 
-	public function ogTitle(): void {
+	public function ogTitle() {
 		if ($this->opengraphTitle) {
 			add_filter('wpseo_opengraph_title', function($title) {
 				return $this->opengraphTitle;
@@ -99,7 +99,7 @@ class YoastSEO {
 		}
 	}
 
-	public function ogDescription(): void {
+	public function ogDescription() {
 		if ($this->opengraphDescription) {
 			add_filter('wpseo_opengraph_description', function($description) {
 				return $this->opengraphDescription;
@@ -107,7 +107,7 @@ class YoastSEO {
 		}
 	}
 
-	public function ogURL(): void {
+	public function ogURL() {
 		if ($this->opengraphURL) {
 			add_filter('wpseo_opengraph_url', function($url) {
 				return $this->opengraphURL;
@@ -115,13 +115,13 @@ class YoastSEO {
 		}
 	}
 
-	public function schema(): void {
+	public function schema() {
 		if (is_callable($this->schema)) {
 			add_filter('wpseo_schema_graph', $this->schema, $this->schemaPriority, $this->schemaAcceptedArgs);
 		}
 	}
 
-	public function schemaBreadcrumb(): void {
+	public function schemaBreadcrumb() {
 		if (is_callable($this->schemaBreadcrumb)) {
 			add_filter(
 				'wpseo_schema_breadcrumb',
@@ -132,7 +132,7 @@ class YoastSEO {
 		}
 	}
 
-	public function schemaWebpage(): void {
+	public function schemaWebpage() {
 		if (is_callable($this->schemaWebpage)) {
 			add_filter(
 				'wpseo_schema_webpage',
@@ -143,7 +143,7 @@ class YoastSEO {
 		}
 	}
 
-	public function breadcrumbLinks(): void {
+	public function breadcrumbLinks() {
 		if (is_callable($this->breadcrumbLinks)) {
 			add_filter('wpseo_breadcrumb_links',
 				$this->breadcrumbLinks,
@@ -153,7 +153,7 @@ class YoastSEO {
 		}
 	}
 
-	public function breadcrumbSingleLink(): void {
+	public function breadcrumbSingleLink() {
 		if (is_callable($this->breadcrumbSingleLink)) {
 			add_filter('wpseo_breadcrumb_single_link',
 				$this->breadcrumbSingleLink,
@@ -167,7 +167,7 @@ class YoastSEO {
 	 *
 	 */
 
-	public function setBreadcrumbLinks($breadcrumbLinks, $priority = 10, $accepted_args = 0): void {
+	public function setBreadcrumbLinks($breadcrumbLinks, $priority = 10, $accepted_args = 0) {
 		$this->breadcrumbLinks             = $breadcrumbLinks;
 		$this->breadcrumbLinksPriority     = $priority;
 		$this->breadcrumbLinksAcceptedArgs = $accepted_args;
@@ -177,7 +177,7 @@ class YoastSEO {
 		return $this->breadcrumbLinks;
 	}
 
-	public function setBreadcrumbSingleLink($breadcrumbSingleLink, $priority = 10, $accepted_args = 0): void {
+	public function setBreadcrumbSingleLink($breadcrumbSingleLink, $priority = 10, $accepted_args = 0) {
 		$this->breadcrumbSingleLink             = $breadcrumbSingleLink;
 		$this->breadcrumbSingleLinkPriority     = $priority;
 		$this->breadcrumbSingleLinkAcceptedArgs = $accepted_args;
@@ -191,7 +191,7 @@ class YoastSEO {
 	 *
 	 */
 
-	public function setRobots($robots): void {
+	public function setRobots($robots) {
 		$this->robots = $robots;
 	}
 
@@ -199,7 +199,7 @@ class YoastSEO {
 		return $this->robots;
 	}
 
-	public function setCanonical($canonical): void {
+	public function setCanonical($canonical) {
 		$this->canonical = $canonical;
 	}
 
@@ -212,11 +212,11 @@ class YoastSEO {
 	 *
 	 */
 
-	public function setTitle($title): void {
+	public function setTitle($title) {
 		$this->title = $title;
 	}
 
-	public function setDocumentTitle($title): void {
+	public function setDocumentTitle($title) {
 		add_filter('pre_get_document_title', function($title) {
 			return $this->title;
 		});
@@ -226,7 +226,7 @@ class YoastSEO {
 		return $this->title;
 	}
 
-	public function setDescription($description): void {
+	public function setDescription($description) {
 		$this->description = $description;
 	}
 
@@ -234,7 +234,7 @@ class YoastSEO {
 		return $this->description;
 	}
 
-	public function setOpengraphTitle($opengraphTitle): void {
+	public function setOpengraphTitle($opengraphTitle) {
 		$this->opengraphTitle = $opengraphTitle;
 	}
 
@@ -242,7 +242,7 @@ class YoastSEO {
 		return $this->opengraphTitle;
 	}
 
-	public function setOpengraphDescription($opengraphDescription): void {
+	public function setOpengraphDescription($opengraphDescription) {
 		$this->opengraphDescription = $opengraphDescription;
 	}
 
@@ -250,7 +250,7 @@ class YoastSEO {
 		return $this->opengraphDescription;
 	}
 
-	public function setOpengraphURL($opengraphURL): void {
+	public function setOpengraphURL($opengraphURL) {
 		$this->opengraphURL = $opengraphURL;
 	}
 
@@ -262,7 +262,7 @@ class YoastSEO {
 	 *
 	 */
 
-	public function setSchema($schema, $priority = 10, $accepted_args = 0): void {
+	public function setSchema($schema, $priority = 10, $accepted_args = 0) {
 		$this->schema             = $schema;
 		$this->schemaPriority     = $priority;
 		$this->schemaAcceptedArgs = $accepted_args;
@@ -272,7 +272,7 @@ class YoastSEO {
 		return $this->schema;
 	}
 
-	public function setSchemaWebpage($schemaWebpage, $priority = 10, $accepted_args = 0): void {
+	public function setSchemaWebpage($schemaWebpage, $priority = 10, $accepted_args = 0) {
 		$this->schemaWebpage             = $schemaWebpage;
 		$this->schemaWebpagePriority     = $priority;
 		$this->schemaWebpageAcceptedArgs = $accepted_args;
@@ -282,7 +282,7 @@ class YoastSEO {
 		return $this->schemaWebpage;
 	}
 
-	public function setSchemaBreadcrumb($schemaBreadcrumb, $priority = 10, $accepted_args = 0): void {
+	public function setSchemaBreadcrumb($schemaBreadcrumb, $priority = 10, $accepted_args = 0) {
 		$this->schemaBreadcrumb             = $schemaBreadcrumb;
 		$this->schemaBreadcrumbPriority     = $priority;
 		$this->schemaBreadcrumbAcceptedArgs = $accepted_args;

@@ -6,7 +6,7 @@ trait TemplatesRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
-	public function init(): void {
+	public function init() {
 		$this->templates();
 		$this->hooks();
 	}
@@ -21,7 +21,7 @@ trait TemplatesRouteTrait {
 	 *
 	 */
 
-	public function template($name, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1): void {
+	public function template($name, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$customProperties = array_merge([$name], $customProperties ?? []);
 			$customProperties = array_merge([

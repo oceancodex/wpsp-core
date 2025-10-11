@@ -7,14 +7,15 @@ use WPSPCORE\Funcs;
 
 abstract class BaseInstances {
 
-	public ?string  $mainPath         = null;
-	public ?string  $rootNamespace    = null;
-	public ?string  $prefixEnv        = null;
-	public ?Request $request          = null;
-	public ?string  $locale           = null;
-	public ?array   $customProperties = [];
-
-	public ?Funcs   $funcs            = null;
+	public $mainPath         = null;
+	public $rootNamespace    = null;
+	public $prefixEnv        = null;
+	public $customProperties = [];
+	/** @var Request */
+	public $request          = null;
+	public $locale           = null;
+	/** @var Funcs|null */
+	public $funcs            = null;
 
 	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $customProperties = []) {
 		$this->locale = function_exists('get_locale') ? get_locale() : 'en';
@@ -34,7 +35,7 @@ abstract class BaseInstances {
 	 *
 	 */
 
-	public function wantJson(): bool {
+	public function wantJson() {
 		return $this->request->headers->get('Accept') === 'application/json';
 	}
 
@@ -42,7 +43,7 @@ abstract class BaseInstances {
 	 *
 	 */
 
-	protected function prepareFuncs(): void {
+	protected function prepareFuncs() {
 //		$this->funcs = new Funcs(
 ////			$this->mainPath,
 ////			$this->rootNamespace,

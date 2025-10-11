@@ -6,7 +6,7 @@ trait FiltersRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
-	public function init(): void {
+	public function init() {
 		$this->filters();
 	}
 

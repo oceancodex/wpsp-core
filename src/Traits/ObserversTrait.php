@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Gate;
 
 trait ObserversTrait {
 
-	protected static function boot(): void {
+	protected static function boot() {
 		parent::boot();
 		if (!empty(self::$observers)) {
 			static::setEventDispatcher(new \Illuminate\Events\Dispatcher());

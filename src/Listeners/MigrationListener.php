@@ -3,13 +3,11 @@
 namespace WPSPCORE\Listeners;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\Migrations\Event\MigrationsEventArgs;
-use Doctrine\Migrations\Event\MigrationsVersionEventArgs;
 use Doctrine\Migrations\Events;
 
 class MigrationListener implements EventSubscriber {
 
-	public function getSubscribedEvents(): array {
+	public function getSubscribedEvents() {
 		return [
 			Events::onMigrationsMigrating,
 			Events::onMigrationsMigrated,
@@ -19,23 +17,23 @@ class MigrationListener implements EventSubscriber {
 		];
 	}
 
-	public function onMigrationsMigrating(MigrationsEventArgs $args): void {
+	public function onMigrationsMigrating($args) {
 		// ...
 	}
 
-	public function onMigrationsMigrated(MigrationsEventArgs $args): void {
+	public function onMigrationsMigrated($args) {
 		// ...
 	}
 
-	public function onMigrationsVersionExecuting(MigrationsVersionEventArgs $args): void {
+	public function onMigrationsVersionExecuting($args) {
 		// ...
 	}
 
-	public function onMigrationsVersionExecuted(MigrationsVersionEventArgs $args): void {
+	public function onMigrationsVersionExecuted($args) {
 		// ...
 	}
 
-	public function onMigrationsVersionSkipped(MigrationsVersionEventArgs $args): void {
+	public function onMigrationsVersionSkipped($args) {
 		// ...
 	}
 

@@ -6,15 +6,15 @@ use WPSPCORE\Updater\PucFactory;
 
 abstract class BaseUpdater extends BaseInstances {
 
-	public bool    $sslVerify            = true;
-	public ?string $checkForUpdatesLabel = null;
-	public ?string $packageUrl           = null;
+	public $sslVerify            = true;
+	public $checkForUpdatesLabel = null;
+	public $packageUrl           = null;
 
 	/*
 	 *
 	 */
 
-	public function prepare(): ?self {
+	public function prepare() {
 		// Disable SSL verification.
 		if (!$this->sslVerify) {
 			add_filter('puc_request_info_options-' . $this->funcs->_getTextDomain(), function($options) {
@@ -50,7 +50,7 @@ abstract class BaseUpdater extends BaseInstances {
 	 *
 	 */
 
-	public function global(): void {
+	public function global() {
 		$globalUpdater = $this->funcs->_getAppShortName();
 		$globalUpdater = $globalUpdater . '_updater';
 		global ${$globalUpdater};

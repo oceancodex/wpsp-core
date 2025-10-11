@@ -5,24 +5,26 @@ namespace WPSPCORE\Base;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
-use Symfony\Component\Console\Output\Output;
 use WPSPCORE\Funcs;
 
 abstract class BaseSeeder extends Seeder {
 
-	public ?string  $mainPath      = null;
-	public ?string  $rootNamespace = null;
-	public ?string  $prefixEnv     = null;
-	public ?Funcs   $funcs         = null;
-	public ?Capsule $capsule       = null;
-	private ?Output $output        = null;
+	public $mainPath      = null;
+	public $rootNamespace = null;
+	public $prefixEnv     = null;
+	/** @var Funcs|null */
+	public $funcs         = null;
+	/** @var Capsule|null */
+	public $capsule       = null;
+	/** @var \Symfony\Component\Console\Output\Output|null */
+	private $output       = null;
 
 	public function __construct($output = null) {
 		$this->output = $output;
 		$this->beforeInstanceConstruct();
 		$this->funcs = new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv);
 		if (!$this->capsule) {
-			$this->capsule  = new Capsule();
+			$this->capsule = new Capsule();
 
 			$this->capsule->getDatabaseManager()->extend('mongodb', function($config, $name) {
 				$config['name'] = $name;
@@ -31,7 +33,7 @@ abstract class BaseSeeder extends Seeder {
 
 			$databaseConnections = $this->funcs->_config('database.connections');
 
-			$defaultConnectionName = $this->funcs->_getAppShortName() . '_' . $this->funcs->_config('database.default');
+			$defaultConnectionName   = $this->funcs->_getAppShortName() . '_' . $this->funcs->_config('database.default');
 			$defaultConnectionConfig = $databaseConnections[$defaultConnectionName];
 			$this->capsule->addConnection($defaultConnectionConfig);
 
@@ -44,7 +46,7 @@ abstract class BaseSeeder extends Seeder {
 		}
 	}
 
-	public function call($class, $silent = false, array $parameters = []): static {
+	public function call($class, $silent = false, $parameters = []) {
 		$classes = Arr::wrap($class);
 		foreach ($classes as $class) {
 			$seeder    = $this->resolve($class);

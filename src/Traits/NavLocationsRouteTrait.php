@@ -6,7 +6,7 @@ trait NavLocationsRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
-	public function init(): void {
+	public function init() {
 		$this->nav_locations();
 		$this->hooks();
 	}
@@ -21,7 +21,7 @@ trait NavLocationsRouteTrait {
 	 *
 	 */
 
-	public function nav_location($location, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
+	public function nav_location($location, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		$customProperties = array_merge([$location, $callback[1]], ['custom_properties' => $customProperties ?? []]);
 		$customProperties = array_merge([
 			$this->funcs->_getMainPath(),

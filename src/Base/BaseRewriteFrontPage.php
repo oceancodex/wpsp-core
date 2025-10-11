@@ -4,13 +4,13 @@ namespace WPSPCORE\Base;
 
 abstract class BaseRewriteFrontPage extends BaseInstances {
 
-	public mixed $path                     = null;
-	public mixed $rewriteIdent             = null;
-	public mixed $useTemplate              = false;
-	public mixed $rewriteFrontPageSlug     = 'rewrite-front-pages';
-	public mixed $rewriteFrontPagePostType = 'page';
-	public mixed $callback_function        = null;
-	public mixed $custom_properties        = null;
+	public $path                     = null;
+	public $rewriteIdent             = null;
+	public $useTemplate              = false;
+	public $rewriteFrontPageSlug     = 'rewrite-front-pages';
+	public $rewriteFrontPagePostType = 'page';
+	public $callback_function        = null;
+	public $custom_properties        = null;
 
 	/*
 	 *
@@ -28,7 +28,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 *
 	 */
 
-	public function init($path = null): void {
+	public function init($path = null) {
 		$path = $this->path ?? $path;
 		if ($path) {
 			// Prepare string matches.
@@ -84,7 +84,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 *
 	 */
 
-	private function overridePath($path = null): void {
+	private function overridePath($path = null) {
 		if ($path && !$this->path) {
 			$this->path = $path;
 		}
@@ -102,7 +102,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 *
 	 */
 
-	public function maybeNoTemplate(): void {
+	public function maybeNoTemplate() {
 		if (!$this->useTemplate) {
 			add_filter('template_include', function($template) {
 				return $this->funcs->_getResourcesPath('/views/modules/rewrite-front-pages/layout/base.blade.php');

@@ -6,7 +6,7 @@ trait RolesRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
-	public function init(): void {
+	public function init() {
 		$this->roles();
 		$this->hooks();
 	}
@@ -21,7 +21,7 @@ trait RolesRouteTrait {
 	 *
 	 */
 
-	public function role($role, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
+	public function role($role, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			if (is_array($callback)) {
 				$customProperties = array_merge([$role, $callback[1]], ['custom_properties' => $customProperties ?? []]);

@@ -1,7 +1,6 @@
 <?php
 namespace WPSPCORE\Base;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 abstract class BaseEntity {
@@ -19,27 +18,27 @@ abstract class BaseEntity {
 	 *
 	 */
 
-	public function setCreatedAt(DateTime $createdAt): void {
+	public function setCreatedAt($createdAt) {
 		$this->createdAt = $createdAt;
 	}
 
-	public function getCreatedAt(): DateTime {
+	public function getCreatedAt() {
 		return $this->createdAt;
 	}
 
-	public function setUpdatedAt(DateTime $updatedAt): void {
+	public function setUpdatedAt($updatedAt) {
 		$this->updatedAt = $updatedAt;
 	}
 
-	public function getUpdatedAt(): DateTime {
+	public function getUpdatedAt() {
 		return $this->updatedAt;
 	}
 
-	public function setDeletedAt($deletedAt): void {
+	public function setDeletedAt($deletedAt) {
 		$this->deletedAt = $deletedAt;
 	}
 
-	public function getDeletedAt(): DateTime {
+	public function getDeletedAt() {
 		return $this->deletedAt;
 	}
 

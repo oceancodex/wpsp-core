@@ -6,7 +6,7 @@ trait PostTypesRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
-	public function init(): void {
+	public function init() {
 		$this->post_types();
 		$this->hooks();
 	}
@@ -21,7 +21,7 @@ trait PostTypesRouteTrait {
 	 *
 	 */
 
-	public function post_type($postType, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
+	public function post_type($postType, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			if (is_array($callback)) {
 				$customProperties = array_merge([$postType, $callback[1]], ['custom_properties' => $customProperties ?? []]);
