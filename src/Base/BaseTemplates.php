@@ -4,9 +4,9 @@ namespace WPSPCORE\Base;
 
 abstract class BaseTemplates extends BaseInstances {
 
-	public mixed $name  = null;
-	public mixed $label = null;
-	public mixed $path  = null;
+	public $name  = null;
+	public $label = null;
+	public $path  = null;
 
 	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $name = null) {
 		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
@@ -19,7 +19,7 @@ abstract class BaseTemplates extends BaseInstances {
 	 *
 	 */
 
-	public function init($name = null): void {
+	public function init($name = null) {
 		if ($this->name) {
 			add_filter('theme_page_templates', function($templates) {
 				$name = $this->name;
@@ -45,7 +45,7 @@ abstract class BaseTemplates extends BaseInstances {
 	 *
 	 */
 
-	private function templateInclude(): void {
+	private function templateInclude() {
 		if ($this->mainPath) {
 			add_filter('template_include', function($template) {
 				global $post;

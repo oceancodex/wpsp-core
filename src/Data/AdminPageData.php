@@ -4,45 +4,45 @@ namespace WPSPCORE\Data;
 
 class AdminPageData {
 
-	private mixed $menuTitle      = null;
-	private mixed $pageTitle      = null;
-	private mixed $capability     = null;
-	private mixed $menuSlug       = null;
-	private mixed $callback       = null;
-	private mixed $iconUrl        = null;
-	private mixed $position       = null;
-	private mixed $isSubAdminPage = false;
-	private mixed $parentSlug     = null;
+	private $menuTitle      = null;
+	private $pageTitle      = null;
+	private $capability     = null;
+	private $menuSlug       = null;
+	private $callback       = null;
+	private $iconUrl        = null;
+	private $position       = null;
+	private $isSubAdminPage = false;
+	private $parentSlug     = null;
 
-	public function getMenuTitle(): string {
+	public function getMenuTitle() {
 		return $this->menuTitle;
 	}
 
-	public function setMenuTitle($menuTitle): void {
+	public function setMenuTitle($menuTitle) {
 		$this->menuTitle = $menuTitle;
 	}
 
-	public function getPageTitle(): string {
+	public function getPageTitle() {
 		return $this->pageTitle;
 	}
 
-	public function setPageTitle($pageTitle): void {
+	public function setPageTitle($pageTitle) {
 		$this->pageTitle = $pageTitle;
 	}
 
-	public function getCapability(): string {
+	public function getCapability() {
 		return $this->capability;
 	}
 
-	public function setCapability($capability): void {
+	public function setCapability($capability) {
 		$this->capability = $capability;
 	}
 
-	public function getMenuSlug(): string {
+	public function getMenuSlug() {
 		return $this->menuSlug;
 	}
 
-	public function setMenuSlug($menuSlug): void {
+	public function setMenuSlug($menuSlug) {
 		$this->menuSlug = $menuSlug;
 	}
 
@@ -50,39 +50,39 @@ class AdminPageData {
 		return $this->callback;
 	}
 
-	public function setCallback($callback): void {
+	public function setCallback($callback) {
 		$this->callback = $callback;
 	}
 
-	public function getIconUrl(): string {
+	public function getIconUrl() {
 		return $this->iconUrl;
 	}
 
-	public function setIconUrl($iconUrl): void {
+	public function setIconUrl($iconUrl) {
 		$this->iconUrl = $iconUrl;
 	}
 
-	public function getPosition(): int {
+	public function getPosition() {
 		return $this->position;
 	}
 
-	public function setPosition($position): void {
+	public function setPosition($position) {
 		$this->position = $position;
 	}
 
-	public function getIsSubAdminPage(): bool {
+	public function getIsSubAdminPage() {
 		return $this->isSubAdminPage;
 	}
 
-	public function setIsSubAdminPage($isSubAdminPage): void {
+	public function setIsSubAdminPage($isSubAdminPage) {
 		$this->isSubAdminPage = $isSubAdminPage;
 	}
 
-	public function getParentSlug(): string {
+	public function getParentSlug() {
 		return $this->parentSlug;
 	}
 
-	public function setParentSlug($parentSlug): void {
+	public function setParentSlug($parentSlug) {
 		$this->parentSlug = $parentSlug;
 	}
 

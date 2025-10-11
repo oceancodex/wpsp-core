@@ -4,32 +4,32 @@ namespace WPSPCORE\Integration;
 
 class RankmathSEO {
 
-	public mixed $robots                       = null;
-	public mixed $canonical                    = null;
-	public mixed $title                        = null;
-	public mixed $description                  = null;
+	public $robots                       = null;
+	public $canonical                    = null;
+	public $title                        = null;
+	public $description                  = null;
 
-	public mixed $opengraphURL                 = null;
-	public mixed $opengraphTitle               = null;
-	public mixed $opengraphDescription         = null;
+	public $opengraphURL                 = null;
+	public $opengraphTitle               = null;
+	public $opengraphDescription         = null;
 
-	public mixed $schema                       = null;
-	public mixed $schemaPriority               = 10;
-	public mixed $schemaAcceptedArgs           = 0;
+	public $schema                       = null;
+	public $schemaPriority               = 10;
+	public $schemaAcceptedArgs           = 0;
 
-	public mixed $schemaWebpage                = null;
-	public mixed $schemaWebpagePriority        = 10;
-	public mixed $schemaWebpageAcceptedArgs    = 0;
+	public $schemaWebpage                = null;
+	public $schemaWebpagePriority        = 10;
+	public $schemaWebpageAcceptedArgs    = 0;
 
-	public mixed $schemaBreadcrumb             = null;
-	public mixed $schemaBreadcrumbPriority     = 10;
-	public mixed $schemaBreadcrumbAcceptedArgs = 0;
+	public $schemaBreadcrumb             = null;
+	public $schemaBreadcrumbPriority     = 10;
+	public $schemaBreadcrumbAcceptedArgs = 0;
 
 	/*
 	 *
 	 */
 
-	public function apply(): void {
+	public function apply() {
 		$this->robots();
 		$this->canonical();
 		$this->ogURL();
@@ -46,7 +46,7 @@ class RankmathSEO {
 	 * Runner.
 	 */
 
-	public function robots(): void {
+	public function robots() {
 		if ($this->robots) {
 			add_filter('rank_math/frontend/robots', function($robots) {
 				if (is_string($this->robots)) {
@@ -59,7 +59,7 @@ class RankmathSEO {
 		}
 	}
 
-	public function canonical(): void {
+	public function canonical() {
 		if ($this->canonical) {
 			add_filter('rank_math/frontend/canonical', function($canonical) {
 				return $this->canonical;
@@ -67,7 +67,7 @@ class RankmathSEO {
 		}
 	}
 
-	public function title(): void {
+	public function title() {
 		if ($this->title) {
 			add_filter('rank_math/frontend/title', function($title) {
 				return $this->title;
@@ -78,7 +78,7 @@ class RankmathSEO {
 		}
 	}
 
-	public function description(): void {
+	public function description() {
 		if ($this->description) {
 			add_filter('rank_math/frontend/description', function($description) {
 				return $this->description;
@@ -86,7 +86,7 @@ class RankmathSEO {
 		}
 	}
 
-	public function ogTitle(): void {
+	public function ogTitle() {
 		if ($this->opengraphTitle) {
 			add_filter('wpseo_opengraph_title', function($title) {
 				return $this->opengraphTitle;
@@ -94,7 +94,7 @@ class RankmathSEO {
 		}
 	}
 
-	public function ogDescription(): void {
+	public function ogDescription() {
 		if ($this->opengraphDescription) {
 			add_filter('wpseo_opengraph_description', function($description) {
 				return $this->opengraphDescription;
@@ -102,7 +102,7 @@ class RankmathSEO {
 		}
 	}
 
-	public function ogURL(): void {
+	public function ogURL() {
 		if ($this->opengraphURL) {
 			add_filter('rank_math/opengraph/url', function($url) {
 				return $this->opengraphURL;
@@ -110,13 +110,13 @@ class RankmathSEO {
 		}
 	}
 
-	public function schema(): void {
+	public function schema() {
 		if (is_callable($this->schema)) {
 			add_filter('wpseo_schema_graph', $this->schema, $this->schemaPriority, $this->schemaAcceptedArgs);
 		}
 	}
 
-	public function schemaBreadcrumb(): void {
+	public function schemaBreadcrumb() {
 		if (is_callable($this->schemaBreadcrumb)) {
 			add_filter(
 				'rank_math/snippet/breadcrumb',
@@ -127,7 +127,7 @@ class RankmathSEO {
 		}
 	}
 
-	public function schemaWebpage(): void {
+	public function schemaWebpage() {
 		if (is_callable($this->schemaWebpage)) {
 			add_filter(
 				'rank_math/snippet/webpage',
@@ -142,7 +142,7 @@ class RankmathSEO {
 	 *
 	 */
 
-	public function setRobots($robots): void {
+	public function setRobots($robots) {
 		$this->robots = $robots;
 	}
 
@@ -150,7 +150,7 @@ class RankmathSEO {
 		return $this->robots;
 	}
 
-	public function setCanonical($canonical): void {
+	public function setCanonical($canonical) {
 		$this->canonical = $canonical;
 	}
 
@@ -163,7 +163,7 @@ class RankmathSEO {
 	 *
 	 */
 
-	public function setTitle($title): void {
+	public function setTitle($title) {
 		$this->title = $title;
 	}
 
@@ -171,7 +171,7 @@ class RankmathSEO {
 		return $this->title;
 	}
 
-	public function setDescription($description): void {
+	public function setDescription($description) {
 		$this->description = $description;
 	}
 
@@ -179,7 +179,7 @@ class RankmathSEO {
 		return $this->description;
 	}
 
-	public function setOpengraphTitle($opengraphTitle): void {
+	public function setOpengraphTitle($opengraphTitle) {
 		$this->opengraphTitle = $opengraphTitle;
 	}
 
@@ -187,7 +187,7 @@ class RankmathSEO {
 		return $this->opengraphTitle;
 	}
 
-	public function setOpengraphDescription($opengraphDescription): void {
+	public function setOpengraphDescription($opengraphDescription) {
 		$this->opengraphDescription = $opengraphDescription;
 	}
 
@@ -195,7 +195,7 @@ class RankmathSEO {
 		return $this->opengraphDescription;
 	}
 
-	public function setOpengraphURL($opengraphURL): void {
+	public function setOpengraphURL($opengraphURL) {
 		$this->opengraphURL = $opengraphURL;
 	}
 
@@ -207,7 +207,7 @@ class RankmathSEO {
 	 *
 	 */
 
-	public function setSchema($schema, $priority = 10, $accepted_args = 0): void {
+	public function setSchema($schema, $priority = 10, $accepted_args = 0) {
 		$this->schema             = $schema;
 		$this->schemaPriority     = $priority;
 		$this->schemaAcceptedArgs = $accepted_args;
@@ -217,7 +217,7 @@ class RankmathSEO {
 		return $this->schema;
 	}
 
-	public function setSchemaWebpage($schemaWebpage, $priority = 10, $accepted_args = 0): void {
+	public function setSchemaWebpage($schemaWebpage, $priority = 10, $accepted_args = 0) {
 		$this->schemaWebpage             = $schemaWebpage;
 		$this->schemaWebpagePriority     = $priority;
 		$this->schemaWebpageAcceptedArgs = $accepted_args;
@@ -227,7 +227,7 @@ class RankmathSEO {
 		return $this->schemaWebpage;
 	}
 
-	public function setSchemaBreadcrumb($schemaBreadcrumb, $priority = 10, $accepted_args = 0): void {
+	public function setSchemaBreadcrumb($schemaBreadcrumb, $priority = 10, $accepted_args = 0) {
 		$this->schemaBreadcrumb             = $schemaBreadcrumb;
 		$this->schemaBreadcrumbPriority     = $priority;
 		$this->schemaBreadcrumbAcceptedArgs = $accepted_args;
