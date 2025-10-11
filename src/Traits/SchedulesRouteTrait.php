@@ -6,7 +6,7 @@ trait SchedulesRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
-	public function init(): void {
+	public function init() {
 		$this->intervals();
 		$this->schedules();
 		$this->hooks();
@@ -24,7 +24,7 @@ trait SchedulesRouteTrait {
 	 *
 	 */
 
-	public function interval(string $name, $interval, string $display): void {
+	public function interval($name, $interval, $display) {
 		add_filter('cron_schedules', function($schedules) use ($name, $interval, $display) {
 			$schedules[$name] = [
 				'interval' => $interval,
@@ -34,7 +34,7 @@ trait SchedulesRouteTrait {
 		});
 	}
 
-	public function schedule(string $hook, string $interval, $callback, $useInitClass = false, $customProperties = []): void {
+	public function schedule($hook, $interval, $callback, $useInitClass = false, $customProperties = []) {
 		$callback = $this->prepareCallback($callback, $useInitClass, $customProperties);
 		add_action($hook, $callback);
 		if (!wp_next_scheduled($hook)) {
