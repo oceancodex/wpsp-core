@@ -3,7 +3,7 @@
 use Illuminate\Container\Container;
 
 if (!function_exists('app')) {
-	function app($abstract = null, array $parameters = []) {
+	function app($abstract = null, $parameters = []) {
 		if (is_null($abstract)) {
 			return Container::getInstance();
 		}
@@ -12,7 +12,7 @@ if (!function_exists('app')) {
 	}
 }
 else {
-	function wpspcore_app($abstract = null, array $parameters = []) {
+	function wpspcore_app($abstract = null, $parameters = []) {
 		if (is_null($abstract)) {
 			return Container::getInstance();
 		}

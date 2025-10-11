@@ -6,7 +6,7 @@ trait AdminPagesRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
-	public function init(): void {
+	public function init() {
 		$this->admin_pages();
 		$this->hooks();
 	}
@@ -21,7 +21,7 @@ trait AdminPagesRouteTrait {
 	 *
 	 */
 
-	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
+	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		if (
 			is_admin()
 			&& !wp_doing_ajax()
@@ -39,7 +39,7 @@ trait AdminPagesRouteTrait {
 		}
 	}
 
-	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
+	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		if (is_admin() && !wp_doing_ajax()) {
 			if ($this->request->isMethod('POST')) {
 				$this->executeHiddenMethod($path, $callback, $useInitClass, $customProperties, $middlewares);
@@ -51,10 +51,10 @@ trait AdminPagesRouteTrait {
 	 *
 	 */
 
-	public function executeHiddenMethod($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
-		$requestPath = trim($this->request->getPathInfo(), '/\\');
+	public function executeHiddenMethod($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
+		$requestPath = trim($this->request->getRequestUri(), '/\\');
 		if (
-			($this->request->get('page') == $path || preg_match('/' . $path . '/iu', $requestPath))
+			($this->request->get('page') == $path || preg_match('/' . preg_quote($path, '/') . '/iu', $requestPath))
 			&& $this->isPassedMiddleware($middlewares, $this->request)
 		) {
 			$customProperties = array_merge([$path], ['custom_properties' => $customProperties ?? []]);

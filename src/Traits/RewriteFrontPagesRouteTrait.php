@@ -6,7 +6,7 @@ trait RewriteFrontPagesRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
-	public function init(): void {
+	public function init() {
 		$this->addQueryVars();
 
 		$this->rewrite_front_pages();
@@ -17,7 +17,7 @@ trait RewriteFrontPagesRouteTrait {
 	 *
 	 */
 
-	private function addQueryVars(): void {
+	private function addQueryVars() {
 		$this->filter('query_vars', function($query_vars) {
 			$query_vars[] = 'is_rewrite';
 			$query_vars[] = $this->funcs->_config('app.short_name') . '_rewrite_ident';
@@ -38,7 +38,7 @@ trait RewriteFrontPagesRouteTrait {
 	 *
 	 */
 
-	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
+	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		if (!is_admin()
 			&& !wp_doing_ajax()
 			&& $this->request->isMethod('GET')
@@ -56,7 +56,7 @@ trait RewriteFrontPagesRouteTrait {
 		}
 	}
 
-	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
+	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		if (!is_admin() && !wp_doing_ajax()) {
 			if ($this->request->isMethod('POST')) {
 				$this->executeHiddenMethod($path, $callback, $useInitClass, $customProperties, $middlewares);
@@ -69,7 +69,7 @@ trait RewriteFrontPagesRouteTrait {
 	 */
 
 
-	public function executeHiddenMethod($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null): void {
+	public function executeHiddenMethod($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		$requestPath = trim($this->request->getPathInfo(), '/\\');
 		if (
 			($this->request->get('page') == $path || preg_match('/' . $path . '/iu', $requestPath))

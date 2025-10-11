@@ -3,7 +3,7 @@ namespace WPSPCORE\Base;
 
 abstract class BaseRoute extends BaseInstances {
 
-	public ?array $initClasses = null;
+	public $initClasses = null;
 
 	/*
 	 *
@@ -64,11 +64,11 @@ abstract class BaseRoute extends BaseInstances {
 	 *
 	 */
 
-	private function getInitClasses(): ?array {
+	private function getInitClasses() {
 		return $this->initClasses;
 	}
 
-	private function setInitClasses($initClasses): void {
+	private function setInitClasses($initClasses) {
 		$this->initClasses = $initClasses;
 	}
 
@@ -81,7 +81,7 @@ abstract class BaseRoute extends BaseInstances {
 		return $initClass;
 	}
 
-	private function addInitClass($className, $classInstance): void {
+	private function addInitClass($className, $classInstance) {
 		$initClasses             = $this->getInitClasses();
 		$initClasses[$className] = $classInstance;
 		$this->setInitClasses($initClasses);
