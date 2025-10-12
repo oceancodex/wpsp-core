@@ -17,11 +17,10 @@ abstract class BaseMetaBox extends BaseInstances {
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $id = null, $callback_function = null, $custom_properties = null) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->id                = $id;
-		$this->callback_function = $callback_function;
-		$this->custom_properties = $custom_properties;
+	public function afterConstruct() {
+		$this->id                = $this->customProperties['id'] ?? null;
+		$this->callback_function = $this->customProperties['callback_function'] ?? null;;
+		$this->custom_properties = $this->customProperties['custom_properties'] ?? [];
 		$this->customProperties();
 	}
 

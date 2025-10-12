@@ -2,16 +2,21 @@
 
 namespace WPSPCORE\Base;
 
+use WPSPCORE\Traits\BaseInstancesTrait;
+
 abstract class BaseListTable extends \WP_List_Table {
+
+	use BaseInstancesTrait;
 
 	public $defaultOrder    = 'asc';
 	public $defaultOrderBy  = 'id';
 	public $removeQueryVars = [];
 
-	public function __construct($args = []) {
+	public function __construct($args = [], $mainPath = null, $rootNamespace = null, $prefixEnv = null, $customProperties = []) {
 		parent::__construct($args);
-		$this->customProperties();
+		$this->beforeBaseInstanceConstruct($mainPath, $rootNamespace, $prefixEnv, $customProperties);
 		$this->removeQueryVars();
+		$this->customProperties();
 	}
 
 	public function removeQueryVars() {
@@ -23,6 +28,5 @@ abstract class BaseListTable extends \WP_List_Table {
 	}
 
 	public function customProperties() {}
-
 
 }

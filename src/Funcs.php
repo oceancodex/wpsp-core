@@ -13,11 +13,11 @@ use WPSPCORE\View\Blade;
 
 class Funcs extends BaseInstances {
 
-	private static $coreFuncsInstance = null;
+//	private static $coreFuncsInstance = null;
 
-	public $mainPath      = null;
-	public $rootNamespace = null;
-	public $prefixEnv     = null;
+//	public $mainPath      = null;
+//	public $rootNamespace = null;
+//	public $prefixEnv     = null;
 
 
 //	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
@@ -26,12 +26,12 @@ class Funcs extends BaseInstances {
 //		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
 //	}
 
-	public static function getInstance($mainPath = null, $rootNamespace = null, $prefixEnv = null, $customProperties = []) {
-		if (!self::$coreFuncsInstance) {
-			self::$coreFuncsInstance = new self($mainPath, $rootNamespace, $prefixEnv, $customProperties);
-		}
-		return self::$coreFuncsInstance;
-	}
+//	public static function getInstance($mainPath = null, $rootNamespace = null, $prefixEnv = null, $customProperties = []) {
+//		if (!self::$coreFuncsInstance) {
+//			self::$coreFuncsInstance = new self($mainPath, $rootNamespace, $prefixEnv, $customProperties);
+//		}
+//		return self::$coreFuncsInstance;
+//	}
 
 	/*
 	 *
