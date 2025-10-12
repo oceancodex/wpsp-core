@@ -8,9 +8,9 @@ abstract class BaseTemplates extends BaseInstances {
 	public $label = null;
 	public $path  = null;
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $name = null) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->name = $name;
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
+		parent::__construct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
+		$this->name = $extraParams['name'];
 		$this->customProperties();
 		$this->templateInclude();
 	}

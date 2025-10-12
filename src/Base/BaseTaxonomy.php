@@ -10,20 +10,16 @@ abstract class BaseTaxonomy extends BaseInstances {
 	use ObjectPropertiesToArrayTrait;
 
 	public $taxonomy          = null;
-	public $args              = null;
 	public $object_type       = 'post';     // The post type which the taxonomy will be associated with.
-	public $callback_function = null;
-	public $custom_properties = null;
+	public $args              = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $taxonomy = null, $callback_function = null, $custom_properties = null) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->callback_function = $callback_function;
-		$this->custom_properties = $custom_properties;
-		$this->overrideTaxonomy($taxonomy);
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
+		parent::__construct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
+		$this->overrideTaxonomy($extraParams['taxonomy']);
 		$this->prepareArguments();
 		$this->customProperties();
 		$this->prepareArguments($this->args);

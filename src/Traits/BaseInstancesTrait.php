@@ -7,17 +7,18 @@ use WPSPCORE\Funcs;
 
 trait BaseInstancesTrait {
 
-	public $mainPath         = null;
-	public $rootNamespace    = null;
-	public $prefixEnv        = null;
-	public $customProperties = [];
-	/** @var \Symfony\Component\HttpFoundation\Request */
-	public $request          = null;
-	public $locale           = null;
-	/** @var \WPSPCORE\Funcs|null */
-	public $funcs            = null;
+	public $mainPath        = null;
+	public $rootNamespace   = null;
+	public $prefixEnv       = null;
+	public $extraParams     = [];
 
-	public function beforeBaseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $customProperties = []) {
+	/** @var \Symfony\Component\HttpFoundation\Request */
+	public $request         = null;
+	public $locale          = null;
+	/** @var \WPSPCORE\Funcs|null */
+	public $funcs           = null;
+
+	public function beforeBaseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 		$this->locale = function_exists('get_locale') ? get_locale() : 'en';
 		if (!$this->request) $this->request = Request::createFromGlobals();
 		$this->beforeConstruct();
@@ -25,8 +26,10 @@ trait BaseInstancesTrait {
 		if ($mainPath) $this->mainPath = $mainPath;
 		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
 		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
-		if (!empty($customProperties)) $this->customProperties = $customProperties;
-		if (!isset($customProperties['prepare_funcs']) || $customProperties['prepare_funcs']) $this->prepareFuncs();
+		if (!empty($extraParams)) $this->extraParams = $extraParams;
+		if (!isset($extraParams['prepare_funcs']) || $extraParams['prepare_funcs']) {
+			$this->prepareFuncs();
+		}
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();
 	}

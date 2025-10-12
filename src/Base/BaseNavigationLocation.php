@@ -17,11 +17,11 @@ abstract class BaseNavigationLocation extends BaseInstances {
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $location = null, $callback_function = null, $custom_properties = null) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->callback_function = $callback_function;
-		$this->custom_properties = $custom_properties;
-		$this->overrideLocation($location);
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
+		parent::__construct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
+		$this->callback_function = $extraParams['callback_function'];
+		$this->custom_properties = $extraParams['custom_properties'];
+		$this->overrideLocation($extraParams['location']);
 		$this->customProperties();
 	}
 

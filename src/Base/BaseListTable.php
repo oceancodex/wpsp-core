@@ -12,9 +12,9 @@ abstract class BaseListTable extends \WP_List_Table {
 	public $defaultOrderBy  = 'id';
 	public $removeQueryVars = [];
 
-	public function __construct($args = [], $mainPath = null, $rootNamespace = null, $prefixEnv = null, $customProperties = []) {
+	public function __construct($args = [], $mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 		parent::__construct($args);
-		$this->beforeBaseInstanceConstruct($mainPath, $rootNamespace, $prefixEnv, $customProperties);
+		$this->beforeBaseInstanceConstruct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
 		$this->removeQueryVars();
 		$this->customProperties();
 	}

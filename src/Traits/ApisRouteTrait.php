@@ -52,9 +52,23 @@ trait ApisRouteTrait {
 	}
 
 	public function registerRestRoute($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
+
+		$constructParams = [
+			[
+				'path'              => $path,
+				'method'            => $method,
+				'callback_function' => $callback[1],
+				'custom_properties' => $customProperties,
+			]
+		];
+		$constructParams = array_merge([
+			$this->funcs->_getMainPath(),
+			$this->funcs->_getRootNamespace(),
+			$this->funcs->_getPrefixEnv(),
+		], $constructParams);
 		register_rest_route(($namespace ?? $this->funcs->_config('app.short_name')) . '/' . ($version ?? 'v1'), $path, [
 			'methods'             => $method,
-			'callback'            => $this->prepareCallback($callback, $useInitClass, $customProperties),
+			'callback'            => $this->prepareCallback($callback, $useInitClass, $constructParams),
 			'args'                => [
 //				'id' => [
 //					'validate_callback' => function($param, $request, $key) {

@@ -22,7 +22,7 @@ abstract class BaseSeeder extends Seeder {
 	public function __construct($output = null) {
 		$this->output = $output;
 		$this->beforeInstanceConstruct();
-		$this->funcs = Funcs::getInstance();
+		$this->funcs = new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, ['prepare_funcs' => false]);
 		if (!$this->capsule) {
 			$this->capsule = new Capsule();
 

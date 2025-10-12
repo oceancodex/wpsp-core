@@ -25,7 +25,7 @@ abstract class BaseRoute extends BaseInstances {
 		return $passed;
 	}
 
-	public function prepareCallback($callback, $useInitClass = false, $customProperties = []) {
+	public function prepareCallback($callback, $useInitClass = false, $constructParams = []) {
 
 		// If callback is a closure.
 		if ($callback instanceof \Closure) {
@@ -35,12 +35,12 @@ abstract class BaseRoute extends BaseInstances {
 		// If callback is an array with class and method.
 		if (is_array($callback)) {
 			if ($useInitClass) {
-				$class = $this->getInitClass($callback[0], $useInitClass, $customProperties);
+				$class = $this->getInitClass($callback[0], $useInitClass, $constructParams);
 			}
 			else {
-				$class = new $callback[0](...$customProperties ?? []);
+				$class = new $callback[0](...$constructParams ?? []);
 			}
-			return [$class, $callback[1]];
+			return [$class, $callback[1] ?? null];
 		}
 
 		// If callback is a string.
@@ -50,12 +50,12 @@ abstract class BaseRoute extends BaseInstances {
 
 	}
 
-	public function prepareClass($callback, $useInitClass = false, $customProperties = []) {
+	public function prepareClass($callback, $useInitClass = false, $constructParams = []) {
 		if ($useInitClass) {
-			$class = $this->getInitClass($callback[0], $useInitClass, $customProperties);
+			$class = $this->getInitClass($callback[0], $useInitClass, $constructParams);
 		}
 		else {
-			$class = new $callback[0](...$customProperties ?? []);
+			$class = new $callback[0](...$constructParams ?? []);
 		}
 		return $class;
 	}
@@ -72,10 +72,10 @@ abstract class BaseRoute extends BaseInstances {
 		$this->initClasses = $initClasses;
 	}
 
-	private function getInitClass($className, $addInitClass = false, $customProperties = []) {
+	private function getInitClass($className, $addInitClass = false, $constructParams = []) {
 		$initClass = $this->getInitClasses()[$className] ?? null;
 		if (!$initClass) {
-			$initClass = new $className(...$customProperties ?? []);
+			$initClass = new $className(...$constructParams ?? []);
 			if ($addInitClass) $this->addInitClass($className, $initClass);
 		}
 		return $initClass;

@@ -5,18 +5,14 @@ namespace WPSPCORE\Base;
 abstract class BaseShortcode extends BaseInstances {
 
 	public $shortcode         = null;
-	public $callback_function = null;
-	public $custom_properties = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $shortcode = null, $callback_function = null, $custom_properties = null) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->callback_function = $callback_function;
-		$this->custom_properties = $custom_properties;
-		$this->overrideShortcode($shortcode);
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
+		parent::__construct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
+		$this->overrideShortcode($extraParams['shortcode']);
 		$this->customProperties();
 	}
 
@@ -25,7 +21,7 @@ abstract class BaseShortcode extends BaseInstances {
 	 */
 
 	public function init($shortcode = null) {
-		$callback = $this->callback_function ? [$this, $this->callback_function] : null;
+		$callback  = $this->extraParams['callback_function'] ? [$this, $this->extraParams['callback_function']] : null;
 		$shortcode = $this->shortcode ?? $shortcode;
 		if ($shortcode) {
 			add_shortcode($shortcode, $callback);

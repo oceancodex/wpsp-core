@@ -26,9 +26,9 @@ class Funcs extends BaseInstances {
 //		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
 //	}
 
-//	public static function getInstance($mainPath = null, $rootNamespace = null, $prefixEnv = null, $customProperties = []) {
+//	public static function getInstance($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 //		if (!self::$coreFuncsInstance) {
-//			self::$coreFuncsInstance = new self($mainPath, $rootNamespace, $prefixEnv, $customProperties);
+//			self::$coreFuncsInstance = new self($mainPath, $rootNamespace, $prefixEnv, $extraParams);
 //		}
 //		return self::$coreFuncsInstance;
 //	}
