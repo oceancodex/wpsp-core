@@ -9,9 +9,9 @@ abstract class BaseTaxonomy extends BaseInstances {
 
 	use ObjectPropertiesToArrayTrait;
 
-	public $taxonomy          = null;
-	public $object_type       = 'post';     // The post type which the taxonomy will be associated with.
-	public $args              = null;
+	public $taxonomy    = null;
+	public $object_type = 'post';     // The post type which the taxonomy will be associated with.
+	public $args        = null;
 
 	/*
 	 *

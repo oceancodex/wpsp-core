@@ -8,6 +8,7 @@ trait TaxonomiesRouteTrait {
 
 	public function init() {
 		$this->taxonomies();
+		$this->hooks();
 	}
 
 	/*

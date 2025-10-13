@@ -4,7 +4,7 @@ namespace WPSPCORE\Base;
 
 abstract class BaseShortcode extends BaseInstances {
 
-	public $shortcode         = null;
+	public $shortcode = null;
 
 	/*
 	 *

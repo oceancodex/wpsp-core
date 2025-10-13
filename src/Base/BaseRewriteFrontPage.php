@@ -10,17 +10,15 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	public $rewriteFrontPageSlug     = 'rewrite-front-pages';
 	public $rewriteFrontPagePostType = 'page';
 	public $callback_function        = null;
-	public $custom_properties        = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $path = null, $callback_function = null, $custom_properties = null) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->callback_function = $callback_function;
-		$this->custom_properties = $custom_properties;
-		$this->overridePath($path);
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
+		parent::__construct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
+		$this->callback_function = $extraParams['callback_function'];
+		$this->overridePath($extraParams['path']);
 		$this->customProperties();
 	}
 

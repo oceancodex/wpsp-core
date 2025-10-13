@@ -52,7 +52,6 @@ trait ApisRouteTrait {
 	}
 
 	public function registerRestRoute($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
-
 		$constructParams = [
 			[
 				'path'              => $path,
