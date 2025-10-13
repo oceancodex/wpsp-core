@@ -14,6 +14,7 @@ abstract class BaseSeeder extends Seeder {
 	public $prefixEnv     = null;
 	/** @var Funcs|null */
 	public $funcs         = null;
+
 	/** @var Capsule|null */
 	public $capsule       = null;
 	/** @var \Symfony\Component\Console\Output\Output|null */
@@ -21,8 +22,8 @@ abstract class BaseSeeder extends Seeder {
 
 	public function __construct($output = null) {
 		$this->output = $output;
-		$this->beforeInstanceConstruct();
-		$this->funcs = new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, ['prepare_funcs' => false]);
+		$this->beforeConstruct();
+//		$this->funcs = new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, ['prepare_funcs' => false]);
 		if (!$this->capsule) {
 			$this->capsule = new Capsule();
 
@@ -62,6 +63,6 @@ abstract class BaseSeeder extends Seeder {
 		return $this;
 	}
 
-	protected function beforeInstanceConstruct() {}
+	public function beforeConstruct() {}
 
 }

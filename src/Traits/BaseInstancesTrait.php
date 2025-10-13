@@ -46,7 +46,7 @@ trait BaseInstancesTrait {
 	 *
 	 */
 
-	protected function prepareFuncs() {
+	public function prepareFuncs() {
 		$this->funcs = new Funcs(
 			$this->mainPath,
 			$this->rootNamespace,
@@ -61,12 +61,12 @@ trait BaseInstancesTrait {
 	 *
 	 */
 
-	protected function beforeConstruct() {}
+	public function beforeConstruct() {}
 
-	protected function beforeInstanceConstruct() {}
+	public function beforeInstanceConstruct() {}
 
 	protected function afterConstruct() {}
 
-	protected function afterInstanceConstruct() {}
+	public function afterInstanceConstruct() {}
 
 }

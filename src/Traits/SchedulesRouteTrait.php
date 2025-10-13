@@ -35,7 +35,19 @@ trait SchedulesRouteTrait {
 	}
 
 	public function schedule($hook, $interval, $callback, $useInitClass = false, $customProperties = []) {
-		$callback = $this->prepareCallback($callback, $useInitClass, $customProperties);
+		$constructParams = [
+			[
+				'hook'              => $hook,
+				'callback_function' => $callback[1] ?? null,
+				'custom_properties' => $customProperties,
+			],
+		];
+		$constructParams = array_merge([
+			$this->funcs->_getMainPath(),
+			$this->funcs->_getRootNamespace(),
+			$this->funcs->_getPrefixEnv()
+		], $constructParams);
+		$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
 		add_action($hook, $callback);
 		if (!wp_next_scheduled($hook)) {
 			wp_schedule_event(time(), $interval, $hook);

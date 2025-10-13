@@ -15,10 +15,9 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
-		$this->callback_function = $extraParams['callback_function'];
-		$this->overridePath($extraParams['path']);
+	public function afterConstruct() {
+		$this->callback_function = $this->extraParams['callback_function'];
+		$this->overridePath($this->extraParams['path']);
 		$this->customProperties();
 	}
 

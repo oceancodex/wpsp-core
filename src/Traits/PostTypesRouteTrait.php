@@ -27,7 +27,7 @@ trait PostTypesRouteTrait {
 				$constructParams = [
 					[
 						'post_type'         => $postType,
-						'callback_function' => $callback[1],
+						'callback_function' => $callback[1] ?? null,
 						'custom_properties' => $customProperties,
 					],
 				];

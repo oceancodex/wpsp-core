@@ -4,8 +4,6 @@ namespace WPSPCORE\Base;
 
 abstract class BaseAdminPage extends BaseInstances {
 
-	public $extraParams                 = [];
-
 	public $menu_title                  = null;
 	public $page_title                  = null;
 	public $capability                  = null;
@@ -18,11 +16,9 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $urls_highlight_current_menu = null;
 	public $callback_function           = null;
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
-		$this->extraParams       = $extraParams;
-		$this->callback_function = $extraParams['callback_function'];
-		$this->overrideMenuSlug($extraParams['path']);
+	protected function afterConstruct() {
+		$this->callback_function = $this->extraParams['callback_function'];
+		$this->overrideMenuSlug($this->extraParams['path']);
 		$this->customProperties();
 	}
 

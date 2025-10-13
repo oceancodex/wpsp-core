@@ -23,19 +23,19 @@ trait MetaBoxesRouteTrait {
 
 	public function meta_box($id, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
-			$customProperties = [
+			$constructParams = [
 				[
 					'id'                => $id,
-					'callback_function' => $callback[1],
+					'callback_function' => $callback[1] ?? null,
 					'custom_properties' => $customProperties,
-				]
+				],
 			];
-			$customProperties = array_merge([
+			$constructParams = array_merge([
 				$this->funcs->_getMainPath(),
 				$this->funcs->_getRootNamespace(),
-				$this->funcs->_getPrefixEnv(),
-			], $customProperties);
-			$callback         = $this->prepareCallback($callback, $useInitClass, $customProperties);
+				$this->funcs->_getPrefixEnv()
+			], $constructParams);
+			$callback         = $this->prepareCallback($callback, $useInitClass, $constructParams);
 			$callback[1]      = 'init';
 			add_action('add_meta_boxes', $callback, $priority, $argsNumber);
 		}

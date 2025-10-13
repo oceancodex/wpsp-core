@@ -47,7 +47,7 @@ trait RewriteFrontPagesRouteTrait {
 			$constructParams = [
 				[
 					'path'              => $path,
-					'callback_function' => $callback[1],
+					'callback_function' => $callback[1] ?? null,
 					'custom_properties' => $customProperties,
 				]
 			];
@@ -84,7 +84,7 @@ trait RewriteFrontPagesRouteTrait {
 			$constructParams = [
 				[
 					'path'              => $path,
-					'callback_function' => $callback[1],
+					'callback_function' => $callback[1] ?? null,
 					'custom_properties' => $customProperties,
 				]
 			];

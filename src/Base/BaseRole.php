@@ -10,7 +10,6 @@ abstract class BaseRole extends BaseInstances {
 
 	public $role              = null;
 	public $callback_function = null;
-	public $custom_properties = null;
 
 	public $display_name      = null;
 	public $capabilities      = [];
@@ -19,11 +18,9 @@ abstract class BaseRole extends BaseInstances {
 	 *
 	 */
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $role = null, $callback_function = null, $custom_properties = null) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->callback_function = $callback_function;
-		$this->custom_properties = $custom_properties;
-		$this->overrideRole($role);
+	public function afterConstruct() {
+		$this->callback_function = $this->extraParams['callback_function'];
+		$this->overrideRole($this->extraParams['role']);
 		$this->customProperties();
 	}
 

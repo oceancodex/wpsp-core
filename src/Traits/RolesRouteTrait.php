@@ -24,13 +24,19 @@ trait RolesRouteTrait {
 	public function role($role, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			if (is_array($callback)) {
-				$customProperties = array_merge([$role, $callback[1]], ['custom_properties' => $customProperties ?? []]);
-				$customProperties = array_merge([
+				$constructParams = [
+					[
+						'role'              => $role,
+						'callback_function' => $callback[1] ?? null,
+						'custom_properties' => $customProperties,
+					],
+				];
+				$constructParams = array_merge([
 					$this->funcs->_getMainPath(),
 					$this->funcs->_getRootNamespace(),
-					$this->funcs->_getPrefixEnv()
-				], $customProperties);
-				$callback = $this->prepareCallback($callback, $useInitClass, $customProperties);
+					$this->funcs->_getPrefixEnv(),
+				], $constructParams);
+				$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
 				$callback[1] = 'init';
 				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($role) : $callback;
 			}
