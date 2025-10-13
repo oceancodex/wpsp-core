@@ -18,7 +18,7 @@ abstract class BaseRole extends BaseInstances {
 	 *
 	 */
 
-	public function afterConstruct() {
+	protected function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
 		$this->overrideRole($this->extraParams['role']);
 		$this->customProperties();

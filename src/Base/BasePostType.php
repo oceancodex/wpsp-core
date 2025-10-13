@@ -17,7 +17,7 @@ abstract class BasePostType extends BaseInstances {
 	 *
 	 */
 
-	public function afterConstruct() {
+	protected function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
 		$this->overridePostType($this->extraParams['post_type'] ?? null);
 		$this->prepareArguments();
