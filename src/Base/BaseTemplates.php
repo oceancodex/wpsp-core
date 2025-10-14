@@ -8,9 +8,9 @@ abstract class BaseTemplates extends BaseInstances {
 	public $label = null;
 	public $path  = null;
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $name = null) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->name = $name;
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
+		parent::__construct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
+		$this->overrideName($extraParams['name']);
 		$this->customProperties();
 		$this->templateInclude();
 	}
@@ -20,9 +20,9 @@ abstract class BaseTemplates extends BaseInstances {
 	 */
 
 	public function init($name = null) {
-		if ($this->name) {
-			add_filter('theme_page_templates', function($templates) {
-				$name = $this->name;
+		$name = $this->name ?? $name;
+		if ($name) {
+			add_filter('theme_page_templates', function($templates) use ($name) {
 				if ($this->path) {
 					$name .= '|' . preg_replace('/\/|\\\/iu', '%%slash%%', $this->path);
 				}
@@ -32,6 +32,16 @@ abstract class BaseTemplates extends BaseInstances {
 				$templates[$name] = $this->label ?? $this->funcs->_config('app.short_name') . ' - Custom template';
 				return $templates;
 			});
+		}
+	}
+
+	/*
+	 *
+	 */
+
+	protected function overrideName($name = null) {
+		if ($name && !$this->name) {
+			$this->name = $name;
 		}
 	}
 
