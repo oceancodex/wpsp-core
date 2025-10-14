@@ -16,7 +16,7 @@ abstract class BaseNavigationMenu extends BaseInstances {
 	 *
 	 */
 
-	protected function afterInstanceConstruct() {
+	protected function afterConstruct() {
 		$this->prepareArguments();
 		$this->customProperties();
 	}
