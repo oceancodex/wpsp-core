@@ -14,14 +14,11 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $is_submenu_page             = false;
 	public $remove_first_submenu        = false;
 	public $urls_highlight_current_menu = null;
-	public $custom_properties           = null;
 	public $callback_function           = null;
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $menu_slug = null, $callback_function = null, $custom_properties = null) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv);
-		$this->callback_function = $callback_function;
-		$this->custom_properties = $custom_properties;
-		$this->overrideMenuSlug($menu_slug);
+	protected function afterConstruct() {
+		$this->callback_function = $this->extraParams['callback_function'];
+		$this->overrideMenuSlug($this->extraParams['path']);
 		$this->customProperties();
 	}
 
