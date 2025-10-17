@@ -25,23 +25,30 @@ trait AdminPagesRouteTrait {
 		if (
 			is_admin()
 			&& !wp_doing_ajax()
-			&& $this->isPassedMiddleware($middlewares, $this->request)
 		) {
-			$constructParams = [
-				[
-					'path'              => $path,
-					'callback_function' => $callback[1] ?? null,
-					'custom_properties' => $customProperties,
-				]
-			];
-			$constructParams = array_merge([
-				$this->funcs->_getMainPath(),
-				$this->funcs->_getRootNamespace(),
-				$this->funcs->_getPrefixEnv(),
-			], $constructParams);
-			$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
-			$callback[1] = 'init';
-			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
+			if ($this->isPassedMiddleware($middlewares, $this->request)) {
+				$constructParams = [
+					[
+						'path'              => $path,
+						'callback_function' => $callback[1] ?? null,
+						'custom_properties' => $customProperties,
+					]
+				];
+				$constructParams = array_merge([
+					$this->funcs->_getMainPath(),
+					$this->funcs->_getRootNamespace(),
+					$this->funcs->_getPrefixEnv(),
+				], $constructParams);
+				$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
+				$callback[1] = 'init';
+				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
+			}
+			else {
+				$currentPath = $this->request->getRequestUri();
+				if (preg_match('/'.preg_quote($path, '/').'/iu', $currentPath)) {
+					wp_die('Access denied.');
+				}
+			}
 		}
 	}
 
