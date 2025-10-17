@@ -7,16 +7,17 @@ use WPSPCORE\Funcs;
 
 trait BaseInstancesTrait {
 
-	public $mainPath        = null;
-	public $rootNamespace   = null;
-	public $prefixEnv       = null;
-	public $extraParams     = [];
+	public $mainPath            = null;
+	public $rootNamespace       = null;
+	public $prefixEnv           = null;
+	public $extraParams         = [];
 
 	/** @var \Symfony\Component\HttpFoundation\Request */
-	public $request         = null;
-	public $locale          = null;
+	public $request             = null;
+	public $locale              = null;
 	/** @var \WPSPCORE\Funcs|null */
-	public $funcs           = null;
+	public $funcs               = null;
+	public $currentPathSlugify  = null;
 
 	public function beforeBaseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 		$this->locale = function_exists('get_locale') ? get_locale() : 'en';
@@ -29,6 +30,7 @@ trait BaseInstancesTrait {
 		if (!empty($extraParams)) $this->extraParams = $extraParams;
 		if (!isset($extraParams['prepare_funcs']) || $extraParams['prepare_funcs']) {
 			$this->prepareFuncs();
+			$this->prepareCurrentPathSlugify();
 		}
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();
@@ -57,6 +59,14 @@ trait BaseInstancesTrait {
 		);
 	}
 
+	public function prepareCurrentPathSlugify() {
+		$path = $this->request->getQueryString();
+		$path = trim($path, '/');
+		$path = preg_replace('/[^0-9a-zA-Z]/iu', '_', $path);
+		$path = $this->funcs->_env('APP_SHORT_NAME', true) . '_' . $path;
+		$this->currentPathSlugify = $path;
+	}
+
 	/*
 	 *
 	 */
@@ -65,7 +75,7 @@ trait BaseInstancesTrait {
 
 	public function beforeInstanceConstruct() {}
 
-	protected function afterConstruct() {}
+	public function afterConstruct() {}
 
 	public function afterInstanceConstruct() {}
 

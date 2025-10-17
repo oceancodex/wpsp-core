@@ -18,7 +18,7 @@ abstract class BaseMetaBox extends BaseInstances {
 	 *
 	 */
 
-	protected function afterConstruct() {
+	public function afterConstruct() {
 		$this->id                = $this->extraParams['id'] ?? null;
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
 		$this->custom_properties = $this->extraParams['custom_properties'] ?? [];

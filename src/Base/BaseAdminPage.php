@@ -16,8 +16,11 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $urls_highlight_current_menu = null;
 	public $callback_function           = null;
 
-	protected function afterConstruct() {
+	public $screenOptionsKey            = null;
+
+	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
+		$this->screenOptionsKey  = $this->currentPathSlugify ?? $this->menu_slug;
 		$this->overrideMenuSlug($this->extraParams['path']);
 		$this->customProperties();
 	}
@@ -88,6 +91,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	private function addAdminMenuPage() {
 		add_action('admin_menu', function() {
 			$adminPage = $this->is_submenu_page ? $this->addSubMenuPage() : $this->addMenuPage();
+			$this->afterAddAdminMenuPage();
 			add_action('load-' . $adminPage, function() use ($adminPage) {
 				// Enqueue scripts.
 				add_action('admin_enqueue_scripts', [$this, 'assets']);
@@ -105,8 +109,6 @@ abstract class BaseAdminPage extends BaseInstances {
 				remove_submenu_page($this->menu_slug, $this->menu_slug);
 			}, 99999999);
 		}
-
-		$this->afterAddAdminMenuPage();
 	}
 
 	private function highlightCurrentMenu() {
@@ -133,7 +135,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	}
 
 	private function saveScreenOptions() {
-		$itemsPerPageKey = 'set_screen_option_' . $this->funcs->_env('APP_SHORT_NAME', true) . '_' . $this->menu_slug . '_items_per_page';
+		$itemsPerPageKey = 'set_screen_option_' . $this->screenOptionsKey . '_items_per_page';
 		add_filter($itemsPerPageKey, function($default, $option, $value) {
 			return $value;
 		}, 10, 3);
@@ -154,7 +156,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		if (!is_object($screen) || $screen->id != $adminPage) return;
 		$args = [
 			'default' => 20,
-			'option'  => $this->funcs->_env('APP_SHORT_NAME', true) . '_' . $this->menu_slug . '_items_per_page',
+			'option'  => $this->screenOptionsKey . '_items_per_page',
 		];
 		add_screen_option('per_page', $args);
 	}
@@ -163,7 +165,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-//	abstract public function index();
+	abstract public function index();
 
 	abstract public function styles();
 

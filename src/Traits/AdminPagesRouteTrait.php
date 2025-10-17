@@ -26,7 +26,12 @@ trait AdminPagesRouteTrait {
 			is_admin()
 			&& !wp_doing_ajax()
 		) {
-			if ($this->isPassedMiddleware($middlewares, $this->request)) {
+			$requestPath = trim($this->request->getRequestUri(), '/\\');
+			$page = $this->request->get('page');
+			if (
+				(!$page || $this->request->get('page') == $path || preg_match('/' . preg_quote($path, '/') . '/iu', $requestPath) || $callback[1] == 'index')
+				&& $this->isPassedMiddleware($middlewares, $this->request)
+			) {
 				$constructParams = [
 					[
 						'path'              => $path,
@@ -40,7 +45,7 @@ trait AdminPagesRouteTrait {
 					$this->funcs->_getPrefixEnv(),
 				], $constructParams);
 				$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
-				$callback[1] = 'init';
+				if ($callback[1] == 'index') $callback[1] = 'init';
 				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
 			}
 			else {
@@ -65,6 +70,11 @@ trait AdminPagesRouteTrait {
 	 */
 
 	public function executeHiddenMethod($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
+		$screenOptions = $this->request->get('wp_screen_options');
+		if ($screenOptions) {
+			return;
+		}
+
 		$requestPath = trim($this->request->getRequestUri(), '/\\');
 		if (
 			($this->request->get('page') == $path || preg_match('/' . preg_quote($path, '/') . '/iu', $requestPath))
