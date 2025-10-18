@@ -21,7 +21,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
-		$this->screenOptionsKey  = $this->screenOptionsKey ?: $this->getQueryStringSlugify(['page']) ?? $this->menu_slug;
+		$this->screen_options_key  = $this->screen_options_key ?: $this->getQueryStringSlugify(['page']) ?? $this->menu_slug;
 		$this->overrideMenuSlug($this->extraParams['path']);
 		$this->customProperties();
 	}
@@ -98,7 +98,7 @@ abstract class BaseAdminPage extends BaseInstances {
 				add_action('admin_enqueue_scripts', [$this, 'assets']);
 
 				// Screen options.
-				$this->screenOptions($adminPage);
+				if ($this->screen_options) $this->screenOptions($adminPage);
 
 				// After load this admin page.
 				$this->afterLoad($adminPage);
@@ -136,7 +136,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	}
 
 	private function saveScreenOptions() {
-		$itemsPerPageKey = 'set_screen_option_' . $this->screenOptionsKey . '_items_per_page';
+		$itemsPerPageKey = 'set_screen_option_' . $this->screen_options_key . '_items_per_page';
 		add_filter($itemsPerPageKey, function($default, $option, $value) {
 			return $value;
 		}, 10, 3);
@@ -157,7 +157,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		if (!is_object($screen) || $screen->id != $adminPage) return;
 		$args = [
 			'default' => 20,
-			'option'  => $this->screenOptionsKey . '_items_per_page',
+			'option'  => $this->screen_options_key . '_items_per_page',
 		];
 		add_screen_option('per_page', $args);
 	}
