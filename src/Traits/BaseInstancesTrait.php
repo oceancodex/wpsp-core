@@ -12,7 +12,7 @@ trait BaseInstancesTrait {
 	public $prefixEnv           = null;
 	public $extraParams         = [];
 
-	/** @var \Symfony\Component\HttpFoundation\Request */
+	/** @var \Symfony\Component\HttpFoundation\Request|\WPSPCORE\Validation\ValidatedRequest */
 	public $request             = null;
 	public $locale              = null;
 	/** @var \WPSPCORE\Funcs|null */
@@ -20,7 +20,15 @@ trait BaseInstancesTrait {
 
 	public function beforeBaseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 		$this->locale = function_exists('get_locale') ? get_locale() : 'en';
-		if (!$this->request) $this->request = Request::createFromGlobals();
+		if (!$this->request) {
+			if (!$this->request) {
+				if (class_exists('\WPSPCORE\Validation\ValidatedRequest')) {
+					$this->request = \WPSPCORE\Validation\ValidatedRequest::createFromGlobals();
+				} else {
+					$this->request = Request::createFromGlobals();
+				}
+			}
+		}
 		$this->beforeConstruct();
 		$this->beforeInstanceConstruct();
 		if ($mainPath) $this->mainPath = $mainPath;
