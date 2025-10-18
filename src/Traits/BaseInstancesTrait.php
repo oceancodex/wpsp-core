@@ -17,7 +17,6 @@ trait BaseInstancesTrait {
 	public $locale              = null;
 	/** @var \WPSPCORE\Funcs|null */
 	public $funcs               = null;
-	public $currentPathSlugify  = null;
 
 	public function beforeBaseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 		$this->locale = function_exists('get_locale') ? get_locale() : 'en';
@@ -30,7 +29,6 @@ trait BaseInstancesTrait {
 		if (!empty($extraParams)) $this->extraParams = $extraParams;
 		if (!isset($extraParams['prepare_funcs']) || $extraParams['prepare_funcs']) {
 			$this->prepareFuncs();
-			$this->prepareCurrentPathSlugify();
 		}
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();
@@ -59,13 +57,36 @@ trait BaseInstancesTrait {
 		);
 	}
 
-	public function prepareCurrentPathSlugify() {
-		$path = $this->request->getQueryString();
-		$path = trim($path, '/');
-		$path = preg_replace('/[^0-9a-zA-Z]/iu', '_', $path);
-		$path = $this->funcs->_env('APP_SHORT_NAME', true) . '_' . $path;
-		$this->currentPathSlugify = $path;
+	public function getQueryStringSlugify($params = []) {
+		// Lấy toàn bộ query string từ URL
+		$queryParams = $this->request->query->all();
+
+		$selectedParts = [];
+
+		// Chỉ lấy những params được khai báo
+		foreach ($params as $key) {
+			if (isset($queryParams[$key])) {
+				// Ghép key và value để phân biệt
+				$selectedParts[] = $key . '=' . $queryParams[$key];
+			}
+		}
+
+		// Ghép các phần lại thành một chuỗi
+		$slug = implode('_', $selectedParts);
+
+		// Làm sạch chuỗi thành dạng slug
+		$slug = preg_replace('/[^0-9a-zA-Z]/iu', '_', $slug);
+
+		// Thêm tiền tố app name (nếu có)
+		$prefix = $this->funcs->_env('APP_SHORT_NAME', true);
+		if ($prefix) {
+			$slug = $prefix . '_' . $slug;
+		}
+
+		// Gán vào biến class
+		return $slug;
 	}
+
 
 	/*
 	 *

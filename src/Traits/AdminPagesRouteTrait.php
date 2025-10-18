@@ -27,9 +27,8 @@ trait AdminPagesRouteTrait {
 			&& !wp_doing_ajax()
 		) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
-			$page = $this->request->get('page');
 			if (
-				(!$page || $this->request->get('page') == $path || preg_match('/' . preg_quote($path, '/') . '/iu', $requestPath) || $callback[1] == 'index')
+				($this->request->get('page') == $path || preg_match('/' . preg_quote($path, '/') . '/iu', $requestPath) || $callback[1] == 'index')
 				&& $this->isPassedMiddleware($middlewares, $this->request)
 			) {
 				$constructParams = [

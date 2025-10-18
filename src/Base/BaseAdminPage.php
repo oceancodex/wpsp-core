@@ -16,11 +16,12 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $urls_highlight_current_menu = null;
 	public $callback_function           = null;
 
-	public $screenOptionsKey            = null;
+	protected $screen_options           = false;
+	protected $screen_options_key       = null;
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
-		$this->screenOptionsKey  = $this->currentPathSlugify ?? $this->menu_slug;
+		$this->screenOptionsKey  = $this->screenOptionsKey ?: $this->getQueryStringSlugify(['page']) ?? $this->menu_slug;
 		$this->overrideMenuSlug($this->extraParams['path']);
 		$this->customProperties();
 	}
