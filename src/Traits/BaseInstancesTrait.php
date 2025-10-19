@@ -2,9 +2,14 @@
 
 namespace WPSPCORE\Traits;
 
-use Symfony\Component\HttpFoundation\Request;
-use WPSPCORE\Funcs;
 
+/**
+ * BaseInstancesTrait.
+ *
+ * @property \WPSPCORE\Funcs|null $funcs
+ * @property \Symfony\Component\HttpFoundation\Request|null $request
+ * @property \WPSPCORE\Validation\Validation|null $validation
+ */
 trait BaseInstancesTrait {
 
 	public $mainPath            = null;
@@ -12,32 +17,25 @@ trait BaseInstancesTrait {
 	public $prefixEnv           = null;
 	public $extraParams         = [];
 
-	/** @var \Symfony\Component\HttpFoundation\Request|\WPSPCORE\Validation\ValidatedRequest */
-	public $request             = null;
-	public $locale              = null;
-	/** @var \WPSPCORE\Funcs|null */
 	public $funcs               = null;
+	public $locale              = null;
+	public $request             = null;
+	public $validation          = null;
 
-	public function beforeBaseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
-		$this->locale = function_exists('get_locale') ? get_locale() : 'en';
-		if (!$this->request) {
-			if (!$this->request) {
-				if (class_exists('\WPSPCORE\Validation\ValidatedRequest')) {
-					$this->request = \WPSPCORE\Validation\ValidatedRequest::createFromGlobals();
-				} else {
-					$this->request = Request::createFromGlobals();
-				}
-			}
-		}
+	public function beforeBaseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = null) {
 		$this->beforeConstruct();
 		$this->beforeInstanceConstruct();
-		if ($mainPath) $this->mainPath = $mainPath;
-		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
-		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
-		if (!empty($extraParams)) $this->extraParams = $extraParams;
-		if (!isset($extraParams['prepare_funcs']) || $extraParams['prepare_funcs']) {
-			$this->prepareFuncs();
-		}
+
+		if ($mainPath)      $this->mainPath         = $mainPath;
+		if ($rootNamespace) $this->rootNamespace    = $rootNamespace;
+		if ($prefixEnv)     $this->prefixEnv        = $prefixEnv;
+		if ($extraParams)   $this->extraParams      = $extraParams;
+
+		$this->prepareFuncs();
+		$this->prepareLocale();
+		$this->prepareRequest();
+		$this->prepareValidation();
+
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();
 	}
@@ -48,21 +46,6 @@ trait BaseInstancesTrait {
 
 	public function wantJson() {
 		return $this->request->headers->get('Accept') === 'application/json';
-	}
-
-	/*
-	 *
-	 */
-
-	public function prepareFuncs() {
-		$this->funcs = new Funcs(
-			$this->mainPath,
-			$this->rootNamespace,
-			$this->prefixEnv,
-			[
-				'prepare_funcs' => false,
-			]
-		);
 	}
 
 	public function getQueryStringSlugify($params = []) {
@@ -93,6 +76,43 @@ trait BaseInstancesTrait {
 
 		// Gán vào biến class
 		return $slug;
+	}
+
+	/*
+	 *
+	 */
+
+	public function prepareFuncs() {
+		$this->funcs = new \WPSPCORE\Funcs(
+			$this->mainPath,
+			$this->rootNamespace,
+			$this->prefixEnv,
+			[
+				'prepare_funcs'      => false,
+				'prepare_request'    => false,
+				'prepare_validation' => false,
+			]
+		);
+	}
+
+	public function prepareLocale() {
+		$this->locale = function_exists('get_locale') ? get_locale() : 'en';
+	}
+
+	public function prepareRequest() {
+		if (!isset($this->extraParams['prepare_request']) || $this->extraParams['prepare_request']) {
+			if (class_exists('\WPSPCORE\Validation\RequestWithValidation')) {
+				$this->request = \WPSPCORE\Validation\RequestWithValidation::createFromGlobals();
+			} else {
+				$this->request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+			}
+		}
+	}
+
+	public function prepareValidation() {
+		if (!isset($this->extraParams['prepare_validation']) || $this->extraParams['prepare_validation']) {
+			$this->validation = $this->extraParams['validation'] ?? null;
+		}
 	}
 
 
