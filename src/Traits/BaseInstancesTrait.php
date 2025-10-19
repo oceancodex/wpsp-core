@@ -2,12 +2,11 @@
 
 namespace WPSPCORE\Traits;
 
-
 /**
  * BaseInstancesTrait.
  *
  * @property \WPSPCORE\Funcs|null $funcs
- * @property \Symfony\Component\HttpFoundation\Request|null $request
+ * @property \Symfony\Component\HttpFoundation\Request|\WPSPCORE\Validation\RequestWithValidation|null $request
  * @property \WPSPCORE\Validation\Validation|null $validation
  */
 trait BaseInstancesTrait {
@@ -83,16 +82,18 @@ trait BaseInstancesTrait {
 	 */
 
 	public function prepareFuncs() {
-		$this->funcs = new \WPSPCORE\Funcs(
-			$this->mainPath,
-			$this->rootNamespace,
-			$this->prefixEnv,
-			[
-				'prepare_funcs'      => false,
-				'prepare_request'    => false,
-				'prepare_validation' => false,
-			]
-		);
+		if (!isset($this->extraParams['prepare_funcs']) || $this->extraParams['prepare_funcs']) {
+			$this->funcs = new \WPSPCORE\Funcs(
+				$this->mainPath,
+				$this->rootNamespace,
+				$this->prefixEnv,
+				[
+					'prepare_funcs'      => false,
+					'prepare_request'    => false,
+					'prepare_validation' => false,
+				]
+			);
+		}
 	}
 
 	public function prepareLocale() {

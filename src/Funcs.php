@@ -18,12 +18,14 @@ class Funcs extends BaseInstances {
 //	public $mainPath      = null;
 //	public $rootNamespace = null;
 //	public $prefixEnv     = null;
+//	public $extraParams   = [];
 
 
-//	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
+//	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 //		if ($mainPath) $this->mainPath = $mainPath;
 //		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
 //		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
+//		if ($extraParams) $this->extraParams = $extraParams;
 //	}
 
 //	public static function getInstance($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
