@@ -32,8 +32,9 @@ trait BaseInstancesTrait {
 
 		$this->prepareFuncs();
 		$this->prepareLocale();
-		$this->prepareRequest();
 		$this->prepareValidation();
+
+		$this->prepareRequest();
 
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();
@@ -104,6 +105,7 @@ trait BaseInstancesTrait {
 		if (!isset($this->extraParams['prepare_request']) || $this->extraParams['prepare_request']) {
 			if (class_exists('\WPSPCORE\Validation\RequestWithValidation')) {
 				$this->request = \WPSPCORE\Validation\RequestWithValidation::createFromGlobals();
+				$this->request->setValidation($this->validation);
 			} else {
 				$this->request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 			}
