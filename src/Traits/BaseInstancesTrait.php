@@ -2,6 +2,8 @@
 
 namespace WPSPCORE\Traits;
 
+use WPSPCORE\Base\BaseRequest;
+
 /**
  * BaseInstancesTrait.
  *
@@ -84,7 +86,7 @@ trait BaseInstancesTrait {
 	 */
 
 	public function prepareFuncs() {
-		if (isset($this->extraParams['prepare_funcs']) && $this->extraParams['prepare_funcs']) {
+		if ((!isset($this->extraParams['prepare_funcs']) || $this->extraParams['prepare_funcs']) && !$this->funcs) {
 			$this->funcs = new \WPSPCORE\Funcs(
 				$this->mainPath,
 				$this->rootNamespace,
@@ -93,10 +95,13 @@ trait BaseInstancesTrait {
 					'prepare_funcs'      => false,
 					'prepare_request'    => false,
 					'prepare_validation' => false,
+					'unset_validation'   => true,
+					'unset_request'      => true,
+					'unset_funcs'        => true,
 				]
 			);
 		}
-		else {
+		if (isset($this->extraParams['unset_funcs']) && $this->extraParams['unset_funcs']) {
 			unset($this->funcs);
 		}
 	}
@@ -106,23 +111,25 @@ trait BaseInstancesTrait {
 	}
 
 	public function prepareRequest() {
-		if (isset($this->extraParams['prepare_request']) && $this->extraParams['prepare_request']) {
-			if (class_exists('\WPSPCORE\Validation\RequestWithValidation')) {
-				$this->request = \WPSPCORE\Validation\RequestWithValidation::createFromGlobals();
-			} else {
-				$this->request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+		if ((!isset($this->extraParams['prepare_request']) || $this->extraParams['prepare_request']) && !$this->request) {
+			$this->request = BaseRequest::createFromGlobals();
+			if (isset($this->validation) && $this->validation) {
+				$this->request->validation = $this->validation;
+			}
+			else {
+				unset($this->request->validation);
 			}
 		}
-		else {
+		if (isset($this->extraParams['unset_request']) && $this->extraParams['unset_request']) {
 			unset($this->request);
 		}
 	}
 
 	public function prepareValidation() {
-		if (isset($this->extraParams['prepare_validation']) && $this->extraParams['prepare_validation']) {
+		if ((!isset($this->extraParams['prepare_validation']) || $this->extraParams['prepare_validation']) && !$this->validation) {
 			$this->validation = $this->extraParams['validation'] ?? null;
 		}
-		else {
+		if (isset($this->extraParams['unset_validation']) && $this->extraParams['unset_validation']) {
 			unset($this->validation);
 		}
 	}

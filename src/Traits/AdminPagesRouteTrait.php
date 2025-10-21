@@ -36,7 +36,7 @@ trait AdminPagesRouteTrait {
 						'path'              => $path,
 						'callback_function' => $callback[1] ?? null,
 						'custom_properties' => $customProperties,
-					]
+					],
 				];
 				$constructParams = array_merge([
 					$this->funcs->_getMainPath(),
@@ -84,7 +84,7 @@ trait AdminPagesRouteTrait {
 					'path'              => $path,
 					'callback_function' => $callback[1] ?? null,
 					'custom_properties' => $customProperties,
-				]
+				],
 			];
 			$constructParams = array_merge([
 				$this->funcs->_getMainPath(),

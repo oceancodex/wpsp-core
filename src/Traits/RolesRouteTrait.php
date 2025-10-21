@@ -6,16 +6,6 @@ trait RolesRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
-	public function beforeConstruct() {
-		$this->extraParams = [
-			'prepare_funcs' => true
-		];
-	}
-
-	/*
-     *
-     */
-
 	public function init() {
 		$this->roles();
 		$this->hooks();
