@@ -14,12 +14,13 @@ trait BaseInstancesTrait {
 	public $mainPath            = null;
 	public $rootNamespace       = null;
 	public $prefixEnv           = null;
-	public $extraParams         = [];
 
 	public $funcs               = null;
 	public $locale              = null;
 	public $request             = null;
 	public $validation          = null;
+
+	public $extraParams         = [];
 
 	public function beforeBaseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = null) {
 		$this->beforeConstruct();
@@ -83,7 +84,7 @@ trait BaseInstancesTrait {
 	 */
 
 	public function prepareFuncs() {
-		if (!isset($this->extraParams['prepare_funcs']) || $this->extraParams['prepare_funcs']) {
+		if (isset($this->extraParams['prepare_funcs']) && $this->extraParams['prepare_funcs']) {
 			$this->funcs = new \WPSPCORE\Funcs(
 				$this->mainPath,
 				$this->rootNamespace,
@@ -95,6 +96,9 @@ trait BaseInstancesTrait {
 				]
 			);
 		}
+		else {
+			unset($this->funcs);
+		}
 	}
 
 	public function prepareLocale() {
@@ -102,19 +106,24 @@ trait BaseInstancesTrait {
 	}
 
 	public function prepareRequest() {
-		if (!isset($this->extraParams['prepare_request']) || $this->extraParams['prepare_request']) {
+		if (isset($this->extraParams['prepare_request']) && $this->extraParams['prepare_request']) {
 			if (class_exists('\WPSPCORE\Validation\RequestWithValidation')) {
 				$this->request = \WPSPCORE\Validation\RequestWithValidation::createFromGlobals();
-				$this->request->setValidation($this->validation);
 			} else {
 				$this->request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 			}
 		}
+		else {
+			unset($this->request);
+		}
 	}
 
 	public function prepareValidation() {
-		if (!isset($this->extraParams['prepare_validation']) || $this->extraParams['prepare_validation']) {
+		if (isset($this->extraParams['prepare_validation']) && $this->extraParams['prepare_validation']) {
 			$this->validation = $this->extraParams['validation'] ?? null;
+		}
+		else {
+			unset($this->validation);
 		}
 	}
 
