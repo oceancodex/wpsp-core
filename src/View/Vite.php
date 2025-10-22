@@ -520,7 +520,7 @@ class Vite implements Htmlable {
 	 * @param string $url
 	 *
 	 * @return string
-	 * @deprecated Will be removed in a future Laravel version.
+	 * @deprecated Will be removed in a future version.
 	 *
 	 */
 	protected function makeTag($url) {
@@ -537,7 +537,7 @@ class Vite implements Htmlable {
 	 * @param string $url
 	 *
 	 * @return string
-	 * @deprecated Will be removed in a future Laravel version.
+	 * @deprecated Will be removed in a future version.
 	 *
 	 */
 	protected function makeScriptTag($url) {
@@ -550,7 +550,7 @@ class Vite implements Htmlable {
 	 * @param string $url
 	 *
 	 * @return string
-	 * @deprecated Will be removed in a future Laravel version.
+	 * @deprecated Will be removed in a future version.
 	 *
 	 */
 	protected function makeStylesheetTag($url) {
