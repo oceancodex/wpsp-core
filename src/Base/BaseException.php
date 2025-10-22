@@ -7,7 +7,7 @@ class BaseException extends \Exception {
 		if (method_exists($this, 'beforeInstanceConstruct')) {
 			$this->beforeInstanceConstruct();
 		}
-		parent::__construct($message, $this->statusCode ?? $code, $previous);
+		parent::__construct($message, $this->code ?? $code, $previous);
 	}
 
 }
