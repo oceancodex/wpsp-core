@@ -21,7 +21,7 @@ trait UserMetaBoxesRouteTrait {
 	 *
 	 */
 
-	public function meta_box($id, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
+	public function user_meta_box($id, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$constructParams = [
 				[
