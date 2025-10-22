@@ -4,25 +4,28 @@ namespace WPSPCORE\Base;
 
 abstract class BaseMetaBox extends BaseInstances {
 
-	private $id                = null;
-	public  $title             = 'Custom Meta Box';
-	public  $screen            = 'post';
-	public  $context           = 'advanced';
-	public  $priority          = 'default';
-	public  $callback_args     = null;
-
-	private $callback_function = null;
-	public  $custom_properties = null;
+	public $id                = null;
+	public $title             = 'Custom Meta Box';
+	public $screen            = 'post';
+	public $context           = 'advanced';
+	public $priority          = 'default';
+	public $callback_args     = null;
+	public $callback_function = null;
 
 	/*
 	 *
 	 */
 
 	public function afterConstruct() {
-		$this->id                = $this->extraParams['id'] ?? null;
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
-		$this->custom_properties = $this->extraParams['custom_properties'] ?? [];
+		$this->overrideId($this->extraParams['id'] ?? null);
 		$this->customProperties();
+	}
+
+	private function overrideId($id = null) {
+		if ($id && !$this->id) {
+			$this->id = $id;
+		}
 	}
 
 	/*

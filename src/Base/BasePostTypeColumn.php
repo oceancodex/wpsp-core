@@ -129,7 +129,7 @@ abstract class BasePostTypeColumn extends BaseInstances {
 	 *
 	 */
 
-	protected function overrideColumn($column = null) {
+	private function overrideColumn($column = null) {
 		if ($column && !$this->column) {
 			$this->column = $column;
 		}
