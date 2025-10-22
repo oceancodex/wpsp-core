@@ -22,13 +22,13 @@ trait AdminPagesRouteTrait {
 	 */
 
 	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
-		if (
-			is_admin()
-			&& !wp_doing_ajax()
-		) {
+		if (is_admin() && !wp_doing_ajax()) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
 			if (
-				($this->request->get('page') == $path || preg_match('/' . preg_quote($path, '/') . '/iu', $requestPath) || $callback[1] == 'index')
+				(
+					!isset($callback[1]) || $callback[1] == 'index'
+					|| $this->request->get('page') == $path || preg_match('/' . preg_quote($path, '/') . '/iu', $requestPath)
+				)
 				&& $this->isPassedMiddleware($middlewares, $this->request)
 			) {
 				$constructParams = [
@@ -45,7 +45,7 @@ trait AdminPagesRouteTrait {
 					$this->funcs->_getPrefixEnv(),
 				], $constructParams);
 				$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
-				if ($callback[1] == 'index') $callback[1] = 'init';
+				if ($callback[1] == 'index' || !isset($callback[1])) $callback[1] = 'init';
 				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
 			}
 			else {
