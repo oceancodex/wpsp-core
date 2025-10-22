@@ -5,6 +5,9 @@ namespace WPSPCORE\Base;
 use WPSPCORE\Data\PostTypeData;
 use WPSPCORE\Traits\ObjectPropertiesToArrayTrait;
 
+/**
+ * @method void sort($query)
+ */
 abstract class BasePostTypeColumn extends BaseInstances {
 
 	use ObjectPropertiesToArrayTrait;
@@ -114,7 +117,11 @@ abstract class BasePostTypeColumn extends BaseInstances {
 				}
 			}
 
-			add_action('pre_get_posts', [$this, 'sort'], 9999);
+			if (method_exists($this, 'sort')) {
+				add_action('pre_get_posts', [$this, 'sort'], 9999);
+			}
+
+			$this->afterInit();
 		}
 	}
 
@@ -136,6 +143,6 @@ abstract class BasePostTypeColumn extends BaseInstances {
 
 	abstract public function index($column, $postId);
 
-	public function sort($query) {}
+	abstract public function afterInit();
 
 }
