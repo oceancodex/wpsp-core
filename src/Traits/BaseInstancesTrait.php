@@ -47,10 +47,6 @@ trait BaseInstancesTrait {
 	 *
 	 */
 
-	public function wantJson() {
-		return $this->request->headers->get('Accept') === 'application/json';
-	}
-
 	public function getQueryStringSlugify($params = []) {
 		// Lấy toàn bộ query string từ URL
 		$queryParams = $this->request->query->all();

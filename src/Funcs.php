@@ -88,6 +88,15 @@ class Funcs extends BaseInstances {
 		return ${$globalMigration};
 	}
 
+	/**
+	 * @return \WPSPCORE\Validation\Validation
+	 */
+	public function _getAppValidation() {
+		$globalValidation = $this->_getAppShortName() . '_validation';
+		global ${$globalValidation};
+		return ${$globalValidation};
+	}
+
 	public function _getMainBaseName() {
 		return basename($this->_getMainPath());
 	}
@@ -523,6 +532,44 @@ class Funcs extends BaseInstances {
 
 	public function _nonceName($name = null) {
 		return $this->_env('APP_SHORT_NAME', true) . ($name ? '_' . $name : '') . '_nonce';
+	}
+
+	public function _isDebug() {
+		return $this->_env('APP_DEBUG', true) == 'true';
+	}
+
+	public function _isWPDebug() {
+		return defined('WP_DEBUG') && WP_DEBUG;
+	}
+
+	public function _isWPDebugLog() {
+		return defined('WP_DEBUG_LOG') && WP_DEBUG_LOG;
+	}
+
+	public function _isWPDebugDisplay() {
+		return defined('WP_DEBUG_DISPLAY') && WP_DEBUG_DISPLAY;
+	}
+
+	public function _isLocal() {
+		return $this->_env('APP_ENV', true) == 'local';
+	}
+
+	public function _isDev() {
+		return $this->_env('APP_ENV', true) == 'dev';
+	}
+
+	public function _isProduction() {
+		return $this->_env('APP_ENV', true) == 'production';
+	}
+
+	public function _shouldReturnJson() {
+		return wp_doing_ajax() ||
+			(defined('REST_REQUEST') && REST_REQUEST) ||
+			(!empty($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+	}
+
+	public function _wantJson() {
+		return $this->_shouldReturnJson();
 	}
 
 	/*
