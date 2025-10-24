@@ -68,7 +68,7 @@ trait ApisRouteTrait {
 		if ($this->isForRouterMap) {
 			return $this;
 		}
-
+echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($allMiddlewares); echo '</pre>';
 		add_action('rest_api_init', function () use ($path, $method, $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version) {
 			$this->registerRestRoute($path, $method, $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 		});
