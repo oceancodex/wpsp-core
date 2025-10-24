@@ -9,19 +9,44 @@ trait AdminPagesRouteTrait {
 	public function init() {
 		$this->admin_pages();
 		$this->hooks();
+		return $this;
+	}
+
+	public function initForRouterMap() {
+		$this->admin_pages();
+		return $this;
 	}
 
 	/*
      *
      */
 
-	public function admin_pages() {}
+	abstract public function admin_pages();
 
 	/*
 	 *
 	 */
 
 	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
+
+		// Xây dựng full path
+		$fullPath = $this->buildFullPath($path);
+
+		// Merge middlewares từ stack và parameter
+		$allMiddlewares = $this->getFlattenedMiddlewares();
+		if ($middlewares !== null) {
+			$allMiddlewares = array_merge($allMiddlewares, is_array($middlewares) ? $middlewares : [$middlewares]);
+		}
+		echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($path); echo '</pre>';
+echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($allMiddlewares); echo '</pre>';
+		// Đánh dấu route để có thể name() sau này
+//		$this->markRouteForNaming($path);
+
+		// Nếu đang build router map, chỉ lưu thông tin
+//		if ($this->isForRouterMap) {
+//			return $this;
+//		}
+
 		if (is_admin() && !wp_doing_ajax()) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
 			if (
@@ -29,7 +54,7 @@ trait AdminPagesRouteTrait {
 					!isset($callback[1]) || $callback[1] == 'index'
 					|| $this->request->get('page') == $path || preg_match('/' . preg_quote($path, '/') . '/iu', $requestPath)
 				)
-				&& $this->isPassedMiddleware($middlewares, $this->request)
+				&& $this->isPassedMiddleware($allMiddlewares, $this->request)
 			) {
 				$constructParams = [
 					[
@@ -50,19 +75,40 @@ trait AdminPagesRouteTrait {
 			}
 			else {
 				$currentPath = $this->request->getRequestUri();
-				if (preg_match('/'.preg_quote($path, '/').'/iu', $currentPath)) {
+				if (preg_match('/' . preg_quote($path, '/') . '/iu', $currentPath)) {
 					wp_die('Access denied.');
 				}
 			}
 		}
+
+		return $this;
 	}
 
 	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
+		// Xây dựng full path
+		$fullPath = $this->buildFullPath($path);
+
+		// Merge middlewares
+		$allMiddlewares = $this->getFlattenedMiddlewares();
+		if ($middlewares !== null) {
+			$allMiddlewares = array_merge($allMiddlewares, is_array($middlewares) ? $middlewares : [$middlewares]);
+		}
+
+		// Đánh dấu route để có thể name() sau này
+		$this->markRouteForNaming($path);
+
+		// Nếu đang build router map, chỉ lưu thông tin
+		if ($this->isForRouterMap) {
+			return $this;
+		}
+
 		if (is_admin() && !wp_doing_ajax()) {
 			if ($this->request->isMethod('POST')) {
-				$this->executeHiddenMethod($path, $callback, $useInitClass, $customProperties, $middlewares);
+				$this->executeHiddenMethod($path, $callback, $useInitClass, $customProperties, $allMiddlewares);
 			}
 		}
+
+		return $this;
 	}
 
 	/*
