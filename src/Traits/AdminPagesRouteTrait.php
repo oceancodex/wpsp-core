@@ -45,7 +45,7 @@ trait AdminPagesRouteTrait {
 			return $this;
 		}
 
-		if (is_admin() && !wp_doing_ajax()) {
+		if (is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantJson()) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
 			if (
 				(
@@ -141,7 +141,7 @@ trait AdminPagesRouteTrait {
 			return $this;
 		}
 
-		if (is_admin() && !wp_doing_ajax()) {
+		if (is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantJson()) {
 			if ($this->request->isMethod('POST')) {
 				$this->executeHiddenMethod($fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
 			}

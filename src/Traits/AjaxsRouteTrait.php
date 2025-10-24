@@ -11,6 +11,11 @@ trait AjaxsRouteTrait {
 		$this->hooks();
 	}
 
+	public function initForRouterMap() {
+		$this->ajaxs();
+		return $this;
+	}
+
 	/*
 	 *
 	 */
@@ -21,7 +26,7 @@ trait AjaxsRouteTrait {
 	 *
 	 */
 
-	public function get($action, $callback, $useInitClass = false, $forUser = false, $customProperties = null, $middlewares = null) {
+	public function get($action, $callback, $useInitClass = false, $nopriv = false, $customProperties = null, $middlewares = null) {
 		// Xây dựng full path
 		$fullPath = $this->buildFullPath($action);
 
@@ -39,7 +44,7 @@ trait AjaxsRouteTrait {
 			return $this;
 		}
 
-		$hookAction = 'wp_ajax_' . ($forUser ? '' : 'nopriv_') . $fullPath;
+		$hookAction = 'wp_ajax_' . ($nopriv ? 'nopriv_' : '') . $fullPath;
 
 		add_action($hookAction, function() use ($fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares) {
 			if (!$this->isPassedMiddleware($allMiddlewares, $this->request)) {
@@ -73,8 +78,8 @@ trait AjaxsRouteTrait {
 		return $this;
 	}
 
-	public function post($action, $callback, $useInitClass = false, $forUser = false, $customProperties = null, $middlewares = null) {
-		return $this->get($action, $callback, $useInitClass, $forUser, $customProperties, $middlewares);
+	public function post($action, $callback, $useInitClass = false, $nopriv = false, $customProperties = null, $middlewares = null) {
+		return $this->get($action, $callback, $useInitClass, $nopriv, $customProperties, $middlewares);
 	}
 
 }

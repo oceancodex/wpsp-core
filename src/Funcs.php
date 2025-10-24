@@ -55,14 +55,31 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _getBearerToken() {
-		$token = $this->request->headers->get('Authorization');
-		if (!$token) {
+	public function _getBearerToken($request = null) {
+		$request = $request ?? $this->request ?? null;
+
+		// --- Lấy raw header ---
+		if ($request && method_exists($request, 'headers')) {
+			$authHeader = $request->headers->get('Authorization');
+		}
+		else {
+			$headers    = function_exists('getallheaders') ? getallheaders() : [];
+			$headers    = array_change_key_case($headers, CASE_LOWER);
+			$authHeader = $headers['authorization']
+				?? $_SERVER['HTTP_AUTHORIZATION']
+				?? $_SERVER['Authorization']
+				?? null;
+		}
+
+		if (!$authHeader) {
 			return null;
 		}
-		if (preg_match('/Bearer\s+(.*?)$/iu', $token, $matches)) {
+
+		// --- Parse Bearer token ---
+		if (preg_match('/Bearer\s+(\S+)/i', trim($authHeader), $matches)) {
 			return trim($matches[1]);
 		}
+
 		return null;
 	}
 
