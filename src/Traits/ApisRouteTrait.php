@@ -9,6 +9,12 @@ trait ApisRouteTrait {
 	public function init() {
 		$this->apis();
 		$this->hooks();
+		return $this;
+	}
+
+	public function initForRouterMap() {
+		$this->apis();
+		return $this;
 	}
 
 	/*
@@ -21,138 +27,87 @@ trait ApisRouteTrait {
 	 *
 	 */
 
-	public function get($endpoint, $callback, $useInitClass = false, $customProperties = null, $middlewares = null, $permission_callback = '__return_true', $methods = 'GET') {
+	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
+		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+	}
+
+	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
+		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+	}
+
+	public function put($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
+		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+	}
+
+	public function delete($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
+		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+	}
+
+	public function patch($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
+		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+	}
+
+	/*
+	 *
+	 */
+
+	public function restApiInit($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
 		// Xây dựng full path
-		$fullPath = $this->buildFullPath($endpoint);
+		$path = $this->buildFullPath($path);
 
 		// Merge middlewares
 		$allMiddlewares = $this->getFlattenedMiddlewares();
 		if ($middlewares !== null) {
-			$allMiddlewares = array_merge($allMiddlewares, is_array($middlewares) ? $middlewares : [$middlewares]);
+			$middlewares = array_merge($allMiddlewares, is_array($middlewares) ? $middlewares : [$middlewares]);
 		}
 
 		// Đánh dấu route để có thể name() sau này
-		$this->markRouteForNaming($endpoint);
+		$this->markRouteForNaming($path);
 
 		// Nếu đang build router map, chỉ lưu thông tin
 		if ($this->isForRouterMap) {
 			return $this;
 		}
 
-		add_action('rest_api_init', function() use ($fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares, $permission_callback, $methods) {
-			if (!$this->isPassedMiddleware($allMiddlewares, $this->request)) {
-				register_rest_route($this->funcs->_env('APP_SHORT_NAME', true), '/' . ltrim($fullPath, '/'), [
-					'methods'             => $methods,
-					'callback'            => function(\WP_REST_Request $request) {
-						wp_send_json($this->funcs->_response(false, [], 'Access denied.', 403), 403);
-					},
-					'permission_callback' => $permission_callback,
-				]);
-				return;
-			}
-
-			$constructParams = [
-				[
-					'path'              => $fullPath,
-					'callback_function' => $callback[1] ?? null,
-					'validation'        => $this->validation,
-					'custom_properties' => $customProperties,
-				],
-			];
-			$constructParams = array_merge([
-				$this->funcs->_getMainPath(),
-				$this->funcs->_getRootNamespace(),
-				$this->funcs->_getPrefixEnv(),
-			], $constructParams);
-			$callback        = $this->prepareCallback($callback, $useInitClass, $constructParams);
-
-			register_rest_route($this->funcs->_env('APP_SHORT_NAME', true), '/' . ltrim($fullPath, '/'), [
-				'methods'             => $methods,
-				'callback'            => function(\WP_REST_Request $request) use ($callback, $fullPath) {
-					$this->request = $request;
-					if (isset($callback[0]) && isset($callback[1])) {
-						return $callback[0]->{$callback[1]}($fullPath);
-					}
-					return $callback($fullPath);
-				},
-				'permission_callback' => $permission_callback,
-			]);
+		add_action('rest_api_init', function () use ($path, $method, $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version) {
+			$this->registerRestRoute($path, $method, $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 		});
 
 		return $this;
 	}
 
-	public function post($endpoint, $callback, $useInitClass = false, $customProperties = null, $middlewares = null, $permission_callback = '__return_true') {
-		// Xây dựng full path
-		$fullPath = $this->buildFullPath($endpoint);
-
-		// Merge middlewares
-		$allMiddlewares = $this->getFlattenedMiddlewares();
-		if ($middlewares !== null) {
-			$allMiddlewares = array_merge($allMiddlewares, is_array($middlewares) ? $middlewares : [$middlewares]);
-		}
-
-		// Đánh dấu route để có thể name() sau này
-		$this->markRouteForNaming($endpoint);
-
-		// Nếu đang build router map, chỉ lưu thông tin
-		if ($this->isForRouterMap) {
-			return $this;
-		}
-
-		add_action('rest_api_init', function() use ($fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares, $permission_callback) {
-			if (!$this->isPassedMiddleware($allMiddlewares, $this->request)) {
-				register_rest_route($this->funcs->_env('APP_SHORT_NAME', true), '/' . ltrim($fullPath, '/'), [
-					'methods'             => 'POST',
-					'callback'            => function(\WP_REST_Request $request) {
-						wp_send_json($this->funcs->_response(false, [], 'Access denied.', 403), 403);
-					},
-					'permission_callback' => $permission_callback,
-				]);
-				return;
-			}
-
-			$constructParams = [
-				[
-					'path'              => $fullPath,
-					'callback_function' => $callback[1] ?? null,
-					'validation'        => $this->validation,
-					'custom_properties' => $customProperties,
-				],
-			];
-			$constructParams = array_merge([
-				$this->funcs->_getMainPath(),
-				$this->funcs->_getRootNamespace(),
-				$this->funcs->_getPrefixEnv(),
-			], $constructParams);
-			$callback        = $this->prepareCallback($callback, $useInitClass, $constructParams);
-
-			register_rest_route($this->funcs->_env('APP_SHORT_NAME', true), '/' . ltrim($fullPath, '/'), [
-				'methods'             => 'POST',
-				'callback'            => function(\WP_REST_Request $request) use ($callback, $fullPath) {
-					$this->request = $request;
-					if (isset($callback[0]) && isset($callback[1])) {
-						return $callback[0]->{$callback[1]}($fullPath);
-					}
-					return $callback($fullPath);
-				},
-				'permission_callback' => $permission_callback,
-			]);
-		});
-
-		return $this;
-	}
-
-	public function put($endpoint, $callback, $useInitClass = false, $customProperties = null, $middlewares = null, $permission_callback = '__return_true') {
-		return $this->get($endpoint, $callback, $useInitClass, $customProperties, $middlewares, $permission_callback, 'PUT');
-	}
-
-	public function patch($endpoint, $callback, $useInitClass = false, $customProperties = null, $middlewares = null, $permission_callback = '__return_true') {
-		return $this->get($endpoint, $callback, $useInitClass, $customProperties, $middlewares, $permission_callback, 'PATCH');
-	}
-
-	public function delete($endpoint, $callback, $useInitClass = false, $customProperties = null, $middlewares = null, $permission_callback = '__return_true') {
-		return $this->get($endpoint, $callback, $useInitClass, $customProperties, $middlewares, $permission_callback, 'DELETE');
+	public function registerRestRoute($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
+		$constructParams = [
+			[
+				'path'              => $path,
+				'method'            => $method,
+				'callback_function' => $callback[1] ?? null,
+				'custom_properties' => $customProperties,
+			]
+		];
+		$constructParams = array_merge([
+			$this->funcs->_getMainPath(),
+			$this->funcs->_getRootNamespace(),
+			$this->funcs->_getPrefixEnv(),
+		], $constructParams);
+		register_rest_route(($namespace ?? $this->funcs->_config('app.short_name')) . '/' . ($version ?? 'v1'), $path, [
+			'methods'             => $method,
+			'callback'            => $this->prepareCallback($callback, $useInitClass, $constructParams),
+			'args'                => [
+//				'id' => [
+//					'validate_callback' => function($param, $request, $key) {
+//						return is_numeric($param);
+//					}
+//				],
+			],
+			'permission_callback' => function (\WP_REST_Request $request) use ($middlewares) {
+				static $permissionCallback = null;
+				if ($permissionCallback !== null) return $permissionCallback;
+				$permissionCallback =  $this->isPassedMiddleware($middlewares, $request);
+				return $permissionCallback;
+			},
+		],
+		true);
 	}
 
 }

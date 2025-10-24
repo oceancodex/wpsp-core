@@ -10,6 +10,11 @@ trait GroupRoutesTrait {
 	private $middlewareStack  = [];
 	private $currentRouteName = null;
 
+	private $callPrefixTimes  = 0;
+	private $callNameTimes    = 0;
+	private $callMiddlewareTimes = 0;
+	private $callGroupTimes   = 0;
+
 	/**
 	 * Bật chế độ build route map
 	 */
@@ -23,6 +28,7 @@ trait GroupRoutesTrait {
 	 * Thêm prefix vào stack
 	 */
 	public function prefix($prefix) {
+		$this->callPrefixTimes++;
 		$this->prefixStack[] = $prefix;
 		return $this;
 	}
@@ -31,16 +37,25 @@ trait GroupRoutesTrait {
 	 * Thêm name vào stack hoặc đặt tên cho route
 	 */
 	public function name($name) {
-		// Nếu được gọi sau get() hoặc post(), đây là tên route cuối cùng
+		// Nếu có currentRouteName nhưng chưa được đặt tên — kiểm tra xem name này là prefix hay route
 		if ($this->currentRouteName !== null) {
-			$fullName = $this->getCurrentName() . $name;
-			$this->addToRouteMap($fullName);
-			$this->currentRouteName = null;
+			// Nếu name chứa dấu '.' ở cuối => coi là group prefix, KHÔNG phải route
+			if (substr($name, -1) == '.') {
+				$this->nameStack[]      = $name;
+				$this->currentRouteName = null; // reset route đang chờ đặt tên
+			}
+			else {
+				// Là name route thực tế (vd: 'index', 'update')
+				$fullName = $this->getCurrentName() . $name;
+				$this->addToRouteMap($fullName);
+				$this->currentRouteName = null;
+			}
 		}
 		else {
-			// Nếu không, đây là prefix name cho group
+			// Không có current route đang chờ => đây chắc chắn là group prefix
 			$this->nameStack[] = $name;
 		}
+
 		return $this;
 	}
 
@@ -48,9 +63,41 @@ trait GroupRoutesTrait {
 	 * Thêm middleware vào stack
 	 */
 	public function middleware($middlewares) {
-		// Chỉ thêm middleware nếu đang trong context của một route cụ thể
-		// hoặc sẽ được thêm bởi group()
-		$this->middlewareStack[] = is_array($middlewares) ? $middlewares : [$middlewares];
+		// Reset middleware stack first.
+		$this->middlewareStack = []; // reset middleware
+
+		// Chuẩn hóa middleware thành mảng
+		if (!is_array($middlewares)) {
+			$middlewares = [$middlewares];
+		}
+
+		// Chuẩn hóa mỗi middleware thành format [class, method]
+		$normalized = [];
+		foreach ($middlewares as $middleware) {
+			if (is_string($middleware)) {
+				if (strtolower($middleware) == 'or' || strtolower($middleware) == 'and') {
+					$this->middlewareStack['relation'] = $middleware;
+					continue;
+				}
+				// Nếu là string class name, thêm method mặc định 'handle'
+				$normalized[] = [$middleware, 'handle'];
+			} elseif (is_array($middleware)) {
+				// Kiểm tra xem có phải là [class, method] hay không
+				if (count($middleware) == 2 && is_string($middleware[0]) && is_string($middleware[1])) {
+					// Đã đúng format [class, method]
+					$normalized[] = $middleware;
+				} elseif (isset($middleware[0]) && is_string($middleware[0])) {
+					// Chỉ có class, không có method - thêm 'handle' mặc định
+					$normalized[] = [$middleware[0], 'handle'];
+				}
+			}
+		}
+
+		// Chỉ thêm vào stack nếu có middleware hợp lệ
+		if (!empty($normalized)) {
+			$this->middlewareStack[] = $normalized;
+		}
+
 		return $this;
 	}
 
@@ -58,6 +105,8 @@ trait GroupRoutesTrait {
 	 * Nhóm các route lại với nhau
 	 */
 	public function group($callback, $middlewares = null) {
+		$this->callGroupTimes++;
+
 		// Lưu số lượng middleware hiện tại trước khi vào group
 		$middlewareCountBefore = count($this->middlewareStack);
 
@@ -67,29 +116,35 @@ trait GroupRoutesTrait {
 		}
 
 		// Check middleware trước khi chạy group (chỉ khi không build map)
-		if (!$this->isForRouterMap) {
-			$allMiddlewares = $this->getFlattenedMiddlewares();
-			if (!$this->isPassedMiddleware($allMiddlewares, $this->request)) {
-				// Pop các stack và return nếu không pass middleware
-				$this->popStacks();
-				// Đảm bảo pop middleware đã thêm vào
-				while (count($this->middlewareStack) > $middlewareCountBefore) {
-					array_pop($this->middlewareStack);
-				}
-				return $this;
-			}
-		}
+//		if (!$this->isForRouterMap) {
+//			$allMiddlewares = $this->getFlattenedMiddlewares();
+//			if (!$this->isPassedMiddleware($allMiddlewares, $this->request)) {
+//				// Pop các stack và return nếu không pass middleware
+//				$this->popStacks();
+//				// Đảm bảo pop middleware đã thêm vào
+//				while (count($this->middlewareStack) > $middlewareCountBefore) {
+//					array_pop($this->middlewareStack);
+//				}
+//				return $this;
+//			}
+//		}
 
 		// Chạy callback
 		$callback();
+
+		// Reset callGroupTimes.
+		$this->callGroupTimes--;
 
 		// Pop các stack sau khi group chạy xong
 		$this->popStacks();
 
 		// Đảm bảo pop tất cả middleware đã thêm trong group này
-		while (count($this->middlewareStack) > $middlewareCountBefore) {
-			array_pop($this->middlewareStack);
-		}
+//		while (count($this->middlewareStack) >= $middlewareCountBefore) {
+//			array_pop($this->middlewareStack);
+//		}
+
+		// Reset middleware if group() call lastest.
+		$this->middlewareStack = [];
 
 		return $this;
 	}
@@ -98,13 +153,12 @@ trait GroupRoutesTrait {
 	 * Pop các stack sau khi group kết thúc (KHÔNG pop middleware ở đây)
 	 */
 	protected function popStacks() {
-		if (!empty($this->prefixStack)) {
+		if (!empty($this->prefixStack) && count($this->prefixStack) > $this->callGroupTimes) {
 			array_pop($this->prefixStack);
 		}
 		if (!empty($this->nameStack)) {
 			array_pop($this->nameStack);
 		}
-		// KHÔNG pop middleware ở đây vì sẽ được xử lý riêng trong group()
 	}
 
 	/**
@@ -126,8 +180,13 @@ trait GroupRoutesTrait {
 	 */
 	protected function getFlattenedMiddlewares() {
 		$flattened = [];
-		foreach ($this->middlewareStack as $middlewares) {
-			$flattened = array_merge($flattened, $middlewares);
+		foreach ($this->middlewareStack as $key => $middlewares) {
+			if (is_array($middlewares)) {
+				$flattened = array_merge($flattened, $middlewares);
+			}
+			else {
+				$flattened[$key] = $middlewares;
+			}
 		}
 		return $flattened;
 	}
@@ -155,8 +214,11 @@ trait GroupRoutesTrait {
 	 * Đánh dấu route vừa tạo, chờ name()
 	 */
 	protected function markRouteForNaming($path) {
+		$this->currentRouteName = null; // reset trước
+		// Đảm bảo mỗi route có vùng nhớ riêng, không ghi đè lẫn nhau
 		$this->currentRouteName = [
 			'path' => $this->buildFullPath($path),
+			'timestamp' => microtime(true) // tránh đè khi tạo nhanh liên tiếp
 		];
 	}
 

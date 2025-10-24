@@ -28,30 +28,27 @@ trait AdminPagesRouteTrait {
 	 */
 
 	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
-
-		// Xây dựng full path
-		$fullPath = $this->buildFullPath($path);
-
 		// Merge middlewares từ stack và parameter
 		$allMiddlewares = $this->getFlattenedMiddlewares();
 		if ($middlewares !== null) {
 			$allMiddlewares = array_merge($allMiddlewares, is_array($middlewares) ? $middlewares : [$middlewares]);
 		}
-		echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($path); echo '</pre>';
-echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($allMiddlewares); echo '</pre>';
+
 		// Đánh dấu route để có thể name() sau này
-//		$this->markRouteForNaming($path);
+		$this->markRouteForNaming($path);
 
 		// Nếu đang build router map, chỉ lưu thông tin
-//		if ($this->isForRouterMap) {
-//			return $this;
-//		}
+		if ($this->isForRouterMap) {
+			return $this;
+		}
 
 		if (is_admin() && !wp_doing_ajax()) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
+//			echo '<pre style="background:white;z-index:9999;position:relative">' . $path . ' => '; print_r($allMiddlewares); echo '</pre>';
 			if (
 				(
-					!isset($callback[1]) || $callback[1] == 'index'
+					is_callable($callback)
+					|| !isset($callback[1]) || $callback[1] == 'index'
 					|| $this->request->get('page') == $path || preg_match('/' . preg_quote($path, '/') . '/iu', $requestPath)
 				)
 				&& $this->isPassedMiddleware($allMiddlewares, $this->request)
@@ -59,7 +56,7 @@ echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($a
 				$constructParams = [
 					[
 						'path'              => $path,
-						'callback_function' => $callback[1] ?? null,
+						'callback_function' => is_callable($callback) ? 'init' : ($callback[1] ?? null),
 						'validation'        => $this->validation,
 						'custom_properties' => $customProperties,
 					],
@@ -69,13 +66,53 @@ echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($a
 					$this->funcs->_getRootNamespace(),
 					$this->funcs->_getPrefixEnv(),
 				], $constructParams);
-				$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
-				if ($callback[1] == 'index' || !isset($callback[1])) $callback[1] = 'init';
-				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
+				if (is_callable($callback)) {
+					add_action('admin_menu', function() use ($path, $callback) {
+						$callbackRef = new \ReflectionFunction($callback);
+						$params = $callbackRef->getParameters();
+						$args = [];
+						foreach ($params as $param) {
+							$name = $param->getName();
+
+							if ($param->isDefaultValueAvailable()) {
+								$default = $param->getDefaultValue();
+							} else {
+								$default = null;
+							}
+							$args[$name] = $default;
+						}
+						if (isset($args['is_submenu_page']) && $args['is_submenu_page']) {
+							add_submenu_page(
+								$args['parent_slug'] ?? 'options-general.php',
+								$args['page_title'] ?? $path,
+								$args['menu_title'] ?? $path,
+								$args['capability'] ?? 'manage_options',
+								$args['menu_slug'] ?? $path,
+								$callback,
+								$args['position'] ?? null
+							);
+						}
+						else {
+							add_menu_page(
+								$args['page_title'] ?? $path,
+								$args['menu_title'] ?? $path,
+								$args['capability'] ?? 'manage_options',
+								$args['menu_slug'] ?? $path,
+								$callback,
+								$args['icon_url'] ?? null,
+							);
+						}
+					});
+				}
+				else {
+					$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
+					if (($callback[1] == 'index' || !isset($callback[1]))) $callback[1] = 'init';
+					isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
+				}
 			}
 			else {
 				$currentPath = $this->request->getRequestUri();
-				if (preg_match('/' . preg_quote($path, '/') . '/iu', $currentPath)) {
+				if (preg_match('//[?&]' . preg_quote($path, '/') . '(?:[&#]|$)/iu/iu', $currentPath)) {
 					wp_die('Access denied.');
 				}
 			}
@@ -85,9 +122,6 @@ echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($a
 	}
 
 	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
-		// Xây dựng full path
-		$fullPath = $this->buildFullPath($path);
-
 		// Merge middlewares
 		$allMiddlewares = $this->getFlattenedMiddlewares();
 		if ($middlewares !== null) {
