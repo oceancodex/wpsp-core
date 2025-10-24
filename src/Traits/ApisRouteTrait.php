@@ -53,12 +53,12 @@ trait ApisRouteTrait {
 
 	public function restApiInit($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
 		// Xây dựng full path
-		$path = $this->buildFullPath($path);
+		$fullPath = $this->buildFullPath($path);
 
 		// Merge middlewares
 		$allMiddlewares = $this->getFlattenedMiddlewares();
 		if ($middlewares !== null) {
-			$middlewares = array_merge($allMiddlewares, is_array($middlewares) ? $middlewares : [$middlewares]);
+			$allMiddlewares = array_merge($allMiddlewares, is_array($middlewares) ? $middlewares : [$middlewares]);
 		}
 
 		// Đánh dấu route để có thể name() sau này
@@ -68,9 +68,9 @@ trait ApisRouteTrait {
 		if ($this->isForRouterMap) {
 			return $this;
 		}
-echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($allMiddlewares); echo '</pre>';
-		add_action('rest_api_init', function () use ($path, $method, $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version) {
-			$this->registerRestRoute($path, $method, $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+
+		add_action('rest_api_init', function () use ($fullPath, $method, $callback, $useInitClass, $customProperties, $allMiddlewares, $namespace, $version) {
+			$this->registerRestRoute($fullPath, $method, $callback, $useInitClass, $customProperties, $allMiddlewares, $namespace, $version);
 		});
 
 		return $this;
