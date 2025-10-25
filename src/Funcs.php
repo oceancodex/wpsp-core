@@ -580,9 +580,30 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _shouldReturnJson() {
-		return wp_doing_ajax() ||
-			(defined('REST_REQUEST') && REST_REQUEST) ||
-			(!empty($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+		// WordPress AJAX
+		if (function_exists('wp_doing_ajax') && wp_doing_ajax()) {
+			return true;
+		}
+
+		// Content-Type (chủ yếu khi client gửi JSON body)
+		$contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+		if (stripos($contentType, 'application/json') !== false) {
+			return true;
+		}
+
+		// Client yêu cầu JSON trong Accept Header
+		$accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+		if (stripos($accept, 'application/json') !== false) {
+			return true;
+		}
+
+		// AJAX truyền thống từ browser
+		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+			&& strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+			return true;
+		}
+
+		return false;
 	}
 
 	public function _wantJson() {

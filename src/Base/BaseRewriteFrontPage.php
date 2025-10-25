@@ -70,7 +70,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 					$requestPath = trim($this->request->getPathInfo(), '/\\');
 					if (preg_match('/' . $path . '/iu', $requestPath)) {
 						$this->maybeNoTemplate();
-						$this->{$this->callback_function}(); // $this->access();
+						$this->{$this->callback_function}(); // $this->index();
 					}
 				});
 			}

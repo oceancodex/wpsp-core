@@ -18,9 +18,10 @@ trait GroupRoutesTrait {
 	/**
 	 * Bật chế độ build route map
 	 */
-	public function withRouterMap() {
+	public function initRouterMap() {
 		$this->isForRouterMap = true;
 		$this->initForRouterMap();
+		$this->isForRouterMap = false;
 		return $this;
 	}
 

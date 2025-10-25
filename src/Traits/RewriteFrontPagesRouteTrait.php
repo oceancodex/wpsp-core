@@ -8,7 +8,6 @@ trait RewriteFrontPagesRouteTrait {
 
 	public function init() {
 		$this->addQueryVars();
-
 		$this->rewrite_front_pages();
 		$this->hooks();
 	}
@@ -26,11 +25,17 @@ trait RewriteFrontPagesRouteTrait {
 		$this->filter('query_vars', function($query_vars) {
 			$query_vars[] = 'is_rewrite';
 			$query_vars[] = $this->funcs->_config('app.short_name') . '_rewrite_ident';
-			for ($i = 1; $i <= 10; $i++) {
+			for ($i = 1; $i <= 20; $i++) {
 				$query_vars[] = $this->funcs->_config('app.short_name') . '_rewrite_group_' . $i;
 			}
 			return $query_vars;
 		}, true, null, null, 10, 1);
+
+		// Chặn redirect canonical cho các trang front page vì sử dụng "post_type" và "pagename" trong rewrite rules.
+		$this->filter('redirect_canonical', function($redirect_url, $requested_url) {
+			if (get_query_var('is_rewrite') == 'true') return false;
+			return $redirect_url;
+		}, false, null, null, 10, 2);
 	}
 
 	/*
@@ -44,14 +49,30 @@ trait RewriteFrontPagesRouteTrait {
 	 */
 
 	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
+		// Xây dựng full path
+		$fullPath = $this->buildFullPath($path);
+
+		// Merge middlewares
+		$allMiddlewares = $this->getFlattenedMiddlewares();
+		if ($middlewares !== null) {
+			$allMiddlewares = array_merge($allMiddlewares, is_array($middlewares) ? $middlewares : [$middlewares]);
+		}
+
+		// Đánh dấu route để có thể name() sau này
+		$this->markRouteForNaming($path);
+
+		// Nếu đang build router map, chỉ lưu thông tin
+		if ($this->isForRouterMap) {
+			return $this;
+		}
+
 		if (!is_admin()
-			&& !wp_doing_ajax()
 			&& $this->request->isMethod('GET')
-			&& $this->isPassedMiddleware($middlewares, $this->request)
+			&& $this->isPassedMiddleware($allMiddlewares, $this->request)
 		) {
 			$constructParams = [
 				[
-					'path'              => $path,
+					'path'              => $fullPath,
 					'callback_function' => $callback[1] ?? null,
 					'validation'        => $this->validation,
 					'custom_properties' => $customProperties,
@@ -64,16 +85,19 @@ trait RewriteFrontPagesRouteTrait {
 			], $constructParams);
 			$callback         = $this->prepareCallback($callback, $useInitClass, $constructParams);
 			$callback[1]      = 'init';
-			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
+			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($fullPath) : $callback;
 		}
+
+		return $this;
 	}
 
 	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
-		if (!is_admin() && !wp_doing_ajax()) {
+		if (!is_admin()) {
 			if ($this->request->isMethod('POST')) {
 				$this->executeHiddenMethod($path, $callback, $useInitClass, $customProperties, $middlewares);
 			}
 		}
+		return $this;
 	}
 
 	/*
@@ -82,14 +106,31 @@ trait RewriteFrontPagesRouteTrait {
 
 
 	public function executeHiddenMethod($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
+		// Xây dựng full path
+		$fullPath = $this->buildFullPath($path);
+
+		// Merge middlewares
+		$allMiddlewares = $this->getFlattenedMiddlewares();
+		if ($middlewares !== null) {
+			$allMiddlewares = array_merge($allMiddlewares, is_array($middlewares) ? $middlewares : [$middlewares]);
+		}
+
+		// Đánh dấu route để có thể name() sau này
+		$this->markRouteForNaming($path);
+
+		// Nếu đang build router map, chỉ lưu thông tin
+		if ($this->isForRouterMap) {
+			return $this;
+		}
+
 		$requestPath = trim($this->request->getPathInfo(), '/\\');
 		if (
-			($this->request->get('page') == $path || preg_match('/' . $path . '/iu', $requestPath))
-			&& $this->isPassedMiddleware($middlewares, $this->request)
+			preg_match('/' . $fullPath . '/iu', $requestPath)
+			&& $this->isPassedMiddleware($allMiddlewares, $this->request)
 		) {
 			$constructParams = [
 				[
-					'path'              => $path,
+					'path'              => $fullPath,
 					'callback_function' => $callback[1] ?? null,
 					'validation'        => $this->validation,
 					'custom_properties' => $customProperties,
@@ -102,8 +143,9 @@ trait RewriteFrontPagesRouteTrait {
 			], $constructParams);
 			$callback         = $this->prepareCallback($callback, $useInitClass, $constructParams);
 			$callback[1]      = 'init';
-			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
+			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($fullPath) : $callback;
 		}
+		return $this;
 	}
 
 }
