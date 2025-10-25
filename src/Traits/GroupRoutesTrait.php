@@ -233,9 +233,15 @@ trait GroupRoutesTrait {
 
 			if (!isset($mapRoutes->map[$className])) {
 				$mapRoutes->map[$className] = [];
+				$mapRoutes->mapIdea[$className] = [];
 			}
-
 			$mapRoutes->map[$className][$fullName] = $this->currentRouteName['path'];
+			$mapRoutes->mapIdea[$className][$fullName] = [
+				'name' => $fullName,
+				'file' => $className . '.php',
+				'line' => (new \Exception())->getTrace()[1]['line'] ?? null,
+				'path' => $this->currentRouteName['path']
+			];
 		}
 	}
 
