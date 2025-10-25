@@ -13,6 +13,11 @@ trait RewriteFrontPagesRouteTrait {
 		$this->hooks();
 	}
 
+	public function initForRouterMap() {
+		$this->rewrite_front_pages();
+		return $this;
+	}
+
 	/*
 	 *
 	 */
