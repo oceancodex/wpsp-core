@@ -201,10 +201,6 @@ class Funcs extends BaseInstances {
 		return $this->_getPluginData()['RequiresPHP'];
 	}
 
-	/*
-	 *
-	 */
-
 	public function _getAllFilesInFolder($path) {
 		$finder = new Finder();
 		$finder->files()->in($path);
@@ -318,6 +314,14 @@ class Funcs extends BaseInstances {
 			return null;
 		}
 	}
+
+	public function _getPluginDirName() {
+		return $this->_getMainBaseName();
+	}
+
+	/*
+	 *
+	 */
 
 	public function _commentTokens() {
 		$commentTokens = [T_COMMENT];
@@ -452,48 +456,21 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
+	public function _locale() {
+		if (function_exists('get_locale')) {
+			return get_locale();
+		}
+		else {
+			return $this->_env('APP_LOCALE', true, 'en');
+		}
+	}
+
+	public function _env($var, $addPrefix = false, $default = null) {
+		return Environment::get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
+	}
+
 	public function _asset($path, $secure = null) {
 		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
-	}
-
-	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
-		try {
-			if (!Blade::$BLADE) {
-				$views        = $this->_getResourcesPath('/views');
-				$cache        = $this->_getStoragePath('/framework/views');
-				Blade::$BLADE = new Blade(
-					$this->_getMainPath(),
-					$this->_getRootNamespace(),
-					$this->_getPrefixEnv(),
-					[
-						'funcs' => $this,
-					],
-					[$views],
-					$cache
-				);
-			}
-			$shareVariables = [];
-			$shareClass     = '\\' . $this->_getRootNamespace() . '\\app\\View\\Share';
-			$shareVariables = array_merge($shareVariables, $shareClass::instance()->variables());
-			global $notice;
-			$shareVariables = array_merge($shareVariables, ['notice' => $notice]);
-			Blade::$BLADE->view()->share($shareVariables);
-			if (!$viewName && $instance) {
-				return Blade::$BLADE->view();
-			}
-			return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
-		}
-		catch (\Exception|\Throwable $e) {
-			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
-		}
-	}
-
-	public function _viewInstance() {
-		return $this->_view(null, [], [], true);
-	}
-
-	public function _viewInject($views, $callback) {
-		return $this->_viewInstance()->composer($views, $callback);
 	}
 
 	public function _trans($string, $wordpress = false) {
@@ -542,6 +519,91 @@ class Funcs extends BaseInstances {
 		}
 		if ($echo) echo $notice;
 	}
+
+	public function _debug($message = '', $print = false, $varDump = false) {
+
+		// If "var_dump" mode is OFF.
+		if ($varDump) {
+
+			// Start buffer capture.
+			ob_start();
+
+			// Dump the values.
+			var_dump($message);
+
+			// Put the buffer into a variable.
+			$message = ob_get_contents();
+
+			// End capture.
+			ob_end_clean();
+
+			// Error log the message.
+
+		}
+
+		if ($print) {
+			echo '<pre>';
+			print_r($message);
+			echo '</pre>';
+		}
+		else {
+			error_log(print_r($message, true));
+		}
+
+	}
+
+	public function _response($success = false, $data = [], $message = '', $code = 204) {
+		return [
+			'success' => $success,
+			'message' => $message,
+			'data'    => $data,
+			'code'    => $code,
+		];
+	}
+
+	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
+		try {
+			if (!Blade::$BLADE) {
+				$views        = $this->_getResourcesPath('/views');
+				$cache        = $this->_getStoragePath('/framework/views');
+				Blade::$BLADE = new Blade(
+					$this->_getMainPath(),
+					$this->_getRootNamespace(),
+					$this->_getPrefixEnv(),
+					[
+						'funcs' => $this,
+					],
+					[$views],
+					$cache
+				);
+			}
+			$shareVariables = [];
+			$shareClass     = '\\' . $this->_getRootNamespace() . '\\app\\View\\Share';
+			$shareVariables = array_merge($shareVariables, $shareClass::instance()->variables());
+			global $notice;
+			$shareVariables = array_merge($shareVariables, ['notice' => $notice]);
+			Blade::$BLADE->view()->share($shareVariables);
+			if (!$viewName && $instance) {
+				return Blade::$BLADE->view();
+			}
+			return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
+		}
+		catch (\Exception|\Throwable $e) {
+			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
+		}
+	}
+
+	public function _viewInstance() {
+		return $this->_view(null, [], [], true);
+	}
+
+	public function _viewInject($views, $callback) {
+		return $this->_viewInstance()->composer($views, $callback);
+	}
+
+	/*
+	 *
+	 */
 
 	public function _buildUrl($baseUrl = null, $args = []) {
 		return add_query_arg($args ?? [], $baseUrl ?? '');
@@ -613,59 +675,5 @@ class Funcs extends BaseInstances {
 	/*
 	 *
 	 */
-
-	public function _env($var, $addPrefix = false, $default = null) {
-		return Environment::get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
-	}
-
-	public function _debug($message = '', $print = false, $varDump = false) {
-
-		// If "var_dump" mode is OFF.
-		if ($varDump) {
-
-			// Start buffer capture.
-			ob_start();
-
-			// Dump the values.
-			var_dump($message);
-
-			// Put the buffer into a variable.
-			$message = ob_get_contents();
-
-			// End capture.
-			ob_end_clean();
-
-			// Error log the message.
-
-		}
-
-		if ($print) {
-			echo '<pre>';
-			print_r($message);
-			echo '</pre>';
-		}
-		else {
-			error_log(print_r($message, true));
-		}
-
-	}
-
-	public function _locale() {
-		if (function_exists('get_locale')) {
-			return get_locale();
-		}
-		else {
-			return $this->_env('APP_LOCALE', true, 'en');
-		}
-	}
-
-	public function _response($success = false, $data = [], $message = '', $code = 204) {
-		return [
-			'success' => $success,
-			'message' => $message,
-			'data'    => $data,
-			'code'    => $code,
-		];
-	}
 
 }

@@ -238,8 +238,8 @@ trait GroupRoutesTrait {
 			$mapRoutes->map[$className][$fullName] = $this->currentRouteName['path'];
 			$mapRoutes->mapIdea[$className][$fullName] = [
 				'name' => $fullName,
-				'file' => $className . '.php',
-				'line' => (new \Exception())->getTrace()[1]['line'] ?? null,
+				'file' => 'routes/' . $className . '.php',
+				'line' => (new \Exception())->getTrace()[1]['line'] ?? 0,
 				'path' => $this->currentRouteName['path']
 			];
 		}
