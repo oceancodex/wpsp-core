@@ -368,7 +368,7 @@ class Funcs extends BaseInstances {
 			try {
 				return (new \DateTimeImmutable('@' . $value))->setTimezone($tz);
 			}
-			catch (\Exception) {
+			catch (\Exception $e) {
 				return $default;
 			}
 		}
@@ -380,7 +380,7 @@ class Funcs extends BaseInstances {
 				return $parsed;
 			}
 		}
-		catch (\Exception) {
+		catch (\Exception $e) {
 			// bỏ qua
 		}
 
@@ -394,7 +394,7 @@ class Funcs extends BaseInstances {
 				}
 			}
 		}
-		catch (\Exception) {
+		catch (\Exception $e) {
 			// không parse được
 		}
 
