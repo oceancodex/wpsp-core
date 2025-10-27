@@ -118,7 +118,7 @@ class Funcs extends BaseInstances {
 		return basename($this->_getMainPath());
 	}
 
-	public function _getSitePath() {
+	public function _getSitePath($appendPath = null) {
 		if (defined('WP_CONTENT_DIR')) {
 			$path = WP_CONTENT_DIR;
 			$path = preg_replace('/wp-content$/iu', '', $path);
@@ -128,6 +128,9 @@ class Funcs extends BaseInstances {
 			$path = preg_replace('/^(.+?)wp-content(.+?)$/iu', '$1', $path);
 		}
 		$path = rtrim($path, '/\\');
+		if ($appendPath) {
+			$path .= '/' . ltrim($appendPath, '/\\');
+		}
 		return $path;
 	}
 

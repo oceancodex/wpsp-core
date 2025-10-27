@@ -235,6 +235,7 @@ trait GroupRoutesTrait {
 				$mapRoutes->map[$className] = [];
 				$mapRoutes->mapIdea[$className] = [];
 			}
+
 			$mapRoutes->map[$className][$fullName] = $this->currentRouteName['path'];
 			$mapRoutes->mapIdea[$className][$fullName] = [
 				'name' => $fullName,
