@@ -15,6 +15,9 @@ trait GroupRoutesTrait {
 	private $callMiddlewareTimes = 0;
 	private $callGroupTimes   = 0;
 
+	private $namespace = null;
+	private $version   = null;
+
 	/**
 	 * Bật chế độ build route map
 	 */
@@ -57,6 +60,22 @@ trait GroupRoutesTrait {
 			$this->nameStack[] = $name;
 		}
 
+		return $this;
+	}
+
+	/**
+	 * Thêm namespace cho route Apis.
+	 */
+	public function namespace($namespace) {
+		$this->namespace = $namespace;
+		return $this;
+	}
+
+	/**
+	 * Thêm version cho route Apis.
+	 */
+	public function version($version) {
+		$this->version = $version;
 		return $this;
 	}
 
@@ -219,7 +238,7 @@ trait GroupRoutesTrait {
 		// Đảm bảo mỗi route có vùng nhớ riêng, không ghi đè lẫn nhau
 		$this->currentRouteName = [
 			'path' => $this->buildFullPath($path),
-			'timestamp' => microtime(true) // tránh đè khi tạo nhanh liên tiếp
+			'timestamp' => microtime(true), // tránh đè khi tạo nhanh liên tiếp
 		];
 	}
 
@@ -232,16 +251,18 @@ trait GroupRoutesTrait {
 			$className = (new \ReflectionClass($this))->getShortName();
 
 			if (!isset($mapRoutes->map[$className])) {
-				$mapRoutes->map[$className] = [];
+				$mapRoutes->map[$className]     = [];
 				$mapRoutes->mapIdea[$className] = [];
 			}
 
-			$mapRoutes->map[$className][$fullName] = $this->currentRouteName['path'];
+			$mapRoutes->map[$className][$fullName]     = $this->currentRouteName['path'];
 			$mapRoutes->mapIdea[$className][$fullName] = [
-				'name' => $fullName,
-				'file' => 'routes/' . $className . '.php',
-				'line' => (new \Exception())->getTrace()[1]['line'] ?? 0,
-				'path' => $this->currentRouteName['path']
+				'name'      => $fullName,
+				'file'      => 'routes/' . $className . '.php',
+				'line'      => (new \Exception())->getTrace()[1]['line'] ?? 0,
+				'namespace' => $this->namespace ?: $this->funcs->_getRootNamespace(),
+				'version'   => $this->version ?: 'v1',
+				'path'      => $this->currentRouteName['path'],
 			];
 		}
 	}
