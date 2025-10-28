@@ -9,36 +9,42 @@ trait ApisRouteTrait {
 	public function init() {
 		$this->apis();
 		$this->hooks();
+		return $this;
+	}
+
+	public function initForRouterMap() {
+		$this->apis();
+		return $this;
 	}
 
 	/*
 	 *
 	 */
 
-	public function apis() {}
+	abstract public function apis();
 
 	/*
 	 *
 	 */
 
 	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
-		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 	}
 
 	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
-		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 	}
 
 	public function put($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
-		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 	}
 
 	public function delete($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
-		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 	}
 
 	public function patch($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
-		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 	}
 
 	/*
@@ -46,9 +52,28 @@ trait ApisRouteTrait {
 	 */
 
 	public function restApiInit($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
-		add_action('rest_api_init', function () use ($path, $method, $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version) {
-			$this->registerRestRoute($path, $method, $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		// Xây dựng full path
+		$fullPath = $this->buildFullPath($path);
+
+		// Merge middlewares
+		$allMiddlewares = $this->getFlattenedMiddlewares();
+		if ($middlewares !== null) {
+			$allMiddlewares = array_merge($allMiddlewares, is_array($middlewares) ? $middlewares : [$middlewares]);
+		}
+
+		// Đánh dấu route để có thể name() sau này
+		$this->markRouteForNaming($path);
+
+		// Nếu đang build router map, chỉ lưu thông tin
+		if ($this->isForRouterMap) {
+			return $this;
+		}
+
+		add_action('rest_api_init', function () use ($fullPath, $method, $callback, $useInitClass, $customProperties, $allMiddlewares, $namespace, $version) {
+			$this->registerRestRoute($fullPath, $method, $callback, $useInitClass, $customProperties, $allMiddlewares, $namespace, $version);
 		});
+
+		return $this;
 	}
 
 	public function registerRestRoute($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {

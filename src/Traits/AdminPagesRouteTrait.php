@@ -9,48 +9,145 @@ trait AdminPagesRouteTrait {
 	public function init() {
 		$this->admin_pages();
 		$this->hooks();
+		return $this;
+	}
+
+	public function initForRouterMap() {
+		$this->admin_pages();
+		return $this;
 	}
 
 	/*
      *
      */
 
-	public function admin_pages() {}
+	abstract public function admin_pages();
 
 	/*
 	 *
 	 */
 
 	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
-		if (
-			is_admin()
-			&& !wp_doing_ajax()
-			&& $this->isPassedMiddleware($middlewares, $this->request)
-		) {
-			$constructParams = [
-				[
-					'path'              => $path,
-					'callback_function' => $callback[1] ?? null,
-					'custom_properties' => $customProperties,
-				]
-			];
-			$constructParams = array_merge([
-				$this->funcs->_getMainPath(),
-				$this->funcs->_getRootNamespace(),
-				$this->funcs->_getPrefixEnv(),
-			], $constructParams);
-			$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
-			$callback[1] = 'init';
-			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
+		// Build full path.
+		$fullPath = $this->buildFullPath($path);
+
+		// Merge middlewares từ stack và parameter
+		$allMiddlewares = $this->getFlattenedMiddlewares();
+		if ($middlewares !== null) {
+			$allMiddlewares = array_merge($allMiddlewares, is_array($middlewares) ? $middlewares : [$middlewares]);
 		}
+
+		// Đánh dấu route để có thể name() sau này
+		$this->markRouteForNaming($path);
+
+		// Nếu đang build router map, chỉ lưu thông tin
+		if ($this->isForRouterMap) {
+			return $this;
+		}
+
+		if (!empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantJson()) {
+			$requestPath = trim($this->request->getRequestUri(), '/\\');
+			if (
+				is_callable($callback)
+				|| !isset($callback[1]) || $callback[1] == 'index'
+				|| $this->request->get('page') == $fullPath
+				|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)
+			) {
+				if ($this->isPassedMiddleware($allMiddlewares, $this->request)) {
+					$constructParams = [
+						[
+							'path'              => $fullPath,
+							'callback_function' => is_callable($callback) ? 'init' : ($callback[1] ?? null),
+							'validation'        => $this->validation,
+							'custom_properties' => $customProperties,
+						],
+					];
+					$constructParams = array_merge([
+						$this->funcs->_getMainPath(),
+						$this->funcs->_getRootNamespace(),
+						$this->funcs->_getPrefixEnv(),
+					], $constructParams);
+
+					if (is_callable($callback)) {
+						add_action('admin_menu', function() use ($fullPath, $callback) {
+							$callbackRef = new \ReflectionFunction($callback);
+							$params      = $callbackRef->getParameters();
+							$args        = [];
+							foreach ($params as $param) {
+								$name = $param->getName();
+
+								if ($param->isDefaultValueAvailable()) {
+									$default = $param->getDefaultValue();
+								}
+								else {
+									$default = null;
+								}
+								$args[$name] = $default;
+							}
+							if (isset($args['is_submenu_page']) && $args['is_submenu_page']) {
+								add_submenu_page(
+									$args['parent_slug'] ?? 'options-general.php',
+									$args['page_title'] ?? $fullPath,
+									$args['menu_title'] ?? $fullPath,
+									$args['capability'] ?? 'manage_options',
+									$args['menu_slug'] ?? $fullPath,
+									$callback,
+									$args['position'] ?? null
+								);
+							}
+							else {
+								add_menu_page(
+									$args['page_title'] ?? $fullPath,
+									$args['menu_title'] ?? $fullPath,
+									$args['capability'] ?? 'manage_options',
+									$args['menu_slug'] ?? $fullPath,
+									$callback,
+									$args['icon_url'] ?? null,
+								);
+							}
+						});
+					}
+					else {
+						$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
+						if (($callback[1] == 'index' || !isset($callback[1]))) $callback[1] = 'init';
+						$callParams = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
+						isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
+					}
+				}
+				else {
+					wp_die('Access denied.');
+				}
+			}
+		}
+
+		return $this;
 	}
 
 	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
-		if (is_admin() && !wp_doing_ajax()) {
+		// Build full path.
+		$fullPath = $this->buildFullPath($path);
+
+		// Merge middlewares
+		$allMiddlewares = $this->getFlattenedMiddlewares();
+		if ($middlewares !== null) {
+			$allMiddlewares = array_merge($allMiddlewares, is_array($middlewares) ? $middlewares : [$middlewares]);
+		}
+
+		// Đánh dấu route để có thể name() sau này
+		$this->markRouteForNaming($path);
+
+		// Nếu đang build router map, chỉ lưu thông tin
+		if ($this->isForRouterMap) {
+			return $this;
+		}
+
+		if (!empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantJson()) {
 			if ($this->request->isMethod('POST')) {
-				$this->executeHiddenMethod($path, $callback, $useInitClass, $customProperties, $middlewares);
+				$this->executeHiddenMethod($fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
 			}
 		}
+
+		return $this;
 	}
 
 	/*
@@ -58,25 +155,40 @@ trait AdminPagesRouteTrait {
 	 */
 
 	public function executeHiddenMethod($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
+		$screenOptions = $this->request->get('wp_screen_options');
+		if ($screenOptions) {
+			return;
+		}
+
 		$requestPath = trim($this->request->getRequestUri(), '/\\');
 		if (
-			($this->request->get('page') == $path || preg_match('/' . preg_quote($path, '/') . '/iu', $requestPath))
-			&& $this->isPassedMiddleware($middlewares, $this->request)
+			(
+				is_callable($callback)
+				|| ($this->request->get('page') == $path && preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath))
+				|| preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath)
+			)
 		) {
-			$constructParams = [
-				[
-					'path'              => $path,
-					'callback_function' => $callback[1] ?? null,
-					'custom_properties' => $customProperties,
-				]
-			];
-			$constructParams = array_merge([
-				$this->funcs->_getMainPath(),
-				$this->funcs->_getRootNamespace(),
-				$this->funcs->_getPrefixEnv(),
-			], $constructParams);
-			$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
-			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
+			if ($this->isPassedMiddleware($middlewares, $this->request)) {
+				$constructParams = [
+					[
+						'path'              => $path,
+						'callback_function' => $callback[1] ?? null,
+						'validation'        => $this->validation,
+						'custom_properties' => $customProperties,
+					],
+				];
+				$constructParams = array_merge([
+					$this->funcs->_getMainPath(),
+					$this->funcs->_getRootNamespace(),
+					$this->funcs->_getPrefixEnv(),
+				], $constructParams);
+				$callback        = $this->prepareCallback($callback, $useInitClass, $constructParams);
+				$callParams      = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
+				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
+			}
+			else {
+				wp_die('Access denied.');
+			}
 		}
 	}
 
