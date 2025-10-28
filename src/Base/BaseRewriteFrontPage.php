@@ -15,7 +15,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 *
 	 */
 
-	protected function afterConstruct() {
+	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
 		$this->overridePath($this->extraParams['path']);
 		$this->customProperties();
@@ -70,7 +70,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 					$requestPath = trim($this->request->getPathInfo(), '/\\');
 					if (preg_match('/' . $path . '/iu', $requestPath)) {
 						$this->maybeNoTemplate();
-						$this->{$this->callback_function}(); // $this->access();
+						$this->{$this->callback_function}(); // $this->index();
 					}
 				});
 			}
