@@ -45,77 +45,76 @@ trait AdminPagesRouteTrait {
 			return $this;
 		}
 
-		if ($this->request->isMethod('GET') && !empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantJson()) {
+		if (!empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantJson()) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
 			if (
-				(
-					is_callable($callback)
-					|| !isset($callback[1]) || $callback[1] == 'index'
-					|| $this->request->get('page') == $fullPath
-					|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '/iu', $requestPath)
-				)
-				&& $this->isPassedMiddleware($allMiddlewares, $this->request)
+				is_callable($callback)
+				|| !isset($callback[1]) || $callback[1] == 'index'
+				|| $this->request->get('page') == $fullPath
+				|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)
 			) {
-				$constructParams = [
-					[
-						'path'              => $fullPath,
-						'callback_function' => is_callable($callback) ? 'init' : ($callback[1] ?? null),
-						'validation'        => $this->validation,
-						'custom_properties' => $customProperties,
-					],
-				];
-				$constructParams = array_merge([
-					$this->funcs->_getMainPath(),
-					$this->funcs->_getRootNamespace(),
-					$this->funcs->_getPrefixEnv(),
-				], $constructParams);
-				if (is_callable($callback)) {
-					add_action('admin_menu', function() use ($fullPath, $callback) {
-						$callbackRef = new \ReflectionFunction($callback);
-						$params = $callbackRef->getParameters();
-						$args = [];
-						foreach ($params as $param) {
-							$name = $param->getName();
+				if ($this->isPassedMiddleware($allMiddlewares, $this->request)) {
+					$constructParams = [
+						[
+							'path'              => $fullPath,
+							'callback_function' => is_callable($callback) ? 'init' : ($callback[1] ?? null),
+							'validation'        => $this->validation,
+							'custom_properties' => $customProperties,
+						],
+					];
+					$constructParams = array_merge([
+						$this->funcs->_getMainPath(),
+						$this->funcs->_getRootNamespace(),
+						$this->funcs->_getPrefixEnv(),
+					], $constructParams);
 
-							if ($param->isDefaultValueAvailable()) {
-								$default = $param->getDefaultValue();
-							} else {
-								$default = null;
+					if (is_callable($callback)) {
+						add_action('admin_menu', function() use ($fullPath, $callback) {
+							$callbackRef = new \ReflectionFunction($callback);
+							$params      = $callbackRef->getParameters();
+							$args        = [];
+							foreach ($params as $param) {
+								$name = $param->getName();
+
+								if ($param->isDefaultValueAvailable()) {
+									$default = $param->getDefaultValue();
+								}
+								else {
+									$default = null;
+								}
+								$args[$name] = $default;
 							}
-							$args[$name] = $default;
-						}
-						if (isset($args['is_submenu_page']) && $args['is_submenu_page']) {
-							add_submenu_page(
-								$args['parent_slug'] ?? 'options-general.php',
-								$args['page_title'] ?? $fullPath,
-								$args['menu_title'] ?? $fullPath,
-								$args['capability'] ?? 'manage_options',
-								$args['menu_slug'] ?? $fullPath,
-								$callback,
-								$args['position'] ?? null
-							);
-						}
-						else {
-							add_menu_page(
-								$args['page_title'] ?? $fullPath,
-								$args['menu_title'] ?? $fullPath,
-								$args['capability'] ?? 'manage_options',
-								$args['menu_slug'] ?? $fullPath,
-								$callback,
-								$args['icon_url'] ?? null,
-							);
-						}
-					});
+							if (isset($args['is_submenu_page']) && $args['is_submenu_page']) {
+								add_submenu_page(
+									$args['parent_slug'] ?? 'options-general.php',
+									$args['page_title'] ?? $fullPath,
+									$args['menu_title'] ?? $fullPath,
+									$args['capability'] ?? 'manage_options',
+									$args['menu_slug'] ?? $fullPath,
+									$callback,
+									$args['position'] ?? null
+								);
+							}
+							else {
+								add_menu_page(
+									$args['page_title'] ?? $fullPath,
+									$args['menu_title'] ?? $fullPath,
+									$args['capability'] ?? 'manage_options',
+									$args['menu_slug'] ?? $fullPath,
+									$callback,
+									$args['icon_url'] ?? null,
+								);
+							}
+						});
+					}
+					else {
+						$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
+						if (($callback[1] == 'index' || !isset($callback[1]))) $callback[1] = 'init';
+						$callParams = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
+						isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
+					}
 				}
 				else {
-					$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
-					if (($callback[1] == 'index' || !isset($callback[1]))) $callback[1] = 'init';
-					isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($fullPath) : $callback;
-				}
-			}
-			else {
-				$currentPath = $this->request->getRequestUri();
-				if (preg_match('//[?&]' . preg_quote($fullPath, '/') . '(?:[&#]|$)/iu/iu', $currentPath)) {
 					wp_die('Access denied.');
 				}
 			}
@@ -165,28 +164,31 @@ trait AdminPagesRouteTrait {
 		if (
 			(
 				is_callable($callback)
-				|| $this->request->get('page') == $path
-				|| preg_match('/' . $this->funcs->_escapeRegex($path) . '/iu', $requestPath)
+				|| ($this->request->get('page') == $path && preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath))
+				|| preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath)
 			)
-			&& $this->isPassedMiddleware($middlewares, $this->request)
 		) {
-			echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($path); echo '</pre>'; die();
-			echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($middlewares); echo '</pre>'; die();
-			$constructParams = [
-				[
-					'path'              => $path,
-					'callback_function' => $callback[1] ?? null,
-					'validation'        => $this->validation,
-					'custom_properties' => $customProperties,
-				],
-			];
-			$constructParams = array_merge([
-				$this->funcs->_getMainPath(),
-				$this->funcs->_getRootNamespace(),
-				$this->funcs->_getPrefixEnv(),
-			], $constructParams);
-			$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
-			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($path) : $callback;
+			if ($this->isPassedMiddleware($middlewares, $this->request)) {
+				$constructParams = [
+					[
+						'path'              => $path,
+						'callback_function' => $callback[1] ?? null,
+						'validation'        => $this->validation,
+						'custom_properties' => $customProperties,
+					],
+				];
+				$constructParams = array_merge([
+					$this->funcs->_getMainPath(),
+					$this->funcs->_getRootNamespace(),
+					$this->funcs->_getPrefixEnv(),
+				], $constructParams);
+				$callback        = $this->prepareCallback($callback, $useInitClass, $constructParams);
+				$callParams      = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
+				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
+			}
+			else {
+				wp_die('Access denied.');
+			}
 		}
 	}
 

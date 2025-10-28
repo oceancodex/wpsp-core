@@ -267,4 +267,24 @@ trait GroupRoutesTrait {
 		}
 	}
 
+	public function getCallParams($path, $requestPath, $class, $method) {
+		preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath, $matches);
+		$methodParams = array_filter($matches, function ($key) {
+			return !is_int($key);
+		}, ARRAY_FILTER_USE_KEY);
+
+		$methodParams = array_merge([
+			'request' => $this->request,
+		], $methodParams);
+
+		// Chỉ truyền đúng số argument mà method khai báo.
+		$reflection = new \ReflectionMethod($class, $method);
+		$params     = $reflection->getParameters();
+		$callParams = [];
+		foreach ($params as $param) {
+			$callParams[] = array_shift($methodParams); // lấy theo thứ tự còn lại
+		}
+		return $callParams;
+	}
+
 }
