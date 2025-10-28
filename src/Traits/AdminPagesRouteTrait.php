@@ -45,13 +45,14 @@ trait AdminPagesRouteTrait {
 			return $this;
 		}
 
-		if (is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantJson()) {
+		if ($this->request->isMethod('GET') && !empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantJson()) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
 			if (
 				(
 					is_callable($callback)
 					|| !isset($callback[1]) || $callback[1] == 'index'
-					|| $this->request->get('page') == $fullPath || preg_match('/' . preg_quote($fullPath, '/') . '/iu', $requestPath)
+					|| $this->request->get('page') == $fullPath
+					|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '/iu', $requestPath)
 				)
 				&& $this->isPassedMiddleware($allMiddlewares, $this->request)
 			) {
@@ -141,7 +142,7 @@ trait AdminPagesRouteTrait {
 			return $this;
 		}
 
-		if (is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantJson()) {
+		if (!empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantJson()) {
 			if ($this->request->isMethod('POST')) {
 				$this->executeHiddenMethod($fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
 			}
@@ -162,9 +163,15 @@ trait AdminPagesRouteTrait {
 
 		$requestPath = trim($this->request->getRequestUri(), '/\\');
 		if (
-			($this->request->get('page') == $path || preg_match('/' . preg_quote($path, '/') . '/iu', $requestPath))
+			(
+				is_callable($callback)
+				|| $this->request->get('page') == $path
+				|| preg_match('/' . $this->funcs->_escapeRegex($path) . '/iu', $requestPath)
+			)
 			&& $this->isPassedMiddleware($middlewares, $this->request)
 		) {
+			echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($path); echo '</pre>'; die();
+			echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($middlewares); echo '</pre>'; die();
 			$constructParams = [
 				[
 					'path'              => $path,

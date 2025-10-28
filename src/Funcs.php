@@ -536,6 +536,67 @@ class Funcs extends BaseInstances {
 		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
 	}
 
+	public function _route(array $mapIdea, string $routeClass, string $routeName, $args = [], bool $buildURL = false) {
+		if (preg_match('/\\\\/', $routeClass)) {
+			$routeClass = trim($routeClass, '\\');
+			$parts      = explode('\\', $routeClass);
+			$routeClass = end($parts);
+		}
+
+		$routeFromMap = $mapIdea[$routeClass][$routeName] ?? null;
+
+		if ($routeFromMap) {
+			switch ($routeClass) {
+				case 'Apis':
+					$routeFromMap = $routeFromMap['namespace'] . '/' . $routeFromMap['version'] . '/' . $routeFromMap['path'];
+					break;
+				default:
+					$routeFromMap = $routeFromMap['path'];
+			}
+
+			if (!empty($args) && is_array($args)) {
+				// Tìm tất cả các placeholder (?P<key>pattern)
+				if (preg_match_all('/\(\?P<([^>]+)>[^)]+\)/', $routeFromMap, $matches)) {
+					foreach ($matches[1] as $matchIndex => $paramName) {
+						if (isset($args[$paramName])) {
+							// Thay thế đúng phần placeholder bởi giá trị
+							$routeFromMap = preg_replace(
+								'/' . preg_quote($matches[0][$matchIndex], '/') . '/',
+								rawurlencode($args[$paramName]),
+								$routeFromMap,
+								1
+							);
+							unset($args[$paramName]); // Đã xử lý rồi thì bỏ đi
+						}
+					}
+				}
+
+				// Nếu còn args chưa mapping vào route thì nối query string như cũ
+				if (!empty($args)) {
+					$routeFromMap = add_query_arg($args, rawurlencode($routeFromMap));
+					$routeFromMap = rawurldecode($routeFromMap);
+				}
+			}
+
+			if ($buildURL || (is_bool($args) && $args)) {
+				switch ($routeClass) {
+					case 'Apis':
+						$routeFromMap = rest_url($routeFromMap);
+						break;
+					case 'Ajaxs':
+						$routeFromMap = admin_url('admin-ajax.php?action=' . $routeFromMap);
+						break;
+					case 'AdminPages':
+						$routeFromMap = admin_url('admin.php?page=' . $routeFromMap);
+						break;
+					default:
+				}
+			}
+		}
+
+		return $routeFromMap;
+	}
+
 	public function _trans($string, $wordpress = false) {
 		try {
 			if ($wordpress) {
@@ -734,6 +795,44 @@ class Funcs extends BaseInstances {
 	public function _wantJson() {
 		return $this->_shouldReturnJson();
 	}
+
+	public function _escapeRegex(string $pattern, string $delimiter = '/'): string {
+		$result = '';
+		$depth = 0;
+		$buffer = '';
+
+		for ($i = 0; $i < strlen($pattern); $i++) {
+			$char = $pattern[$i];
+
+			if ($char === '(') {
+				if ($depth === 0 && $buffer !== '') {
+					$result .= preg_quote($buffer, $delimiter);
+					$buffer = '';
+				}
+				$depth++;
+				$result .= $char;
+			} elseif ($char === ')') {
+				$depth--;
+				$result .= $char;
+				if ($depth === 0) {
+					// Continue dynamic regex directly
+				}
+			} else {
+				if ($depth > 0) {
+					$result .= $char;
+				} else {
+					$buffer .= $char;
+				}
+			}
+		}
+
+		if ($buffer !== '') {
+			$result .= preg_quote($buffer, $delimiter);
+		}
+
+		return $result;
+	}
+
 
 	/*
 	 *
