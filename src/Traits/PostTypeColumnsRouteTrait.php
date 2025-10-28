@@ -2,12 +2,12 @@
 
 namespace WPSPCORE\Traits;
 
-trait RolesRouteTrait {
+trait PostTypeColumnsRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
 	public function init() {
-		$this->roles();
+		$this->post_type_columns();
 		$this->hooks();
 	}
 
@@ -15,18 +15,18 @@ trait RolesRouteTrait {
      *
      */
 
-	public function roles() {}
+	public function post_type_columns() {}
 
 	/*
 	 *
 	 */
 
-	public function role($role, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
+	public function column($column, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			if (is_array($callback)) {
 				$constructParams = [
 					[
-						'role'              => $role,
+						'column'            => $column,
 						'callback_function' => $callback[1] ?? null,
 						'validation'        => $this->validation,
 						'custom_properties' => $customProperties,
@@ -37,9 +37,9 @@ trait RolesRouteTrait {
 					$this->funcs->_getRootNamespace(),
 					$this->funcs->_getPrefixEnv(),
 				], $constructParams);
-				$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
-				$callback[1] = 'init';
-				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($role) : $callback;
+				$callback        = $this->prepareCallback($callback, $useInitClass, $constructParams);
+				$callback[1]     = 'init';
+				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($column) : $callback;
 			}
 			elseif (is_callable($callback)) {
 				$callback();
