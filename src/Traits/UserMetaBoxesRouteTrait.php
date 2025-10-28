@@ -2,12 +2,12 @@
 
 namespace WPSPCORE\Traits;
 
-trait MetaBoxesRouteTrait {
+trait UserMetaBoxesRouteTrait {
 
 	use HookRunnerTrait, GroupRoutesTrait;
 
 	public function init() {
-		$this->meta_boxes();
+		$this->user_meta_boxes();
 		$this->hooks();
 	}
 
@@ -15,13 +15,13 @@ trait MetaBoxesRouteTrait {
      *
      */
 
-	public function meta_boxes() {}
+	public function user_meta_boxes() {}
 
 	/*
 	 *
 	 */
 
-	public function meta_box($id, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
+	public function user_meta_box($id, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
 		if ($this->isPassedMiddleware($middlewares, $this->request)) {
 			$constructParams = [
 				[
@@ -34,11 +34,11 @@ trait MetaBoxesRouteTrait {
 			$constructParams = array_merge([
 				$this->funcs->_getMainPath(),
 				$this->funcs->_getRootNamespace(),
-				$this->funcs->_getPrefixEnv()
+				$this->funcs->_getPrefixEnv(),
 			], $constructParams);
-			$callback         = $this->prepareCallback($callback, $useInitClass, $constructParams);
-			$callback[1]      = 'init';
-			add_action('add_meta_boxes', $callback, $priority, $argsNumber);
+			$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
+			add_action('show_user_profile', $callback, $priority, $argsNumber);
+			add_action('edit_user_profile', $callback, $priority, $argsNumber);
 		}
 	}
 
