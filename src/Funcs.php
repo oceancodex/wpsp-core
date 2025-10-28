@@ -18,12 +18,14 @@ class Funcs extends BaseInstances {
 //	public $mainPath      = null;
 //	public $rootNamespace = null;
 //	public $prefixEnv     = null;
+//	public $extraParams   = [];
 
 
-//	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null) {
+//	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 //		if ($mainPath) $this->mainPath = $mainPath;
 //		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
 //		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
+//		if ($extraParams) $this->extraParams = $extraParams;
 //	}
 
 //	public static function getInstance($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
@@ -53,14 +55,31 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _getBearerToken() {
-		$token = $this->request->headers->get('Authorization');
-		if (!$token) {
+	public function _getBearerToken($request = null) {
+		$request = $request ?? $this->request ?? null;
+
+		// --- Lấy raw header ---
+		if ($request && method_exists($request, 'headers')) {
+			$authHeader = $request->headers->get('Authorization');
+		}
+		else {
+			$headers    = function_exists('getallheaders') ? getallheaders() : [];
+			$headers    = array_change_key_case($headers, CASE_LOWER);
+			$authHeader = $headers['authorization']
+				?? $_SERVER['HTTP_AUTHORIZATION']
+				?? $_SERVER['Authorization']
+				?? null;
+		}
+
+		if (!$authHeader) {
 			return null;
 		}
-		if (preg_match('/Bearer\s+(.*?)$/iu', $token, $matches)) {
+
+		// --- Parse Bearer token ---
+		if (preg_match('/Bearer\s+(\S+)/i', trim($authHeader), $matches)) {
 			return trim($matches[1]);
 		}
+
 		return null;
 	}
 
@@ -86,11 +105,20 @@ class Funcs extends BaseInstances {
 		return ${$globalMigration};
 	}
 
+	/**
+	 * @return \WPSPCORE\Validation\Validation
+	 */
+	public function _getAppValidation() {
+		$globalValidation = $this->_getAppShortName() . '_validation';
+		global ${$globalValidation};
+		return ${$globalValidation};
+	}
+
 	public function _getMainBaseName() {
 		return basename($this->_getMainPath());
 	}
 
-	public function _getSitePath() {
+	public function _getSitePath($appendPath = null) {
 		if (defined('WP_CONTENT_DIR')) {
 			$path = WP_CONTENT_DIR;
 			$path = preg_replace('/wp-content$/iu', '', $path);
@@ -100,6 +128,9 @@ class Funcs extends BaseInstances {
 			$path = preg_replace('/^(.+?)wp-content(.+?)$/iu', '$1', $path);
 		}
 		$path = rtrim($path, '/\\');
+		if ($appendPath) {
+			$path .= '/' . ltrim($appendPath, '/\\');
+		}
 		return $path;
 	}
 
@@ -172,10 +203,6 @@ class Funcs extends BaseInstances {
 	public function _getRequiresPhp() {
 		return $this->_getPluginData()['RequiresPHP'];
 	}
-
-	/*
-	 *
-	 */
 
 	public function _getAllFilesInFolder($path) {
 		$finder = new Finder();
@@ -291,6 +318,14 @@ class Funcs extends BaseInstances {
 		}
 	}
 
+	public function _getPluginDirName() {
+		return $this->_getMainBaseName();
+	}
+
+	/*
+	 *
+	 */
+
 	public function _commentTokens() {
 		$commentTokens = [T_COMMENT];
 
@@ -336,7 +371,7 @@ class Funcs extends BaseInstances {
 			try {
 				return (new \DateTimeImmutable('@' . $value))->setTimezone($tz);
 			}
-			catch (\Exception) {
+			catch (\Exception $e) {
 				return $default;
 			}
 		}
@@ -348,7 +383,7 @@ class Funcs extends BaseInstances {
 				return $parsed;
 			}
 		}
-		catch (\Exception) {
+		catch (\Exception $e) {
 			// bỏ qua
 		}
 
@@ -362,7 +397,7 @@ class Funcs extends BaseInstances {
 				}
 			}
 		}
-		catch (\Exception) {
+		catch (\Exception $e) {
 			// không parse được
 		}
 
@@ -420,52 +455,146 @@ class Funcs extends BaseInstances {
 		return $results;
 	}
 
+	public function _getWPConfig($file = null) {
+		if (!$file) {
+			$file = $this->_getSitePath() . '/wp-config.php';
+		}
+
+		$defines = [];
+		$tokens = token_get_all(file_get_contents($file));
+
+		$count = count($tokens);
+		for ($i = 0; $i < $count; $i++) {
+
+			// Tìm keyword define
+			if (is_array($tokens[$i]) && $tokens[$i][0] === T_STRING && strtolower($tokens[$i][1]) === 'define') {
+
+				// Kiểm tra dấu mở ngoặc
+				$j = $i + 1;
+				while ($j < $count && is_array($tokens[$j]) && in_array($tokens[$j][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])) {
+					$j++;
+				}
+
+				if ($j >= $count || $tokens[$j] !== '(') {
+					continue;
+				}
+
+				// Lấy tham số đầu tiên (key)
+				$j++;
+				while ($j < $count && (is_array($tokens[$j]) && $tokens[$j][0] === T_WHITESPACE)) {
+					$j++;
+				}
+
+				if (!is_array($tokens[$j]) || $tokens[$j][0] !== T_CONSTANT_ENCAPSED_STRING) {
+					continue;
+				}
+				$key = trim($tokens[$j][1], "\"'");
+
+				// Tìm dấu phẩy
+				do {
+					$j++;
+				} while ($j < $count && $tokens[$j] !== ',');
+
+				if ($j >= $count) continue;
+
+				// Lấy tham số thứ hai (value)
+				$j++;
+				while ($j < $count && (is_array($tokens[$j]) && $tokens[$j][0] === T_WHITESPACE)) {
+					$j++;
+				}
+
+				if (!is_array($tokens[$j]) || $tokens[$j][0] !== T_CONSTANT_ENCAPSED_STRING) {
+					continue;
+				}
+				$value = trim($tokens[$j][1], "\"'");
+
+				$defines[$key] = $value;
+			}
+		}
+
+		return $defines;
+	}
+
 	/*
 	 *
 	 */
+
+	public function _locale() {
+		if (function_exists('get_locale')) {
+			return get_locale();
+		}
+		else {
+			return $this->_env('APP_LOCALE', true, 'en');
+		}
+	}
+
+	public function _env($var, $addPrefix = false, $default = null) {
+		return Environment::get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
+	}
 
 	public function _asset($path, $secure = null) {
 		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
 	}
 
-	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
-		try {
-			if (!Blade::$BLADE) {
-				$views        = $this->_getResourcesPath('/views');
-				$cache        = $this->_getStoragePath('/framework/views');
-				Blade::$BLADE = new Blade(
-					$this->_getMainPath(),
-					$this->_getRootNamespace(),
-					$this->_getPrefixEnv(),
-					[
-						'funcs' => $this,
-					],
-					[$views],
-					$cache
-				);
-			}
-			$shareVariables = [];
-			$shareClass     = '\\' . $this->_getRootNamespace() . '\\app\\View\\Share';
-			$shareVariables = array_merge($shareVariables, $shareClass::instance()->variables());
-			global $notice;
-			$shareVariables = array_merge($shareVariables, ['notice' => $notice]);
-			Blade::$BLADE->view()->share($shareVariables);
-			if (!$viewName && $instance) {
-				return Blade::$BLADE->view();
-			}
-			return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
+	public function _route(array $mapIdea, string $routeClass, string $routeName, $args = [], bool $buildURL = false) {
+		if (preg_match('/\\\\/', $routeClass)) {
+			$routeClass = trim($routeClass, '\\');
+			$parts      = explode('\\', $routeClass);
+			$routeClass = end($parts);
 		}
-		catch (\Exception|\Throwable $e) {
-			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
+
+		$routeFromMap = $mapIdea[$routeClass][$routeName] ?? null;
+
+		if ($routeFromMap) {
+			switch ($routeClass) {
+				case 'Apis':
+					$routeFromMap = $routeFromMap['namespace'] . '/' . $routeFromMap['version'] . '/' . $routeFromMap['path'];
+					break;
+				default:
+					$routeFromMap = $routeFromMap['path'];
+			}
+
+			if (!empty($args) && is_array($args)) {
+				// Tìm tất cả các placeholder (?P<key>pattern)
+				if (preg_match_all('/\(\?P<([^>]+)>[^)]+\)/', $routeFromMap, $matches)) {
+					foreach ($matches[1] as $matchIndex => $paramName) {
+						if (isset($args[$paramName])) {
+							// Thay thế đúng phần placeholder bởi giá trị
+							$routeFromMap = preg_replace(
+								'/' . preg_quote($matches[0][$matchIndex], '/') . '/',
+								rawurlencode($args[$paramName]),
+								$routeFromMap,
+								1
+							);
+							unset($args[$paramName]); // Đã xử lý rồi thì bỏ đi
+						}
+					}
+				}
+
+				// Nếu còn args chưa mapping vào route thì nối query string như cũ
+				if (!empty($args)) {
+					$routeFromMap = add_query_arg($args, rawurlencode($routeFromMap));
+					$routeFromMap = rawurldecode($routeFromMap);
+				}
+			}
+
+			if ($buildURL || (is_bool($args) && $args)) {
+				switch ($routeClass) {
+					case 'Apis':
+						$routeFromMap = rest_url($routeFromMap);
+						break;
+					case 'Ajaxs':
+						$routeFromMap = admin_url('admin-ajax.php?action=' . $routeFromMap);
+						break;
+					case 'AdminPages':
+						$routeFromMap = admin_url('admin.php?page=' . $routeFromMap);
+						break;
+					default:
+				}
+			}
 		}
-	}
 
-	public function _viewInstance() {
-		return $this->_view(null, [], [], true);
-	}
-
-	public function _viewInject($views, $callback) {
-		return $this->_viewInstance()->composer($views, $callback);
+		return $routeFromMap;
 	}
 
 	public function _trans($string, $wordpress = false) {
@@ -515,22 +644,6 @@ class Funcs extends BaseInstances {
 		if ($echo) echo $notice;
 	}
 
-	public function _buildUrl($baseUrl = null, $args = []) {
-		return add_query_arg($args ?? [], $baseUrl ?? '');
-	}
-
-	public function _nonceName($name = null) {
-		return $this->_env('APP_SHORT_NAME', true) . ($name ? '_' . $name : '') . '_nonce';
-	}
-
-	/*
-	 *
-	 */
-
-	public function _env($var, $addPrefix = false, $default = null) {
-		return Environment::get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
-	}
-
 	public function _debug($message = '', $print = false, $varDump = false) {
 
 		// If "var_dump" mode is OFF.
@@ -563,15 +676,6 @@ class Funcs extends BaseInstances {
 
 	}
 
-	public function _locale() {
-		if (function_exists('get_locale')) {
-			return get_locale();
-		}
-		else {
-			return $this->_env('APP_LOCALE', true, 'en');
-		}
-	}
-
 	public function _response($success = false, $data = [], $message = '', $code = 204) {
 		return [
 			'success' => $success,
@@ -580,5 +684,158 @@ class Funcs extends BaseInstances {
 			'code'    => $code,
 		];
 	}
+
+	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
+		try {
+			if (!Blade::$BLADE) {
+				$views        = $this->_getResourcesPath('/views');
+				$cache        = $this->_getStoragePath('/framework/views');
+				Blade::$BLADE = new Blade(
+					$this->_getMainPath(),
+					$this->_getRootNamespace(),
+					$this->_getPrefixEnv(),
+					[
+						'funcs' => $this,
+					],
+					[$views],
+					$cache
+				);
+			}
+			$shareVariables = [];
+			$shareClass     = '\\' . $this->_getRootNamespace() . '\\app\\View\\Share';
+			$shareVariables = array_merge($shareVariables, $shareClass::instance()->variables());
+			global $notice;
+			$shareVariables = array_merge($shareVariables, ['notice' => $notice]);
+			Blade::$BLADE->view()->share($shareVariables);
+			if (!$viewName && $instance) {
+				return Blade::$BLADE->view();
+			}
+			return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
+		}
+		catch (\Exception|\Throwable $e) {
+			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
+		}
+	}
+
+	public function _viewInstance() {
+		return $this->_view(null, [], [], true);
+	}
+
+	public function _viewInject($views, $callback) {
+		return $this->_viewInstance()->composer($views, $callback);
+	}
+
+	/*
+	 *
+	 */
+
+	public function _buildUrl($baseUrl = null, $args = []) {
+		return add_query_arg($args ?? [], $baseUrl ?? '');
+	}
+
+	public function _nonceName($name = null) {
+		return $this->_env('APP_SHORT_NAME', true) . ($name ? '_' . $name : '') . '_nonce';
+	}
+
+	public function _isDebug() {
+		return $this->_env('APP_DEBUG', true) == 'true';
+	}
+
+	public function _isWPDebug() {
+		return defined('WP_DEBUG') && WP_DEBUG;
+	}
+
+	public function _isWPDebugLog() {
+		return defined('WP_DEBUG_LOG') && WP_DEBUG_LOG;
+	}
+
+	public function _isWPDebugDisplay() {
+		return defined('WP_DEBUG_DISPLAY') && WP_DEBUG_DISPLAY;
+	}
+
+	public function _isLocal() {
+		return $this->_env('APP_ENV', true) == 'local';
+	}
+
+	public function _isDev() {
+		return $this->_env('APP_ENV', true) == 'dev';
+	}
+
+	public function _isProduction() {
+		return $this->_env('APP_ENV', true) == 'production';
+	}
+
+	public function _shouldReturnJson() {
+		// WordPress AJAX
+		if (function_exists('wp_doing_ajax') && wp_doing_ajax()) {
+			return true;
+		}
+
+		// Content-Type (chủ yếu khi client gửi JSON body)
+		$contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+		if (stripos($contentType, 'application/json') !== false) {
+			return true;
+		}
+
+		// Client yêu cầu JSON trong Accept Header
+		$accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+		if (stripos($accept, 'application/json') !== false) {
+			return true;
+		}
+
+		// AJAX truyền thống từ browser
+		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+			&& strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+			return true;
+		}
+
+		return false;
+	}
+
+	public function _wantJson() {
+		return $this->_shouldReturnJson();
+	}
+
+	public function _escapeRegex(string $pattern, string $delimiter = '/'): string {
+		$result = '';
+		$depth = 0;
+		$buffer = '';
+
+		for ($i = 0; $i < strlen($pattern); $i++) {
+			$char = $pattern[$i];
+
+			if ($char === '(') {
+				if ($depth === 0 && $buffer !== '') {
+					$result .= preg_quote($buffer, $delimiter);
+					$buffer = '';
+				}
+				$depth++;
+				$result .= $char;
+			} elseif ($char === ')') {
+				$depth--;
+				$result .= $char;
+				if ($depth === 0) {
+					// Continue dynamic regex directly
+				}
+			} else {
+				if ($depth > 0) {
+					$result .= $char;
+				} else {
+					$buffer .= $char;
+				}
+			}
+		}
+
+		if ($buffer !== '') {
+			$result .= preg_quote($buffer, $delimiter);
+		}
+
+		return $result;
+	}
+
+
+	/*
+	 *
+	 */
 
 }
