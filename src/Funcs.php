@@ -371,7 +371,7 @@ class Funcs extends BaseInstances {
 			try {
 				return (new \DateTimeImmutable('@' . $value))->setTimezone($tz);
 			}
-			catch (\Exception $e) {
+			catch (\Throwable $e) {
 				return $default;
 			}
 		}
@@ -383,7 +383,7 @@ class Funcs extends BaseInstances {
 				return $parsed;
 			}
 		}
-		catch (\Exception $e) {
+		catch (\Throwable $e) {
 			// bỏ qua
 		}
 
@@ -397,7 +397,7 @@ class Funcs extends BaseInstances {
 				}
 			}
 		}
-		catch (\Exception $e) {
+		catch (\Throwable $e) {
 			// không parse được
 		}
 
@@ -612,7 +612,7 @@ class Funcs extends BaseInstances {
 				return $translator->has($string) ? $translator->get($string) : $translator->get($string, [], $this->_config('app.fallback_locale'));
 			}
 		}
-		catch (\Exception $e) {
+		catch (\Throwable $e) {
 			return $string;
 		}
 	}
@@ -630,7 +630,7 @@ class Funcs extends BaseInstances {
 			$configs = new \Dflydev\DotAccessData\Data($configs);
 			return $configs->get($key);
 		}
-		catch (\Exception $e) {
+		catch (\Throwable $e) {
 		}
 		return null;
 	}
@@ -712,7 +712,7 @@ class Funcs extends BaseInstances {
 			}
 			return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
 		}
-		catch (\Exception $e) {
+		catch (\Throwable $e) {
 			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
 		}
 	}
