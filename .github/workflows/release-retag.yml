@@ -38,11 +38,7 @@ jobs:
       - name: Cleanup existing tag
         run: |
           git fetch --prune --tags
-          
-          # Remove remote tag if exists
           git push origin ":refs/tags/${{ steps.version.outputs.version }}" || true
-
-          # Remove local tag if exists
           if git rev-parse "${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
             git tag -d "${{ steps.version.outputs.version }}" || true
           fi
@@ -59,11 +55,20 @@ jobs:
             -m "Auto re-tag for branch ${{ steps.version.outputs.branch }}"
           git push origin "${{ steps.version.outputs.version }}"
 
-      - name: Create release
+      - name: Build Release ZIP without .github
+        run: |
+          mkdir release
+          rsync -av --exclude='.github' ./ release/
+          cd release
+          zip -r ../release.zip .
+          cd ..
+
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.version }}
           name: ${{ steps.version.outputs.version }}
+          files: release.zip
           draft: false
           prerelease: false
         env:
