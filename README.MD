@@ -1,1 +1,1 @@
-# WordPress Starter Plugin - Corex
+# WordPress Starter Plugin - Core
