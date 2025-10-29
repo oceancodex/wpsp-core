@@ -1,4 +1,4 @@
-name: Re-tag Release
+name: Release Retag
 
 on:
   push:
@@ -12,9 +12,9 @@ on:
 
 jobs:
   recreate-release:
+    runs-on: ubuntu-latest
     permissions:
       contents: write
-    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
