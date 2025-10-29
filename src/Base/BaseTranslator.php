@@ -19,7 +19,7 @@ abstract class BaseTranslator extends BaseInstances {
 				$this->relPath ?? $this->funcs->_getMainBaseName() . '/resources/lang/'
 			);
 		}
-		catch (\Exception $e) {}
+		catch (\Throwable $e) {}
 		return $this;
 	}
 
