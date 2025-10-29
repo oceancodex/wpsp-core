@@ -612,7 +612,7 @@ class Funcs extends BaseInstances {
 				return $translator->has($string) ? $translator->get($string) : $translator->get($string, [], $this->_config('app.fallback_locale'));
 			}
 		}
-		catch (\Exception|\Throwable $e) {
+		catch (\Exception $e) {
 			return $string;
 		}
 	}
@@ -712,7 +712,7 @@ class Funcs extends BaseInstances {
 			}
 			return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
 		}
-		catch (\Exception|\Throwable $e) {
+		catch (\Exception $e) {
 			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
 		}
 	}
