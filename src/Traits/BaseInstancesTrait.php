@@ -21,6 +21,7 @@ trait BaseInstancesTrait {
 	public $locale              = null;
 	public $request             = null;
 	public $validation          = null;
+	public $environment         = null;
 
 	public $extraParams         = [];
 
@@ -38,6 +39,12 @@ trait BaseInstancesTrait {
 		$this->prepareValidation();
 
 		$this->prepareRequest();
+		$this->prepareEnvironment();
+
+		// Unset extra params.
+		if (isset($extraParams['unset_extra_params']) && $extraParams['unset_extra_params']) {
+			unset($this->extraParams);
+		}
 
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();
@@ -77,8 +84,21 @@ trait BaseInstancesTrait {
 		return $slug;
 	}
 
-	/*
+	/**
+	 * prepare_funcs
+	 * prepare_request
+	 * prepare_validation
 	 *
+	 * unset_funcs
+	 * unset_request
+	 * unset_validation
+	 * unset_extra_params
+	 *
+	 * funcs
+	 * request
+	 * validation
+	 *
+	 * environment
 	 */
 
 	public function prepareFuncs() {
@@ -88,18 +108,26 @@ trait BaseInstancesTrait {
 				$this->rootNamespace,
 				$this->prefixEnv,
 				[
+					'environment'        => $this->extraParams['environment'] ?? null,
+					'validation'         => null,
+
 					'prepare_funcs'      => false,
 					'prepare_request'    => false,
-					'prepare_validation' => false,
-					'unset_validation'   => true,
-					'unset_request'      => true,
+
 					'unset_funcs'        => true,
+					'unset_request'      => true,
+					'unset_validation'   => true,
+					'unset_environment'  => false,
+
+					'unset_extra_params' => true,
 				]
 			);
 		}
 		if (isset($this->extraParams['unset_funcs']) && $this->extraParams['unset_funcs']) {
 			unset($this->funcs);
 		}
+		unset($this->extraParams['prepare_funcs']);
+		unset($this->extraParams['unset_funcs']);
 	}
 
 	public function prepareLocale() {
@@ -119,15 +147,30 @@ trait BaseInstancesTrait {
 		if (isset($this->extraParams['unset_request']) && $this->extraParams['unset_request']) {
 			unset($this->request);
 		}
+		unset($this->extraParams['prepare_request']);
+		unset($this->extraParams['unset_request']);
 	}
 
 	public function prepareValidation() {
-		if ((!isset($this->extraParams['prepare_validation']) || $this->extraParams['prepare_validation']) && !$this->validation) {
-			$this->validation = $this->extraParams['validation'] ?? null;
+		if (isset($this->extraParams['validation']) && $this->extraParams['validation'] && !$this->validation) {
+			$this->validation = $this->extraParams['validation'];
 		}
 		if (isset($this->extraParams['unset_validation']) && $this->extraParams['unset_validation']) {
 			unset($this->validation);
 		}
+		unset($this->extraParams['validation']);
+		unset($this->extraParams['unset_validation']);
+	}
+
+	public function prepareEnvironment() {
+		if (isset($this->extraParams['environment']) && $this->extraParams['environment'] && !$this->environment) {
+			$this->environment = $this->extraParams['environment'];
+		}
+		if (isset($this->extraParams['unset_environment']) && $this->extraParams['unset_environment']) {
+			unset($this->environment);
+		}
+		unset($this->extraParams['environment']);
+		unset($this->extraParams['unset_environment']);
 	}
 
 

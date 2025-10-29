@@ -20,7 +20,6 @@ class Funcs extends BaseInstances {
 //	public $prefixEnv     = null;
 //	public $extraParams   = [];
 
-
 //	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 //		if ($mainPath) $this->mainPath = $mainPath;
 //		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
@@ -529,7 +528,19 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _env($var, $addPrefix = false, $default = null) {
-		return Environment::get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
+		if ($this->environment) {
+			$result = $this->environment->get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
+		}
+		elseif (function_exists('env')) {
+			$result = env($var, $default) ?? $default;
+		}
+		elseif (function_exists('getenv')) {
+			$result = getenv($var) ?? $default;
+		}
+		else {
+			$result = $default;
+		}
+		return $result;
 	}
 
 	public function _asset($path, $secure = null) {
