@@ -39,7 +39,7 @@ abstract class BaseUpdater extends BaseInstances {
 
 //			return $updateChecker->requestInfo();
 		}
-		catch (\Exception $e) {
+		catch (\Throwable $e) {
 //			return null;
 		}
 
