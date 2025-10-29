@@ -30,29 +30,28 @@ jobs:
           echo "branch=$BRANCH" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Setup git identity
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Cleanup existing tag
+        run: |
+          git fetch --prune --tags
+          
+          # Remove remote tag if exists
+          git push origin ":refs/tags/${{ steps.version.outputs.version }}" || true
+
+          # Remove local tag if exists
+          if git rev-parse "${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            git tag -d "${{ steps.version.outputs.version }}" || true
+          fi
+
       - name: Delete release if exists
         run: |
           gh release delete "${{ steps.version.outputs.version }}" -y || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Cleanup existing tag
-        run: |
-          # Fetch full history and tags
-          git fetch --prune --unshallow --tags
-          
-          # Ensure local tag is removed
-          if git rev-parse "${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
-            git tag -d "${{ steps.version.outputs.version }}" || true
-          fi
-          
-          # Ensure remote tag is removed
-          git push origin ":refs/tags/${{ steps.version.outputs.version }}" || true
-
-      - name: Setup git identity
-        run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
 
       - name: Create and push new tag
         run: |
