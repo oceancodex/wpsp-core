@@ -1,1 +1,1 @@
-# WordPress Starter Plugin - Corexxxxxx
+# WordPress Starter Plugin - Core
