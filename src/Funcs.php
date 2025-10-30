@@ -652,7 +652,11 @@ class Funcs extends BaseInstances {
 		if ($wrap) {
 			$notice = '<div class="wrap">' . $notice . '</div>';
 		}
-		if ($echo) echo $notice;
+		if ($echo) {
+			error_reporting(E_ALL & ~E_WARNING & ~E_NOTICE);
+			@ini_set('display_errors', 0);
+			echo $notice;
+		}
 	}
 
 	public function _debug($message = '', $print = false, $varDump = false) {
