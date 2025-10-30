@@ -99,4 +99,3 @@ node_modules
 storage/framework/views/*.php
 vendor
 public/build
-.gitignore
