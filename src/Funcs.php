@@ -460,7 +460,7 @@ class Funcs extends BaseInstances {
 		}
 
 		$defines = [];
-		$tokens = token_get_all(file_get_contents($file));
+		$tokens  = token_get_all(file_get_contents($file));
 
 		$count = count($tokens);
 		for ($i = 0; $i < $count; $i++) {
@@ -492,7 +492,8 @@ class Funcs extends BaseInstances {
 				// Tìm dấu phẩy
 				do {
 					$j++;
-				} while ($j < $count && $tokens[$j] !== ',');
+				}
+				while ($j < $count && $tokens[$j] !== ',');
 
 				if ($j >= $count) continue;
 
@@ -598,7 +599,7 @@ class Funcs extends BaseInstances {
 						$routeFromMap = admin_url('admin-ajax.php?action=' . $routeFromMap);
 						break;
 					case 'AdminPages':
-						$routeFromMap = admin_url('admin.php?page=' . $routeFromMap);
+						$routeFromMap = $this->_sanitizeURL(admin_url('admin.php?page=' . $routeFromMap));
 						break;
 					default:
 				}
@@ -745,7 +746,8 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function _buildUrl($baseUrl = null, $args = []) {
-		return add_query_arg($args ?? [], $baseUrl ?? '');
+		$url = add_query_arg($args ?? [], $baseUrl ?? '');
+		return $this->_sanitizeURL($url);
 	}
 
 	public function _nonceName($name = null) {
@@ -811,9 +813,9 @@ class Funcs extends BaseInstances {
 		return $this->_shouldReturnJson();
 	}
 
-	public function _escapeRegex(string $pattern, string $delimiter = '/'): string {
+	public function _escapeRegex($pattern, $delimiter = '/') {
 		$result = '';
-		$depth = 0;
+		$depth  = 0;
 		$buffer = '';
 
 		for ($i = 0; $i < strlen($pattern); $i++) {
@@ -826,16 +828,19 @@ class Funcs extends BaseInstances {
 				}
 				$depth++;
 				$result .= $char;
-			} elseif ($char === ')') {
+			}
+			elseif ($char === ')') {
 				$depth--;
 				$result .= $char;
 				if ($depth === 0) {
 					// Continue dynamic regex directly
 				}
-			} else {
+			}
+			else {
 				if ($depth > 0) {
 					$result .= $char;
-				} else {
+				}
+				else {
 					$buffer .= $char;
 				}
 			}
@@ -848,9 +853,54 @@ class Funcs extends BaseInstances {
 		return $result;
 	}
 
+	public function _sanitizeURL($url) {
+		$url = trim($url);
 
-	/*
-	 *
-	 */
+		// Nếu chuỗi rỗng => return luôn
+		if ($url === '') {
+			return '';
+		}
+
+		// 🔹 1. Gom các ký tự ? hoặc & liền nhau thành 1 dấu duy nhất (ưu tiên ? đầu tiên)
+		$url = preg_replace_callback('/[?&]+/', function($matches) use (&$foundQuestion) {
+			if (!isset($foundQuestion)) {
+				$foundQuestion = true;
+				return '?'; // Giữ lại dấu ? đầu tiên
+			}
+			return '&'; // Các dấu ? hoặc & tiếp theo đổi thành &
+		}, $url);
+
+		// 🔹 2. Xóa & hoặc ? thừa ở đầu/cuối chuỗi
+		$url = preg_replace(['#/^(&|\?)#', '/(&|\?)+$/'], '', $url);
+
+		// 🔹 3. Nếu có nhiều ? (trong trường hợp bất thường) -> chỉ giữ cái đầu tiên
+		if (substr_count($url, '?') > 1) {
+			[$base, $rest] = explode('?', $url, 2);
+			$rest = str_replace('?', '&', $rest);
+			$url  = $base . '?' . $rest;
+		}
+
+		// 🔹 4. Chuẩn hóa query string (parse -> rebuild)
+		$parts  = parse_url($url);
+		$scheme = isset($parts['scheme']) ? $parts['scheme'] . '://' : '';
+		$host   = $parts['host'] ?? '';
+		$port   = isset($parts['port']) ? ':' . $parts['port'] : '';
+		$path   = $parts['path'] ?? '';
+		$query  = $parts['query'] ?? '';
+
+		// 🔹 5. Chuẩn hóa lại query string
+		if ($query !== '') {
+			parse_str($query, $params);
+			// Xóa key trùng (nếu cần giữ key cuối)
+			$query = http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+			$url   = $scheme . $host . $port . $path . '?' . $query;
+		}
+		else {
+			$url = $scheme . $host . $port . $path;
+		}
+
+		// 🔹 6. Dọn ký tự ? hoặc & cuối cùng (nếu vẫn dư)
+		return preg_replace('/(\?|\&)+$/', '', $url);
+	}
 
 }
