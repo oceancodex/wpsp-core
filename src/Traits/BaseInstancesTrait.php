@@ -41,13 +41,18 @@ trait BaseInstancesTrait {
 		$this->prepareRequest();
 		$this->prepareEnvironment();
 
+		$this->afterConstruct();
+		$this->afterInstanceConstruct();
+
+		if (isset($extraParams['unset_map_routes']) && $extraParams['unset_map_routes'] && isset($this->mapRoutes)) {
+			unset($this->mapRoutes);
+			unset($this->extraParams['unset_map_routes']);
+		}
+
 		// Unset extra params.
 		if (isset($extraParams['unset_extra_params']) && $extraParams['unset_extra_params']) {
 			unset($this->extraParams);
 		}
-
-		$this->afterConstruct();
-		$this->afterInstanceConstruct();
 	}
 
 	/*
@@ -103,25 +108,31 @@ trait BaseInstancesTrait {
 
 	public function prepareFuncs() {
 		if ((!isset($this->extraParams['prepare_funcs']) || $this->extraParams['prepare_funcs']) && !$this->funcs) {
-			$this->funcs = new \WPSPCORE\Funcs(
-				$this->mainPath,
-				$this->rootNamespace,
-				$this->prefixEnv,
-				[
-					'environment'        => $this->extraParams['environment'] ?? null,
-					'validation'         => null,
+			if (isset($this->extraParams['funcs']) && $this->extraParams['funcs']) {
+				$this->funcs = $this->extraParams['funcs'];
+			}
+			else {
+				$this->funcs = new \WPSPCORE\Funcs(
+					$this->mainPath,
+					$this->rootNamespace,
+					$this->prefixEnv,
+					[
+						'environment'        => $this->extraParams['environment'] ?? null,
+						'validation'         => null,
 
-					'prepare_funcs'      => false,
-					'prepare_request'    => false,
+						'prepare_funcs'      => false,
+						'prepare_request'    => false,
 
-					'unset_funcs'        => true,
-					'unset_request'      => true,
-					'unset_validation'   => true,
-					'unset_environment'  => false,
+						'unset_funcs'        => true,
+						'unset_request'      => true,
+						'unset_validation'   => true,
+						'unset_environment'  => false,
+						'unset_map_routes'   => false,
 
-					'unset_extra_params' => true,
-				]
-			);
+						'unset_extra_params' => true,
+					]
+				);
+			}
 		}
 		if (isset($this->extraParams['unset_funcs']) && $this->extraParams['unset_funcs']) {
 			unset($this->funcs);

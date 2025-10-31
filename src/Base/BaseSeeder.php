@@ -29,7 +29,7 @@ abstract class BaseSeeder extends Seeder {
 
 			$this->capsule->getDatabaseManager()->extend('mongodb', function($config, $name) {
 				$config['name'] = $name;
-				return new \MongoDB\Laravel\Connection($config);
+				return new \Jenssegers\Mongodb\Connection($config);
 			});
 
 			$databaseConnections = $this->funcs->_config('database.connections');
