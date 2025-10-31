@@ -7,23 +7,31 @@ use WPSPCORE\Base\BaseRequest;
 /**
  * BaseInstancesTrait.
  *
- * @property \WPSPCORE\Funcs|null $funcs
+ * @property \WPSPCORE\Funcs|null                                                                      $funcs
  * @property \Symfony\Component\HttpFoundation\Request|\WPSPCORE\Validation\RequestWithValidation|null $request
- * @property \WPSPCORE\Validation\Validation|null $validation
+ * @property \WPSPCORE\Validation\Validation|null                                                      $validation
+ * @property \WPSPCORE\Environment\Environment|null                                                    $environment
+ * @property \WPSPCORE\Database\Eloquent|null                                                          $eloquent
+ * @property \WPSPCORE\Migration\Migration|null                                                        $migration
+ * @property \WPSPCORE\ErrorHandler\Ignition|null                                                      $ignition
  */
 trait BaseInstancesTrait {
 
-	public $mainPath            = null;
-	public $rootNamespace       = null;
-	public $prefixEnv           = null;
+	public $mainPath      = null;
+	public $rootNamespace = null;
+	public $prefixEnv     = null;
 
-	public $funcs               = null;
-	public $locale              = null;
-	public $request             = null;
-	public $validation          = null;
-	public $environment         = null;
+	public $funcs         = null;
+	public $locale        = null;
+	public $request       = null;
 
-	public $extraParams         = [];
+	public $validation    = null;
+	public $environment   = null;
+	public $eloquent      = null;
+	public $migration     = null;
+	public $ignition      = null;
+
+	public $extraParams   = [];
 
 	public function beforeBaseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = null) {
 		$this->beforeConstruct();
@@ -89,56 +97,22 @@ trait BaseInstancesTrait {
 		return $slug;
 	}
 
-	/**
-	 * prepare_funcs
-	 * prepare_request
-	 * prepare_validation
-	 *
-	 * unset_funcs
-	 * unset_request
-	 * unset_validation
-	 * unset_extra_params
-	 *
-	 * funcs
-	 * request
-	 * validation
-	 *
-	 * environment
-	 */
-
 	public function prepareFuncs() {
-		if ((!isset($this->extraParams['prepare_funcs']) || $this->extraParams['prepare_funcs']) && !$this->funcs) {
-			if (isset($this->extraParams['funcs']) && $this->extraParams['funcs']) {
-				$this->funcs = $this->extraParams['funcs'];
-			}
-			else {
+		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
+			if (is_bool($this->extraParams['funcs'])) {
 				$this->funcs = new \WPSPCORE\Funcs(
 					$this->mainPath,
 					$this->rootNamespace,
 					$this->prefixEnv,
 					[
-						'environment'        => $this->extraParams['environment'] ?? null,
-						'validation'         => null,
-
-						'prepare_funcs'      => false,
-						'prepare_request'    => false,
-
-						'unset_funcs'        => true,
-						'unset_request'      => true,
-						'unset_validation'   => true,
-						'unset_environment'  => false,
-						'unset_map_routes'   => false,
-
-						'unset_extra_params' => true,
+						'environment' => $this->extraParams['environment'] ?? null,
 					]
 				);
 			}
+			else {
+				$this->funcs = $this->extraParams['funcs'];
+			}
 		}
-		if (isset($this->extraParams['unset_funcs']) && $this->extraParams['unset_funcs']) {
-			unset($this->funcs);
-		}
-		unset($this->extraParams['prepare_funcs']);
-		unset($this->extraParams['unset_funcs']);
 	}
 
 	public function prepareLocale() {

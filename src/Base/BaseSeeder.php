@@ -6,24 +6,51 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 use WPSPCORE\Funcs;
+use WPSPCORE\Traits\BaseInstancesTrait;
 
+/**
+ * @property \WPSPCORE\Funcs                               $funcs
+ * @property Capsule|null                                  $capsule
+ * @property \Symfony\Component\Console\Output\Output|null $output
+ */
 abstract class BaseSeeder extends Seeder {
+
+	use BaseInstancesTrait;
 
 	public $mainPath      = null;
 	public $rootNamespace = null;
 	public $prefixEnv     = null;
-	/** @var Funcs|null */
+
 	public $funcs         = null;
+//	public $validation    = null;
+//	public $environment   = null;
+//	public $extraParams   = [];
 
-	/** @var Capsule|null */
 	public $capsule       = null;
-	/** @var \Symfony\Component\Console\Output\Output|null */
-	private $output       = null;
+	public $output        = null;
 
-	public function __construct($output = null) {
-		$this->output = $output;
-		$this->beforeConstruct();
-//		$this->funcs = new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, ['prepare_funcs' => false]);
+	public static $called = [];
+
+	/*
+	 *
+	 */
+
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
+		$this->mainPath      = $mainPath;
+		$this->rootNamespace = $rootNamespace;
+		$this->prefixEnv     = $prefixEnv;
+
+//		$this->output      = $extraParams['output'] ?? null;
+		$this->funcs       = $extraParams['funcs'] ?? null;
+
+		unset($this->funcs->request);
+		unset($this->funcs->validation);
+
+//		$this->environment = $extraParams['environment'] ?? null;
+//		$this->validation  = $extraParams['validation'] ?? null;
+
+		require_once $this->funcs->_getSitePath('/wp-includes/pluggable.php');
+
 		if (!$this->capsule) {
 			$this->capsule = new Capsule();
 
@@ -36,6 +63,7 @@ abstract class BaseSeeder extends Seeder {
 
 			$defaultConnectionName   = $this->funcs->_getAppShortName() . '_' . $this->funcs->_config('database.default');
 			$defaultConnectionConfig = $databaseConnections[$defaultConnectionName];
+
 			$this->capsule->addConnection($defaultConnectionConfig);
 
 			foreach ($databaseConnections as $connectionName => $connectionConfig) {
@@ -46,6 +74,10 @@ abstract class BaseSeeder extends Seeder {
 			$this->capsule->bootEloquent();
 		}
 	}
+
+	/*
+	 *
+	 */
 
 	public function call($class, $silent = false, $parameters = []) {
 		$classes = Arr::wrap($class);
@@ -62,7 +94,5 @@ abstract class BaseSeeder extends Seeder {
 		}
 		return $this;
 	}
-
-	public function beforeConstruct() {}
 
 }
