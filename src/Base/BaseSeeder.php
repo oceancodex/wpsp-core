@@ -46,7 +46,13 @@ abstract class BaseSeeder extends Seeder {
 
 			$this->capsule->getDatabaseManager()->extend('mongodb', function($config, $name) {
 				$config['name'] = $name;
-				return new \Jenssegers\Mongodb\Connection($config);
+				if (class_exists('MongoDB\Laravel\Connection')) {
+					return new \MongoDB\Laravel\Connection($config);
+				}
+				elseif (class_exists('Jenssegers\Mongodb\Connection')) {
+					return new \Jenssegers\Mongodb\Connection($config);
+				}
+				return null;
 			});
 
 			$databaseConnections = $this->funcs->_config('database.connections');
