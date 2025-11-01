@@ -7,7 +7,7 @@ use Doctrine\Migrations\Events;
 
 class MigrationListener implements EventSubscriber {
 
-	public function getSubscribedEvents() {
+	public function getSubscribedEvents(): array {
 		return [
 			Events::onMigrationsMigrating,
 			Events::onMigrationsMigrated,
