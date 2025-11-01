@@ -37,6 +37,7 @@ abstract class BaseSeeder extends Seeder {
 
 		$this->extraParams = $extraParams;
 		$this->funcs       = $extraParams['funcs'] ?? null;
+		$this->output      = $extraParams['output'] ?? null;
 
 		require_once $this->funcs->_getSitePath('/wp-load.php');
 
@@ -77,7 +78,7 @@ abstract class BaseSeeder extends Seeder {
 			$seeder->__invoke($parameters);
 			if ($this->output) {
 				$runTime = number_format((microtime(true) - $startTime) * 1000);
-				$this->output->writeln('<fg=green>[OK] Run seeder: ' . $name . ' (' . $runTime . 'ms)  </>');
+				$this->output->writeln('<fg=green>> [✓] Seeded: ' . $name . ' (' . $runTime . 'ms)  </>');
 			}
 			static::$called[] = $class;
 		}

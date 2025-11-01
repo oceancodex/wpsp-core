@@ -125,13 +125,15 @@ trait BaseInstancesTrait {
 
 	private function prepareRequest() {
 		if (isset($this->extraParams['request']) && $this->extraParams['request'] || !$this->request) {
-			if (is_bool($this->extraParams['request'])) {
-				$this->request = BaseRequest::createFromGlobals();
+			if (isset($this->extraParams['request']) && $this->extraParams['request']) {
+				if (is_bool($this->extraParams['request'])) {
+					$this->request = BaseRequest::createFromGlobals();
+				}
+				else {
+					$this->request = $this->extraParams['request'];
+				}
 			}
-			elseif ($this->extraParams['request']) {
-				$this->request = $this->extraParams['request'];
-			}
-			else {
+			elseif (!$this->request) {
 				$this->request = BaseRequest::createFromGlobals();
 			}
 			if (isset($this->validation) && $this->validation && (!isset($this->request->validation) || !$this->request->validation)) {
