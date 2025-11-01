@@ -34,6 +34,10 @@ class Funcs extends BaseInstances {
 //		return self::$coreFuncsInstance;
 //	}
 
+	public function afterConstruct() {
+		unset($this->extraParams['environment']);
+	}
+
 	/*
 	 *
 	 */

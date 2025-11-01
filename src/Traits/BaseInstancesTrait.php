@@ -25,11 +25,11 @@ trait BaseInstancesTrait {
 	public $locale        = null;
 	public $request       = null;
 
+	public $eloquent      = null;
+	public $ignition      = null;
+	public $migration     = null;
 	public $validation    = null;
 	public $environment   = null;
-	public $eloquent      = null;
-	public $migration     = null;
-	public $ignition      = null;
 
 	public $extraParams   = [];
 
@@ -47,20 +47,12 @@ trait BaseInstancesTrait {
 		$this->prepareValidation();
 
 		$this->prepareRequest();
+		$this->prepareEloquent();
+		$this->prepareMigration();
 		$this->prepareEnvironment();
 
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();
-
-		if (isset($extraParams['unset_map_routes']) && $extraParams['unset_map_routes'] && isset($this->mapRoutes)) {
-			unset($this->mapRoutes);
-			unset($this->extraParams['unset_map_routes']);
-		}
-
-		// Unset extra params.
-		if (isset($extraParams['unset_extra_params']) && $extraParams['unset_extra_params']) {
-			unset($this->extraParams);
-		}
 	}
 
 	/*
@@ -97,7 +89,11 @@ trait BaseInstancesTrait {
 		return $slug;
 	}
 
-	public function prepareFuncs() {
+	/*
+	 *
+	 */
+
+	private function prepareFuncs() {
 		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
 			if (is_bool($this->extraParams['funcs'])) {
 				$this->funcs = new \WPSPCORE\Funcs(
@@ -112,50 +108,58 @@ trait BaseInstancesTrait {
 			else {
 				$this->funcs = $this->extraParams['funcs'];
 			}
+			unset($this->extraParams['funcs']);
 		}
 	}
 
-	public function prepareLocale() {
+	private function prepareLocale() {
 		$this->locale = function_exists('get_locale') ? get_locale() : 'en';
 	}
 
-	public function prepareRequest() {
-		if ((!isset($this->extraParams['prepare_request']) || $this->extraParams['prepare_request']) && !$this->request) {
-			$this->request = BaseRequest::createFromGlobals();
-			if (isset($this->validation) && $this->validation) {
-				$this->request->validation = $this->validation;
-			}
-			else {
-				unset($this->request->validation);
-			}
-		}
-		if (isset($this->extraParams['unset_request']) && $this->extraParams['unset_request']) {
-			unset($this->request);
-		}
-		unset($this->extraParams['prepare_request']);
-		unset($this->extraParams['unset_request']);
-	}
-
-	public function prepareValidation() {
+	private function prepareValidation() {
 		if (isset($this->extraParams['validation']) && $this->extraParams['validation'] && !$this->validation) {
 			$this->validation = $this->extraParams['validation'];
+			unset($this->extraParams['validation']);
 		}
-		if (isset($this->extraParams['unset_validation']) && $this->extraParams['unset_validation']) {
-			unset($this->validation);
-		}
-		unset($this->extraParams['validation']);
-		unset($this->extraParams['unset_validation']);
 	}
 
-	public function prepareEnvironment() {
+	private function prepareRequest() {
+		if (isset($this->extraParams['request']) && $this->extraParams['request'] || !$this->request) {
+			if (is_bool($this->extraParams['request'])) {
+				$this->request = BaseRequest::createFromGlobals();
+			}
+			elseif ($this->extraParams['request']) {
+				$this->request = $this->extraParams['request'];
+			}
+			else {
+				$this->request = BaseRequest::createFromGlobals();
+			}
+			if (isset($this->validation) && $this->validation && (!isset($this->request->validation) || !$this->request->validation)) {
+				$this->request->validation = $this->validation;
+			}
+			unset($this->extraParams['request']);
+		}
+	}
+
+	private function prepareEloquent() {
+		if (isset($this->extraParams['eloquent']) && $this->extraParams['eloquent'] && !$this->eloquent) {
+			$this->eloquent = $this->extraParams['eloquent'];
+			unset($this->extraParams['eloquent']);
+		}
+	}
+
+	private function prepareMigration() {
+		if (isset($this->extraParams['migration']) && $this->extraParams['migration'] && !$this->migration) {
+			$this->migration = $this->extraParams['migration'];
+			unset($this->extraParams['migration']);
+		}
+	}
+
+	private function prepareEnvironment() {
 		if (isset($this->extraParams['environment']) && $this->extraParams['environment'] && !$this->environment) {
 			$this->environment = $this->extraParams['environment'];
+			unset($this->extraParams['environment']);
 		}
-		if (isset($this->extraParams['unset_environment']) && $this->extraParams['unset_environment']) {
-			unset($this->environment);
-		}
-		unset($this->extraParams['environment']);
-		unset($this->extraParams['unset_environment']);
 	}
 
 

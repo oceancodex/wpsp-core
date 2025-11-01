@@ -21,11 +21,6 @@ abstract class BaseSeeder extends Seeder {
 	public $rootNamespace = null;
 	public $prefixEnv     = null;
 
-	public $funcs         = null;
-//	public $validation    = null;
-//	public $environment   = null;
-//	public $extraParams   = [];
-
 	public $capsule       = null;
 	public $output        = null;
 
@@ -40,16 +35,10 @@ abstract class BaseSeeder extends Seeder {
 		$this->rootNamespace = $rootNamespace;
 		$this->prefixEnv     = $prefixEnv;
 
-//		$this->output      = $extraParams['output'] ?? null;
+		$this->extraParams = $extraParams;
 		$this->funcs       = $extraParams['funcs'] ?? null;
 
-		unset($this->funcs->request);
-		unset($this->funcs->validation);
-
-//		$this->environment = $extraParams['environment'] ?? null;
-//		$this->validation  = $extraParams['validation'] ?? null;
-
-		require_once $this->funcs->_getSitePath('/wp-includes/pluggable.php');
+		require_once $this->funcs->_getSitePath('/wp-load.php');
 
 		if (!$this->capsule) {
 			$this->capsule = new Capsule();
@@ -93,6 +82,27 @@ abstract class BaseSeeder extends Seeder {
 			static::$called[] = $class;
 		}
 		return $this;
+	}
+
+	protected function resolve($class) {
+		if (isset($this->container)) {
+			$instance = $this->container->make($class);
+
+			$instance->setContainer($this->container);
+		} else {
+			$instance = new $class(
+				$this->mainPath,
+				$this->rootNamespace,
+				$this->prefixEnv,
+				$this->extraParams
+			);
+		}
+
+		if (isset($this->command)) {
+			$instance->setCommand($this->command);
+		}
+
+		return $instance;
 	}
 
 }

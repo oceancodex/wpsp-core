@@ -32,6 +32,7 @@ abstract class BaseTranslator extends BaseInstances {
 		$globalTranslator = $globalTranslator . '_translator';
 		global ${$globalTranslator};
 		${$globalTranslator} = $this;
+		return $this;
 	}
 
 }
