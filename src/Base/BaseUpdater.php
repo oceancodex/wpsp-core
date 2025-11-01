@@ -55,6 +55,7 @@ abstract class BaseUpdater extends BaseInstances {
 		$globalUpdater = $globalUpdater . '_updater';
 		global ${$globalUpdater};
 		${$globalUpdater} = $this;
+		return $this;
 	}
 
 }

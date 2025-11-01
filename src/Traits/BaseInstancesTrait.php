@@ -7,23 +7,31 @@ use WPSPCORE\Base\BaseRequest;
 /**
  * BaseInstancesTrait.
  *
- * @property \WPSPCORE\Funcs|null $funcs
+ * @property \WPSPCORE\Funcs|null                                                                      $funcs
  * @property \Symfony\Component\HttpFoundation\Request|\WPSPCORE\Validation\RequestWithValidation|null $request
- * @property \WPSPCORE\Validation\Validation|null $validation
+ * @property \WPSPCORE\Validation\Validation|null                                                      $validation
+ * @property \WPSPCORE\Environment\Environment|null                                                    $environment
+ * @property \WPSPCORE\Database\Eloquent|null                                                          $eloquent
+ * @property \WPSPCORE\Migration\Migration|null                                                        $migration
+ * @property \WPSPCORE\ErrorHandler\Ignition|null                                                      $ignition
  */
 trait BaseInstancesTrait {
 
-	public $mainPath            = null;
-	public $rootNamespace       = null;
-	public $prefixEnv           = null;
+	public $mainPath      = null;
+	public $rootNamespace = null;
+	public $prefixEnv     = null;
 
-	public $funcs               = null;
-	public $locale              = null;
-	public $request             = null;
-	public $validation          = null;
-	public $environment         = null;
+	public $funcs         = null;
+	public $locale        = null;
+	public $request       = null;
 
-	public $extraParams         = [];
+	public $eloquent      = null;
+	public $ignition      = null;
+	public $migration     = null;
+	public $validation    = null;
+	public $environment   = null;
+
+	public $extraParams   = [];
 
 	public function beforeBaseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = null) {
 		$this->beforeConstruct();
@@ -39,12 +47,9 @@ trait BaseInstancesTrait {
 		$this->prepareValidation();
 
 		$this->prepareRequest();
+		$this->prepareEloquent();
+		$this->prepareMigration();
 		$this->prepareEnvironment();
-
-		// Unset extra params.
-		if (isset($extraParams['unset_extra_params']) && $extraParams['unset_extra_params']) {
-			unset($this->extraParams);
-		}
 
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();
@@ -84,93 +89,79 @@ trait BaseInstancesTrait {
 		return $slug;
 	}
 
-	/**
-	 * prepare_funcs
-	 * prepare_request
-	 * prepare_validation
+	/*
 	 *
-	 * unset_funcs
-	 * unset_request
-	 * unset_validation
-	 * unset_extra_params
-	 *
-	 * funcs
-	 * request
-	 * validation
-	 *
-	 * environment
 	 */
 
-	public function prepareFuncs() {
-		if ((!isset($this->extraParams['prepare_funcs']) || $this->extraParams['prepare_funcs']) && !$this->funcs) {
-			$this->funcs = new \WPSPCORE\Funcs(
-				$this->mainPath,
-				$this->rootNamespace,
-				$this->prefixEnv,
-				[
-					'environment'        => $this->extraParams['environment'] ?? null,
-					'validation'         => null,
-
-					'prepare_funcs'      => false,
-					'prepare_request'    => false,
-
-					'unset_funcs'        => true,
-					'unset_request'      => true,
-					'unset_validation'   => true,
-					'unset_environment'  => false,
-
-					'unset_extra_params' => true,
-				]
-			);
+	private function prepareFuncs() {
+		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
+			if (is_bool($this->extraParams['funcs'])) {
+				$this->funcs = new \WPSPCORE\Funcs(
+					$this->mainPath,
+					$this->rootNamespace,
+					$this->prefixEnv,
+					[
+						'environment' => $this->extraParams['environment'] ?? null,
+					]
+				);
+			}
+			else {
+				$this->funcs = $this->extraParams['funcs'];
+			}
+			unset($this->extraParams['funcs']);
 		}
-		if (isset($this->extraParams['unset_funcs']) && $this->extraParams['unset_funcs']) {
-			unset($this->funcs);
-		}
-		unset($this->extraParams['prepare_funcs']);
-		unset($this->extraParams['unset_funcs']);
 	}
 
-	public function prepareLocale() {
+	private function prepareLocale() {
 		$this->locale = function_exists('get_locale') ? get_locale() : 'en';
 	}
 
-	public function prepareRequest() {
-		if ((!isset($this->extraParams['prepare_request']) || $this->extraParams['prepare_request']) && !$this->request) {
-			$this->request = BaseRequest::createFromGlobals();
-			if (isset($this->validation) && $this->validation) {
-				$this->request->validation = $this->validation;
-			}
-			else {
-				unset($this->request->validation);
-			}
-		}
-		if (isset($this->extraParams['unset_request']) && $this->extraParams['unset_request']) {
-			unset($this->request);
-		}
-		unset($this->extraParams['prepare_request']);
-		unset($this->extraParams['unset_request']);
-	}
-
-	public function prepareValidation() {
+	private function prepareValidation() {
 		if (isset($this->extraParams['validation']) && $this->extraParams['validation'] && !$this->validation) {
 			$this->validation = $this->extraParams['validation'];
+			unset($this->extraParams['validation']);
 		}
-		if (isset($this->extraParams['unset_validation']) && $this->extraParams['unset_validation']) {
-			unset($this->validation);
-		}
-		unset($this->extraParams['validation']);
-		unset($this->extraParams['unset_validation']);
 	}
 
-	public function prepareEnvironment() {
+	private function prepareRequest() {
+		if (isset($this->extraParams['request']) && $this->extraParams['request'] || !$this->request) {
+			if (isset($this->extraParams['request']) && $this->extraParams['request']) {
+				if (is_bool($this->extraParams['request'])) {
+					$this->request = BaseRequest::createFromGlobals();
+				}
+				else {
+					$this->request = $this->extraParams['request'];
+				}
+			}
+			elseif (!$this->request) {
+				$this->request = BaseRequest::createFromGlobals();
+			}
+			if (isset($this->validation) && $this->validation && (!isset($this->request->validation) || !$this->request->validation)) {
+				$this->request->validation = $this->validation;
+			}
+			unset($this->extraParams['request']);
+		}
+	}
+
+	private function prepareEloquent() {
+		if (isset($this->extraParams['eloquent']) && $this->extraParams['eloquent'] && !$this->eloquent) {
+			$this->eloquent = $this->extraParams['eloquent'];
+			unset($this->extraParams['eloquent']);
+		}
+	}
+
+	private function prepareMigration() {
+		if (isset($this->extraParams['migration']) && $this->extraParams['migration'] && !$this->migration) {
+			$this->migration = $this->extraParams['migration'];
+			unset($this->extraParams['migration']);
+		}
+	}
+
+	private function prepareEnvironment() {
 		if (isset($this->extraParams['environment']) && $this->extraParams['environment'] && !$this->environment) {
 			$this->environment = $this->extraParams['environment'];
+			unset($this->extraParams['environment']);
 		}
-		if (isset($this->extraParams['unset_environment']) && $this->extraParams['unset_environment']) {
-			unset($this->environment);
-		}
-		unset($this->extraParams['environment']);
-		unset($this->extraParams['unset_environment']);
 	}
 
 

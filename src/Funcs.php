@@ -34,6 +34,10 @@ class Funcs extends BaseInstances {
 //		return self::$coreFuncsInstance;
 //	}
 
+	public function afterConstruct() {
+		unset($this->extraParams['environment']);
+	}
+
 	/*
 	 *
 	 */
@@ -782,7 +786,7 @@ class Funcs extends BaseInstances {
 		return $this->_env('APP_ENV', true) == 'production';
 	}
 
-	public function _shouldReturnJson() {
+	public function _wantsJson() {
 		// WordPress AJAX
 		if (function_exists('wp_doing_ajax') && wp_doing_ajax()) {
 			return true;
@@ -809,8 +813,8 @@ class Funcs extends BaseInstances {
 		return false;
 	}
 
-	public function _wantJson() {
-		return $this->_shouldReturnJson();
+	public function _expectsJson() {
+		return $this->_wantsJson();
 	}
 
 	public function _escapeRegex($pattern, $delimiter = '/') {

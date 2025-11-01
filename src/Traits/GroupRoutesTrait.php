@@ -264,6 +264,7 @@ trait GroupRoutesTrait {
 				'version'   => $this->version ?: 'v1',
 				'path'      => $this->currentRouteName['path'],
 			];
+//			$this->mapRoutes = $mapRoutes;
 		}
 	}
 

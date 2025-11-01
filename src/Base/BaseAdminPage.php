@@ -20,8 +20,9 @@ abstract class BaseAdminPage extends BaseInstances {
 	protected $screen_options_key       = null;
 
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'];
-		$this->screen_options_key  = $this->screen_options_key ?: $this->getQueryStringSlugify(['page']) ?? $this->menu_slug;
+		$this->request            = BaseRequest::createFromGlobals();
+		$this->callback_function  = $this->extraParams['callback_function'];
+		$this->screen_options_key = $this->screen_options_key ?: $this->getQueryStringSlugify(['page']) ?? $this->menu_slug;
 		$this->overrideMenuSlug($this->extraParams['path']);
 		$this->customProperties();
 	}

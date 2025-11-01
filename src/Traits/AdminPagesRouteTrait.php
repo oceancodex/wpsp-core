@@ -45,11 +45,13 @@ trait AdminPagesRouteTrait {
 			return $this;
 		}
 
-		if (!empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantJson()) {
+		if (!empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantsJson()) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
 			if (
-				is_callable($callback) || is_null($callback[1]) && (
-					!isset($callback[1]) || $callback[1] == 'index'
+				(is_array($callback) || is_callable($callback) || is_null($callback[1]))
+				&& (
+					!isset($callback[1])
+					|| $callback[1] == 'index'
 					|| $this->request->get('page') == $fullPath
 					|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)
 				)
@@ -58,7 +60,7 @@ trait AdminPagesRouteTrait {
 					$constructParams = [
 						[
 							'path'              => $fullPath,
-							'callback_function' => $callback[1] ?? null,
+							'callback_function' => $callback instanceof \Closure ? $callback : $callback[1] ?? null,
 							'validation'        => $this->validation,
 							'custom_properties' => $customProperties,
 						],
@@ -156,7 +158,7 @@ trait AdminPagesRouteTrait {
 			return $this;
 		}
 
-		if (!empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantJson()) {
+		if (!empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantsJson()) {
 			if ($this->request->isMethod('POST')) {
 				$this->executeHiddenMethod($fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
 			}
@@ -177,11 +179,13 @@ trait AdminPagesRouteTrait {
 
 		$requestPath = trim($this->request->getRequestUri(), '/\\');
 		if (
+			(is_array($callback) || is_callable($callback))
+			&&
+			(isset($callback[1]) && $callback[1] !== 'index')
+			&&
 			(
-				is_callable($callback) && (
-					$this->request->get('page') == $path && preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath)
-					|| preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath)
-				)
+				($this->request->get('page') == $path && preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath))
+				|| preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath)
 			)
 		) {
 			if ($this->isPassedMiddleware($middlewares, $this->request)) {
