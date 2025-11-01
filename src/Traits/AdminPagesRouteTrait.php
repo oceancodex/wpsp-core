@@ -48,7 +48,7 @@ trait AdminPagesRouteTrait {
 		if (!empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantsJson()) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
 			if (
-				is_callable($callback) || is_null($callback[1]) && (
+				is_array($callback) || is_callable($callback) || is_null($callback[1]) && (
 					!isset($callback[1]) || $callback[1] == 'index'
 					|| $this->request->get('page') == $fullPath
 					|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)
