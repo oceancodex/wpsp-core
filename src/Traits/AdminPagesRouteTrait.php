@@ -177,11 +177,13 @@ trait AdminPagesRouteTrait {
 
 		$requestPath = trim($this->request->getRequestUri(), '/\\');
 		if (
+			(is_array($callback) || is_callable($callback))
+			&&
+			(isset($callback[1]) && $callback[1] !== 'index')
+			&&
 			(
-				is_callable($callback) && (
-					$this->request->get('page') == $path && preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath)
-					|| preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath)
-				)
+				($this->request->get('page') == $path && preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath))
+				|| preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath)
 			)
 		) {
 			if ($this->isPassedMiddleware($middlewares, $this->request)) {
