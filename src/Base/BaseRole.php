@@ -31,13 +31,23 @@ abstract class BaseRole extends BaseInstances {
 	public function init($role = null) {
 		$role = $this->role ?? $role;
 		if ($role) {
-			$role = add_role(
-				$role,
-				$this->display_name ?? $this->role
-			);
+			$exitsRole = get_role($role);
+
+			if ($exitsRole) {
+				$role = $exitsRole;
+			}
+			else {
+				$role = add_role(
+					$role,
+					$this->display_name ?? $this->role
+				);
+			}
+
 			if ($role) {
 				foreach ($this->capabilities as $capability) {
-					$role->add_cap($capability);
+					if (!$role->has_cap($capability)) {
+						$role->add_cap($capability);
+					}
 				}
 				$role->add_cap('_role_bookmark_' . $this->funcs->_getAppShortName());
 			}
