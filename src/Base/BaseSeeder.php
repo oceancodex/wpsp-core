@@ -84,7 +84,7 @@ abstract class BaseSeeder extends Seeder {
 			$seeder->__invoke($parameters);
 			if ($this->output) {
 				$runTime = number_format((microtime(true) - $startTime) * 1000);
-				$this->output->writeln('<fg=green>> [✓] Seeded: ' . $name . ' (' . $runTime . 'ms)  </>');
+				$this->output->writeln('<fg=green>> Seeded: ' . $name . ' (' . $runTime . 'ms)  </>');
 			}
 			static::$called[] = $class;
 		}
