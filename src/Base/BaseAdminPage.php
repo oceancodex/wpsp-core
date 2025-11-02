@@ -6,6 +6,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public $menu_title                  = null;
 	public $page_title                  = null;
+	public $first_submenu_title         = null;
 	public $capability                  = null;
 	public $menu_slug                   = null;
 	public $icon_url                    = null;
@@ -67,7 +68,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	private function addMenuPage() {
 		$callback = $this->callback_function ? [$this, $this->callback_function] : null;
-		return add_menu_page(
+		$menuPage = add_menu_page(
 			$this->page_title,
 			$this->menu_title,
 			$this->capability,
@@ -76,6 +77,22 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->icon_url,
 			$this->position
 		);
+
+		// Khi có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính.
+		// Thay đổi tên submenu tự sinh.
+		if ($this->first_submenu_title) {
+			remove_submenu_page($this->menu_slug, $this->menu_slug); // Xóa submenu tự sinh
+			add_submenu_page(
+				$this->menu_slug,
+				$this->page_title,
+				$this->first_submenu_title,
+				$this->capability,
+				$this->menu_slug,
+				$callback
+			);
+		}
+
+		return $menuPage;
 	}
 
 	private function addSubMenuPage() {
