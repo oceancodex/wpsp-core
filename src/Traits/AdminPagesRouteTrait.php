@@ -118,7 +118,6 @@ trait AdminPagesRouteTrait {
 						if (isset($callback[1]) && is_string($callback[1]) && $callback[1] !== 'index') {
 							if (preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)) {
 								$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
-								if (($callback[1] == 'index' || !isset($callback[1]))) $callback[1] = 'init';
 								$callParams = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
 								isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
 							}
