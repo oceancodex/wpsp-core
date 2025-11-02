@@ -9,9 +9,11 @@ use WPSPCORE\Database\Eloquent;
 use WPSPCORE\Environment\Environment;
 use WPSPCORE\Finder\Finder;
 use WPSPCORE\Migration\Migration;
-use WPSPCORE\View\Blade;
 
 class Funcs extends BaseInstances {
+
+	public $bladeClass;
+	public $environmentClass;
 
 //	private static $coreFuncsInstance = null;
 
@@ -35,6 +37,12 @@ class Funcs extends BaseInstances {
 //	}
 
 	public function afterConstruct() {
+		// Prepare environment instance.
+		$this->environmentClass = '\\' . $this->rootNamespace . '\app\Extras\Instances\Environment\Environment';
+
+		// Prepare blade instance.
+		$this->bladeClass = '\\' . $this->rootNamespace . '\app\Extras\Instances\View\Blade';
+
 		unset($this->extraParams['environment']);
 	}
 
@@ -533,8 +541,10 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _env($var, $addPrefix = false, $default = null) {
-		if ($this->environment) {
-			$result = $this->environment->get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
+		/** @var \WPSPCORE\Environment\Environment $environment */
+		$environment = $this->environmentClass::instance();
+		if ($environment) {
+			$result = $environment->get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
 		}
 		elseif (function_exists('env')) {
 			$result = env($var, $default) ?? $default;
@@ -706,31 +716,13 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
+		/** @var \WPSPCORE\View\Blade $blade */
+		$blade = $this->bladeClass::instance();
 		try {
-			if (!Blade::$BLADE) {
-				$views        = $this->_getResourcesPath('/views');
-				$cache        = $this->_getStoragePath('/framework/views');
-				Blade::$BLADE = new Blade(
-					$this->_getMainPath(),
-					$this->_getRootNamespace(),
-					$this->_getPrefixEnv(),
-					[
-						'funcs' => $this,
-					],
-					[$views],
-					$cache
-				);
-			}
-			$shareVariables = [];
-			$shareClass     = '\\' . $this->_getRootNamespace() . '\\app\\View\\Share';
-			$shareVariables = array_merge($shareVariables, $shareClass::instance()->variables());
-			global $notice;
-			$shareVariables = array_merge($shareVariables, ['notice' => $notice]);
-			Blade::$BLADE->view()->share($shareVariables);
 			if (!$viewName && $instance) {
-				return Blade::$BLADE->view();
+				return $blade->getFactory();
 			}
-			return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
+			return $blade->getFactory()->make($viewName, $data, $mergeData);
 		}
 		catch (\Throwable $e) {
 			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';

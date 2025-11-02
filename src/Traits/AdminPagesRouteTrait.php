@@ -61,7 +61,7 @@ trait AdminPagesRouteTrait {
 						[
 							'path'              => $fullPath,
 							'callback_function' => $callback instanceof \Closure ? $callback : $callback[1] ?? null,
-							'validation'        => $this->validation,
+//							'validation'        => $this->validation,
 							'custom_properties' => $customProperties,
 						],
 					];

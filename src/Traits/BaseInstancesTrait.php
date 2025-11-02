@@ -25,11 +25,11 @@ trait BaseInstancesTrait {
 	public $locale        = null;
 	public $request       = null;
 
-	public $eloquent      = null;
-	public $ignition      = null;
-	public $migration     = null;
-	public $validation    = null;
-	public $environment   = null;
+//	public $eloquent      = null;
+//	public $ignition      = null;
+//	public $migration     = null;
+//	public $validation    = null;
+//	public $environment   = null;
 
 	public $extraParams   = [];
 
@@ -44,12 +44,12 @@ trait BaseInstancesTrait {
 
 		$this->prepareFuncs();
 		$this->prepareLocale();
-		$this->prepareValidation();
+//		$this->prepareValidation();
 
 		$this->prepareRequest();
-		$this->prepareEloquent();
-		$this->prepareMigration();
-		$this->prepareEnvironment();
+//		$this->prepareEloquent();
+//		$this->prepareMigration();
+//		$this->prepareEnvironment();
 
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();
@@ -164,6 +164,33 @@ trait BaseInstancesTrait {
 		}
 	}
 
+	/*
+	 *
+	 */
+
+	public function getLocale() {
+		return $this->locale;
+	}
+
+	public function getRequest() {
+		return $this->request;
+	}
+
+	public function getEloquent() {
+		return $this->eloquent;
+	}
+
+	public function getMigration() {
+		return $this->migration;
+	}
+
+	public function getEnvironment() {
+		return $this->environment;
+	}
+
+	public function getExtraParams() {
+		return $this->extraParams;
+	}
 
 	/*
 	 *
