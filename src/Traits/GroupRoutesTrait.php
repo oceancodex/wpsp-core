@@ -58,7 +58,11 @@ trait GroupRoutesTrait {
 		else {
 			// Không có current route đang chờ => đây chắc chắn là group prefix
 			$this->nameStack[] = $name;
+			$this->currentRouteName = null;
 		}
+
+		// Reset middleware if name() call lastest.
+		$this->middlewareStack = [];
 
 		return $this;
 	}

@@ -212,7 +212,15 @@ trait AdminPagesRouteTrait {
 				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
 			}
 			else {
-				wp_die('Access denied.');
+				wp_die(
+					'<h1>ERROR: 403 - Truy cập bị từ chối</h1>' .
+					'<p>Bạn không được phép truy cập vào trang này.</p>',
+					'ERROR: 403 - Truy cập bị từ chối',
+					[
+						'response'  => 403,
+						'back_link' => true,
+					]
+				);
 			}
 		}
 	}
