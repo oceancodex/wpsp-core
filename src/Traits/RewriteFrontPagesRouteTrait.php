@@ -74,7 +74,6 @@ trait RewriteFrontPagesRouteTrait {
 				[
 					'path'              => $fullPath,
 					'callback_function' => $callback[1] ?? null,
-					'validation'        => $this->validation,
 					'custom_properties' => $customProperties,
 				]
 			];
@@ -132,7 +131,6 @@ trait RewriteFrontPagesRouteTrait {
 				[
 					'path'              => $fullPath,
 					'callback_function' => $callback[1] ?? null,
-					'validation'        => $this->validation,
 					'custom_properties' => $customProperties,
 				]
 			];

@@ -61,7 +61,6 @@ trait AdminPagesRouteTrait {
 						[
 							'path'              => $fullPath,
 							'callback_function' => $callback instanceof \Closure ? $callback : $callback[1] ?? null,
-							'validation'        => $this->validation,
 							'custom_properties' => $customProperties,
 						],
 					];
@@ -130,8 +129,16 @@ trait AdminPagesRouteTrait {
 						}
 					}
 				}
-				else {
-					wp_die('Access denied.');
+				elseif (preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)) {
+					wp_die(
+						'<h1>ERROR: 403 - Truy cập bị từ chối</h1>' .
+						'<p>Bạn không được phép truy cập vào trang này.</p>',
+						'ERROR: 403 - Truy cập bị từ chối',
+						[
+							'response'  => 403,
+							'back_link' => true,
+						]
+					);
 				}
 			}
 		}
@@ -192,7 +199,6 @@ trait AdminPagesRouteTrait {
 					[
 						'path'              => $path,
 						'callback_function' => $callback[1] ?? null,
-						'validation'        => $this->validation,
 						'custom_properties' => $customProperties,
 					],
 				];
@@ -206,7 +212,15 @@ trait AdminPagesRouteTrait {
 				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
 			}
 			else {
-				wp_die('Access denied.');
+				wp_die(
+					'<h1>ERROR: 403 - Truy cập bị từ chối</h1>' .
+					'<p>Bạn không được phép truy cập vào trang này.</p>',
+					'ERROR: 403 - Truy cập bị từ chối',
+					[
+						'response'  => 403,
+						'back_link' => true,
+					]
+				);
 			}
 		}
 	}
