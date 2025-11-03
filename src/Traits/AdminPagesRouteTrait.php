@@ -129,8 +129,16 @@ trait AdminPagesRouteTrait {
 						}
 					}
 				}
-				else {
-					wp_die('Access denied.');
+				elseif (preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)) {
+					wp_die(
+						'<h1>ERROR: 403 - Truy cập bị từ chối</h1>' .
+						'<p>Bạn không được phép truy cập vào trang này.</p>',
+						'ERROR: 403 - Truy cập bị từ chối',
+						[
+							'response'  => 403,
+							'back_link' => true,
+						]
+					);
 				}
 			}
 		}

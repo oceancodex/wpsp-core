@@ -54,49 +54,84 @@ class Funcs extends BaseInstances {
 	 * @return \WPSPCORE\View\Blade
 	 */
 	public function getBlade() {
-		return $this->bladeClass::instance();
+		try {
+			return $this->bladeClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
 	}
 
 	/**
 	 * @return \WPSPCORE\Objects\RouteMap
 	 */
 	public function getRouteMap() {
-		return $this->routeMapClass::instance();
+		try {
+			return $this->routeMapClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
 	}
 
 	/**
 	 * @return \WPSPCORE\Database\Eloquent
 	 */
 	public function getEloquent() {
-		return $this->eloquentClass::instance();
+		try {
+			return $this->eloquentClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
 	}
 
 	/**
 	 * @return \WPSPCORE\Migration\Migration
 	 */
 	public function getMigration() {
-		return $this->migrationClass::instance();
+		try {
+			return $this->migrationClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
 	}
 
 	/**
 	 * @return \WPSPCORE\Validation\Validation
 	 */
 	public function getValidation() {
-		return $this->validationClass::instance();
+		try {
+			return $this->validationClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
 	}
 
 	/**
 	 * @return \WPSPCORE\Environment\Environment
 	 */
 	public function getEnvironment() {
-		return $this->environmentClass::instance();
+		try {
+			return $this->environmentClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
 	}
 
 	/**
 	 * @return \WPSPCORE\Translation\Translation
 	 */
 	public function getTranslation() {
-		return $this->translationClass::instance();
+		try {
+			return $this->translationClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
 	}
 
 	/*

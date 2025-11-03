@@ -117,18 +117,6 @@ trait BaseInstancesTrait {
 		return $this->request;
 	}
 
-	public function getEloquent() {
-		return $this->eloquent;
-	}
-
-	public function getMigration() {
-		return $this->migration;
-	}
-
-	public function getEnvironment() {
-		return $this->environment;
-	}
-
 	public function getExtraParams() {
 		return $this->extraParams;
 	}
