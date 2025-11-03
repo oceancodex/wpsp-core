@@ -5,10 +5,6 @@ abstract class BaseRoute extends BaseInstances {
 
 	public $initClasses = null;
 
-	public function afterConstruct() {
-		$this->request = BaseRequest::createFromGlobals();
-	}
-
 	/*
 	 *
 	 */

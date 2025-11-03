@@ -85,14 +85,7 @@ trait BaseInstancesTrait {
 	private function prepareFuncs() {
 		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
 			if (is_bool($this->extraParams['funcs'])) {
-				$this->funcs = new \WPSPCORE\Funcs(
-					$this->mainPath,
-					$this->rootNamespace,
-					$this->prefixEnv,
-					[
-						'environment' => $this->extraParams['environment'] ?? null,
-					]
-				);
+				$this->funcs = new \WPSPCORE\Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, []);
 			}
 			else {
 				$this->funcs = $this->extraParams['funcs'];
@@ -106,22 +99,9 @@ trait BaseInstancesTrait {
 	}
 
 	private function prepareRequest() {
-		if (isset($this->extraParams['request']) && $this->extraParams['request'] || !$this->request) {
-			if (isset($this->extraParams['request']) && $this->extraParams['request']) {
-				if (is_bool($this->extraParams['request'])) {
-					$this->request = BaseRequest::createFromGlobals();
-				}
-				else {
-					$this->request = $this->extraParams['request'];
-				}
-			}
-			elseif (!$this->request) {
-				$this->request = BaseRequest::createFromGlobals();
-			}
-//			if (isset($this->validation) && $this->validation && (!isset($this->request->validation) || !$this->request->validation)) {
-//				$this->request->validation = $this->validation;
-//			}
-			unset($this->extraParams['request']);
+		if (isset($this->funcs) && $this->funcs) {
+			$requestClass = '\\' . $this->funcs->_getRootNamespace() . '\app\Workers\Requests\Request';
+			$this->request = $requestClass::createFromGlobals();
 		}
 	}
 

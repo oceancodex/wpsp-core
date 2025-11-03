@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Base;
 
-abstract class BaseTranslator extends BaseInstances {
+abstract class BaseWPTranslation extends BaseInstances {
 
 	public $textDomain = null;
 	public $relPath    = null;

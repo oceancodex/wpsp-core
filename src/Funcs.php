@@ -17,27 +17,11 @@ class Funcs extends BaseInstances {
 	private $migrationClass;
 	private $validationClass;
 	private $environmentClass;
+	private $translationClass;
 
-//	private static $coreFuncsInstance = null;
-
-//	public $mainPath      = null;
-//	public $rootNamespace = null;
-//	public $prefixEnv     = null;
-//	public $extraParams   = [];
-
-//	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
-//		if ($mainPath) $this->mainPath = $mainPath;
-//		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
-//		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
-//		if ($extraParams) $this->extraParams = $extraParams;
-//	}
-
-//	public static function getInstance($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
-//		if (!self::$coreFuncsInstance) {
-//			self::$coreFuncsInstance = new self($mainPath, $rootNamespace, $prefixEnv, $extraParams);
-//		}
-//		return self::$coreFuncsInstance;
-//	}
+	/*
+	 *
+	 */
 
 	public function afterConstruct() {
 		// Prepare blade instance.
@@ -58,14 +42,26 @@ class Funcs extends BaseInstances {
 		// Prepare environment instance.
 		$this->environmentClass = '\\' . $this->rootNamespace . '\app\Workers\Environment\Environment';
 
-		unset($this->extraParams['environment']);
+		// Prepare environment instance.
+		$this->translationClass = '\\' . $this->rootNamespace . '\app\Workers\Translation\Translation';
 	}
+
+	/*
+	 *
+	 */
 
 	/**
 	 * @return \WPSPCORE\View\Blade
 	 */
 	public function getBlade() {
 		return $this->bladeClass::instance();
+	}
+
+	/**
+	 * @return \WPSPCORE\Objects\RouteMap
+	 */
+	public function getRouteMap() {
+		return $this->routeMapClass::instance();
 	}
 
 	/**
@@ -97,10 +93,10 @@ class Funcs extends BaseInstances {
 	}
 
 	/**
-	 * @return \WPSPCORE\Objects\RouteMap
+	 * @return \WPSPCORE\Translation\Translation
 	 */
-	public function getRouteMap() {
-		return $this->routeMapClass::instance();
+	public function getTranslation() {
+		return $this->translationClass::instance();
 	}
 
 	/*
@@ -553,13 +549,8 @@ class Funcs extends BaseInstances {
 				return __($string, $this->_getTextDomain());
 			}
 			else {
-				global $translator;
-				if (!$translator) {
-					$translationPath   = $this->_getResourcesPath() . '/lang';
-					$translationLoader = new \WPSPCORE\Translation\FileLoader(new \Illuminate\Filesystem\Filesystem, $translationPath);
-					$translator        = new \WPSPCORE\Translation\Translator($translationLoader, $this->_config('app.locale'));
-				}
-				return $translator->has($string) ? $translator->get($string) : $translator->get($string, [], $this->_config('app.fallback_locale'));
+				$translation = $this->getTranslation();
+				return $translation->has($string) ? $translation->get($string) : $translation->get($string, [], $this->_config('app.fallback_locale'));
 			}
 		}
 		catch (\Throwable $e) {
@@ -644,9 +635,12 @@ class Funcs extends BaseInstances {
 		$blade = $this->getBlade();
 		try {
 			if (!$viewName && $instance) {
-				return $blade->getFactory();
+				return $blade->getFactory() ?? null;
 			}
-			return $blade->getFactory()->make($viewName, $data, $mergeData);
+			if ($blade !== null) {
+				return $blade->getFactory()->make($viewName, $data, $mergeData);
+			}
+			return null;
 		}
 		catch (\Throwable $e) {
 			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
@@ -950,6 +944,10 @@ class Funcs extends BaseInstances {
 			$results[$key] = $value;
 		}
 		return $results;
+	}
+
+	public function _folderExists($path = null) {
+		return is_dir($path);
 	}
 
 }
