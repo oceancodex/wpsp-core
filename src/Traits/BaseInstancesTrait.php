@@ -25,12 +25,6 @@ trait BaseInstancesTrait {
 	public $locale        = null;
 	public $request       = null;
 
-//	public $eloquent      = null;
-//	public $ignition      = null;
-//	public $migration     = null;
-//	public $validation    = null;
-//	public $environment   = null;
-
 	public $extraParams   = [];
 
 	public function beforeBaseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = null) {
@@ -44,12 +38,7 @@ trait BaseInstancesTrait {
 
 		$this->prepareFuncs();
 		$this->prepareLocale();
-//		$this->prepareValidation();
-
 		$this->prepareRequest();
-//		$this->prepareEloquent();
-//		$this->prepareMigration();
-//		$this->prepareEnvironment();
 
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();
@@ -116,13 +105,6 @@ trait BaseInstancesTrait {
 		$this->locale = function_exists('get_locale') ? get_locale() : 'en';
 	}
 
-	private function prepareValidation() {
-		if (isset($this->extraParams['validation']) && $this->extraParams['validation'] && !$this->validation) {
-			$this->validation = $this->extraParams['validation'];
-			unset($this->extraParams['validation']);
-		}
-	}
-
 	private function prepareRequest() {
 		if (isset($this->extraParams['request']) && $this->extraParams['request'] || !$this->request) {
 			if (isset($this->extraParams['request']) && $this->extraParams['request']) {
@@ -140,27 +122,6 @@ trait BaseInstancesTrait {
 //				$this->request->validation = $this->validation;
 //			}
 			unset($this->extraParams['request']);
-		}
-	}
-
-	private function prepareEloquent() {
-		if (isset($this->extraParams['eloquent']) && $this->extraParams['eloquent'] && !$this->eloquent) {
-			$this->eloquent = $this->extraParams['eloquent'];
-			unset($this->extraParams['eloquent']);
-		}
-	}
-
-	private function prepareMigration() {
-		if (isset($this->extraParams['migration']) && $this->extraParams['migration'] && !$this->migration) {
-			$this->migration = $this->extraParams['migration'];
-			unset($this->extraParams['migration']);
-		}
-	}
-
-	private function prepareEnvironment() {
-		if (isset($this->extraParams['environment']) && $this->extraParams['environment'] && !$this->environment) {
-			$this->environment = $this->extraParams['environment'];
-			unset($this->extraParams['environment']);
 		}
 	}
 
