@@ -61,9 +61,6 @@ trait GroupRoutesTrait {
 			$this->currentRouteName = null;
 		}
 
-		// Reset middleware if name() call lastest.
-		$this->middlewareStack = [];
-
 		return $this;
 	}
 
