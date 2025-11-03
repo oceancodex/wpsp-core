@@ -74,6 +74,9 @@ trait AjaxsRouteTrait {
 			}
 		});
 
+		// Reset middleware khi gọi xong function.
+		$this->middlewareStack = [];
+
 		return $this;
 	}
 

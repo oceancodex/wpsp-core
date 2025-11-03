@@ -143,6 +143,9 @@ trait AdminPagesRouteTrait {
 			}
 		}
 
+		// Reset middleware khi gọi xong function.
+		$this->middlewareStack = [];
+
 		return $this;
 	}
 
@@ -169,6 +172,9 @@ trait AdminPagesRouteTrait {
 				$this->executeHiddenMethod($fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
 			}
 		}
+
+		// Reset middleware khi gọi xong function.
+		$this->middlewareStack = [];
 
 		return $this;
 	}
