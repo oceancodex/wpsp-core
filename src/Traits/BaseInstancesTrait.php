@@ -136,9 +136,9 @@ trait BaseInstancesTrait {
 			elseif (!$this->request) {
 				$this->request = BaseRequest::createFromGlobals();
 			}
-			if (isset($this->validation) && $this->validation && (!isset($this->request->validation) || !$this->request->validation)) {
-				$this->request->validation = $this->validation;
-			}
+//			if (isset($this->validation) && $this->validation && (!isset($this->request->validation) || !$this->request->validation)) {
+//				$this->request->validation = $this->validation;
+//			}
 			unset($this->extraParams['request']);
 		}
 	}

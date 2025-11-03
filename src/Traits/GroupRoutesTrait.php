@@ -247,16 +247,16 @@ trait GroupRoutesTrait {
 	 */
 	protected function addToRouteMap($fullName) {
 		if ($this->isForRouterMap && $this->currentRouteName !== null) {
-			$mapRoutes = $this->mapRoutes;
+			$routeMap = $this->funcs->getRouteMap();
 			$className = (new \ReflectionClass($this))->getShortName();
 
-			if (!isset($mapRoutes->map[$className])) {
-				$mapRoutes->map[$className]     = [];
-				$mapRoutes->mapIdea[$className] = [];
+			if (!isset($routeMap->map[$className])) {
+				$routeMap->map[$className]     = [];
+				$routeMap->mapIdea[$className] = [];
 			}
 
-			$mapRoutes->map[$className][$fullName]     = $this->currentRouteName['path'];
-			$mapRoutes->mapIdea[$className][$fullName] = [
+			$routeMap->map[$className][$fullName]     = $this->currentRouteName['path'];
+			$routeMap->mapIdea[$className][$fullName] = [
 				'name'      => $fullName,
 				'file'      => 'routes/' . $className . '.php',
 				'line'      => (new \Exception())->getTrace()[1]['line'] ?? 0,
@@ -264,7 +264,7 @@ trait GroupRoutesTrait {
 				'version'   => $this->version ?: 'v1',
 				'path'      => $this->currentRouteName['path'],
 			];
-//			$this->mapRoutes = $mapRoutes;
+//			$this->routeMap = $routeMap;
 		}
 	}
 
