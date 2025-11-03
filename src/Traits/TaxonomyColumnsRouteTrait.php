@@ -28,7 +28,6 @@ trait TaxonomyColumnsRouteTrait {
 					[
 						'column'            => $column,
 						'callback_function' => $callback[1] ?? null,
-						'validation'        => $this->validation,
 						'custom_properties' => $customProperties,
 					],
 				];

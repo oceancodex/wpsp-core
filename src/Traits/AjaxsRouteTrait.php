@@ -56,7 +56,6 @@ trait AjaxsRouteTrait {
 				[
 					'path'              => $fullPath,
 					'callback_function' => $callback[1] ?? null,
-					'validation'        => $this->validation,
 					'custom_properties' => $customProperties,
 				],
 			];
@@ -74,6 +73,9 @@ trait AjaxsRouteTrait {
 				$callback($fullPath);
 			}
 		});
+
+		// Reset middleware khi gọi xong function.
+		$this->middlewareStack = [];
 
 		return $this;
 	}
