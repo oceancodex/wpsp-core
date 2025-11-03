@@ -6,36 +6,132 @@ use Carbon\Carbon;
 use NumberFormatter;
 use WPSPCORE\Base\BaseInstances;
 use WPSPCORE\Database\Eloquent;
-use WPSPCORE\Environment\Environment;
 use WPSPCORE\Finder\Finder;
 use WPSPCORE\Migration\Migration;
-use WPSPCORE\View\Blade;
 
 class Funcs extends BaseInstances {
 
-//	private static $coreFuncsInstance = null;
+	private $bladeClass;
+	private $routeMapClass;
+	private $eloquentClass;
+	private $migrationClass;
+	private $validationClass;
+	private $environmentClass;
+	private $translationClass;
 
-//	public $mainPath      = null;
-//	public $rootNamespace = null;
-//	public $prefixEnv     = null;
-//	public $extraParams   = [];
-
-//	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
-//		if ($mainPath) $this->mainPath = $mainPath;
-//		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
-//		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
-//		if ($extraParams) $this->extraParams = $extraParams;
-//	}
-
-//	public static function getInstance($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
-//		if (!self::$coreFuncsInstance) {
-//			self::$coreFuncsInstance = new self($mainPath, $rootNamespace, $prefixEnv, $extraParams);
-//		}
-//		return self::$coreFuncsInstance;
-//	}
+	/*
+	 *
+	 */
 
 	public function afterConstruct() {
-		unset($this->extraParams['environment']);
+		// Prepare blade instance.
+		$this->bladeClass = '\\' . $this->rootNamespace . '\app\Workers\View\Blade';
+
+		// Prepare route map instance.
+		$this->routeMapClass = '\\' . $this->rootNamespace . '\app\Workers\Routes\RouteMap';
+
+		// Prepare eloquent instance.
+		$this->eloquentClass = '\\' . $this->rootNamespace . '\app\Workers\Database\Eloquent';
+
+		// Prepare migration instance.
+		$this->migrationClass = '\\' . $this->rootNamespace . '\app\Workers\Database\Migration';
+
+		// Prepare validation instance.
+		$this->validationClass = '\\' . $this->rootNamespace . '\app\Workers\Validation\Validation';
+
+		// Prepare environment instance.
+		$this->environmentClass = '\\' . $this->rootNamespace . '\app\Workers\Environment\Environment';
+
+		// Prepare environment instance.
+		$this->translationClass = '\\' . $this->rootNamespace . '\app\Workers\Translation\Translation';
+	}
+
+	/*
+	 *
+	 */
+
+	/**
+	 * @return \WPSPCORE\View\Blade
+	 */
+	public function getBlade() {
+		try {
+			return $this->bladeClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+
+	/**
+	 * @return \WPSPCORE\Objects\RouteMap
+	 */
+	public function getRouteMap() {
+		try {
+			return $this->routeMapClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+
+	/**
+	 * @return \WPSPCORE\Database\Eloquent
+	 */
+	public function getEloquent() {
+		try {
+			return $this->eloquentClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+
+	/**
+	 * @return \WPSPCORE\Migration\Migration
+	 */
+	public function getMigration() {
+		try {
+			return $this->migrationClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+
+	/**
+	 * @return \WPSPCORE\Validation\Validation
+	 */
+	public function getValidation() {
+		try {
+			return $this->validationClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+
+	/**
+	 * @return \WPSPCORE\Environment\Environment
+	 */
+	public function getEnvironment() {
+		try {
+			return $this->environmentClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+
+	/**
+	 * @return \WPSPCORE\Translation\Translation
+	 */
+	public function getTranslation() {
+		try {
+			return $this->translationClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
 	}
 
 	/*
@@ -325,139 +421,6 @@ class Funcs extends BaseInstances {
 		return $this->_getMainBaseName();
 	}
 
-	/*
-	 *
-	 */
-
-	public function _commentTokens() {
-		$commentTokens = [T_COMMENT];
-
-		if (defined('T_DOC_COMMENT')) {
-			$commentTokens[] = T_DOC_COMMENT; // PHP 5
-		}
-
-		if (defined('T_ML_COMMENT')) {
-			$commentTokens[] = T_ML_COMMENT;  // PHP 4
-		}
-		return $commentTokens;
-	}
-
-	public function _trailingslash($path) {
-		return str_replace('\\', '/', $path);
-	}
-
-	public function _trailingslashit($path) {
-		$path = str_replace('\\', '/', $path);
-		$path = rtrim($path, '/\\');
-		return $path . '/';
-	}
-
-	public function _untrailingslashit($path) {
-		$path = str_replace('\\', '/', $path);
-		return rtrim($path, '/\\');
-	}
-
-	public function _normalizeDateTime($value) {
-		$tz      = wp_timezone();
-		$now     = new \DateTimeImmutable('now', $tz);
-		$default = $now;
-
-		if (empty($value)) {
-			return $default;
-		}
-
-		if ($value instanceof \DateTimeInterface) {
-			return $value;
-		}
-
-		if (is_numeric($value)) {
-			try {
-				return (new \DateTimeImmutable('@' . $value))->setTimezone($tz);
-			}
-			catch (\Throwable $e) {
-				return $default;
-			}
-		}
-
-		// Nếu là chuỗi định dạng ngày hợp lệ
-		try {
-			$parsed = new \DateTimeImmutable($value, $tz);
-			if ($parsed >= $now) {
-				return $parsed;
-			}
-		}
-		catch (\Throwable $e) {
-			// bỏ qua
-		}
-
-		// Nếu là chuỗi kiểu “1 year”, “6 months”, “2 weeks”...
-		try {
-			$interval = date_interval_create_from_date_string($value);
-			if ($interval instanceof \DateInterval) {
-				$future = $now->add($interval);
-				if ($future >= $now) {
-					return $future;
-				}
-			}
-		}
-		catch (\Throwable $e) {
-			// không parse được
-		}
-
-		return $default;
-	}
-
-	public function _numberFormat($value, $precision = 0, $endWithZeros = true, $locale = 'vi', $currencyCode = 'vnd', $style = NumberFormatter::DECIMAL, $groupingUsed = true) {
-		try {
-			if (!$value) return null;
-			$formatter = new NumberFormatter($locale, $style);
-			$formatter->setAttribute(NumberFormatter::FRACTION_DIGITS, $precision);
-			$formatter->setAttribute(NumberFormatter::GROUPING_USED, $groupingUsed);
-			if ($style == NumberFormatter::CURRENCY) {
-				$formatter->setTextAttribute(NumberFormatter::CURRENCY_CODE, $currencyCode);
-			}
-			$result = $endWithZeros ? $formatter->format($value) : rtrim($formatter->format($value), '0');
-			return preg_replace('/([.,])$/iu', '', $result);
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-
-	public function _explodeToNestedArray($delimiter, $key, $value) {
-		$keys = explode($delimiter, $key);
-		while ($key = array_pop($keys)) {
-			$value = [$key => $value];
-		}
-		return $value;
-	}
-
-	public function _dateDiffForHumans($dateString, $format = 'H:i:s - d/m/Y') {
-		try {
-			return Carbon::createFromFormat($format, $dateString, wp_timezone_string())->locale(get_locale())->diffForHumans();
-		}
-		catch (\Throwable $e) {
-			return $this->_trans('messages.undefined');
-		}
-	}
-
-	public function _prefixArrayKeys($array, $prefix = null) {
-		$results = [];
-		foreach ($array as $key => $value) {
-			$results[$prefix . $key] = $value;
-		}
-		return $results;
-	}
-
-	public function _removePrefixArrayKeys($array, $prefix = null) {
-		$results = [];
-		foreach ($array as $key => $value) {
-			$key           = preg_replace('/' . $prefix . '/iu', '', $key);
-			$results[$key] = $value;
-		}
-		return $results;
-	}
-
 	public function _getWPConfig($file = null) {
 		if (!$file) {
 			$file = $this->_getSitePath() . '/wp-config.php';
@@ -533,8 +496,10 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _env($var, $addPrefix = false, $default = null) {
-		if ($this->environment) {
-			$result = $this->environment->get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
+		/** @var \WPSPCORE\Environment\Environment $environment */
+		$environment = $this->getEnvironment();
+		if ($environment) {
+			$result = $environment->get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
 		}
 		elseif (function_exists('env')) {
 			$result = env($var, $default) ?? $default;
@@ -619,13 +584,8 @@ class Funcs extends BaseInstances {
 				return __($string, $this->_getTextDomain());
 			}
 			else {
-				global $translator;
-				if (!$translator) {
-					$translationPath   = $this->_getResourcesPath() . '/lang';
-					$translationLoader = new \WPSPCORE\Translation\FileLoader(new \Illuminate\Filesystem\Filesystem, $translationPath);
-					$translator        = new \WPSPCORE\Translation\Translator($translationLoader, $this->_config('app.locale'));
-				}
-				return $translator->has($string) ? $translator->get($string) : $translator->get($string, [], $this->_config('app.fallback_locale'));
+				$translation = $this->getTranslation();
+				return $translation->has($string) ? $translation->get($string) : $translation->get($string, [], $this->_config('app.fallback_locale'));
 			}
 		}
 		catch (\Throwable $e) {
@@ -699,38 +659,23 @@ class Funcs extends BaseInstances {
 	public function _response($success = false, $data = [], $message = '', $code = 204) {
 		return [
 			'success' => $success,
-			'message' => $message,
 			'data'    => $data,
+			'message' => $message,
 			'code'    => $code,
 		];
 	}
 
 	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
+		/** @var \WPSPCORE\View\Blade $blade */
+		$blade = $this->getBlade();
 		try {
-			if (!Blade::$BLADE) {
-				$views        = $this->_getResourcesPath('/views');
-				$cache        = $this->_getStoragePath('/framework/views');
-				Blade::$BLADE = new Blade(
-					$this->_getMainPath(),
-					$this->_getRootNamespace(),
-					$this->_getPrefixEnv(),
-					[
-						'funcs' => $this,
-					],
-					[$views],
-					$cache
-				);
-			}
-			$shareVariables = [];
-			$shareClass     = '\\' . $this->_getRootNamespace() . '\\app\\View\\Share';
-			$shareVariables = array_merge($shareVariables, $shareClass::instance()->variables());
-			global $notice;
-			$shareVariables = array_merge($shareVariables, ['notice' => $notice]);
-			Blade::$BLADE->view()->share($shareVariables);
 			if (!$viewName && $instance) {
-				return Blade::$BLADE->view();
+				return $blade->getFactory() ?? null;
 			}
-			return Blade::$BLADE->view()->make($viewName, $data, $mergeData);
+			if ($blade !== null) {
+				return $blade->getFactory()->make($viewName, $data, $mergeData);
+			}
+			return null;
 		}
 		catch (\Throwable $e) {
 			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
@@ -905,6 +850,139 @@ class Funcs extends BaseInstances {
 
 		// 🔹 6. Dọn ký tự ? hoặc & cuối cùng (nếu vẫn dư)
 		return preg_replace('/(\?|\&)+$/', '', $url);
+	}
+
+	public function _commentTokens() {
+		$commentTokens = [T_COMMENT];
+
+		if (defined('T_DOC_COMMENT')) {
+			$commentTokens[] = T_DOC_COMMENT; // PHP 5
+		}
+
+		if (defined('T_ML_COMMENT')) {
+			$commentTokens[] = T_ML_COMMENT;  // PHP 4
+		}
+		return $commentTokens;
+	}
+
+	public function _trailingslash($path) {
+		return str_replace('\\', '/', $path);
+	}
+
+	public function _trailingslashit($path) {
+		$path = str_replace('\\', '/', $path);
+		$path = rtrim($path, '/\\');
+		return $path . '/';
+	}
+
+	public function _untrailingslashit($path) {
+		$path = str_replace('\\', '/', $path);
+		return rtrim($path, '/\\');
+	}
+
+	public function _normalizeDateTime($value) {
+		$tz      = wp_timezone();
+		$now     = new \DateTimeImmutable('now', $tz);
+		$default = $now;
+
+		if (empty($value)) {
+			return $default;
+		}
+
+		if ($value instanceof \DateTimeInterface) {
+			return $value;
+		}
+
+		if (is_numeric($value)) {
+			try {
+				return (new \DateTimeImmutable('@' . $value))->setTimezone($tz);
+			}
+			catch (\Throwable $e) {
+				return $default;
+			}
+		}
+
+		// Nếu là chuỗi định dạng ngày hợp lệ
+		try {
+			$parsed = new \DateTimeImmutable($value, $tz);
+			if ($parsed >= $now) {
+				return $parsed;
+			}
+		}
+		catch (\Throwable $e) {
+			// bỏ qua
+		}
+
+		// Nếu là chuỗi kiểu “1 year”, “6 months”, “2 weeks”...
+		try {
+			$interval = date_interval_create_from_date_string($value);
+			if ($interval instanceof \DateInterval) {
+				$future = $now->add($interval);
+				if ($future >= $now) {
+					return $future;
+				}
+			}
+		}
+		catch (\Throwable $e) {
+			// không parse được
+		}
+
+		return $default;
+	}
+
+	public function _numberFormat($value, $precision = 0, $endWithZeros = true, $locale = 'vi', $currencyCode = 'vnd', $style = NumberFormatter::DECIMAL, $groupingUsed = true) {
+		try {
+			if (!$value) return null;
+			$formatter = new NumberFormatter($locale, $style);
+			$formatter->setAttribute(NumberFormatter::FRACTION_DIGITS, $precision);
+			$formatter->setAttribute(NumberFormatter::GROUPING_USED, $groupingUsed);
+			if ($style == NumberFormatter::CURRENCY) {
+				$formatter->setTextAttribute(NumberFormatter::CURRENCY_CODE, $currencyCode);
+			}
+			$result = $endWithZeros ? $formatter->format($value) : rtrim($formatter->format($value), '0');
+			return preg_replace('/([.,])$/iu', '', $result);
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+
+	public function _explodeToNestedArray($delimiter, $key, $value) {
+		$keys = explode($delimiter, $key);
+		while ($key = array_pop($keys)) {
+			$value = [$key => $value];
+		}
+		return $value;
+	}
+
+	public function _dateDiffForHumans($dateString, $format = 'H:i:s - d/m/Y') {
+		try {
+			return Carbon::createFromFormat($format, $dateString, wp_timezone_string())->locale(get_locale())->diffForHumans();
+		}
+		catch (\Throwable $e) {
+			return $this->_trans('messages.undefined');
+		}
+	}
+
+	public function _prefixArrayKeys($array, $prefix = null) {
+		$results = [];
+		foreach ($array as $key => $value) {
+			$results[$prefix . $key] = $value;
+		}
+		return $results;
+	}
+
+	public function _removePrefixArrayKeys($array, $prefix = null) {
+		$results = [];
+		foreach ($array as $key => $value) {
+			$key           = preg_replace('/' . $prefix . '/iu', '', $key);
+			$results[$key] = $value;
+		}
+		return $results;
+	}
+
+	public function _folderExists($path = null) {
+		return is_dir($path);
 	}
 
 }
