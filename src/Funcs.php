@@ -41,22 +41,22 @@ class Funcs extends BaseInstances {
 
 	public function afterConstruct() {
 		// Prepare blade instance.
-		$this->bladeClass = '\\' . $this->rootNamespace . '\app\WPSP\View\Blade';
+		$this->bladeClass = '\\' . $this->rootNamespace . '\app\Workers\View\Blade';
 
 		// Prepare route map instance.
-		$this->routeMapClass = '\\' . $this->rootNamespace . '\app\WPSP\Routes\RouteMap';
+		$this->routeMapClass = '\\' . $this->rootNamespace . '\app\Workers\Routes\RouteMap';
 
 		// Prepare eloquent instance.
-		$this->eloquentClass = '\\' . $this->rootNamespace . '\app\WPSP\Database\Eloquent';
+		$this->eloquentClass = '\\' . $this->rootNamespace . '\app\Workers\Database\Eloquent';
 
 		// Prepare migration instance.
-		$this->migrationClass = '\\' . $this->rootNamespace . '\app\WPSP\Database\Migration';
+		$this->migrationClass = '\\' . $this->rootNamespace . '\app\Workers\Database\Migration';
 
 		// Prepare validation instance.
-		$this->validationClass = '\\' . $this->rootNamespace . '\app\WPSP\Validation\Validation';
+		$this->validationClass = '\\' . $this->rootNamespace . '\app\Workers\Validation\Validation';
 
 		// Prepare environment instance.
-		$this->environmentClass = '\\' . $this->rootNamespace . '\app\WPSP\Environment\Environment';
+		$this->environmentClass = '\\' . $this->rootNamespace . '\app\Workers\Environment\Environment';
 
 		unset($this->extraParams['environment']);
 	}
