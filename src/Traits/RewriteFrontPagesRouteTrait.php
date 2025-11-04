@@ -74,7 +74,6 @@ trait RewriteFrontPagesRouteTrait {
 				[
 					'path'              => $fullPath,
 					'callback_function' => $callback[1] ?? null,
-					'validation'        => $this->validation,
 					'custom_properties' => $customProperties,
 				]
 			];
@@ -88,6 +87,9 @@ trait RewriteFrontPagesRouteTrait {
 			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($fullPath) : $callback;
 		}
 
+		// Reset middleware khi gọi xong function.
+		$this->middlewareStack = [];
+
 		return $this;
 	}
 
@@ -97,6 +99,10 @@ trait RewriteFrontPagesRouteTrait {
 				$this->executeHiddenMethod($path, $callback, $useInitClass, $customProperties, $middlewares);
 			}
 		}
+
+		// Reset middleware khi gọi xong function.
+		$this->middlewareStack = [];
+
 		return $this;
 	}
 
@@ -132,7 +138,6 @@ trait RewriteFrontPagesRouteTrait {
 				[
 					'path'              => $fullPath,
 					'callback_function' => $callback[1] ?? null,
-					'validation'        => $this->validation,
 					'custom_properties' => $customProperties,
 				]
 			];
