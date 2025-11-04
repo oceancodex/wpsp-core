@@ -25,12 +25,6 @@ trait BaseInstancesTrait {
 	public $locale        = null;
 	public $request       = null;
 
-	public $eloquent      = null;
-	public $ignition      = null;
-	public $migration     = null;
-	public $validation    = null;
-	public $environment   = null;
-
 	public $extraParams   = [];
 
 	public function beforeBaseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = null) {
@@ -44,12 +38,7 @@ trait BaseInstancesTrait {
 
 		$this->prepareFuncs();
 		$this->prepareLocale();
-		$this->prepareValidation();
-
 		$this->prepareRequest();
-		$this->prepareEloquent();
-		$this->prepareMigration();
-		$this->prepareEnvironment();
 
 		$this->afterConstruct();
 		$this->afterInstanceConstruct();
@@ -96,14 +85,7 @@ trait BaseInstancesTrait {
 	private function prepareFuncs() {
 		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
 			if (is_bool($this->extraParams['funcs'])) {
-				$this->funcs = new \WPSPCORE\Funcs(
-					$this->mainPath,
-					$this->rootNamespace,
-					$this->prefixEnv,
-					[
-						'environment' => $this->extraParams['environment'] ?? null,
-					]
-				);
+				$this->funcs = new \WPSPCORE\Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, []);
 			}
 			else {
 				$this->funcs = $this->extraParams['funcs'];
@@ -116,54 +98,28 @@ trait BaseInstancesTrait {
 		$this->locale = function_exists('get_locale') ? get_locale() : 'en';
 	}
 
-	private function prepareValidation() {
-		if (isset($this->extraParams['validation']) && $this->extraParams['validation'] && !$this->validation) {
-			$this->validation = $this->extraParams['validation'];
-			unset($this->extraParams['validation']);
-		}
-	}
-
 	private function prepareRequest() {
-		if (isset($this->extraParams['request']) && $this->extraParams['request'] || !$this->request) {
-			if (isset($this->extraParams['request']) && $this->extraParams['request']) {
-				if (is_bool($this->extraParams['request'])) {
-					$this->request = BaseRequest::createFromGlobals();
-				}
-				else {
-					$this->request = $this->extraParams['request'];
-				}
-			}
-			elseif (!$this->request) {
-				$this->request = BaseRequest::createFromGlobals();
-			}
-			if (isset($this->validation) && $this->validation && (!isset($this->request->validation) || !$this->request->validation)) {
-				$this->request->validation = $this->validation;
-			}
-			unset($this->extraParams['request']);
+		if (isset($this->funcs) && $this->funcs) {
+			$requestClass = '\\' . $this->funcs->_getRootNamespace() . '\app\Workers\Requests\Request';
+			$this->request = $requestClass::createFromGlobals();
 		}
 	}
 
-	private function prepareEloquent() {
-		if (isset($this->extraParams['eloquent']) && $this->extraParams['eloquent'] && !$this->eloquent) {
-			$this->eloquent = $this->extraParams['eloquent'];
-			unset($this->extraParams['eloquent']);
-		}
+	/*
+	 *
+	 */
+
+	public function getLocale() {
+		return $this->locale;
 	}
 
-	private function prepareMigration() {
-		if (isset($this->extraParams['migration']) && $this->extraParams['migration'] && !$this->migration) {
-			$this->migration = $this->extraParams['migration'];
-			unset($this->extraParams['migration']);
-		}
+	public function getRequest() {
+		return $this->request;
 	}
 
-	private function prepareEnvironment() {
-		if (isset($this->extraParams['environment']) && $this->extraParams['environment'] && !$this->environment) {
-			$this->environment = $this->extraParams['environment'];
-			unset($this->extraParams['environment']);
-		}
+	public function getExtraParams() {
+		return $this->extraParams;
 	}
-
 
 	/*
 	 *
