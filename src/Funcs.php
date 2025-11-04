@@ -12,6 +12,7 @@ use WPSPCORE\Migration\Migration;
 class Funcs extends BaseInstances {
 
 	private $bladeClass;
+	private $queueClass;
 	private $routeMapClass;
 	private $eloquentClass;
 	private $migrationClass;
@@ -26,6 +27,9 @@ class Funcs extends BaseInstances {
 	public function afterConstruct() {
 		// Prepare blade instance.
 		$this->bladeClass = '\\' . $this->rootNamespace . '\app\Workers\View\Blade';
+
+		// Prepare queue instance.
+		$this->queueClass = '\\' . $this->rootNamespace . '\app\Workers\Queue\Queue';
 
 		// Prepare route map instance.
 		$this->routeMapClass = '\\' . $this->rootNamespace . '\app\Workers\Routes\RouteMap';
@@ -56,6 +60,18 @@ class Funcs extends BaseInstances {
 	public function getBlade() {
 		try {
 			return $this->bladeClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+
+	/**
+	 * @return \WPSPCORE\Queue\Queue
+	 */
+	public function getQueue() {
+		try {
+			return $this->queueClass::instance();
 		}
 		catch (\Throwable $e) {
 			return null;
