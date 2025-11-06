@@ -73,13 +73,16 @@ class Funcs extends BaseInstances {
 	/**
 	 * @return \WPSPCORE\Queue\Queue
 	 */
-	public function getQueue() {
+	public function getQueue($init = false) {
 		try {
-			return $this->queueClass::instance();
+			return $this->queueClass::instance($init);
 		}
 		catch (\Throwable $e) {
 			return null;
 		}
+	}
+	public function getQueueClass() {
+		return $this->queueClass;
 	}
 
 	/**
@@ -93,29 +96,38 @@ class Funcs extends BaseInstances {
 			return null;
 		}
 	}
+	public function getRouteMapClass() {
+		return $this->routeMapClass;
+	}
 
 	/**
 	 * @return \WPSPCORE\Database\Eloquent
 	 */
-	public function getEloquent() {
+	public function getEloquent($init = false) {
 		try {
-			return $this->eloquentClass::instance();
+			return $this->eloquentClass::instance($init);
 		}
 		catch (\Throwable $e) {
 			return null;
 		}
 	}
+	public function getEloquentClass() {
+		return $this->eloquentClass;
+	}
 
 	/**
 	 * @return \WPSPCORE\Migration\Migration
 	 */
-	public function getMigration() {
+	public function getMigration($init = false) {
 		try {
-			return $this->migrationClass::instance();
+			return $this->migrationClass::instance($init);
 		}
 		catch (\Throwable $e) {
 			return null;
 		}
+	}
+	public function getMigrationClass() {
+		return $this->migrationClass;
 	}
 
 	/**
@@ -128,6 +140,9 @@ class Funcs extends BaseInstances {
 		catch (\Throwable $e) {
 			return null;
 		}
+	}
+	public function getContainerClass() {
+		return $this->containerClass;
 	}
 
 	/**

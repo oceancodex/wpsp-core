@@ -76,6 +76,9 @@ abstract class BaseSeeder extends Seeder {
 	 */
 
 	public function call($class, $silent = false, $parameters = []) {
+		$tz = function_exists('wp_timezone') ? wp_timezone() : new \DateTimeZone('Asia/Ho_Chi_Minh');
+		$dt = new \DateTime('now', $tz);
+		$timestamp = '[' . $dt->format('Y-m-d H:i:s') . ']';
 		$classes = Arr::wrap($class);
 		foreach ($classes as $class) {
 			$seeder    = $this->resolve($class);
@@ -84,7 +87,7 @@ abstract class BaseSeeder extends Seeder {
 			$seeder->__invoke($parameters);
 			if ($this->output) {
 				$runTime = number_format((microtime(true) - $startTime) * 1000);
-				$this->output->writeln('<fg=green>> Seeded: ' . $name . ' (' . $runTime . 'ms)  </>');
+				$this->output->writeln($timestamp . ' <fg=green>[✓] Seeded: ' . $name . ' (' . $runTime . 'ms)  </>');
 			}
 			static::$called[] = $class;
 		}
