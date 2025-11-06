@@ -16,6 +16,7 @@ class Funcs extends BaseInstances {
 	private $routeMapClass;
 	private $eloquentClass;
 	private $migrationClass;
+	private $containerClass;
 	private $validationClass;
 	private $environmentClass;
 	private $translationClass;
@@ -39,6 +40,9 @@ class Funcs extends BaseInstances {
 
 		// Prepare migration instance.
 		$this->migrationClass = '\\' . $this->rootNamespace . '\app\Workers\Database\Migration';
+
+		// Prepare container instance.
+		$this->containerClass = '\\' . $this->rootNamespace . '\app\Workers\Container\Container';
 
 		// Prepare validation instance.
 		$this->validationClass = '\\' . $this->rootNamespace . '\app\Workers\Validation\Validation';
@@ -108,6 +112,18 @@ class Funcs extends BaseInstances {
 	public function getMigration() {
 		try {
 			return $this->migrationClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+
+	/**
+	 * @return \WPSPCORE\Objects\Container
+	 */
+	public function getContainer() {
+		try {
+			return $this->containerClass::instance();
 		}
 		catch (\Throwable $e) {
 			return null;
