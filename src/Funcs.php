@@ -11,8 +11,10 @@ use WPSPCORE\Migration\Migration;
 
 class Funcs extends BaseInstances {
 
+	private $logClass;
 	private $bladeClass;
 	private $queueClass;
+	private $eventsClass;
 	private $routeMapClass;
 	private $eloquentClass;
 	private $migrationClass;
@@ -26,31 +28,37 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		// Prepare blade instance.
+		// Prepare Log instance.
+		$this->logClass = '\\' . $this->rootNamespace . '\app\Workers\Log\Log';
+
+		// Prepare Blade instance.
 		$this->bladeClass = '\\' . $this->rootNamespace . '\app\Workers\View\Blade';
 
-		// Prepare queue instance.
+		// Prepare Queue instance.
 		$this->queueClass = '\\' . $this->rootNamespace . '\app\Workers\Queue\Queue';
 
-		// Prepare route map instance.
+		// Prepare Events instance.
+		$this->eventsClass = '\\' . $this->rootNamespace . '\app\Workers\Events\Events';
+
+		// Prepare Route Map instance.
 		$this->routeMapClass = '\\' . $this->rootNamespace . '\app\Workers\Routes\RouteMap';
 
-		// Prepare eloquent instance.
+		// Prepare Eloquent instance.
 		$this->eloquentClass = '\\' . $this->rootNamespace . '\app\Workers\Database\Eloquent';
 
-		// Prepare migration instance.
+		// Prepare Migration instance.
 		$this->migrationClass = '\\' . $this->rootNamespace . '\app\Workers\Database\Migration';
 
-		// Prepare container instance.
+		// Prepare Container instance.
 		$this->containerClass = '\\' . $this->rootNamespace . '\app\Workers\Container\Container';
 
-		// Prepare validation instance.
+		// Prepare Validation instance.
 		$this->validationClass = '\\' . $this->rootNamespace . '\app\Workers\Validation\Validation';
 
-		// Prepare environment instance.
+		// Prepare Environment instance.
 		$this->environmentClass = '\\' . $this->rootNamespace . '\app\Workers\Environment\Environment';
 
-		// Prepare environment instance.
+		// Prepare Translation instance.
 		$this->translationClass = '\\' . $this->rootNamespace . '\app\Workers\Translation\Translation';
 	}
 
@@ -83,6 +91,36 @@ class Funcs extends BaseInstances {
 	}
 	public function getQueueClass() {
 		return $this->queueClass;
+	}
+
+	/**
+	 * @return \WPSPCORE\Events\Events
+	 */
+	public function getEvents($init = false) {
+		try {
+			return $this->eventsClass::instance($init);
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+	public function getEventsClass() {
+		return $this->eventsClass;
+	}
+
+	/**
+	 * @return \WPSPCORE\Log\Log
+	 */
+	public function getLog($init = false) {
+		try {
+			return $this->logClass::instance($init);
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+	public function getLogClass() {
+		return $this->logClass;
 	}
 
 	/**
@@ -131,7 +169,7 @@ class Funcs extends BaseInstances {
 	}
 
 	/**
-	 * @return \WPSPCORE\Objects\Container
+	 * @return \WPSPCORE\Container
 	 */
 	public function getContainer() {
 		try {
@@ -1030,6 +1068,12 @@ class Funcs extends BaseInstances {
 
 	public function _folderExists($path = null) {
 		return is_dir($path);
+	}
+
+	public function _vendorFolderExists($package = null) {
+		$vendorPath = $this->_getMainPath('/vendor');
+		$package = trim($package, '/');
+		return $this->_folderExists($vendorPath . '/' . $package);
 	}
 
 }

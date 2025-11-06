@@ -2,8 +2,6 @@
 
 namespace WPSPCORE\Traits;
 
-use WPSPCORE\Base\BaseRequest;
-
 /**
  * BaseInstancesTrait.
  *
