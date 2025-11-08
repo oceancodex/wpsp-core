@@ -22,12 +22,15 @@ class Funcs extends BaseInstances {
 	private $validationClass;
 	private $environmentClass;
 	private $translationClass;
+	private $applicationClass;
 
 	/*
 	 *
 	 */
 
 	public function afterConstruct() {
+		$this->applicationClass = '\\' . $this->rootNamespace . '\bootstrap\Application';
+
 		// Prepare Log instance.
 		$this->logClass = '\\' . $this->rootNamespace . '\app\Workers\Log\Log';
 
@@ -65,6 +68,17 @@ class Funcs extends BaseInstances {
 	/*
 	 *
 	 */
+	public function getApplicationClass() {
+		return $this->applicationClass;
+	}
+	public function getApplication() {
+		try {
+			return $this->applicationClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
 
 	/**
 	 * @return \WPSPCORE\View\Blade

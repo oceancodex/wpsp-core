@@ -97,12 +97,10 @@ trait BaseInstancesTrait {
 	}
 
 	private function prepareRequest() {
-//		if (isset($this->funcs) && $this->funcs) {
-//			$requestClass = '\\' . $this->funcs->_getRootNamespace() . '\app\Workers\Requests\Request';
-//			$this->request = $requestClass::createFromGlobals();
-//		}
-		echo '<pre style="background:white;z-index:9999;position:relative">'; print_r(app()); echo '</pre>'; die();
-		$this->request = app('request');
+		if (isset($this->funcs) && $this->funcs) {
+			$requestClass = '\\' . $this->funcs->_getRootNamespace() . '\app\Workers\Requests\Request';
+			$this->request = $requestClass::createFromGlobals();
+		}
 	}
 
 	/*
