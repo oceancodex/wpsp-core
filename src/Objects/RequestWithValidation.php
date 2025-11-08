@@ -7,7 +7,7 @@ use WPSPCORE\Validation\Traits\ValidatesRequestTrait;
 
 class RequestWithValidation extends Request {
 
-	use ValidatesRequestTrait;
+//	use ValidatesRequestTrait;
 
 	/**
 	 * @var \WPSPCORE\Validation\Validation|null
