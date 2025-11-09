@@ -187,7 +187,7 @@ abstract class BaseRoute extends BaseInstances {
 
 	public function resolveAndCall($callback, array $routeParams = [])
 	{
-		try {
+//		try {
 			// 🔹 Lấy container Laravel từ Application hoặc fallback
 			$app = $this->funcs->getApplication();
 			$container = $app ?? (\Illuminate\Container\Container::getInstance() ?? null);
@@ -220,12 +220,6 @@ abstract class BaseRoute extends BaseInstances {
 						/** @var \Illuminate\Foundation\Http\FormRequest $formRequest */
 						$formRequest = $paramClass::createFromBase($baseRequest);
 
-						if (function_exists('wp_get_current_user')) {
-							$formRequest->setUserResolver(function () {
-								return wp_get_current_user();
-							});
-						}
-
 						$formRequest->setContainer($container);
 						$formRequest->setRedirector($container->make(\Illuminate\Routing\Redirector::class));
 
@@ -243,22 +237,22 @@ abstract class BaseRoute extends BaseInstances {
 			// 🔹 Gọi method qua Container::call() (autowire, inject, FormRequest ready)
 			return $container->call([$instance, $method], $routeParams);
 
-		} catch (\Throwable $e) {
-			// Hiển thị lỗi gọn gàng trong WordPress
-			if (function_exists('wp_die')) {
-				wp_die(
-					'<h1>Dependency Injection Error</h1>'
-					. '<p>' . esc_html($e->getMessage()) . '</p>'
-					. '<pre style="font-size:11px;color:#555;background:#f9f9f9;padding:10px;border:1px solid #eee;">'
-					. esc_html($e->getTraceAsString())
-					. '</pre>',
-					'DI Error',
-					['response' => 500, 'back_link' => true]
-				);
-			} else {
-				throw $e;
-			}
-		}
+//		} catch (\Throwable $e) {
+//			// Hiển thị lỗi gọn gàng trong WordPress
+//			if (function_exists('wp_die')) {
+//				wp_die(
+//					'<h1>Dependency Injection Error</h1>'
+//					. '<p>' . esc_html($e->getMessage()) . '</p>'
+//					. '<pre style="font-size:11px;color:#555;background:#f9f9f9;padding:10px;border:1px solid #eee;">'
+//					. esc_html($e->getTraceAsString())
+//					. '</pre>',
+//					'DI Error',
+//					['response' => 500, 'back_link' => true]
+//				);
+//			} else {
+//				throw $e;
+//			}
+//		}
 	}
 
 	/*

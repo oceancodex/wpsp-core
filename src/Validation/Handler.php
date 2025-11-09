@@ -133,47 +133,83 @@ class Handler extends BaseInstances {
 	}
 
 	public function fallbackToIgnition(\Throwable $e) {
-		// Laravel 12.29+ built-in local error page
-		if (class_exists('\Illuminate\Foundation\Exceptions\Renderer')) {
+		$app = $this->funcs->getApplication();
+
+		// 1) Nếu Laravel 12+ Renderer class tồn tại và container có thể make nó
+		if (class_exists(\Illuminate\Foundation\Exceptions\Renderer\Renderer::class) && $app && $app->bound(\Illuminate\Foundation\Exceptions\Renderer\Renderer::class)) {
 			try {
-				$renderer = new \Illuminate\Foundation\Exceptions\Renderer();
-				$response = $renderer->render($e);
+				// Resolve request (nếu không có, tự tạo Request::capture())
+				$request = null;
+				if ($app->bound('request')) {
+					$request = $app->make('request');
+				}
+				else {
+					$request = \Illuminate\Http\Request::capture();
+				}
 
-				// Nếu là Symfony Response object có nội dung
-				if (method_exists($response, 'getContent')) {
+				// Ask container to build Renderer with its dependencies
+				$renderer = $app->make(\Illuminate\Foundation\Exceptions\Renderer\Renderer::class);
+
+				// render() expects (Request, Throwable) and returns a Symfony Response or string
+				$response = $renderer->render($request, $e);
+
+				// If response is a Response object, getContent()
+				if (is_object($response) && method_exists($response, 'getContent')) {
 					$content = $response->getContent();
+					$status  = method_exists($response, 'getStatusCode') ? $response->getStatusCode() : 500;
 
-					// Nếu rỗng, fallback
-					if (trim($content) !== '') {
-						http_response_code($response->getStatusCode());
+					if (trim((string)$content) !== '') {
+						http_response_code($status);
 						echo $content;
 						exit;
 					}
+					else {
+						// Log for debugging why renderer returned empty
+						error_log('[WPSP] Renderer returned empty content for exception: ' . get_class($e) . ': ' . $e->getMessage());
+					}
+				}
+				// If it's a string, print it
+				elseif (is_string($response) && trim($response) !== '') {
+					echo $response;
+					exit;
 				}
 			}
-			catch (\Throwable $fallback) {
-				// Nếu render lỗi, fallback xuống Ignition hoặc wp_die
+			catch (\Throwable $renderEx) {
+				// Log renderer failure then continue to fallback
+				error_log('[WPSP] Renderer threw: ' . $renderEx->getMessage());
 			}
 		}
 
-		// Nếu có Ignition → dùng Ignition
+		// 2) Nếu có Ignition -> dùng Ignition
 		if (class_exists('\Spatie\LaravelIgnition\Ignition')) {
-			\Spatie\LaravelIgnition\Ignition::make()
-				->shouldDisplayException(true)
-				->register()
-				->renderException($e);
-			exit;
+			try {
+				\Spatie\LaravelIgnition\Ignition::make()
+					->shouldDisplayException(true)
+					->register()
+					->renderException($e);
+				exit;
+			}
+			catch (\Throwable $ignEx) {
+				error_log('[WPSP] Ignition threw: ' . $ignEx->getMessage());
+				// fallthrough
+			}
 		}
 
-		// Nếu có handler cũ đã tồn tại → gọi lại
+		// 3) Nếu tồn tại handler trước đó thì gọi lại
 		if ($this->existsExceptionHandler && is_callable($this->existsExceptionHandler)) {
-			call_user_func($this->existsExceptionHandler, $e);
-			return;
+			try {
+				call_user_func($this->existsExceptionHandler, $e);
+				return;
+			}
+			catch (\Throwable $hEx) {
+				error_log('[WPSP] Previous exception handler threw: ' . $hEx->getMessage());
+			}
 		}
 
-		// Cuối cùng fallback về hiển thị đơn giản
+		// 4) Cuối cùng fallback về prepareResponse (wp_die / json)
 		$this->prepareResponse($e);
 	}
+
 
 	/*
 	 *

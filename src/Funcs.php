@@ -73,8 +73,11 @@ class Funcs extends BaseInstances {
 	/**
 	 * @return \WPSPCORE\Foundation\Application
 	 */
-	public function getApplication() {
+	public function getApplication($abstract = null, $parameters = []) {
 		try {
+			if ($abstract) {
+				return $this->applicationClass::instance()->make($abstract, $parameters);
+			}
 			return $this->applicationClass::instance();
 		}
 		catch (\Throwable $e) {
@@ -590,6 +593,10 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
+	public function _app($abstract, $parameters = []) {
+		return $this->getApplication($abstract, $parameters);
+	}
+
 	public function _locale() {
 		if (function_exists('get_locale')) {
 			return get_locale();
@@ -688,7 +695,7 @@ class Funcs extends BaseInstances {
 				return __($string, $this->_getTextDomain());
 			}
 			else {
-				$translation = $this->getTranslation();
+				$translation = $this->getApplication('translator');
 				return $translation->has($string) ? $translation->get($string) : $translation->get($string, [], $this->_config('app.fallback_locale'));
 			}
 		}
@@ -770,14 +777,14 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
-		/** @var \WPSPCORE\View\Blade $blade */
-		$blade = $this->getBlade();
+		/** @var \Illuminate\View\Factory $blade */
+		$blade = $this->getApplication('view');
 		try {
 			if (!$viewName && $instance) {
-				return $blade->getFactory() ?? null;
+				return $blade ?? null;
 			}
 			if ($blade !== null) {
-				return $blade->getFactory()->make($viewName, $data, $mergeData);
+				return $blade->make($viewName, $data, $mergeData);
 			}
 			return null;
 		}
