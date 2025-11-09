@@ -11,59 +11,14 @@ use WPSPCORE\Migration\Migration;
 
 class Funcs extends BaseInstances {
 
-	private $logClass;
-	private $bladeClass;
-	private $queueClass;
-	private $eventsClass;
-	private $routeMapClass;
-	private $eloquentClass;
-	private $migrationClass;
-	private $containerClass;
-	private $validationClass;
-	private $environmentClass;
-	private $translationClass;
-	private $applicationClass;
+	private $appInstanceClass;
 
 	/*
 	 *
 	 */
 
 	public function afterConstruct() {
-		// Prepare Application instance.
-		$this->applicationClass = '\\' . $this->rootNamespace . '\bootstrap\Application';
-
-		// Prepare Log instance.
-		$this->logClass = '\\' . $this->rootNamespace . '\app\Workers\Log\Log';
-
-		// Prepare Blade instance.
-		$this->bladeClass = '\\' . $this->rootNamespace . '\app\Workers\View\Blade';
-
-		// Prepare Queue instance.
-		$this->queueClass = '\\' . $this->rootNamespace . '\app\Workers\Queue\Queue';
-
-		// Prepare Events instance.
-		$this->eventsClass = '\\' . $this->rootNamespace . '\app\Workers\Events\Events';
-
-		// Prepare Route Map instance.
-		$this->routeMapClass = '\\' . $this->rootNamespace . '\app\Workers\Routes\RouteMap';
-
-		// Prepare Eloquent instance.
-		$this->eloquentClass = '\\' . $this->rootNamespace . '\app\Workers\Database\Eloquent';
-
-		// Prepare Migration instance.
-		$this->migrationClass = '\\' . $this->rootNamespace . '\app\Workers\Database\Migration';
-
-		// Prepare Container instance.
-		$this->containerClass = '\\' . $this->rootNamespace . '\app\Workers\Container\Container';
-
-		// Prepare Validation instance.
-		$this->validationClass = '\\' . $this->rootNamespace . '\app\Workers\Validation\Validation';
-
-		// Prepare Environment instance.
-		$this->environmentClass = '\\' . $this->rootNamespace . '\app\Workers\Environment\Environment';
-
-		// Prepare Translation instance.
-		$this->translationClass = '\\' . $this->rootNamespace . '\app\Workers\Translation\Translation';
+		$this->appInstanceClass = '\\' . $this->rootNamespace . '\App';
 	}
 
 	/*
@@ -76,165 +31,18 @@ class Funcs extends BaseInstances {
 	public function getApplication($abstract = null, $parameters = []) {
 		try {
 			if ($abstract) {
-				return $this->applicationClass::instance()->make($abstract, $parameters);
+				return $this->getAppInstance()->application()->make($abstract, $parameters);
 			}
-			return $this->applicationClass::instance();
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-	public function getApplicationClass() {
-		return $this->applicationClass;
-	}
-
-	/**
-	 * @return \WPSPCORE\View\Blade
-	 */
-	public function getBlade() {
-		try {
-			return $this->bladeClass::instance();
+			return $this->getAppInstance()->application();
 		}
 		catch (\Throwable $e) {
 			return null;
 		}
 	}
 
-	/**
-	 * @return \WPSPCORE\Queue\Queue
-	 */
-	public function getQueue($init = false) {
+	public function getAppInstance() {
 		try {
-			return $this->queueClass::instance($init);
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-	public function getQueueClass() {
-		return $this->queueClass;
-	}
-
-	/**
-	 * @return \WPSPCORE\Events\Events
-	 */
-	public function getEvents($init = false) {
-		try {
-			return $this->eventsClass::instance($init);
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-	public function getEventsClass() {
-		return $this->eventsClass;
-	}
-
-	/**
-	 * @return \WPSPCORE\Log\Log
-	 */
-	public function getLog($init = false) {
-		try {
-			return $this->logClass::instance($init);
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-	public function getLogClass() {
-		return $this->logClass;
-	}
-
-	/**
-	 * @return \WPSPCORE\Objects\RouteMap
-	 */
-	public function getRouteMap() {
-		try {
-			return $this->routeMapClass::instance();
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-	public function getRouteMapClass() {
-		return $this->routeMapClass;
-	}
-
-	/**
-	 * @return \WPSPCORE\Database\Eloquent
-	 */
-	public function getEloquent($init = false) {
-		try {
-			return $this->eloquentClass::instance($init);
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-	public function getEloquentClass() {
-		return $this->eloquentClass;
-	}
-
-	/**
-	 * @return \WPSPCORE\Migration\Migration
-	 */
-	public function getMigration($init = false) {
-		try {
-			return $this->migrationClass::instance($init);
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-	public function getMigrationClass() {
-		return $this->migrationClass;
-	}
-
-	/**
-	 * @return \WPSPCORE\Container
-	 */
-	public function getContainer() {
-		try {
-			return $this->containerClass::instance();
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-	public function getContainerClass() {
-		return $this->containerClass;
-	}
-
-	/**
-	 * @return \WPSPCORE\Validation\Validation
-	 */
-	public function getValidation() {
-		try {
-			return $this->validationClass::instance();
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-
-	/**
-	 * @return \WPSPCORE\Environment\Environment
-	 */
-	public function getEnvironment() {
-		try {
-			return $this->environmentClass::instance();
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-
-	/**
-	 * @return \WPSPCORE\Translation\Translation
-	 */
-	public function getTranslation() {
-		try {
-			return $this->translationClass::instance();
+			return $this->appInstanceClass::instance();
 		}
 		catch (\Throwable $e) {
 			return null;
@@ -607,12 +415,8 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _env($var, $addPrefix = false, $default = null) {
-		/** @var \WPSPCORE\Environment\Environment $environment */
-		$environment = $this->getEnvironment();
-		if ($environment) {
-			$result = $environment->get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
-		}
-		elseif (function_exists('env')) {
+		$var = $addPrefix ? $this->_getPrefixEnv() . $var : $var;
+		if (function_exists('env')) {
 			$result = env($var, $default) ?? $default;
 		}
 		elseif (function_exists('getenv')) {

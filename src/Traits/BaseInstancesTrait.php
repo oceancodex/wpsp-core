@@ -98,9 +98,7 @@ trait BaseInstancesTrait {
 
 	private function prepareRequest() {
 		if (isset($this->funcs) && $this->funcs) {
-//			$requestClass = '\\' . $this->funcs->_getRootNamespace() . '\app\Workers\Requests\Request';
-//			$this->request = $requestClass::createFromGlobals();
-			$this->request = $this->funcs->getApplication()->make('request');
+			$this->request = $this->funcs->getApplication('request');
 		}
 	}
 
