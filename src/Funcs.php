@@ -29,6 +29,7 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
+		// Prepare Application instance.
 		$this->applicationClass = '\\' . $this->rootNamespace . '\bootstrap\Application';
 
 		// Prepare Log instance.
@@ -68,9 +69,10 @@ class Funcs extends BaseInstances {
 	/*
 	 *
 	 */
-	public function getApplicationClass() {
-		return $this->applicationClass;
-	}
+
+	/**
+	 * @return \WPSPCORE\Foundation\Application
+	 */
 	public function getApplication() {
 		try {
 			return $this->applicationClass::instance();
@@ -78,6 +80,9 @@ class Funcs extends BaseInstances {
 		catch (\Throwable $e) {
 			return null;
 		}
+	}
+	public function getApplicationClass() {
+		return $this->applicationClass;
 	}
 
 	/**

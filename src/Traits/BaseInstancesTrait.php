@@ -6,7 +6,7 @@ namespace WPSPCORE\Traits;
  * BaseInstancesTrait.
  *
  * @property \WPSPCORE\Funcs|null                                                                      $funcs
- * @property \Symfony\Component\HttpFoundation\Request|\WPSPCORE\Validation\RequestWithValidation|null $request
+ * @property \Illuminate\Http\Request|null $request
  * @property \WPSPCORE\Validation\Validation|null                                                      $validation
  * @property \WPSPCORE\Environment\Environment|null                                                    $environment
  * @property \WPSPCORE\Database\Eloquent|null                                                          $eloquent
@@ -98,8 +98,9 @@ trait BaseInstancesTrait {
 
 	private function prepareRequest() {
 		if (isset($this->funcs) && $this->funcs) {
-			$requestClass = '\\' . $this->funcs->_getRootNamespace() . '\app\Workers\Requests\Request';
-			$this->request = $requestClass::createFromGlobals();
+//			$requestClass = '\\' . $this->funcs->_getRootNamespace() . '\app\Workers\Requests\Request';
+//			$this->request = $requestClass::createFromGlobals();
+			$this->request = $this->funcs->getApplication()->make('request');
 		}
 	}
 

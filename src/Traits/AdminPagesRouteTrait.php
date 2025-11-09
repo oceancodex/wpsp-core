@@ -44,7 +44,6 @@ trait AdminPagesRouteTrait {
 		if ($this->isForRouterMap) {
 			return $this;
 		}
-
 		if (!empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantsJson()) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
 			if (

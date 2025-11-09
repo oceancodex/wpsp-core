@@ -1,4 +1,4 @@
 <?php
 namespace WPSPCORE\Foundation;
 
-class Application {}
+class Application extends \Illuminate\Foundation\Application {}
