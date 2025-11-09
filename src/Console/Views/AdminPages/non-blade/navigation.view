@@ -1,0 +1,8 @@
+<div class="nav-tab-wrapper">
+	<a href="?page=<?php echo $menuSlug; ?>&tab=dashboard" class="nav-tab <?php echo !isset($requestParams['tab']) || $requestParams['tab'] == 'dashboard' ? 'nav-tab-active' : '' ?>">
+        <?php echo $funcs->_trans('Dashboard', true) ?>
+    </a>
+	<a href="?page=<?php echo $menuSlug; ?>&tab=tab-1" class="nav-tab <?php echo isset($requestParams['tab']) && $requestParams['tab'] == 'tab-1' ? 'nav-tab-active' : '' ?>">
+		<?php echo $funcs->_trans('Tab 1', true) ?>
+    </a>
+</div>

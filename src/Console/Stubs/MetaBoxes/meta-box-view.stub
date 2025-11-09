@@ -1,0 +1,35 @@
+<?php
+
+namespace {{ rootNamespace }}\app\Components\MetaBoxes;
+
+use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\Funcs;
+use {{ coreNamespace }}\Base\BaseMetaBox;
+
+class {{ className }} extends BaseMetaBox {
+
+	use InstancesTrait;
+
+//	public $title         = 'Custom Meta Box "{{ id }}" Title';
+//	public $screen        = 'post';
+//	public $context       = 'advanced';
+//	public $priority      = 'default';
+//	public $callback_args = null;
+
+	/*
+	 *
+	 */
+
+	public function customProperties() {
+//		$this->title = 'Custom Meta Box "{{ id }}" Title Override';
+	}
+
+	/*
+	 *
+	 */
+
+	public function index($post, $meta_box) {
+        echo Funcs::view('modules.meta-boxes.{{ id }}');
+	}
+
+}

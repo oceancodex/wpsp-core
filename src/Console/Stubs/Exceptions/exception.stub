@@ -1,0 +1,59 @@
+<?php
+
+namespace {{ rootNamespace }}\app\Exceptions;
+
+use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\Funcs;
+use {{ coreNamespace }}\Base\BaseException;
+
+class {{ className }} extends BaseException {
+
+	use InstancesTrait;
+
+	/**
+	 * Tùy chỉnh cách render Exception.
+	 */
+	public function render() {
+		/**
+		 * Với request AJAX hoặc REST API.
+		 */
+		if (wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+			wp_send_json([
+				'success' => false,
+				'data'    => null,
+				'message' => $this->getMessage(),
+			], 500);
+			exit;
+		}
+
+		/**
+		 * Với request thông thường.
+		 */
+
+		// Sử dụng view.
+		return Funcs::view('errors.default', [
+			'message' => $this->getMessage(),
+		]);
+
+		// Sử dụng redirect.
+//		return wp_redirect('https://google.com');
+
+		// Sử dụng wp_die.
+//		wp_die('<h1>Lỗi ' . $this->statusCode . '</h1><p>' . $this->getMessage() . '</p>', 'InvalidDataException', ['response' => $this->statusCode, 'back_link' => true]);
+	}
+
+	/**
+	 * Ghi báo cáo lỗi (nếu cần)
+	 */
+	public function report() {
+//		if (Funcs::env('APP_DEBUG', true) == 'true') {
+//			error_log(sprintf(
+//				'{{ className }}: %s | URL: %s | IP: %s',
+//				$this->getMessage(),
+//				$_SERVER['REQUEST_URI'] ?? 'Unknown',
+//				$_SERVER['REMOTE_ADDR'] ?? 'Unknown'
+//			));
+//		}
+	}
+
+}

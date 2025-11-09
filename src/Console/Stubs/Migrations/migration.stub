@@ -1,0 +1,86 @@
+<?php
+declare(strict_types=1);
+namespace {{ rootNamespace }}\database\migrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+use {{ rootNamespace }}\Funcs;
+
+/**
+ * All tables must use the prefix: "{{ dbCustomMigrationTablePrefix }}" (Eg: {{ dbCustomMigrationTablePrefix }}my_custom_table).
+ * You can do it by use the function: Funcs::getDBCustomMigrationTableName('my_custom_table')
+ * @see https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html#mapping-matrix
+ * @see https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/schema-representation.html#column
+ */
+final class {{ className }} extends AbstractMigration {
+
+//	protected $connection = 'mongodb';
+
+    public function getDescription(): string {
+        return '';
+    }
+
+    public function up(Schema $schema): void {
+        /** Create new database table */
+//	    $table = $schema->createTable(Funcs::getDBCustomMigrationTableName('my_custom_table'));
+//	    $table->addColumn('id', 'integer', ['autoincrement' => true]);
+//		$table->setPrimaryKey(['id'], 'id');
+
+		/** When you create a new database table, you must create these columns "created_at", "updated_at", "deleted_at" */
+//		$table->addColumn('created_at', 'datetime', ['notnull' => false]);
+//		$table->addColumn('updated_at', 'datetime', ['notnull' => false]);
+//		$table->addColumn('deleted_at', 'datetime', ['notnull' => false]);
+
+	    /** Indexes */
+//	    $table->addIndex(['column_1'], 'idx_my_custom_table_column_1');
+//	    $table->addIndex(['column_2'], 'idx_my_custom_table_column_2');
+
+		/** Get the exist table and working on it */
+//	    $table = $schema->getTable(Funcs::getDBCustomMigrationTableName('my_custom_table'));
+//		$table->addColumn('some_column', 'text', ['notnull' => false]);
+//		$table->addColumn('name', 'text')->setColumnDefinition('TEXT NULL AFTER `id`');
+
+		/** Foreign keys */
+//		$table->addForeignKeyConstraint(Funcs::getDBCustomMigrationTableName('authors'), ['author_id'], ['id'], ['onUpdate' => 'CASCADE']);
+
+        /** Add new column to the exist table after a column */
+//	    $table = Funcs::getDBCustomMigrationTableName('my_custom_table');
+//	    $this->addSql("ALTER TABLE `{$table}` ADD COLUMN `column_2` INT NOT NULL DEFAULT 0 AFTER `column_1`");
+//	    $this->addSql("ALTER TABLE `{$table}` ADD COLUMN `column_3` VARCHAR(255) DEFAULT NULL AFTER `column_2`");
+
+	    /** Indexes */
+//	    $this->addSql("CREATE INDEX `idx_my_custom_table_column_2` ON `{$table}` (`column_2`)");
+
+	    // Add foreign key constraint
+//      $this->addSql("
+//          ALTER TABLE `$tableName`
+//          ADD CONSTRAINT fk_my_custom_table_column_2
+//          FOREIGN KEY (`column_2`)
+//          REFERENCES custom_other_table(`id`)
+//          ON DELETE SET NULL
+//          ON UPDATE CASCADE
+//      ");
+    }
+
+    public function down(Schema $schema): void {
+//	    $table = $schema->getTable(Funcs::getDBCustomMigrationTableName('my_custom_table'));
+
+	    // Drop foreign keys
+//	    foreach ($table->getForeignKeys() as $fk) {
+//		    $table->removeForeignKey($fk->getName());
+//	    }
+
+	    // Drop indexes
+//	    foreach ($table->getIndexes() as $index) {
+//		    $table->dropIndex($index->getName());
+//	    }
+
+//	    $schema->dropTable(Funcs::getDBCustomMigrationTableName('my_custom_table'));
+
+        // Drop indexes and columns
+//	    $table = Funcs::getDBCustomMigrationTableName('my_custom_table');
+//	    $this->addSql("DROP INDEX `idx_my_custom_table_column_2` ON `{$table}`");
+//	    $this->addSql("ALTER TABLE `{$table}` DROP COLUMN `column_2`");
+    }
+
+}

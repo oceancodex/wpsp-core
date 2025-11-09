@@ -1,0 +1,14 @@
+<?php
+
+namespace {{ rootNamespace }}\app\Components\Schedules;
+
+use {{ rootNamespace }}\Funcs;
+use {{ coreNamespace }}\Base\BaseSchedule;
+
+class {{ className }} extends BaseSchedule {
+
+	public function run() {
+        // Code here.
+	}
+
+}
