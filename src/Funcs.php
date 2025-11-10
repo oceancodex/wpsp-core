@@ -19,7 +19,7 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->routeMapClass = '\\' . $this->rootNamespace . '\app\Workers\Routes\RouteMap';
+		$this->routeMapClass = '\\' . $this->rootNamespace . '\app\Instances\Routes\RouteMap';
 		$this->appInstanceClass = '\\' . $this->rootNamespace . '\App';
 	}
 
@@ -28,7 +28,7 @@ class Funcs extends BaseInstances {
 	 */
 
 	/**
-	 * @return \WPSPCORE\Objects\RouteMap
+	 * @return \WPSPCORE\Routes\RouteMap
 	 */
 	public function getRouteMap() {
 		try {
@@ -40,7 +40,7 @@ class Funcs extends BaseInstances {
 	}
 
 	/**
-	 * @return \WPSPCORE\Foundation\Application
+	 * @return \Illuminate\Foundation\Application
 	 */
 	public function getApplication($abstract = null, $parameters = []) {
 		try {

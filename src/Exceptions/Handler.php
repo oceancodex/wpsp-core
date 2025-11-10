@@ -1,8 +1,6 @@
 <?php
+namespace WPSPCORE\Exceptions;
 
-namespace WPSPCORE\Validation;
-
-use Illuminate\Validation\ValidationException;
 use WPSPCORE\Base\BaseInstances;
 
 class Handler extends BaseInstances {
@@ -83,12 +81,12 @@ class Handler extends BaseInstances {
 		return false;
 	}
 
-	public function expectsJson() {
-		return $this->funcs->_expectsJson();
-	}
-
 	public function wantsJson() {
 		return $this->expectsJson();
+	}
+
+	public function expectsJson() {
+		return $this->funcs->_expectsJson();
 	}
 
 	public function prepareResponse(\Throwable $e) {
@@ -392,7 +390,7 @@ class Handler extends BaseInstances {
 		);
 	}
 
-	protected function handleValidationException(ValidationException $e) {
+	protected function handleValidationException(\Throwable $e) {
 		status_header(422);
 
 		/**

@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\Objects;
+namespace WPSPCORE\Permissions;
 
 use WPSPCORE\Base\BaseInstances;
 
