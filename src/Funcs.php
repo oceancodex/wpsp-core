@@ -11,6 +11,7 @@ use WPSPCORE\Migration\Migration;
 
 class Funcs extends BaseInstances {
 
+	private $routeMapClass;
 	private $appInstanceClass;
 
 	/*
@@ -18,12 +19,25 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
+		$this->routeMapClass = '\\' . $this->rootNamespace . '\app\Workers\Routes\RouteMap';
 		$this->appInstanceClass = '\\' . $this->rootNamespace . '\App';
 	}
 
 	/*
 	 *
 	 */
+
+	/**
+	 * @return \WPSPCORE\Objects\RouteMap
+	 */
+	public function getRouteMap() {
+		try {
+			return $this->routeMapClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
 
 	/**
 	 * @return \WPSPCORE\Foundation\Application
@@ -70,7 +84,7 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function _getBearerToken($request = null) {
-		$request = $request ?? $this->request ?? null;
+		$request = $request ?? $this->getApplication('request') ?? null;
 
 		// --- Lấy raw header ---
 		if ($request && method_exists($request, 'headers')) {
@@ -99,33 +113,6 @@ class Funcs extends BaseInstances {
 
 	public function _getAppShortName() {
 		return $this->_env('APP_SHORT_NAME', true);
-	}
-
-	/**
-	 * @return Eloquent
-	 */
-	public function _getAppEloquent() {
-		$globalEloquent = $this->_getAppShortName() . '_eloquent';
-		global ${$globalEloquent};
-		return ${$globalEloquent};
-	}
-
-	/**
-	 * @return Migration
-	 */
-	public function _getAppMigration() {
-		$globalMigration = $this->_getAppShortName() . '_migration';
-		global ${$globalMigration};
-		return ${$globalMigration};
-	}
-
-	/**
-	 * @return \WPSPCORE\Validation\Validation
-	 */
-	public function _getAppValidation() {
-		$globalValidation = $this->_getAppShortName() . '_validation';
-		global ${$globalValidation};
-		return ${$globalValidation};
 	}
 
 	public function _getMainBaseName() {
@@ -405,15 +392,6 @@ class Funcs extends BaseInstances {
 		return $this->getApplication($abstract, $parameters);
 	}
 
-	public function _locale() {
-		if (function_exists('get_locale')) {
-			return get_locale();
-		}
-		else {
-			return $this->_env('APP_LOCALE', true, 'en');
-		}
-	}
-
 	public function _env($var, $addPrefix = false, $default = null) {
 		$var = $addPrefix ? $this->_getPrefixEnv() . $var : $var;
 		if (function_exists('env')) {
@@ -426,6 +404,55 @@ class Funcs extends BaseInstances {
 			$result = $default;
 		}
 		return $result;
+	}
+
+	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
+		/** @var \Illuminate\View\Factory $blade */
+		$blade = $this->getApplication('view');
+		try {
+			if (!$viewName && $instance) {
+				return $blade ?? null;
+			}
+			if ($blade !== null) {
+				return $blade->make($viewName, $data, $mergeData);
+			}
+			return null;
+		}
+		catch (\Throwable $e) {
+			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
+		}
+	}
+
+	public function _debug($message = '', $print = false, $varDump = false) {
+
+		// If "var_dump" mode is OFF.
+		if ($varDump) {
+
+			// Start buffer capture.
+			ob_start();
+
+			// Dump the values.
+			var_dump($message);
+
+			// Put the buffer into a variable.
+			$message = ob_get_contents();
+
+			// End capture.
+			ob_end_clean();
+
+			// Error log the message.
+
+		}
+
+		if ($print) {
+			echo '<pre>';
+			print_r($message);
+			echo '</pre>';
+		}
+		else {
+			error_log(print_r($message, true));
+		}
+
 	}
 
 	public function _asset($path, $secure = null) {
@@ -510,20 +537,21 @@ class Funcs extends BaseInstances {
 
 	public function _config($key = null, $default = null) {
 		try {
-			$configs = [];
-			$files   = $this->_getAllFilesInFolder($this->_getMainPath() . '/config');
-			foreach ($files as $file) {
-				$configKey        = $file['relative_path'];
-				$configKey        = preg_replace('/\.php/iu', '', $configKey);
-				$configItemNested = $this->_explodeToNestedArray('/', $configKey, \Noodlehaus\Config::load($file['real_path'])->all());
-				$configs          = array_merge_recursive($configs, $configItemNested);
-			}
-			$configs = new \Dflydev\DotAccessData\Data($configs);
-			return $configs->get($key);
+			$config = $this->getApplication('config');
+			return $config->get($key);
 		}
 		catch (\Throwable $e) {
+			return null;
 		}
-		return null;
+	}
+
+	public function _locale() {
+		if (function_exists('get_locale')) {
+			return get_locale();
+		}
+		else {
+			return $this->_env('APP_LOCALE', true, 'en');
+		}
 	}
 
 	public function _notice($message = '', $type = 'info', $echo = false, $wrap = false, $class = null, $dismiss = true) {
@@ -539,38 +567,6 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _debug($message = '', $print = false, $varDump = false) {
-
-		// If "var_dump" mode is OFF.
-		if ($varDump) {
-
-			// Start buffer capture.
-			ob_start();
-
-			// Dump the values.
-			var_dump($message);
-
-			// Put the buffer into a variable.
-			$message = ob_get_contents();
-
-			// End capture.
-			ob_end_clean();
-
-			// Error log the message.
-
-		}
-
-		if ($print) {
-			echo '<pre>';
-			print_r($message);
-			echo '</pre>';
-		}
-		else {
-			error_log(print_r($message, true));
-		}
-
-	}
-
 	public function _response($success = false, $data = [], $message = '', $code = 204) {
 		return [
 			'success' => $success,
@@ -580,29 +576,12 @@ class Funcs extends BaseInstances {
 		];
 	}
 
-	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
-		/** @var \Illuminate\View\Factory $blade */
-		$blade = $this->getApplication('view');
-		try {
-			if (!$viewName && $instance) {
-				return $blade ?? null;
-			}
-			if ($blade !== null) {
-				return $blade->make($viewName, $data, $mergeData);
-			}
-			return null;
-		}
-		catch (\Throwable $e) {
-			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
-		}
+	public function _viewInject($views, $callback) {
+		return $this->_viewInstance()->composer($views, $callback);
 	}
 
 	public function _viewInstance() {
 		return $this->_view(null, [], [], true);
-	}
-
-	public function _viewInject($views, $callback) {
-		return $this->_viewInstance()->composer($views, $callback);
 	}
 
 	/*
@@ -634,12 +613,12 @@ class Funcs extends BaseInstances {
 		return defined('WP_DEBUG_DISPLAY') && WP_DEBUG_DISPLAY;
 	}
 
-	public function _isLocal() {
-		return $this->_env('APP_ENV', true) == 'local';
-	}
-
 	public function _isDev() {
 		return $this->_env('APP_ENV', true) == 'dev';
+	}
+
+	public function _isLocal() {
+		return $this->_env('APP_ENV', true) == 'local';
 	}
 
 	public function _isProduction() {
