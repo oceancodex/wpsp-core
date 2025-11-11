@@ -25,8 +25,8 @@ class Migration extends BaseInstances {
 	 */
 	public function diff(): array {
 		return [
-			'missing_versions' => $this->getMissingMigrationVersions(),
 			'missing_tables'   => $this->getMissingTables(),
+			'missing_versions' => $this->getMissingMigrationVersions(),
 		];
 	}
 
@@ -60,7 +60,7 @@ class Migration extends BaseInstances {
 		$missing = $this->getMissingMigrationVersions();
 
 		if (empty($missing)) {
-			return ['result' => true, 'message' => 'Database đã ở version mới nhất.'];
+			return ['success' => true, 'data' => null, 'message' => 'Database is now in latest version.'];
 		}
 
 		try {
@@ -69,10 +69,10 @@ class Migration extends BaseInstances {
 				'--force' => true,
 			]);
 
-			return ['result' => true, 'actions' => [], 'message' => 'Đã cập nhật migrations thành công.'];
+			return ['success' => true, 'data' => null, 'message' => 'Migrate database successfully!'];
 		}
 		catch (\Throwable $e) {
-			return ['result' => false, 'message' => $e->getMessage()];
+			return ['success' => false, 'data' => null, 'message' => $e->getMessage()];
 		}
 	}
 
@@ -86,10 +86,10 @@ class Migration extends BaseInstances {
 
 		if ($schema->hasTable($this->migrationTable)) {
 			$db->table($this->migrationTable)->truncate();
-			return ['result' => true, 'message' => 'Đã xóa toàn bộ bản ghi migration.'];
+			return ['success' => true, 'data' => null, 'message' => 'Deleted all migrations successfully!'];
 		}
 
-		return ['result' => false, 'message' => 'Thiếu bảng ' . $this->migrationTable];
+		return ['success' => false, 'data' => null, 'message' => 'Missing table: ' . $this->migrationTable];
 	}
 
 	/**
@@ -198,51 +198,6 @@ class Migration extends BaseInstances {
 	}
 
 	/**
-	 * Lấy danh sách file migration chưa có trong DB
-	 */
-	protected function getMissingMigrationVersions(): array {
-		$app    = $this->funcs->getApplication();
-		$schema = $app['db']->connection()->getSchemaBuilder();
-		$db     = $app['db'];
-		$fs     = new Filesystem();
-
-		$files = [];
-		if ($fs->isDirectory($this->migrationPath)) {
-			foreach ($fs->files($this->migrationPath) as $file) {
-				$files[] = pathinfo($file->getFilename(), PATHINFO_FILENAME);
-			}
-		}
-
-		if (!$schema->hasTable($this->migrationTable)) {
-			$executed = [];
-		}
-		else {
-			$executed = $db->table($this->migrationTable)->pluck('migration')->toArray();
-		}
-
-		return array_diff($files, $executed);
-	}
-
-	/**
-	 * Danh sách bảng chưa tồn tại
-	 */
-	protected function getMissingTables(): array {
-		$app    = $this->funcs->getApplication();
-		$schema = $app['db']->connection()->getSchemaBuilder();
-
-		$defined = $this->getDefinedDatabaseTables();
-		$missing = [];
-
-		foreach ($defined as $table) {
-			if (!$schema->hasTable($table)) {
-				$missing[] = $table;
-			}
-		}
-
-		return $missing;
-	}
-
-	/**
 	 * Xóa bảng.
 	 */
 	public function dropDatabaseTable($tableName) {
@@ -275,6 +230,51 @@ class Migration extends BaseInstances {
 			'data'    => $definedDatabaseTables,
 			'message' => 'Drop all database tables successfully!',
 		];
+	}
+
+	/**
+	 * Danh sách bảng chưa tồn tại
+	 */
+	protected function getMissingTables(): array {
+		$app    = $this->funcs->getApplication();
+		$schema = $app['db']->connection()->getSchemaBuilder();
+
+		$defined = $this->getDefinedDatabaseTables();
+		$missing = [];
+
+		foreach ($defined as $table) {
+			if (!$schema->hasTable($table)) {
+				$missing[] = $table;
+			}
+		}
+
+		return $missing;
+	}
+
+	/**
+	 * Lấy danh sách file migration chưa có trong DB
+	 */
+	protected function getMissingMigrationVersions(): array {
+		$app    = $this->funcs->getApplication();
+		$schema = $app['db']->connection()->getSchemaBuilder();
+		$db     = $app['db'];
+		$fs     = new Filesystem();
+
+		$files = [];
+		if ($fs->isDirectory($this->migrationPath)) {
+			foreach ($fs->files($this->migrationPath) as $file) {
+				$files[] = pathinfo($file->getFilename(), PATHINFO_FILENAME);
+			}
+		}
+
+		if (!$schema->hasTable($this->migrationTable)) {
+			$executed = [];
+		}
+		else {
+			$executed = $db->table($this->migrationTable)->pluck('migration')->toArray();
+		}
+
+		return array_diff($files, $executed);
 	}
 
 }

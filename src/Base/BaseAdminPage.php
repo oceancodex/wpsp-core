@@ -2,6 +2,8 @@
 
 namespace WPSPCORE\Base;
 
+use Illuminate\Http\Request;
+
 abstract class BaseAdminPage extends BaseInstances {
 
 	public $menu_title                  = null;
@@ -41,7 +43,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	public function init($path = null) {
+	public function init() {
 		$this->beforeInit();
 		$this->addAdminMenuPage();
 		$this->saveScreenOptions();
@@ -66,7 +68,18 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	private function addMenuPage() {
-		$callback = $this->callback_function ? [$this, $this->callback_function] : null;
+		$callback = null;
+		if ($this->callback_function && method_exists($this, $this->callback_function)) {
+			$callback = function() {
+				$container = $this->funcs->getApplication() ?? (\Illuminate\Container\Container::getInstance() ?? null);
+				if (!$container) {
+					// fallback bình thường nếu không có container
+					return $this->{$this->callback_function}();
+				}
+				// Dùng container->call() để auto inject dependencies
+				return $container->call([$this, $this->callback_function]);
+			};
+		}
 		$menuPage = add_menu_page(
 			$this->page_title,
 			$this->menu_title,
@@ -95,7 +108,16 @@ abstract class BaseAdminPage extends BaseInstances {
 	}
 
 	private function addSubMenuPage() {
-		$callback = $this->callback_function ? [$this, $this->callback_function] : null;
+		$callback = null;
+		if ($this->callback_function && method_exists($this, $this->callback_function)) {
+			$callback = function() {
+				$container = $this->funcs->getApplication() ?? (\Illuminate\Container\Container::getInstance() ?? null);
+				if (!$container) {
+					return $this->{$this->callback_function}();
+				}
+				return $container->call([$this, $this->callback_function]);
+			};
+		}
 		return add_submenu_page(
 			$this->parent_slug,
 			$this->page_title,
@@ -183,15 +205,13 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	abstract public function index();
+	public function styles() {}
 
-	abstract public function styles();
+	public function scripts() {}
 
-	abstract public function scripts();
+	public function localizeScripts() {}
 
-	abstract public function localizeScripts();
-
-	abstract public function customProperties();
+	public function customProperties() {}
 
 	/*
 	 *

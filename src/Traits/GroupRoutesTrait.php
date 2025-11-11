@@ -10,10 +10,10 @@ trait GroupRoutesTrait {
 	private $middlewareStack  = [];
 	private $currentRouteName = null;
 
-	private $callPrefixTimes  = 0;
-	private $callNameTimes    = 0;
+	private $callPrefixTimes     = 0;
+	private $callNameTimes       = 0;
 	private $callMiddlewareTimes = 0;
-	private $callGroupTimes   = 0;
+	private $callGroupTimes      = 0;
 
 	private $namespace = null;
 	private $version   = null;
@@ -57,7 +57,7 @@ trait GroupRoutesTrait {
 		}
 		else {
 			// Không có current route đang chờ => đây chắc chắn là group prefix
-			$this->nameStack[] = $name;
+			$this->nameStack[]      = $name;
 			$this->currentRouteName = null;
 		}
 
@@ -102,12 +102,14 @@ trait GroupRoutesTrait {
 				}
 				// Nếu là string class name, thêm method mặc định 'handle'
 				$normalized[] = [$middleware, 'handle'];
-			} elseif (is_array($middleware)) {
+			}
+			elseif (is_array($middleware)) {
 				// Kiểm tra xem có phải là [class, method] hay không
 				if (count($middleware) == 2 && is_string($middleware[0]) && is_string($middleware[1])) {
 					// Đã đúng format [class, method]
 					$normalized[] = $middleware;
-				} elseif (isset($middleware[0]) && is_string($middleware[0])) {
+				}
+				elseif (isset($middleware[0]) && is_string($middleware[0])) {
 					// Chỉ có class, không có method - thêm 'handle' mặc định
 					$normalized[] = [$middleware[0], 'handle'];
 				}
@@ -238,7 +240,7 @@ trait GroupRoutesTrait {
 		$this->currentRouteName = null; // reset trước
 		// Đảm bảo mỗi route có vùng nhớ riêng, không ghi đè lẫn nhau
 		$this->currentRouteName = [
-			'path' => $this->buildFullPath($path),
+			'path'      => $this->buildFullPath($path),
 			'timestamp' => microtime(true), // tránh đè khi tạo nhanh liên tiếp
 		];
 	}
@@ -248,7 +250,7 @@ trait GroupRoutesTrait {
 	 */
 	protected function addToRouteMap($fullName) {
 		if ($this->isForRouterMap && $this->currentRouteName !== null) {
-			$routeMap = $this->funcs->getRouteMap();
+			$routeMap  = $this->funcs->getRouteMap();
 			$className = (new \ReflectionClass($this))->getShortName();
 
 			if (!isset($routeMap->map[$className])) {
@@ -269,23 +271,59 @@ trait GroupRoutesTrait {
 		}
 	}
 
-	public function getCallParams($path, $requestPath, $class, $method) {
-		preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath, $matches);
-		$methodParams = array_filter($matches, function ($key) {
-			return !is_int($key);
-		}, ARRAY_FILTER_USE_KEY);
-
-		$methodParams = array_merge([
-			'request' => $this->request,
-		], $methodParams);
-
-		// Chỉ truyền đúng số argument mà method khai báo.
-		$reflection = new \ReflectionMethod($class, $method);
-		$params     = $reflection->getParameters();
-		$callParams = [];
-		foreach ($params as $param) {
-			$callParams[] = array_shift($methodParams); // lấy theo thứ tự còn lại
+	/**
+	 * Build call params as associative array so Container::call can autowire and inject properly.
+	 */
+	protected function getCallParams($path, $requestPath, $class, $method) {
+		$app = $this->funcs->getApplication() ?? (\Illuminate\Container\Container::getInstance() ?? null);
+		if (!$app) {
+			throw new \RuntimeException('Container instance not found when building call params.');
 		}
+
+		$baseRequest = $app->bound('request') ? $app->make('request') : ($this->request ?? \Illuminate\Http\Request::capture());
+		preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath, $matches);
+		$named = array_filter($matches, fn($k) => !is_int($k), ARRAY_FILTER_USE_KEY);
+
+		$query = $baseRequest->query->all();
+		$post  = $baseRequest->request->all();
+		$attr  = $baseRequest->attributes->all();
+
+		$reflection = new \ReflectionMethod($class, $method);
+		$callParams = [];
+
+		foreach ($reflection->getParameters() as $param) {
+			$name  = $param->getName();
+			$type  = $param->getType();
+			$value = null;
+
+			// 🔸 Nếu param có type-hint (VD: Request, CustomClass) → để Container tự inject
+			if ($type && !$type->isBuiltin()) {
+				continue;
+			}
+
+			// 🔸 Ưu tiên theo tên param trong request hoặc named match
+			if (array_key_exists($name, $named)) {
+				$value = $named[$name];
+			}
+			elseif (array_key_exists($name, $attr)) {
+				$value = $attr[$name];
+			}
+			elseif (array_key_exists($name, $post)) {
+				$value = $post[$name];
+			}
+			elseif (array_key_exists($name, $query)) {
+				$value = $query[$name];
+			}
+			elseif ($param->isDefaultValueAvailable()) {
+				$value = $param->getDefaultValue();
+			}
+			else {
+				$value = null;
+			}
+
+			$callParams[$name] = $value;
+		}
+
 		return $callParams;
 	}
 

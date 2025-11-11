@@ -567,12 +567,11 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _response($success = false, $data = [], $message = '', $code = 204) {
+	public function _response($success = false, $data = [], $message = '') {
 		return [
 			'success' => $success,
 			'data'    => $data,
 			'message' => $message,
-			'code'    => $code,
 		];
 	}
 

@@ -103,7 +103,7 @@ class {{ className }} extends BaseAdminPage {
 //			global $wpdb;
 //			$data = ['title' => 'Test'];
 //			$result = $wpdb->update($wpdb->posts, $data, ['ID' => 1]);
-//			throw new \WPSP\app\Exceptions\QueryException($wpdb->last_query, $data, 'Failed to update post');
+//			throw new \WPSP\App\Exceptions\QueryException($wpdb->last_query, $data, 'Failed to update post');
 		}
 	}
 

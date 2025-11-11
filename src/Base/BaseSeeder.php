@@ -21,6 +21,8 @@ abstract class BaseSeeder extends Seeder {
 	public $rootNamespace = null;
 	public $prefixEnv     = null;
 
+	public $funcs         = null;
+
 	public $capsule       = null;
 	public $output        = null;
 

@@ -1,1 +1,1 @@
-    \WPSP\app\Console\Commands\{{ className }}::class,
+    \WPSP\App\Console\Commands\{{ className }}::class,

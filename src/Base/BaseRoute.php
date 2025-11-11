@@ -185,75 +185,50 @@ abstract class BaseRoute extends BaseInstances {
 		return $class;
 	}
 
-	public function resolveAndCall($callback, array $routeParams = [])
-	{
-//		try {
-			// 🔹 Lấy container Laravel từ Application hoặc fallback
-			$app = $this->funcs->getApplication();
-			$container = $app ?? (\Illuminate\Container\Container::getInstance() ?? null);
+	public function resolveAndCall($callback, array $routeParams = []) {
+		// 🔹 Lấy container Laravel từ Application hoặc fallback
+		$app = $this->funcs->getApplication();
+		$container = $app ?? (\Illuminate\Container\Container::getInstance() ?? null);
 
-			if (!$container) {
-				throw new \RuntimeException('Container instance not found.');
-			}
+		if (!$container) {
+			throw new \RuntimeException('Container instance not found.');
+		}
 
-			[$classOrInstance, $method] = $callback;
+		[$classOrInstance, $method] = $callback;
 
-			// 🔹 Lấy instance controller
-			$instance = is_object($classOrInstance)
-				? $classOrInstance
-				: $container->make($classOrInstance);
+		// 🔹 Resolve instance controller
+		$instance = is_object($classOrInstance)
+			? $classOrInstance
+			: $container->make($classOrInstance);
 
-			// 🔹 Lấy request hiện tại
-			$baseRequest = $container->bound('request')
-				? $container->make('request')
-				: \Illuminate\Http\Request::capture();
+		// 🔹 Tự động inject FormRequest nếu có
+		$reflection = new \ReflectionMethod($instance, $method);
+		$baseRequest = $container->bound('request')
+			? $container->make('request')
+			: \Illuminate\Http\Request::capture();
 
-			// 🔹 Tự phát hiện các FormRequest được khai báo trong method
-			$reflection = new \ReflectionMethod($instance, $method);
-			foreach ($reflection->getParameters() as $param) {
-				$type = $param->getType();
-				if ($type && !$type->isBuiltin()) {
-					$paramClass = $type->getName();
+		foreach ($reflection->getParameters() as $param) {
+			$type = $param->getType();
+			if ($type && !$type->isBuiltin()) {
+				$paramClass = $type->getName();
 
-					// Nếu param là subclass của FormRequest => build instance từ Request
-					if (is_subclass_of($paramClass, \Illuminate\Foundation\Http\FormRequest::class)) {
-						/** @var \Illuminate\Foundation\Http\FormRequest $formRequest */
-						$formRequest = $paramClass::createFromBase($baseRequest);
-
-						$formRequest->setContainer($container);
-						$formRequest->setRedirector($container->make(\Illuminate\Routing\Redirector::class));
-
-						// Bootstrap validation (FormRequest có validateResolved())
-						if (method_exists($formRequest, 'validateResolved')) {
-							$formRequest->validateResolved();
-						}
-
-						// Gắn vào container để khi call() sẽ inject đúng
-						$container->instance($paramClass, $formRequest);
+				// Inject FormRequest (nếu có)
+				if (is_subclass_of($paramClass, \Illuminate\Foundation\Http\FormRequest::class)) {
+					$formRequest = $paramClass::createFromBase($baseRequest);
+					$formRequest->setContainer($container);
+					$formRequest->setRedirector($container->make(\Illuminate\Routing\Redirector::class));
+					if (method_exists($formRequest, 'validateResolved')) {
+						$formRequest->validateResolved();
 					}
+					$container->instance($paramClass, $formRequest);
 				}
 			}
+		}
 
-			// 🔹 Gọi method qua Container::call() (autowire, inject, FormRequest ready)
-			return $container->call([$instance, $method], $routeParams);
-
-//		} catch (\Throwable $e) {
-//			// Hiển thị lỗi gọn gàng trong WordPress
-//			if (function_exists('wp_die')) {
-//				wp_die(
-//					'<h1>Dependency Injection Error</h1>'
-//					. '<p>' . esc_html($e->getMessage()) . '</p>'
-//					. '<pre style="font-size:11px;color:#555;background:#f9f9f9;padding:10px;border:1px solid #eee;">'
-//					. esc_html($e->getTraceAsString())
-//					. '</pre>',
-//					'DI Error',
-//					['response' => 500, 'back_link' => true]
-//				);
-//			} else {
-//				throw $e;
-//			}
-//		}
+		// 🔹 Gọi thông qua Container::call() để Laravel tự inject linh hoạt
+		return $container->call([$instance, $method], $routeParams);
 	}
+
 
 	/*
 	 *
