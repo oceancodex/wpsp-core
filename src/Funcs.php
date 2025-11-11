@@ -5,9 +5,6 @@ namespace WPSPCORE;
 use Carbon\Carbon;
 use NumberFormatter;
 use WPSPCORE\Base\BaseInstances;
-use WPSPCORE\Database\Eloquent;
-use WPSPCORE\Finder\Finder;
-use WPSPCORE\Migration\Migration;
 
 class Funcs extends BaseInstances {
 
