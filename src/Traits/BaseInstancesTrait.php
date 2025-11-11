@@ -20,7 +20,6 @@ trait BaseInstancesTrait {
 	public $prefixEnv     = null;
 
 	public $funcs         = null;
-	public $locale        = null;
 	public $request       = null;
 
 	public $extraParams   = [];
@@ -35,7 +34,6 @@ trait BaseInstancesTrait {
 		if ($extraParams)   $this->extraParams      = $extraParams;
 
 		$this->prepareFuncs();
-		$this->prepareLocale();
 		$this->prepareRequest();
 
 		$this->afterConstruct();
@@ -90,10 +88,6 @@ trait BaseInstancesTrait {
 			}
 			unset($this->extraParams['funcs']);
 		}
-	}
-
-	private function prepareLocale() {
-		$this->locale = function_exists('get_locale') ? get_locale() : 'en';
 	}
 
 	private function prepareRequest() {
