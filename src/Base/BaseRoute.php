@@ -8,6 +8,11 @@ use Symfony\Component\HttpFoundation\Response;
 abstract class BaseRoute extends BaseInstances {
 
 	public $initClasses = null;
+	public $request = null;
+
+	public function afterConstruct() {
+		$this->request = $this->funcs->getApplication()->make('request');
+	}
 
 	/*
 	 *

@@ -9,15 +9,15 @@ use WPSPCORE\Base\BaseInstances;
 class Funcs extends BaseInstances {
 
 	private $routeMapClass;
-	private $appInstanceClass;
+	private $WPSPClass;
 
 	/*
 	 *
 	 */
 
 	public function afterConstruct() {
+		$this->WPSPClass = '\\' . $this->rootNamespace . '\WPSP';
 		$this->routeMapClass = '\\' . $this->rootNamespace . '\app\Instances\Routes\RouteMap';
-		$this->appInstanceClass = '\\' . $this->rootNamespace . '\App';
 	}
 
 	/*
@@ -42,18 +42,18 @@ class Funcs extends BaseInstances {
 	public function getApplication($abstract = null, $parameters = []) {
 		try {
 			if ($abstract) {
-				return $this->getAppInstance()->application()->make($abstract, $parameters);
+				return $this->getWPSP()->getApplication()->make($abstract, $parameters);
 			}
-			return $this->getAppInstance()->application();
+			return $this->getWPSP()->getApplication();
 		}
 		catch (\Throwable $e) {
 			return null;
 		}
 	}
 
-	public function getAppInstance() {
+	public function getWPSP() {
 		try {
-			return $this->appInstanceClass::instance();
+			return $this->WPSPClass::instance();
 		}
 		catch (\Throwable $e) {
 			return null;

@@ -9,7 +9,7 @@ abstract class BaseInstances {
 	use BaseInstancesTrait;
 
 	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
-		$this->beforeBaseInstanceConstruct(
+		$this->baseInstanceConstruct(
 			$mainPath,
 			$rootNamespace,
 			$prefixEnv,

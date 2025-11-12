@@ -5,39 +5,26 @@ namespace WPSPCORE\Traits;
 /**
  * BaseInstancesTrait.
  *
- * @property \WPSPCORE\Funcs|null                                                                      $funcs
- * @property \Illuminate\Http\Request|null $request
- * @property \WPSPCORE\Validation\Validation|null                                                      $validation
- * @property \WPSPCORE\Environment\Environment|null                                                    $environment
- * @property \WPSPCORE\Database\Eloquent|null                                                          $eloquent
- * @property \WPSPCORE\Migration\Migration|null                                                        $migration
- * @property \WPSPCORE\ErrorHandler\Ignition|null                                                      $ignition
+ * @property \WPSPCORE\Funcs|null $funcs
  */
 trait BaseInstancesTrait {
 
 	public $mainPath      = null;
 	public $rootNamespace = null;
 	public $prefixEnv     = null;
-
-	public $funcs         = null;
-	public $request       = null;
-
 	public $extraParams   = [];
 
-	public function beforeBaseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = null) {
-		$this->beforeConstruct();
-		$this->beforeInstanceConstruct();
+	public $funcs         = null;
 
+	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = null) {
+		$this->beforeConstruct();
 		if ($mainPath)      $this->mainPath         = $mainPath;
 		if ($rootNamespace) $this->rootNamespace    = $rootNamespace;
 		if ($prefixEnv)     $this->prefixEnv        = $prefixEnv;
 		if ($extraParams)   $this->extraParams      = $extraParams;
-
 		$this->prepareFuncs();
-		$this->prepareRequest();
-
 		$this->afterConstruct();
-		$this->afterInstanceConstruct();
+		unset($this->extraParams);
 	}
 
 	/*
@@ -46,7 +33,8 @@ trait BaseInstancesTrait {
 
 	public function getQueryStringSlugify($params = []) {
 		// Lấy toàn bộ query string từ URL
-		$queryParams = $this->request->query->all();
+		$request = $this->funcs->getApplication('request');
+		$queryParams = $request->query->all();
 
 		$selectedParts = [];
 
@@ -81,18 +69,20 @@ trait BaseInstancesTrait {
 	private function prepareFuncs() {
 		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
 			if (is_bool($this->extraParams['funcs'])) {
-				$this->funcs = new \WPSPCORE\Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, []);
+				$this->funcs = new \WPSPCORE\Funcs(
+					$this->mainPath,
+					$this->rootNamespace,
+					$this->prefixEnv,
+					$this->extraParams
+				);
 			}
 			else {
 				$this->funcs = $this->extraParams['funcs'];
 			}
 			unset($this->extraParams['funcs']);
 		}
-	}
-
-	private function prepareRequest() {
-		if (isset($this->funcs) && $this->funcs) {
-			$this->request = $this->funcs->getApplication('request');
+		if (!$this->funcs) {
+			unset($this->funcs);
 		}
 	}
 
@@ -118,10 +108,6 @@ trait BaseInstancesTrait {
 
 	public function beforeConstruct() {}
 
-	public function beforeInstanceConstruct() {}
-
 	public function afterConstruct() {}
-
-	public function afterInstanceConstruct() {}
 
 }
