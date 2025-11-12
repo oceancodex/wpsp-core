@@ -275,7 +275,7 @@ trait GroupRoutesTrait {
 	 * Build call params as associative array so Container::call can autowire and inject properly.
 	 */
 	protected function getCallParams($path, $requestPath, $class, $method) {
-		$app = $this->funcs->getApplication() ?? (\Illuminate\Container\Container::getInstance() ?? null);
+		$app = $this->funcs->getApplication() ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
 		if (!$app) {
 			throw new \RuntimeException('Container instance not found when building call params.');
 		}

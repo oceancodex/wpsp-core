@@ -8,11 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 abstract class BaseRoute extends BaseInstances {
 
 	public $initClasses = null;
-	public $request = null;
-
-	public function afterConstruct() {
-		$this->request = $this->funcs->getApplication()->make('request');
-	}
 
 	/*
 	 *
@@ -193,7 +188,7 @@ abstract class BaseRoute extends BaseInstances {
 	public function resolveAndCall($callback, array $routeParams = []) {
 		// 🔹 Lấy container Laravel từ Application hoặc fallback
 		$app = $this->funcs->getApplication();
-		$container = $app ?? (\Illuminate\Container\Container::getInstance() ?? null);
+		$container = $app ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
 
 		if (!$container) {
 			throw new \RuntimeException('Container instance not found.');

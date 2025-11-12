@@ -24,7 +24,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function  = $this->extraParams['callback_function'];
-		$this->screen_options_key = $this->screen_options_key ?: $this->getQueryStringSlugify(['page']) ?? $this->menu_slug;
+		$this->screen_options_key = $this->screen_options_key ?: $this->slugParams(['page']) ?? $this->menu_slug;
 		$this->overrideMenuSlug($this->extraParams['path']);
 		$this->customProperties();
 	}
@@ -71,7 +71,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$callback = function() {
-				$container = $this->funcs->getApplication() ?? (\Illuminate\Container\Container::getInstance() ?? null);
+				$container = $this->funcs->getApplication() ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
 				if (!$container) {
 					// fallback bình thường nếu không có container
 					return $this->{$this->callback_function}();
@@ -111,7 +111,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$callback = function() {
-				$container = $this->funcs->getApplication() ?? (\Illuminate\Container\Container::getInstance() ?? null);
+				$container = $this->funcs->getApplication() ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
 				if (!$container) {
 					return $this->{$this->callback_function}();
 				}

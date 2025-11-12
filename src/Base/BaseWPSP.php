@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\Base;
 
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Bootstrap\LoadConfiguration;
@@ -20,14 +21,17 @@ abstract class BaseWPSP extends BaseInstances {
 
 	public ?Application $application = null;
 
+	/*
+	 *
+	 */
+
 	public function setApplication(string $basePath) {
 		$app = Application::configure($basePath)
 			->withMiddleware(function(Middleware $middleware) {
+				$middleware->append(StartSession::class);
+				$middleware->append(AddQueuedCookiesToResponse::class);
 			})
 			->withExceptions(function(Exceptions $exceptions) {
-			})
-			->withMiddleware(function(Middleware $middleware) {
-				$middleware->append(StartSession::class);
 			})
 			->withProviders()
 			->create();
@@ -36,12 +40,15 @@ abstract class BaseWPSP extends BaseInstances {
 
 		$this->bootstrap();
 		$this->bindings();
-		$this->autoSaveCookie();
+		$this->authSaveCookie();
 
 		$this->application->boot();
 	}
 
-	public function getApplication() {
+	public function getApplication($abstract = null, $parameters = []) {
+		if ($abstract) {
+			return $this->application->make($abstract, $parameters);
+		}
 		return $this->application;
 	}
 
@@ -63,27 +70,36 @@ abstract class BaseWPSP extends BaseInstances {
 	}
 
 	protected function bindings(): void {
+		// Files.
 		$this->application->singleton('files', function() {
 			return new Filesystem();
 		});
-
+		// Request.
 		$this->application->singleton('request', function() {
 			return Request::capture();
 		});
-
+		// Session.
 		$this->application->singleton('session', function($app) {
-			$table      = $this->funcs->_config('session.table');
-			$minutes    = $this->funcs->_config('session.lifetime');
-			$cookieName = $this->funcs->_config('session.cookie');
+			$config = $app['config']->get('session', []);
 
-			// Use database session handler.
-			$connection = $app['db']->connection();
-			$handler    = new DatabaseSessionHandler($connection, $table, $minutes, $app);
+			// Tạo SessionManager trực tiếp (không thông qua $app->make('session'))
+			$managerClass = \Illuminate\Session\SessionManager::class;
 
-			// Create the Store
-			$store = new SessionStore($cookieName, $handler);
+			// Nếu class SessionManager không tồn tại thì có gì đó sai với autoload. Throw để debug.
+			if (! class_exists($managerClass)) {
+				throw new \RuntimeException('SessionManager class not found. Check composer autoload and providers.');
+			}
 
-			// If a session cookie exists from the client, re-use its id so we load the same session
+			/** @var \Illuminate\Session\SessionManager $manager */
+			$manager = new $managerClass($app);
+
+			$driver = $config['driver'] ?? 'database';
+
+			// driver() có thể dùng container internals nhưng không gọi make('session')
+			$store = $manager->driver($driver);
+
+			// Khôi phục session id từ cookie nếu có
+			$cookieName = $config['cookie'] ?? $this->funcs->_getAppShortName() . '-session';
 			if (!empty($_COOKIE[$cookieName])) {
 				try {
 					$store->setId($_COOKIE[$cookieName]);
@@ -92,16 +108,15 @@ abstract class BaseWPSP extends BaseInstances {
 				}
 			}
 
-			// Start the session store (reads payload from handler)
 			try {
 				$store->start();
 			} catch (\Throwable $e) {
-				// If start() fails, we still return the store; operations can continue in-memory.
+				// safe fallback: không crash toàn bộ app
 			}
 
 			return $store;
 		});
-
+		// Session store.
 		$this->application->singleton('session.store', function($app) {
 			return $app['session'];
 		});
@@ -111,29 +126,7 @@ abstract class BaseWPSP extends BaseInstances {
 	 *
 	 */
 
-	protected function viewShare(): void {
-		$view    = $this->application->make('view');
-		$request = $this->application->make('request');
-		$view->share([
-			'wp_user'         => wp_get_current_user(),
-			'current_request' => $request,
-		]);
-	}
-
-	protected function viewCompose(): void {
-		$view = $this->application->make('view');
-		$view->composer('*', function(View $view) {
-			global $notice;
-			$view->with('current_view_name', $view->getName());
-			$view->with('notice', $notice);
-		});
-	}
-
-	/*
-	 *
-	 */
-
-	protected function autoSaveCookie(): void {
+	protected function authSaveCookie(): void {
 		// Ensure the session is saved at the end of the PHP request and the cookie is sent.
 		// WordPress does not run a Laravel kernel terminate phase, so we emulate it here.
 		register_shutdown_function(function() {
@@ -144,6 +137,11 @@ abstract class BaseWPSP extends BaseInstances {
 			try {
 				$session = $this->application['session'];
 				$session->save();
+
+				// nếu headers đã gửi thì không cố setcookie (tránh warning "headers already sent")
+				if (headers_sent($file, $line)) {
+					return;
+				}
 
 				// Prepare cookie parameters from config
 				$cookieName = $this->funcs->_config('session.cookie');
@@ -157,7 +155,7 @@ abstract class BaseWPSP extends BaseInstances {
 				// Set the cookie that will be used by the next request to re-load the session
 				// Note: setcookie ignores same-site on some PHP versions; we include it when possible.
 				if (PHP_VERSION_ID >= 70300) {
-					setcookie($cookieName, $session->getId(), [
+					@setcookie($cookieName, $session->getId(), [
 						'expires'  => time() + $lifetime,
 						'path'     => $path,
 						'domain'   => $domain ?: null,
@@ -167,7 +165,7 @@ abstract class BaseWPSP extends BaseInstances {
 					]);
 				}
 				else {
-					setcookie($cookieName, $session->getId(), time() + $lifetime, $path, $domain, $secure, $httpOnly);
+					@setcookie($cookieName, $session->getId(), time() + $lifetime, $path, $domain, $secure, $httpOnly);
 				}
 			}
 			catch (\Throwable $e) {
@@ -177,10 +175,24 @@ abstract class BaseWPSP extends BaseInstances {
 	}
 
 	protected function normalizeEnvPrefix(): void {
-		$prefix = $this->prefixEnv;
-		foreach ($_ENV as $key => $value) {
+		$prefix = (string)$this->prefixEnv;
+		if ($prefix === '') return;
+
+		$len = strlen($prefix);
+		// iterate keys snapshot to avoid modification-while-iterating issues
+		foreach (array_keys($_ENV) as $key) {
 			if (strpos($key, $prefix) === 0) {
-				$plain = substr($key, strlen($prefix));
+				$plain = substr($key, $len);
+				// guard: avoid empty or same-key loops
+				if ($plain === '' || $plain === $key) {
+					continue;
+				}
+				// also avoid if plain still begins with prefix (prevents repeated stripping)
+				if (strpos($plain, $prefix) === 0) {
+					continue;
+				}
+
+				$value = $_ENV[$key];
 				if (!isset($_ENV[$plain])) $_ENV[$plain] = $value;
 				if (!isset($_SERVER[$plain])) $_SERVER[$plain] = $value;
 				if (getenv($plain) === false) @putenv("$plain=$value");

@@ -60,11 +60,15 @@ class Funcs extends BaseInstances {
 		}
 	}
 
+	public function getWPSPClass() {
+		return $this->WPSPClass;
+	}
+
 	/*
 	 *
 	 */
 
-	public function _getMainPath($path = null) {
+	public function _getMainPath($path = null): string {
 		return rtrim($this->mainPath, '/\\') . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
@@ -80,7 +84,7 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _getBearerToken($request = null) {
+	public function _getBearerToken($request = null): ?string {
 		$request = $request ?? $this->getApplication('request') ?? null;
 
 		// --- Lấy raw header ---
@@ -112,11 +116,11 @@ class Funcs extends BaseInstances {
 		return $this->_env('APP_SHORT_NAME', true);
 	}
 
-	public function _getMainBaseName() {
+	public function _getMainBaseName(): string {
 		return basename($this->_getMainPath());
 	}
 
-	public function _getSitePath($appendPath = null) {
+	public function _getSitePath($appendPath = null): string {
 		if (defined('WP_CONTENT_DIR')) {
 			$path = WP_CONTENT_DIR;
 			$path = preg_replace('/wp-content$/iu', '', $path);
@@ -132,58 +136,58 @@ class Funcs extends BaseInstances {
 		return $path;
 	}
 
-	public function _getMainFilePath() {
+	public function _getMainFilePath(): string {
 		return $this->_getMainPath() . '/main.php';
 	}
 
-	public function _getAppPath($path = null) {
+	public function _getAppPath($path = null): string {
 		return $this->_getMainPath() . '/app' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getControllerPath() {
+	public function _getControllerPath(): string {
 		return $this->_getAppPath() . '/Http/Controllers';
 	}
 
-	public function _getConfigPath() {
+	public function _getConfigPath(): string {
 		return $this->_getMainPath() . '/config';
 	}
 
-	public function _getRoutesPath() {
+	public function _getRoutesPath(): string {
 		return $this->_getMainPath() . '/routes';
 	}
 
-	public function _getResourcesPath($path = null) {
+	public function _getResourcesPath($path = null): string {
 		return $this->_getMainPath() . '/resources' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getStoragePath($path = null) {
+	public function _getStoragePath($path = null): string {
 		return $this->_getMainPath() . '/storage' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getDatabasePath() {
+	public function _getDatabasePath(): string {
 		return $this->_getMainPath() . '/database';
 	}
 
-	public function _getMigrationPath() {
+	public function _getMigrationPath(): string {
 		return $this->_getDatabasePath() . '/migrations';
 	}
 
-	public function _getMainUrl() {
+	public function _getMainUrl(): string {
 		if (!function_exists('plugin_dir_url')) {
 			require($this->_getSitePath() . '/wp-admin/includes/plugin.php');
 		}
 		return rtrim(plugin_dir_url($this->_getMainFilePath()), '/\\');
 	}
 
-	public function _getPublicUrl() {
+	public function _getPublicUrl(): string {
 		return $this->_getMainUrl() . '/public';
 	}
 
-	public function _getPublicPath($path = null) {
+	public function _getPublicPath($path = null): string {
 		return $this->_getMainPath() . '/public' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getPluginData() {
+	public function _getPluginData(): array {
 		if (!function_exists('get_plugin_data')) {
 			require($this->_getSitePath() . '/wp-admin/includes/plugin.php');
 		}
@@ -202,8 +206,8 @@ class Funcs extends BaseInstances {
 		return $this->_getPluginData()['RequiresPHP'];
 	}
 
-	public function _getAllFilesInFolder($path) {
-		$finder = new Finder();
+	public function _getAllFilesInFolder($path): array {
+		$finder = new \Symfony\Component\Finder\Finder();
 		$finder->files()->in($path);
 		foreach ($finder as $file) {
 			$files[] = [
@@ -225,15 +229,15 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _getDBCustomMigrationTablePrefix() {
+	public function _getDBCustomMigrationTablePrefix(): string {
 		return $this->_getDBTablePrefix() . 'cm_';
 	}
 
-	public function _getDBTableName($name) {
+	public function _getDBTableName($name): string {
 		return $this->_getDBTablePrefix() . $name;
 	}
 
-	public function _getDBCustomMigrationTableName($name) {
+	public function _getDBCustomMigrationTableName($name): string {
 		return $this->_getDBTablePrefix() . 'cm_' . $name;
 	}
 
@@ -241,7 +245,7 @@ class Funcs extends BaseInstances {
 		return preg_replace('/^(.*?)' . $targetDir . '(.*?)$/iu', $targetDir . '$2', $path);
 	}
 
-	public function _getAllClassesInDir($namespace = __NAMESPACE__, $path = __DIR__) {
+	public function _getAllClassesInDir($namespace = __NAMESPACE__, $path = __DIR__): array {
 		$finder = new \Symfony\Component\Finder\Finder();
 		$finder->files()->in($path)->name('*.php');
 		foreach ($finder as $file) {
@@ -316,11 +320,11 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _getPluginDirName() {
+	public function _getPluginDirName(): string {
 		return $this->_getMainBaseName();
 	}
 
-	public function _getWPConfig($file = null) {
+	public function _getWPConfig($file = null): array {
 		if (!$file) {
 			$file = $this->_getSitePath() . '/wp-config.php';
 		}
@@ -452,7 +456,7 @@ class Funcs extends BaseInstances {
 
 	}
 
-	public function _asset($path, $secure = null) {
+	public function _asset($path, $secure = null): string {
 		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
 	}
 
@@ -564,7 +568,7 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _response($success = false, $data = [], $message = '') {
+	public function _response($success = false, $data = [], $message = ''): array {
 		return [
 			'success' => $success,
 			'data'    => $data,
@@ -589,39 +593,39 @@ class Funcs extends BaseInstances {
 		return $this->_sanitizeURL($url);
 	}
 
-	public function _nonceName($name = null) {
+	public function _nonceName($name = null): string {
 		return $this->_env('APP_SHORT_NAME', true) . ($name ? '_' . $name : '') . '_nonce';
 	}
 
-	public function _isDebug() {
+	public function _isDebug(): bool {
 		return $this->_env('APP_DEBUG', true) == 'true';
 	}
 
-	public function _isWPDebug() {
+	public function _isWPDebug(): bool {
 		return defined('WP_DEBUG') && WP_DEBUG;
 	}
 
-	public function _isWPDebugLog() {
+	public function _isWPDebugLog(): bool {
 		return defined('WP_DEBUG_LOG') && WP_DEBUG_LOG;
 	}
 
-	public function _isWPDebugDisplay() {
+	public function _isWPDebugDisplay(): bool {
 		return defined('WP_DEBUG_DISPLAY') && WP_DEBUG_DISPLAY;
 	}
 
-	public function _isDev() {
+	public function _isDev(): bool {
 		return $this->_env('APP_ENV', true) == 'dev';
 	}
 
-	public function _isLocal() {
+	public function _isLocal(): bool {
 		return $this->_env('APP_ENV', true) == 'local';
 	}
 
-	public function _isProduction() {
+	public function _isProduction(): bool {
 		return $this->_env('APP_ENV', true) == 'production';
 	}
 
-	public function _wantsJson() {
+	public function _wantsJson(): bool {
 		// WordPress AJAX
 		if (function_exists('wp_doing_ajax') && wp_doing_ajax()) {
 			return true;
@@ -648,11 +652,11 @@ class Funcs extends BaseInstances {
 		return false;
 	}
 
-	public function _expectsJson() {
+	public function _expectsJson(): bool {
 		return $this->_wantsJson();
 	}
 
-	public function _escapeRegex($pattern, $delimiter = '/') {
+	public function _escapeRegex($pattern, $delimiter = '/'): string {
 		$result = '';
 		$depth  = 0;
 		$buffer = '';
@@ -742,7 +746,7 @@ class Funcs extends BaseInstances {
 		return preg_replace('/(\?|\&)+$/', '', $url);
 	}
 
-	public function _commentTokens() {
+	public function _commentTokens(): array {
 		$commentTokens = [T_COMMENT];
 
 		if (defined('T_DOC_COMMENT')) {
@@ -759,13 +763,13 @@ class Funcs extends BaseInstances {
 		return str_replace('\\', '/', $path);
 	}
 
-	public function _trailingslashit($path) {
+	public function _trailingslashit($path): string {
 		$path = str_replace('\\', '/', $path);
 		$path = rtrim($path, '/\\');
 		return $path . '/';
 	}
 
-	public function _untrailingslashit($path) {
+	public function _untrailingslashit($path): string {
 		$path = str_replace('\\', '/', $path);
 		return rtrim($path, '/\\');
 	}
@@ -854,7 +858,7 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _prefixArrayKeys($array, $prefix = null) {
+	public function _prefixArrayKeys($array, $prefix = null): array {
 		$results = [];
 		foreach ($array as $key => $value) {
 			$results[$prefix . $key] = $value;
@@ -862,7 +866,7 @@ class Funcs extends BaseInstances {
 		return $results;
 	}
 
-	public function _removePrefixArrayKeys($array, $prefix = null) {
+	public function _removePrefixArrayKeys($array, $prefix = null): array {
 		$results = [];
 		foreach ($array as $key => $value) {
 			$key           = preg_replace('/' . $prefix . '/iu', '', $key);
@@ -871,11 +875,11 @@ class Funcs extends BaseInstances {
 		return $results;
 	}
 
-	public function _folderExists($path = null) {
+	public function _folderExists($path = null): bool {
 		return is_dir($path);
 	}
 
-	public function _vendorFolderExists($package = null) {
+	public function _vendorFolderExists($package = null): bool {
 		$vendorPath = $this->_getMainPath('/vendor');
 		$package = trim($package, '/');
 		return $this->_folderExists($vendorPath . '/' . $package);
