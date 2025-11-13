@@ -94,7 +94,11 @@ abstract class BaseWPSP extends BaseInstances {
 	}
 
 	public function restoreSessionsForWordPress(): void {
-		$middleware = [EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSessionIfAuthenticated::class];
+		$middleware = [
+			EncryptCookies::class,
+			AddQueuedCookiesToResponse::class,
+			StartSessionIfAuthenticated::class
+		];
 		$pipeline = new \Illuminate\Pipeline\Pipeline($this->application);
 		$pipeline->send($this->application['request'])
 			->through($middleware)
