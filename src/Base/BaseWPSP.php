@@ -30,12 +30,8 @@ abstract class BaseWPSP extends BaseInstances {
 				commands: $basePath . '/routes/console.php',
 				health  : '/up',
 			)
-			->withMiddleware(function(Middleware $middleware): void {
-				$middleware->append(StartSession::class);
-			})
-			->withExceptions(function(Exceptions $exceptions): void {
-				//
-			})->create();
+			->withMiddleware(function(Middleware $middleware): void {})
+			->withExceptions(function(Exceptions $exceptions): void {})->create();
 
 		$this->bootstrap();
 		$this->bindings();
@@ -74,33 +70,35 @@ abstract class BaseWPSP extends BaseInstances {
 			return new Filesystem();
 		});
 		// Request.
-		$this->application->singleton('request', function() {
-			return Request::capture();
-		});
+		$this->application->instance('request', \Illuminate\Http\Request::capture());
 		// Session.
-		$this->application->register(\Illuminate\Session\SessionServiceProvider::class);
+//		$this->application->register(\Illuminate\Session\SessionServiceProvider::class);
 	}
 
 	protected function handleRequest(): void {
-		add_action('parse_request', function(\WP $wp) {
+//		add_action('parse_request', function() {
 			$ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
 			$isWpInternal = (stripos($ua, 'WordPress') !== false && (!isset($_GET['doing_wp_cron']) || php_sapi_name() !== 'cli-server'));
 
+			$request = $this->application->make('request');
+
 			// Trường hợp WordPress tự gọi wp-cron → KHÔNG chạy Kernel, KHÔNG tạo session
 			if ($isWpInternal) {
-				$this->application->instance('request', \Illuminate\Http\Request::capture());
 				return;
 			}
 
-			// Trường hợp người dùng TRUY CẬP TRỰC TIẾP wp-cron từ trình duyệt
-			$request = \Illuminate\Http\Request::capture();
-			$this->application->instance('request', $request);
-
+			$uri = $request->getRequestUri();
 			$kernel   = $this->application->make(\Illuminate\Contracts\Http\Kernel::class);
 			$response = $kernel->handle($request);
-			$response->send();
+
+			if (str_starts_with($uri, '/wpsp/')) {
+				$response->send();
+				$kernel->terminate($request, $response);
+				exit;
+			}
+
 			$kernel->terminate($request, $response);
-		}, 0);
+//		}, 0);
 	}
 
 	/*
