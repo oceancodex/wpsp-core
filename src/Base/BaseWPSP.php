@@ -14,6 +14,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use WPSPCORE\Http\Middleware\StartSessionIfAuthenticated;
 
 abstract class BaseWPSP extends BaseInstances {
@@ -78,79 +79,33 @@ abstract class BaseWPSP extends BaseInstances {
 		$response = $kernel->handle($request);
 
 		$uri = $request->getRequestUri();
-		if (str_starts_with($uri, '/web/')) {
+		if (strpos($uri, '/web/') === 0) {
 			$response->send();
 			$kernel->terminate($request, $response);
 			exit;
 		}
-		$this->response = $response;
+
+		$this->response = $response ?? new Response();
+		$this->response->setStatusCode(200);
+
+		$kernel->terminate($request, $this->response);
+
+		$this->restoreSessionsForWordPress();
 	}
 
 	public function restoreSessionsForWordPress(): void {
-		var_dump(defined('WPSP_IS_REWRITE_FRONT_PAGE'));
-		if (
-			is_admin()
-			|| (defined('REST_REQUEST') && REST_REQUEST === true)
-			|| (defined('DOING_AJAX') && DOING_AJAX === true)
-			|| (defined('DOING_CRON') && DOING_CRON === true)
-			|| is_front_page()
-			|| is_page()
-		) {
-			error_log($this->application['request']->getRequestUri());
-			$middleware = [EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSessionIfAuthenticated::class];
-			$pipeline = new \Illuminate\Pipeline\Pipeline($this->application);
-			$pipeline->send($this->application['request'])
-				->through($middleware)
-				->then(function() {
-					return $this->response;
-				});
-		}
+		$middleware = [EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSessionIfAuthenticated::class];
+		$pipeline = new \Illuminate\Pipeline\Pipeline($this->application);
+		$pipeline->send($this->application['request'])
+			->through($middleware)
+			->then(function() {
+				return $this->response;
+			});
 	}
 
 	/*
 	 *
 	 */
-
-	protected function autoSaveCookie(): void {
-		// Ensure the session is saved at the end of the PHP request and the cookie is sent.
-		// WordPress does not run a Laravel kernel terminate phase, so we emulate it here.
-		if (!$this->application->bound('session')) {
-			return;
-		}
-
-//		try {
-			$session = $this->application['session'];
-//			$session->save();
-
-			// Prepare cookie parameters from config
-			$cookieName = $this->funcs->_config('session.cookie');
-			$lifetime   = (int)$this->funcs->_config('session.lifetime', 120) * 60;
-			$path       = $this->funcs->_config('session.path');
-			$domain     = $this->funcs->_config('session.domain');
-			$secure     = (bool)$this->funcs->_config('session.secure') || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
-			$httpOnly   = (bool)$this->funcs->_config('session.http_only');
-			$sameSite   = $this->funcs->_config('session.same_site');
-
-			// Set the cookie that will be used by the next request to re-load the session
-			// Note: setcookie ignores same-site on some PHP versions; we include it when possible.
-			if (PHP_VERSION_ID >= 70300) {
-				setcookie($cookieName, $session->getId(), [
-					'expires'  => time() + $lifetime,
-					'path'     => $path,
-					'domain'   => $domain ?: null,
-					'secure'   => $secure,
-					'httponly' => $httpOnly,
-					'samesite' => $sameSite,
-				]);
-			}
-			else {
-				setcookie($cookieName, $session->getId(), time() + $lifetime, $path, $domain, $secure, $httpOnly);
-			}
-//		}
-//		catch (\Throwable $e) {
-//			// Do not let shutdown errors break page rendering
-//		}
-	}
 
 	protected function normalizeEnvPrefix(): void {
 		$prefix = (string)$this->prefixEnv;
