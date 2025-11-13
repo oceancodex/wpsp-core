@@ -12,10 +12,8 @@ use Illuminate\Foundation\Bootstrap\RegisterProviders;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Illuminate\Session\DatabaseSessionHandler;
+use Illuminate\Routing\Router;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Session\Store as SessionStore;
-use Illuminate\View\View;
 
 abstract class BaseWPSP extends BaseInstances {
 
@@ -26,24 +24,26 @@ abstract class BaseWPSP extends BaseInstances {
 	 */
 
 	public function setApplication(string $basePath) {
-		$app = Application::configure($basePath)
-			->withMiddleware(function(Middleware $middleware) {
-//				$middleware->append(StartSession::class);
-				$middleware->append(AddQueuedCookiesToResponse::class);
+		$this->application = Application::configure($basePath)
+			->withRouting(
+				web     : $basePath . '/routes/web.php',
+				commands: $basePath . '/routes/console.php',
+				health  : '/up',
+			)
+			->withMiddleware(function(Middleware $middleware): void {
+				$middleware->append(\Illuminate\Session\Middleware\StartSession::class);
 			})
-			->withExceptions(function(Exceptions $exceptions) {
-			})
-			->withProviders()
-			->create();
-
-		$this->application = $app;
+			->withExceptions(function(Exceptions $exceptions): void {
+				//
+			})->create();
 
 		$this->bootstrap();
 		$this->bindings();
+		$this->handleRequest();
 
 		$this->application->boot();
 
-		$this->authSaveCookie();
+//		$this->authSaveCookie();
 	}
 
 	public function getApplication($abstract = null, $parameters = []) {
@@ -58,16 +58,14 @@ abstract class BaseWPSP extends BaseInstances {
 	 */
 
 	protected function bootstrap() {
-		$application = $this->getApplication();
-
 		// Load environment variables.
-		(new LoadEnvironmentVariables)->bootstrap($application);
+		(new LoadEnvironmentVariables)->bootstrap($this->application);
 		$this->normalizeEnvPrefix();
 
 		// Load config & facades.
-		(new LoadConfiguration)->bootstrap($application);
-		(new RegisterFacades)->bootstrap($application);
-		(new RegisterProviders)->bootstrap($application);
+		(new LoadConfiguration)->bootstrap($this->application);
+		(new RegisterFacades)->bootstrap($this->application);
+		(new RegisterProviders)->bootstrap($this->application);
 	}
 
 	protected function bindings(): void {
@@ -80,44 +78,29 @@ abstract class BaseWPSP extends BaseInstances {
 			return Request::capture();
 		});
 		// Session.
-		$this->application->singleton('session', function($app) {
-			$config = $app['config']->get('session', []);
+		$this->application->register(\Illuminate\Session\SessionServiceProvider::class);
+	}
 
-			// Tạo SessionManager trực tiếp (không thông qua $app->make('session'))
-			$managerClass = \Illuminate\Session\SessionManager::class;
+	protected function handleRequest(): void {
+//		add_action('parse_request', function(\WP $wp) {
+			$ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+			$isWpInternal = (stripos($ua, 'WordPress') !== false && (!isset($_GET['doing_wp_cron']) || php_sapi_name() !== 'cli-server'));
 
-			// Nếu class SessionManager không tồn tại thì có gì đó sai với autoload. Throw để debug.
-			if (! class_exists($managerClass)) {
-				throw new \RuntimeException('SessionManager class not found. Check composer autoload and providers.');
+			// Trường hợp WordPress tự gọi wp-cron → KHÔNG chạy Kernel, KHÔNG tạo session
+			if ($isWpInternal) {
+				$this->application->instance('request', \Illuminate\Http\Request::capture());
+				return;
 			}
 
-			/** @var \Illuminate\Session\SessionManager $manager */
-			$manager = new $managerClass($app);
+			// Trường hợp người dùng TRUY CẬP TRỰC TIẾP wp-cron từ trình duyệt
+			$request = \Illuminate\Http\Request::capture();
+			$this->application->instance('request', $request);
 
-			$driver = $config['driver'] ?? 'database';
-
-			// driver() có thể dùng container internals nhưng không gọi make('session')
-			$store = $manager->driver($driver);
-
-			// Khôi phục session id từ cookie nếu có
-			$cookieName = $config['cookie'] ?? $this->funcs->_getAppShortName() . '-session';
-			if (!empty($_COOKIE[$cookieName])) {
-				try {
-					$store->setId($_COOKIE[$cookieName]);
-				} catch (\Throwable $e) {
-					// ignore invalid id
-				}
-			}
-
-			// Không gọi start() ở đây nữa - chỉ khởi tạo store mà không hydrate data
-//			$store->start();
-
-			return $store;
-		});
-		// Session store.
-		$this->application->singleton('session.store', function($app) {
-			return $app['session'];
-		});
+			$kernel   = $this->application->make(\Illuminate\Contracts\Http\Kernel::class);
+			$response = $kernel->handle($request);
+			$response->send();
+			$kernel->terminate($request, $response);
+//		}, 0);
 	}
 
 	/*
@@ -125,56 +108,78 @@ abstract class BaseWPSP extends BaseInstances {
 	 */
 
 	protected function authSaveCookie(): void {
-		// Ensure the session is saved at the end of the PHP request and the cookie is sent.
-		// WordPress does not run a Laravel kernel terminate phase, so we emulate it here.
 		register_shutdown_function(function() {
-			if (!$this->application->bound('session')) {
+
+			// 1. Không xử lý session cho các request nội bộ của WordPress
+			$ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+			if (stripos($ua, 'WordPress') !== false && !isset($_GET['doing_wp_cron'])) {
+				return; // Không save session rác
+			}
+
+			// 2. Đảm bảo session tồn tại
+			if (!$this->application || !$this->application->bound('session')) {
 				return;
 			}
 
 			try {
+				/** @var \Illuminate\Session\Store $session */
 				$session = $this->application['session'];
 
-				// Chỉ lưu session nếu session đã được khởi động (có data hoặc được mark là active)
-				// Kiểm tra xem session có data hoặc session ID đã được set không
+				// 3. Nếu session không start và rỗng thì không cần save
 				if (!$session->isStarted() && empty($session->all())) {
 					return;
 				}
 
+				// 4. Không ghi lại session nếu payload không đổi
+				$original = $session->getHandler()->read($session->getId());
+				$payload  = $session->all();
+
+				if ($original) {
+					$decoded = @unserialize($original);
+
+					if (is_array($decoded) && isset($decoded['data'])) {
+						if (serialize($payload) === serialize($decoded['data'])) {
+							// payload không đổi → KHÔNG cần save
+							goto set_cookie_only;
+						}
+					}
+				}
+
+				// 5. Save session nếu có thay đổi
 				$session->save();
 
-				// nếu headers đã gửi thì không cố setcookie (tránh warning "headers already sent")
-				if (headers_sent($file, $line)) {
+				set_cookie_only:
+
+				// 6. Headers đã gửi → không set cookie nữa
+				if (headers_sent()) {
 					return;
 				}
 
-				// Prepare cookie parameters from config
-				$cookieName = $this->funcs->_config('session.cookie');
-				$lifetime   = (int)$this->funcs->_config('session.lifetime', 120) * 60;
-				$path       = $this->funcs->_config('session.path');
-				$domain     = $this->funcs->_config('session.domain');
-				$secure     = (bool)$this->funcs->_config('session.secure') || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
-				$httpOnly   = (bool)$this->funcs->_config('session.http_only');
-				$sameSite   = $this->funcs->_config('session.same_site');
+				// 7. Lấy config chuẩn từ Laravel
+				$config     = $this->application['config']->get('session', []);
+				$cookieName = $config['cookie'] ?? $this->funcs->_getAppShortName() . '-session';
+				$lifetime   = (int)($config['lifetime'] ?? 120) * 60;
+				$path       = $config['path'] ?? '/';
+				$domain     = $config['domain'] ?: null;
+				$secure     = $config['secure'] ?? (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+				$httpOnly   = $config['http_only'] ?? true;
+				$sameSite   = $config['same_site'] ?? 'Lax';
 
-				// Set the cookie that will be used by the next request to re-load the session
-				// Note: setcookie ignores same-site on some PHP versions; we include it when possible.
-				if (PHP_VERSION_ID >= 70300) {
-					@setcookie($cookieName, $session->getId(), [
-						'expires'  => time() + $lifetime,
-						'path'     => $path,
-						'domain'   => $domain ?: null,
-						'secure'   => $secure,
-						'httponly' => $httpOnly,
-						'samesite' => $sameSite,
-					]);
-				}
-				else {
-					@setcookie($cookieName, $session->getId(), time() + $lifetime, $path, $domain, $secure, $httpOnly);
-				}
-			}
-			catch (\Throwable $e) {
-				// Do not let shutdown errors break page rendering
+				$sessionId = $session->getId();
+				if (!$sessionId) return;
+
+				// 8. Set cookie chuẩn theo PHP 7.3+
+				@setcookie($cookieName, $sessionId, [
+					'expires'  => time() + $lifetime,
+					'path'     => $path,
+					'domain'   => $domain,
+					'secure'   => (bool)$secure,
+					'httponly' => (bool)$httpOnly,
+					'samesite' => $sameSite,
+				]);
+
+			} catch (\Throwable $e) {
+				// Im lặng: không được để crash trong shutdown
 			}
 		});
 	}
