@@ -493,14 +493,40 @@ class Funcs extends BaseInstances {
 							unset($args[$paramName]); // Đã xử lý rồi thì bỏ đi
 						}
 					}
+				} else {
+					// Nếu không có group tên -> match lần lượt group không tên ()
+					if (preg_match_all('/\(([^?][^)]+)\)/', $routeFromMap, $unnamedGroups)) {
+						$i = 0;
+						foreach ($unnamedGroups[0] as $groupPattern) {
+							if (isset($args[$i])) {
+								$routeFromMap = preg_replace(
+									'/' . preg_quote($groupPattern, '/') . '/',
+									rawurlencode($args[$i]),
+									$routeFromMap,
+									1
+								);
+							}
+							$i++;
+						}
+						$args = array_slice($args, $i); // Bỏ các args đã thay
+					}
 				}
 
 				// Nếu còn args chưa mapping vào route thì nối query string như cũ
 				if (!empty($args)) {
+					$routeFromMap = add_query_arg($args, $routeFromMap);
 					$routeFromMap = add_query_arg($args, rawurlencode($routeFromMap));
 					$routeFromMap = rawurldecode($routeFromMap);
 				}
 			}
+
+			// 🧹 Làm sạch regex pattern thừa
+			$routeFromMap = preg_replace([
+				'/\^\//',      // bỏ ^/
+				'/\/?\$$/',    // bỏ /?$
+				'/\$$/',       // bỏ $
+			], '', $routeFromMap);
+			$routeFromMap = preg_replace('/\\\\\//', '/', $routeFromMap);
 
 			if ($buildURL || (is_bool($args) && $args)) {
 				switch ($routeClass) {
@@ -513,10 +539,16 @@ class Funcs extends BaseInstances {
 					case 'AdminPages':
 						$routeFromMap = $this->_sanitizeURL(admin_url('admin.php?page=' . $routeFromMap));
 						break;
+					case 'RewriteFrontPages':
+						$routeFromMap = $this->_sanitizeURL(home_url($routeFromMap));
+						break;
 					default:
 				}
 			}
 		}
+
+		// Bỏ dấu / dư đầu-cuối
+		$routeFromMap = trim($routeFromMap, '/');
 
 		return $routeFromMap;
 	}

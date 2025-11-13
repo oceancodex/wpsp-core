@@ -28,7 +28,7 @@ abstract class BaseWPSP extends BaseInstances {
 	public function setApplication(string $basePath) {
 		$app = Application::configure($basePath)
 			->withMiddleware(function(Middleware $middleware) {
-				$middleware->append(StartSession::class);
+//				$middleware->append(StartSession::class);
 				$middleware->append(AddQueuedCookiesToResponse::class);
 			})
 			->withExceptions(function(Exceptions $exceptions) {
@@ -42,6 +42,8 @@ abstract class BaseWPSP extends BaseInstances {
 		$this->bindings();
 
 		$this->application->boot();
+
+		$this->authSaveCookie();
 	}
 
 	public function getApplication($abstract = null, $parameters = []) {
@@ -107,17 +109,73 @@ abstract class BaseWPSP extends BaseInstances {
 				}
 			}
 
-			try {
-				$store->start();
-			} catch (\Throwable $e) {
-				// safe fallback: không crash toàn bộ app
-			}
+			// Không gọi start() ở đây nữa - chỉ khởi tạo store mà không hydrate data
+//			$store->start();
 
 			return $store;
 		});
 		// Session store.
 		$this->application->singleton('session.store', function($app) {
 			return $app['session'];
+		});
+	}
+
+	/*
+	 *
+	 */
+
+	protected function authSaveCookie(): void {
+		// Ensure the session is saved at the end of the PHP request and the cookie is sent.
+		// WordPress does not run a Laravel kernel terminate phase, so we emulate it here.
+		register_shutdown_function(function() {
+			if (!$this->application->bound('session')) {
+				return;
+			}
+
+			try {
+				$session = $this->application['session'];
+
+				// Chỉ lưu session nếu session đã được khởi động (có data hoặc được mark là active)
+				// Kiểm tra xem session có data hoặc session ID đã được set không
+				if (!$session->isStarted() && empty($session->all())) {
+					return;
+				}
+
+				$session->save();
+
+				// nếu headers đã gửi thì không cố setcookie (tránh warning "headers already sent")
+				if (headers_sent($file, $line)) {
+					return;
+				}
+
+				// Prepare cookie parameters from config
+				$cookieName = $this->funcs->_config('session.cookie');
+				$lifetime   = (int)$this->funcs->_config('session.lifetime', 120) * 60;
+				$path       = $this->funcs->_config('session.path');
+				$domain     = $this->funcs->_config('session.domain');
+				$secure     = (bool)$this->funcs->_config('session.secure') || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+				$httpOnly   = (bool)$this->funcs->_config('session.http_only');
+				$sameSite   = $this->funcs->_config('session.same_site');
+
+				// Set the cookie that will be used by the next request to re-load the session
+				// Note: setcookie ignores same-site on some PHP versions; we include it when possible.
+				if (PHP_VERSION_ID >= 70300) {
+					@setcookie($cookieName, $session->getId(), [
+						'expires'  => time() + $lifetime,
+						'path'     => $path,
+						'domain'   => $domain ?: null,
+						'secure'   => $secure,
+						'httponly' => $httpOnly,
+						'samesite' => $sameSite,
+					]);
+				}
+				else {
+					@setcookie($cookieName, $session->getId(), time() + $lifetime, $path, $domain, $secure, $httpOnly);
+				}
+			}
+			catch (\Throwable $e) {
+				// Do not let shutdown errors break page rendering
+			}
 		});
 	}
 
