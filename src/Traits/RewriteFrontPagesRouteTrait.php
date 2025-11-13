@@ -70,6 +70,7 @@ trait RewriteFrontPagesRouteTrait {
 			&& $this->request->isMethod('GET')
 			&& $this->isPassedMiddleware($allMiddlewares, $this->request)
 		) {
+			$this->defineMark('REWRITE_FRONT_PAGE');
 			$constructParams = [
 				[
 					'path'              => $fullPath,
@@ -134,6 +135,7 @@ trait RewriteFrontPagesRouteTrait {
 			preg_match('/' . $fullPath . '/iu', $requestPath)
 			&& $this->isPassedMiddleware($allMiddlewares, $this->request)
 		) {
+			$this->defineMark('REWRITE_FRONT_PAGE');
 			$constructParams = [
 				[
 					'path'              => $fullPath,

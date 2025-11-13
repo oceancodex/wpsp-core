@@ -229,6 +229,12 @@ abstract class BaseRoute extends BaseInstances {
 		return $container->call([$instance, $method], $routeParams);
 	}
 
+	public function defineMark($name) {
+		$prefix = $this->funcs->_getRootNamespace();
+		$markStr = $prefix . '_IS_' . strtoupper($name);
+		return !defined($markStr) && define($markStr, true);
+	}
+
 
 	/*
 	 *
