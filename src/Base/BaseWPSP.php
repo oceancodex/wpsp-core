@@ -12,7 +12,7 @@ use Illuminate\Foundation\Bootstrap\RegisterProviders;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Router;
+use Illuminate\Http\Response;
 use Illuminate\Session\Middleware\StartSession;
 
 abstract class BaseWPSP extends BaseInstances {
@@ -31,7 +31,7 @@ abstract class BaseWPSP extends BaseInstances {
 				health  : '/up',
 			)
 			->withMiddleware(function(Middleware $middleware): void {
-				$middleware->append(\Illuminate\Session\Middleware\StartSession::class);
+				$middleware->append(StartSession::class);
 			})
 			->withExceptions(function(Exceptions $exceptions): void {
 				//
@@ -82,7 +82,7 @@ abstract class BaseWPSP extends BaseInstances {
 	}
 
 	protected function handleRequest(): void {
-//		add_action('parse_request', function(\WP $wp) {
+		add_action('parse_request', function(\WP $wp) {
 			$ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
 			$isWpInternal = (stripos($ua, 'WordPress') !== false && (!isset($_GET['doing_wp_cron']) || php_sapi_name() !== 'cli-server'));
 
@@ -100,7 +100,7 @@ abstract class BaseWPSP extends BaseInstances {
 			$response = $kernel->handle($request);
 			$response->send();
 			$kernel->terminate($request, $response);
-//		}, 0);
+		}, 0);
 	}
 
 	/*
