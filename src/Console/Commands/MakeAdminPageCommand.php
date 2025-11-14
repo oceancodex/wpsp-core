@@ -2,153 +2,113 @@
 
 namespace WPSPCORE\Console\Commands;
 
-use WPSPCORE\FileSystem\FileSystem;
+use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Question\Question;
-use WPSPCORE\Console\Traits\CommandsTrait;
+use Illuminate\Support\Facades\File;
 
 class MakeAdminPageCommand extends Command {
 
-	use CommandsTrait;
+	protected $signature = 'make:admin-page
+        {path? : The path of the admin page}
+        {--create-view : Create view files for this admin page}';
 
-	protected function configure() {
-		$this
-			->setName('make:admin-page')
-			->setDescription('Create a new admin page.                  | Eg: bin/wpsp make:admin-page custom-admin-page --create-view')
-			->setHelp('This command allows you to create an admin page.')
-			->addArgument('path', InputArgument::OPTIONAL, 'The path of the admin page.')
-			->addOption('create-view', 'create-view', InputOption::VALUE_NONE, 'Create view files for this admin page or not?');
-	}
+	protected $description = 'Create a new admin page. Example: php artisan make:admin-page custom-admin-page --create-view';
 
-	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$path = $input->getArgument('path');
+	public function handle(): void {
+		$path = $this->argument('path');
 
-		// If path is empty, ask questions.
-		$helper = $this->getHelper('question');
+		// Ask for missing path
 		if (!$path) {
-			$pathQuestion = new Question('Please enter the path of the admin page: ');
-			$path         = $helper->ask($input, $output, $pathQuestion);
+			$path = $this->ask('Please enter the path of the admin page');
 
 			if (empty($path)) {
-				$this->writeln($output, 'Missing path for the admin page. Please try again.');
-				return Command::INVALID;
+				$this->error('Missing path for the admin page. Please try again.');
 			}
 
-			$createViewQuestion = new ConfirmationQuestion('Do you want to create view files for this admin page? [y/N]: ', false);
-			$createView         = $helper->ask($input, $output, $createViewQuestion);
+			$createView = $this->confirm('Do you want to create view files for this admin page?', false);
+		}
+		else {
+			$createView = $this->option('create-view');
 		}
 
-		// Define variables.
+		// Base variables
 		$pathSlugify = Str::slug($path);
 		$name        = $path;
 		$nameSlugify = Str::slug($name, '_');
-		$createView  = $createView ?? $input->getOption('create-view');
 
-		// Check exist.
-		$exist = FileSystem::exists($this->mainPath . '/app/Components/AdminPages/' . $nameSlugify . '.php');
-		$exist = $exist || FileSystem::exists($this->mainPath . '/resources/views/modules/admin-pages/' . $path);
-		if ($exist) {
-			$this->writeln($output, '[ERROR] Admin page: "' . $path . '" already exists! Please try again.');
-			return Command::FAILURE;
+		// Base paths
+		$mainPath       = base_path(); // hoặc thay bằng $this->mainPath nếu bạn có trong hệ thống
+		$adminClassPath = $mainPath . '/app/Components/AdminPages/' . $nameSlugify . '.php';
+		$viewDirPath    = $mainPath . '/resources/views/modules/admin-pages/' . $path;
+
+		// Check exist
+		if (File::exists($adminClassPath) || File::exists($viewDirPath)) {
+			$this->error('[ERROR] Admin page "' . $path . '" already exists!');
 		}
 
-		// Create class file.
+		// Load stub
 		if ($createView) {
-			$content = FileSystem::get(__DIR__ . '/../Stubs/AdminPages/adminpage-view.stub');
+			$content = File::get(__DIR__ . '/../Stubs/AdminPages/adminpage-view.stub');
 		}
 		else {
-			$content = FileSystem::get(__DIR__ . '/../Stubs/AdminPages/adminpage.stub');
+			$content = File::get(__DIR__ . '/../Stubs/AdminPages/adminpage.stub');
 		}
-		$content = str_replace('{{ className }}', $nameSlugify, $content);
-		$content = str_replace('{{ name }}', $name, $content);
-		$content = str_replace('{{ name_slugify }}', $nameSlugify, $content);
-		$content = str_replace('{{ path }}', $path, $content);
-		$content = str_replace('{{ path_slugify }}', $pathSlugify, $content);
-		$content = $this->replaceNamespaces($content);
-		FileSystem::put($this->mainPath . '/app/Components/AdminPages/' . $nameSlugify . '.php', $content);
 
-		// Create view files.
+		// Replace placeholders
+		$content = str_replace(
+			['{{ className }}', '{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
+			[$nameSlugify, $name, $nameSlugify, $path, $pathSlugify],
+			$content
+		);
+
+		// Ensure directory exists
+		File::ensureDirectoryExists(dirname($adminClassPath));
+
+		// Write class file
+		File::put($adminClassPath, $content);
+
+		// Handle view generation
 		if ($createView) {
 			$bladeExt    = class_exists('\WPSPCORE\View\Blade') ? '.blade.php' : '.php';
 			$nonBladeSep = class_exists('\WPSPCORE\View\Blade') ? '' : '/non-blade';
 
-			// Create view directory.
-			FileSystem::makeDirectory($this->mainPath . '/resources/views/modules/admin-pages/' . $path);
+			File::ensureDirectoryExists($viewDirPath);
 
-			// Create main view file.
-			$view = FileSystem::get(__DIR__ . '/../Views/AdminPages'.$nonBladeSep.'/adminpage.view');
-			$view = str_replace('{{ name }}', $name, $view);
-			$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
-			$view = str_replace('{{ path }}', $path, $view);
-			$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
-			FileSystem::put($this->mainPath . '/resources/views/modules/admin-pages/' . $path . '/main' . $bladeExt, $view);
+			$viewFiles = [
+				'main'       => 'adminpage.view',
+				'dashboard'  => 'dashboard.view',
+				'tab-1'      => 'tab-1.view',
+				'navigation' => 'navigation.view',
+			];
 
-			// Create dashboard view file.
-			$view = FileSystem::get(__DIR__ . '/../Views/AdminPages'.$nonBladeSep.'/dashboard.view');
-			$view = str_replace('{{ name }}', $name, $view);
-			$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
-			$view = str_replace('{{ path }}', $path, $view);
-			$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
-			FileSystem::put($this->mainPath . '/resources/views/modules/admin-pages/' . $path . '/dashboard' . $bladeExt, $view);
+			foreach ($viewFiles as $filename => $stub) {
+				$view = File::get(__DIR__ . '/../Views/AdminPages' . $nonBladeSep . '/' . $stub);
 
-			// Create "Tab 1" view file.
-			$view = FileSystem::get(__DIR__ . '/../Views/AdminPages'.$nonBladeSep.'/tab-1.view');
-			$view = str_replace('{{ name }}', $name, $view);
-			$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
-			$view = str_replace('{{ path }}', $path, $view);
-			$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
-			FileSystem::put($this->mainPath . '/resources/views/modules/admin-pages/' . $path . '/tab-1' . $bladeExt, $view);
+				$view = str_replace(
+					['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
+					[$name, $nameSlugify, $path, $pathSlugify],
+					$view
+				);
 
-			// Create navigation view file.
-			$view = FileSystem::get(__DIR__ . '/../Views/AdminPages'.$nonBladeSep.'/navigation.view');
-			$view = str_replace('{{ name }}', $name, $view);
-			$view = str_replace('{{ name_slugify }}', $nameSlugify, $view);
-			$view = str_replace('{{ path }}', $path, $view);
-			$view = str_replace('{{ path_slugify }}', $pathSlugify, $view);
-			FileSystem::put($this->mainPath . '/resources/views/modules/admin-pages/' . $path . '/navigation' . $bladeExt, $view);
+				File::put($viewDirPath . "/{$filename}{$bladeExt}", $view);
+			}
 		}
 
-		// Prepare new line for find function.
-		$func = FileSystem::get(__DIR__ . '/../Funcs/AdminPages/adminpage.func');
-		$func = str_replace('{{ name }}', $name, $func);
-		$func = str_replace('{{ name_slugify }}', $nameSlugify, $func);
-		$func = str_replace('{{ path }}', $path, $func);
-		$func = str_replace('{{ path_slugify }}', $pathSlugify, $func);
+		// Add class to routes if needed
+		$func = File::get(__DIR__ . '/../Funcs/AdminPages/adminpage.func');
+		$func = str_replace(['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
+			[$name, $nameSlugify, $path, $pathSlugify],
+			$func);
 
-		// Prepare new line for use class.
-		$use = FileSystem::get(__DIR__ . '/../Uses/AdminPages/adminpage.use');
-		$use = str_replace('{{ name }}', $name, $use);
-		$use = str_replace('{{ name_slugify }}', $nameSlugify, $use);
-		$use = str_replace('{{ path }}', $path, $use);
-		$use = str_replace('{{ path_slugify }}', $pathSlugify, $use);
-		$use = $this->replaceNamespaces($use);
+		$use = File::get(__DIR__ . '/../Uses/AdminPages/adminpage.use');
+		$use = str_replace(['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
+			[$name, $nameSlugify, $path, $pathSlugify],
+			$use);
 
-		// Add class to route.
-		$this->addClassToRoute('AdminPages', 'admin_pages', $func, $use);
+		// Nếu bạn có hàm route register riêng, bạn tự thêm ở đây:
+		// $this->addClassToRoute(...)
 
-		// Output message.
-		$this->writeln($output, '<green>Created new admin page: "' . $path . '"</green>');
-
-		// this method must return an integer number with the "exit status code"
-		// of the command. You can also use these constants to make code more readable
-
-		// return this if there was no problem running the command
-		// (it's equivalent to returning int(0))
-		return Command::SUCCESS;
-
-		// or return this if some error happened during the execution
-		// (it's equivalent to returning int(1))
-//		 return Command::FAILURE;
-
-		// or return this to indicate incorrect command usage; e.g. invalid options
-		// or missing arguments (it's equivalent to returning int(2))
-		// return Command::INVALID
+		$this->info("Created new admin page: {$path}");
 	}
 
 }

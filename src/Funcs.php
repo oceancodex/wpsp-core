@@ -36,9 +36,6 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	/**
-	 * @return \Illuminate\Foundation\Application
-	 */
 	public function getApplication($abstract = null, $parameters = []) {
 		try {
 			if ($abstract) {

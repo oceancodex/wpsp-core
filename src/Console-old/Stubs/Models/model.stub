@@ -1,0 +1,58 @@
+<?php
+namespace {{ rootNamespace }}\app\Models;
+
+use Illuminate\Database\Eloquent\SoftDeletes;
+use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ coreNamespace }}\Database\Base\BaseModel;
+use {{ coreNamespace }}\Traits\ObserversTrait;
+
+class {{ className }} extends BaseModel {
+
+	use InstancesTrait, SoftDeletes, ObserversTrait;
+
+	protected $connection                   = 'wordpress';
+//	protected $prefix                       = 'wp_{{ tablePrefix }}';
+	protected $table                        = '{{ table }}'; // If this table created by custom migration, you need to add prefix "cm_" to the table name, like this: "cm_{{ table }}"
+//	protected $primaryKey                   = 'id';
+
+//	protected $appends;
+//	protected $attributeCastCache;
+//	protected $attributes;
+//	protected $casts;
+//	protected $changes;
+//	protected $classCastCache;
+//	protected $dateFormat;
+//	protected $dispatchesEvents;
+//	protected $escapeWhenCastingToString;
+//	protected $fillable                     = [];
+//	protected $forceDeleting;
+	protected $guarded                      = [];
+//	protected $hidden;
+//	protected $keyType;
+//	protected $observables;
+//	protected $original;
+//	protected $perPage;
+//	protected $relations;
+//	protected $touches;
+//	protected $visible;
+//	protected $with;
+//	protected $withCount;
+
+//	public    $exists;
+//	public    $incrementing;
+//	public    $preventsLazyLoading;
+//	public    $timestamps;
+//	public    $usesUniqueIds;
+//	public    $wasRecentlyCreated;
+
+//	protected static $observers = [
+//		\{{ rootNamespace }}\app\Observers\{{ className }}Observer::class,
+//	];
+
+//	public function __construct($attributes = []) {
+//		$this->getConnection()->setTablePrefix('wp_{{ tablePrefix }}');
+//		$this->setConnection(Funcs::instance()->_getDBTablePrefix(false) . 'mysql');
+//		parent::__construct($attributes);
+//	}
+
+}

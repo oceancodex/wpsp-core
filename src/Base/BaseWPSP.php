@@ -14,7 +14,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use WPSPCORE\Console\Commands\MakeAdminPageCommand;
 use WPSPCORE\Http\Middleware\StartSessionIfAuthenticated;
 
 abstract class BaseWPSP extends BaseInstances {
@@ -28,17 +28,17 @@ abstract class BaseWPSP extends BaseInstances {
 
 	public function setApplication(string $basePath) {
 		$this->application = Application::configure($basePath)
-			->withRouting(
-				web     : $basePath . '/routes/web.php',
-				commands: $basePath . '/routes/console.php',
-				health  : '/up',
-			)
 			->withMiddleware(function(Middleware $middleware): void {})
 			->withExceptions(function(Exceptions $exceptions): void {})
+			->withCommands([
+				MakeAdminPageCommand::class,
+			])
 			->create();
+
 		$this->bootstrap();
 		$this->bindings();
 		$this->application->boot();
+		$this->handleRequest();
 	}
 
 	public function getApplication($abstract = null, $parameters = []) {
@@ -64,33 +64,17 @@ abstract class BaseWPSP extends BaseInstances {
 	}
 
 	protected function bindings(): void {
-		$this->application->singleton('files', function() {
-			return new Filesystem();
-		});
+		$this->application->instance('files', new Filesystem());
 		$this->application->instance('request', Request::capture());
 	}
 
 	protected function handleRequest(): void {
 		$request = $this->application['request'];
-//		$request = Request::capture();
-//		$this->application->instance('request', $request);
-
 		$kernel = $this->application->make(Kernel::class);
 		$response = $kernel->handle($request);
-
-		$uri = $request->getRequestUri();
-		if (strpos($uri, '/web/') === 0) {
-			$response->send();
-			$kernel->terminate($request, $response);
-			exit;
-		}
-
-		$this->response = $response ?? new Response();
-		$this->response->setStatusCode(200);
-
+		$this->response = $response;
 		$kernel->terminate($request, $this->response);
-
-		$this->restoreSessionsForWordPress();
+//		$this->restoreSessionsForWordPress();
 	}
 
 	public function restoreSessionsForWordPress(): void {
@@ -114,21 +98,16 @@ abstract class BaseWPSP extends BaseInstances {
 	protected function normalizeEnvPrefix(): void {
 		$prefix = (string)$this->prefixEnv;
 		if ($prefix === '') return;
-
 		$len = strlen($prefix);
-		// iterate keys snapshot to avoid modification-while-iterating issues
 		foreach (array_keys($_ENV) as $key) {
 			if (strpos($key, $prefix) === 0) {
 				$plain = substr($key, $len);
-				// guard: avoid empty or same-key loops
 				if ($plain === '' || $plain === $key) {
 					continue;
 				}
-				// also avoid if plain still begins with prefix (prevents repeated stripping)
 				if (strpos($plain, $prefix) === 0) {
 					continue;
 				}
-
 				$value = $_ENV[$key];
 				if (!isset($_ENV[$plain])) $_ENV[$plain] = $value;
 				if (!isset($_SERVER[$plain])) $_SERVER[$plain] = $value;

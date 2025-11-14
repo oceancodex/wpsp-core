@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\Routes;
 
+use Illuminate\Support\Facades\File;
 use WPSPCORE\Base\BaseInstances;
 
 class RouteMap extends BaseInstances {
@@ -23,6 +24,15 @@ class RouteMap extends BaseInstances {
 
 	public function setMapIdea(array $mapIdea): void {
 		$this->mapIdea = $mapIdea;
+	}
+
+	public function remap() {
+		$filePath = $this->funcs->_getMainPath('/.wpsp-routes.json');
+		$prepareMap           = [];
+		$prepareMap['scope']  = $this->funcs->_getPluginDirName();
+		$prepareMap['routes'] = $this->mapIdea;
+		$prepareMap           = json_encode($prepareMap, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		File::put($filePath, $prepareMap);
 	}
 
 }

@@ -284,6 +284,15 @@ trait GroupRoutesTrait {
 		preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath, $matches);
 		$named = array_filter($matches, fn($k) => !is_int($k), ARRAY_FILTER_USE_KEY);
 
+		// Lấy các capture positional (1..n) — loại bỏ index 0 (full match)
+		$positional = [];
+		foreach ($matches as $k => $v) {
+			if (is_int($k) && $k > 0) {
+				$positional[] = $v;
+			}
+		}
+		$posIndex = 0;
+
 		$query = $baseRequest->query->all();
 		$post  = $baseRequest->request->all();
 		$attr  = $baseRequest->attributes->all();
@@ -296,12 +305,12 @@ trait GroupRoutesTrait {
 			$type  = $param->getType();
 			$value = null;
 
-			// 🔸 Nếu param có type-hint (VD: Request, CustomClass) → để Container tự inject
+			// Nếu param có type-hint class (VD: Request) → để Container tự inject
 			if ($type && !$type->isBuiltin()) {
 				continue;
 			}
 
-			// 🔸 Ưu tiên theo tên param trong request hoặc named match
+			// Ưu tiên theo tên param trong named match, attributes, post, query
 			if (array_key_exists($name, $named)) {
 				$value = $named[$name];
 			}
@@ -314,6 +323,12 @@ trait GroupRoutesTrait {
 			elseif (array_key_exists($name, $query)) {
 				$value = $query[$name];
 			}
+			// Nếu không có giá trị theo tên thì lấy theo thứ tự positional capture
+			elseif (isset($positional[$posIndex])) {
+				$value = $positional[$posIndex];
+				$posIndex++;
+			}
+			// Nếu không có positional thì dùng default (nếu có)
 			elseif ($param->isDefaultValueAvailable()) {
 				$value = $param->getDefaultValue();
 			}

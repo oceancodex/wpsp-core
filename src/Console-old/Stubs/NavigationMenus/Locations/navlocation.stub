@@ -1,0 +1,25 @@
+<?php
+
+namespace {{ rootNamespace }}\app\Components\NavigationMenus\Locations;
+
+use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ coreNamespace }}\Base\BaseNavigationLocation;
+
+class {{ className }} extends BaseNavigationLocation {
+
+    use InstancesTrait;
+
+	// Args.
+//	public $location    = '{{ name }}';
+	public $description = 'Navigation menu location "{{ name }}"';
+
+	/*
+	 *
+	 */
+
+	public function customProperties() {
+//		$this->location    = '{{ name }}';
+//		$this->description = 'Navigation menu location "{{ name }}"';
+	}
+
+}

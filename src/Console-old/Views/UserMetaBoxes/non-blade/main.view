@@ -1,0 +1,15 @@
+<?php
+if (isset($requestParams['tab']) && $requestParams['tab'] == 'tab-2') {
+	$title = $funcs->_trans('Tab 2', true);
+	$view  = $funcs->_getResourcesPath('/views/modules/user-meta-boxes/{{ id_slugify }}/tab-2.php');
+}
+else {
+	$title = $funcs->_trans('Tab 1', true);
+	$view  = $funcs->_getResourcesPath('/views/modules/user-meta-boxes/{{ id_slugify }}/tab-1.php');
+}
+$navigation = $funcs->_getResourcesPath('/views/modules/user-meta-boxes/{{ id_slugify }}/navigation.php');
+
+include $funcs->_getResourcesPath('/views/modules/user-meta-boxes/header.php');
+include $view;
+include $funcs->_getResourcesPath('/views/modules/user-meta-boxes/footer.php');
+?>

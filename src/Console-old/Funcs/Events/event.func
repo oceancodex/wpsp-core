@@ -1,0 +1,3 @@
+	\{{ rootNamespace }}\app\Events\{{ className }}::class => [
+		{{ listeners }}
+	],
