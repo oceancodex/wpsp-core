@@ -82,7 +82,7 @@ abstract class BaseWPSP extends BaseInstances {
 		if (strpos($uri, '/web/') === 0) {
 			$response->send();
 			$kernel->terminate($request, $response);
-//			exit;
+			exit;
 		}
 
 		$this->response = $response ?? new Response();
