@@ -54,7 +54,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 					unset($wp->query_vars['name']);
 
 					$wp->query_vars['is_rewrite'] = true;
-//					$wp->query_vars['page']   = $this->rewriteFrontPageSlug;
+//					$wp->query_vars['page']       = $this->rewriteFrontPageSlug;
 					$wp->query_vars['pagename']   = $this->rewriteFrontPageSlug;
 					$wp->query_vars['post_type']  = $this->rewriteFrontPagePostType;
 

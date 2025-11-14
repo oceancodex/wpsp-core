@@ -3,6 +3,7 @@
 namespace WPSPCORE\Base;
 
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Bootstrap\LoadConfiguration;
@@ -11,13 +12,15 @@ use Illuminate\Foundation\Bootstrap\RegisterFacades;
 use Illuminate\Foundation\Bootstrap\RegisterProviders;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Session\Middleware\StartSession;
+use WPSPCORE\Http\Middleware\StartSessionIfAuthenticated;
 
 abstract class BaseWPSP extends BaseInstances {
 
 	public ?Application $application = null;
+	public ?\Symfony\Component\HttpFoundation\Response $response = null;
 
 	/*
 	 *
@@ -31,15 +34,11 @@ abstract class BaseWPSP extends BaseInstances {
 				health  : '/up',
 			)
 			->withMiddleware(function(Middleware $middleware): void {})
-			->withExceptions(function(Exceptions $exceptions): void {})->create();
-
+			->withExceptions(function(Exceptions $exceptions): void {})
+			->create();
 		$this->bootstrap();
 		$this->bindings();
-		$this->handleRequest();
-
 		$this->application->boot();
-
-//		$this->authSaveCookie();
 	}
 
 	public function getApplication($abstract = null, $parameters = []) {
@@ -65,121 +64,47 @@ abstract class BaseWPSP extends BaseInstances {
 	}
 
 	protected function bindings(): void {
-		// Files.
 		$this->application->singleton('files', function() {
 			return new Filesystem();
 		});
-		// Request.
-		$this->application->instance('request', \Illuminate\Http\Request::capture());
-		// Session.
-//		$this->application->register(\Illuminate\Session\SessionServiceProvider::class);
+		$this->application->instance('request', Request::capture());
 	}
 
 	protected function handleRequest(): void {
-//		add_action('parse_request', function() {
-			$ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
-			$isWpInternal = (stripos($ua, 'WordPress') !== false && (!isset($_GET['doing_wp_cron']) || php_sapi_name() !== 'cli-server'));
+		$request = $this->application['request'];
+//		$request = Request::capture();
+//		$this->application->instance('request', $request);
 
-			$request = $this->application->make('request');
+		$kernel = $this->application->make(Kernel::class);
+		$response = $kernel->handle($request);
 
-			// Trường hợp WordPress tự gọi wp-cron → KHÔNG chạy Kernel, KHÔNG tạo session
-			if ($isWpInternal) {
-				return;
-			}
-
-			$uri = $request->getRequestUri();
-			$kernel   = $this->application->make(\Illuminate\Contracts\Http\Kernel::class);
-			$response = $kernel->handle($request);
-
-			if (str_starts_with($uri, '/wpsp/')) {
-				$response->send();
-				$kernel->terminate($request, $response);
-				exit;
-			}
-
+		$uri = $request->getRequestUri();
+		if (strpos($uri, '/web/') === 0) {
+			$response->send();
 			$kernel->terminate($request, $response);
-//		}, 0);
+			exit;
+		}
+
+		$this->response = $response ?? new Response();
+		$this->response->setStatusCode(200);
+
+		$kernel->terminate($request, $this->response);
+
+		$this->restoreSessionsForWordPress();
 	}
 
-	/*
-	 *
-	 */
-
-	protected function authSaveCookie(): void {
-		register_shutdown_function(function() {
-
-			// 1. Không xử lý session cho các request nội bộ của WordPress
-			$ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
-			if (stripos($ua, 'WordPress') !== false && !isset($_GET['doing_wp_cron'])) {
-				return; // Không save session rác
-			}
-
-			// 2. Đảm bảo session tồn tại
-			if (!$this->application || !$this->application->bound('session')) {
-				return;
-			}
-
-			try {
-				/** @var \Illuminate\Session\Store $session */
-				$session = $this->application['session'];
-
-				// 3. Nếu session không start và rỗng thì không cần save
-				if (!$session->isStarted() && empty($session->all())) {
-					return;
-				}
-
-				// 4. Không ghi lại session nếu payload không đổi
-				$original = $session->getHandler()->read($session->getId());
-				$payload  = $session->all();
-
-				if ($original) {
-					$decoded = @unserialize($original);
-
-					if (is_array($decoded) && isset($decoded['data'])) {
-						if (serialize($payload) === serialize($decoded['data'])) {
-							// payload không đổi → KHÔNG cần save
-							goto set_cookie_only;
-						}
-					}
-				}
-
-				// 5. Save session nếu có thay đổi
-				$session->save();
-
-				set_cookie_only:
-
-				// 6. Headers đã gửi → không set cookie nữa
-				if (headers_sent()) {
-					return;
-				}
-
-				// 7. Lấy config chuẩn từ Laravel
-				$config     = $this->application['config']->get('session', []);
-				$cookieName = $config['cookie'] ?? $this->funcs->_getAppShortName() . '-session';
-				$lifetime   = (int)($config['lifetime'] ?? 120) * 60;
-				$path       = $config['path'] ?? '/';
-				$domain     = $config['domain'] ?: null;
-				$secure     = $config['secure'] ?? (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
-				$httpOnly   = $config['http_only'] ?? true;
-				$sameSite   = $config['same_site'] ?? 'Lax';
-
-				$sessionId = $session->getId();
-				if (!$sessionId) return;
-
-				// 8. Set cookie chuẩn theo PHP 7.3+
-				@setcookie($cookieName, $sessionId, [
-					'expires'  => time() + $lifetime,
-					'path'     => $path,
-					'domain'   => $domain,
-					'secure'   => (bool)$secure,
-					'httponly' => (bool)$httpOnly,
-					'samesite' => $sameSite,
-				]);
-
-			} catch (\Throwable $e) {
-				// Im lặng: không được để crash trong shutdown
-			}
-		});
+	public function restoreSessionsForWordPress(): void {
+		$middleware = [
+			EncryptCookies::class,
+			AddQueuedCookiesToResponse::class,
+			StartSessionIfAuthenticated::class
+		];
+		$pipeline = new \Illuminate\Pipeline\Pipeline($this->application);
+		$pipeline->send($this->application['request'])
+			->through($middleware)
+			->then(function() {
+				return $this->response;
+			});
 	}
 
 	/*
