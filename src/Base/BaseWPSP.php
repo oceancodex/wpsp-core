@@ -31,7 +31,9 @@ abstract class BaseWPSP extends BaseInstances {
 
 	public function setApplication(string $basePath) {
 		$this->application = Application::configure($basePath)
-			->withMiddleware(function(Middleware $middleware): void {})
+			->withMiddleware(function(Middleware $middleware): void {
+				$middleware->append(StartSession::class);
+			})
 			->withExceptions(function(Exceptions $exceptions): void {})
 			->withCommands([
 				MakeAdminPageCommand::class,
@@ -73,34 +75,40 @@ abstract class BaseWPSP extends BaseInstances {
 	}
 
 	protected function handleRequest(): void {
-		$request = $this->application['request'];
-		$kernel = $this->application->make(Kernel::class);
+		$request        = $this->application['request'];
+		$kernel         = $this->application->make(Kernel::class);
 		$response = $kernel->handle($request);
 		$this->response = $response;
 		$kernel->terminate($request, $this->response);
-//		$this->restoreSessionsForWordPress();
+		$this->restoreSessionsForWordPress($request);
 	}
 
-	public function restoreSessionsForWordPress(): void {
-		register_shutdown_function(function() {
-//			app()->instance('session', session());
-//			$sessionAfterNext = app()->make('session');
-//			$sessionAfterNext->save();
-//			$lifetime = config('session.lifetime', 120); // 120 phút
-//			$cookie = cookie(
-//				$sessionAfterNext->getName(),
-//				$sessionAfterNext->getId(),
-//				$lifetime,          // <--- Fix: MUST SET!
-//				'/',
-//				null,
-//				false,
-//				true,
-//				false,
-//				'Lax'
-//			);
-//			$response = new Response();
-//			$response->headers->setCookie($cookie);
-//			$response->sendHeaders();
+	public function restoreSessionsForWordPress($request): void {
+		register_shutdown_function(function() use ($request) {
+			$clientCookie = $request->cookie('wpsp-session');
+			$session = app('session');
+			if ($clientCookie) {
+				$session->setId($clientCookie);
+				$session->save();
+			}
+			else {
+				$session->save();
+				$lifetime = config('session.lifetime', 120); // 120 phút
+				$cookie = cookie(
+					$session->getName(),
+					$session->getId(),
+					$lifetime,
+					'/',
+					null,
+					false,
+					true,
+					false,
+					'Lax'
+				);
+				$response = new Response();
+				$response->headers->setCookie($cookie);
+				$response->sendHeaders();
+			}
 		});
 	}
 
