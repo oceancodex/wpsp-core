@@ -85,7 +85,6 @@ abstract class BaseWPSP extends BaseInstances {
 
 		// 1. Run pre-middleware pipeline: EncryptCookies, StartSessionIfAuthenticated
 		$preMiddleware = [
-			\Illuminate\Cookie\Middleware\EncryptCookies::class,
 			\WPSPCORE\Http\Middleware\StartSessionIfAuthenticated::class,
 		];
 
@@ -103,6 +102,7 @@ abstract class BaseWPSP extends BaseInstances {
 
 		// 3. Run post-middleware pipeline to attach queued cookies to response
 		$postMiddleware = [
+			\Illuminate\Cookie\Middleware\EncryptCookies::class,
 			\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
 		];
 
