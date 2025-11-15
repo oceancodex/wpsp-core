@@ -14,6 +14,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Session\Middleware\StartSession;
 use WPSPCORE\Console\Commands\MakeAdminPageCommand;
 use WPSPCORE\Funcs;
@@ -71,7 +72,7 @@ abstract class BaseWPSP extends BaseInstances {
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 	}
 
-	protected function handleRequestx(): void {
+	protected function handleRequest(): void {
 		$request = $this->application['request'];
 		$kernel = $this->application->make(Kernel::class);
 		$response = $kernel->handle($request);
@@ -80,57 +81,27 @@ abstract class BaseWPSP extends BaseInstances {
 //		$this->restoreSessionsForWordPress();
 	}
 
-	protected function handleRequest(): void {
-		$request = $this->application['request'];
-
-		// 1. Run pre-middleware pipeline: EncryptCookies, StartSessionIfAuthenticated
-		$preMiddleware = [
-			\WPSPCORE\Http\Middleware\StartSessionIfAuthenticated::class,
-		];
-
-		$pipeline = new \Illuminate\Pipeline\Pipeline($this->application);
-		$pipeline->send($request)
-			->through($preMiddleware)
-			->then(function ($req) {
-				// noop — middleware chỉ cần biến đổi request
-				return $req;
-			});
-
-		// 2. Handle request via Kernel (controller/action etc.)
-		$kernel = $this->application->make(Kernel::class);
-		$response = $kernel->handle($request);
-
-		// 3. Run post-middleware pipeline to attach queued cookies to response
-		$postMiddleware = [
-			\Illuminate\Cookie\Middleware\EncryptCookies::class,
-			\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-		];
-
-		$pipeline = new \Illuminate\Pipeline\Pipeline($this->application);
-		$finalResponse = $pipeline->send($request)
-			->through($postMiddleware)
-			->then(function ($req) use ($response) {
-				return $response;
-			});
-
-		$this->response = $finalResponse;
-
-		// Terminate kernel as Laravel would
-		$kernel->terminate($request, $this->response);
-	}
-
 	public function restoreSessionsForWordPress(): void {
-		$middleware = [
-			EncryptCookies::class,
-			AddQueuedCookiesToResponse::class,
-			StartSessionIfAuthenticated::class
-		];
-		$pipeline = new \Illuminate\Pipeline\Pipeline($this->application);
-		$pipeline->send($this->application['request'])
-			->through($middleware)
-			->then(function() {
-				return $this->response;
-			});
+		register_shutdown_function(function() {
+//			app()->instance('session', session());
+//			$sessionAfterNext = app()->make('session');
+//			$sessionAfterNext->save();
+//			$lifetime = config('session.lifetime', 120); // 120 phút
+//			$cookie = cookie(
+//				$sessionAfterNext->getName(),
+//				$sessionAfterNext->getId(),
+//				$lifetime,          // <--- Fix: MUST SET!
+//				'/',
+//				null,
+//				false,
+//				true,
+//				false,
+//				'Lax'
+//			);
+//			$response = new Response();
+//			$response->headers->setCookie($cookie);
+//			$response->sendHeaders();
+		});
 	}
 
 	/*

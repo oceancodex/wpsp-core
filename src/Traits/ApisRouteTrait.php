@@ -73,13 +73,13 @@ trait ApisRouteTrait {
 			$this->registerRestRoute($fullPath, $method, $callback, $useInitClass, $customProperties, $allMiddlewares, $namespace, $version);
 		});
 
-		// Reset middleware khi gọi xong function.
-		$this->middlewareStack = [];
-
 		return $this;
 	}
 
 	public function registerRestRoute($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
+		print_r($path);
+		echo "\n";
+		print_r($middlewares);
 		$constructParams = [
 			[
 				'path'              => $path,

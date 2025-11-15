@@ -58,7 +58,7 @@ abstract class BaseRoute extends BaseInstances {
 
 		// Lấy request & app
 		$app     = $this->funcs->getApplication();
-		$request = $request ?? $app->make('request');
+		$request = $app->make('request');
 
 		// Helper: chạy 1 middleware descriptor, trả về chuẩn ['ok' => bool, 'response' => Response|null]
 		$runOne = function($desc) use ($request, $app) {
