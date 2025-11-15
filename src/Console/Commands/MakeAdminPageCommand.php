@@ -5,8 +5,11 @@ namespace WPSPCORE\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
+use WPSPCORE\Console\Traits\CommandsTrait;
 
 class MakeAdminPageCommand extends Command {
+
+	use CommandsTrait;
 
 	protected $signature = 'make:admin-page
         {path? : The path of the admin page}
@@ -15,9 +18,12 @@ class MakeAdminPageCommand extends Command {
 	protected $description = 'Create a new admin page. Example: php artisan make:admin-page custom-admin-page --create-view';
 
 	public function handle(): void {
+		$this->funcs = $this->getLaravel()->make('funcs');
+		echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($this->funcs); echo '</pre>';
+
 		$path = $this->argument('path');
 
-		// Ask for missing path
+		// If path is empty, ask questions.
 		if (!$path) {
 			$path = $this->ask('Please enter the path of the admin page');
 
@@ -31,22 +37,26 @@ class MakeAdminPageCommand extends Command {
 			$createView = $this->option('create-view');
 		}
 
-		// Base variables
+		// Define variables.
 		$pathSlugify = Str::slug($path);
 		$name        = $path;
 		$nameSlugify = Str::slug($name, '_');
 
-		// Base paths
-		$mainPath       = base_path(); // hoặc thay bằng $this->mainPath nếu bạn có trong hệ thống
+		// Validate class name.
+		$this->validateClassName($nameSlugify);
+
+		// Prepare paths.
+		$mainPath       = $this->funcs->mainPath;
 		$adminClassPath = $mainPath . '/app/Components/AdminPages/' . $nameSlugify . '.php';
 		$viewDirPath    = $mainPath . '/resources/views/modules/admin-pages/' . $path;
 
-		// Check exist
+		// Check exist.
 		if (File::exists($adminClassPath) || File::exists($viewDirPath)) {
 			$this->error('[ERROR] Admin page "' . $path . '" already exists!');
+			exit;
 		}
 
-		// Load stub
+		// Load stub.
 		if ($createView) {
 			$content = File::get(__DIR__ . '/../Stubs/AdminPages/adminpage-view.stub');
 		}
@@ -54,23 +64,25 @@ class MakeAdminPageCommand extends Command {
 			$content = File::get(__DIR__ . '/../Stubs/AdminPages/adminpage.stub');
 		}
 
-		// Replace placeholders
+		// Replace placeholders.
 		$content = str_replace(
 			['{{ className }}', '{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
 			[$nameSlugify, $name, $nameSlugify, $path, $pathSlugify],
 			$content
 		);
 
-		// Ensure directory exists
+		$content = $this->replaceNamespaces($content);
+
+		// Ensure directory exists.
 		File::ensureDirectoryExists(dirname($adminClassPath));
 
-		// Write class file
+		// Create class file.
 		File::put($adminClassPath, $content);
 
-		// Handle view generation
+		// Create view files.
 		if ($createView) {
-			$bladeExt    = class_exists('\WPSPCORE\View\Blade') ? '.blade.php' : '.php';
-			$nonBladeSep = class_exists('\WPSPCORE\View\Blade') ? '' : '/non-blade';
+			$bladeExt    = class_exists('Illuminate\View\View') ? '.blade.php' : '.php';
+			$nonBladeSep = class_exists('Illuminate\View\View') ? '' : '/non-blade';
 
 			File::ensureDirectoryExists($viewDirPath);
 
@@ -94,19 +106,23 @@ class MakeAdminPageCommand extends Command {
 			}
 		}
 
-		// Add class to routes if needed
+		// Prepare new line for find function.
 		$func = File::get(__DIR__ . '/../Funcs/AdminPages/adminpage.func');
 		$func = str_replace(['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
 			[$name, $nameSlugify, $path, $pathSlugify],
 			$func);
 
+		// Prepare new line for use class.
 		$use = File::get(__DIR__ . '/../Uses/AdminPages/adminpage.use');
-		$use = str_replace(['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
+		$use = str_replace(
+			['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
 			[$name, $nameSlugify, $path, $pathSlugify],
-			$use);
+			$use
+		);
+		$use = $this->replaceNamespaces($use);
 
-		// Nếu bạn có hàm route register riêng, bạn tự thêm ở đây:
-		// $this->addClassToRoute(...)
+		// Add class to route.
+		$this->addClassToRoute('AdminPages', 'admin_pages', $func, $use);
 
 		$this->info("Created new admin page: {$path}");
 	}

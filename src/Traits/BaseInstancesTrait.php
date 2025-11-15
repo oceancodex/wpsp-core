@@ -15,7 +15,6 @@ trait BaseInstancesTrait {
 	public $rootNamespace = null;
 	public $prefixEnv     = null;
 	public $extraParams   = [];
-
 	public $funcs         = null;
 	public $request       = null;
 
@@ -28,43 +27,12 @@ trait BaseInstancesTrait {
 		$this->prepareFuncs();
 		$this->prepareRequest();
 		$this->afterConstruct();
-		unset($this->extraParams);
+		if (empty($this->extraParams)) unset($this->extraParams);
 	}
 
 	/*
 	 *
 	 */
-
-	public function slugParams($params = [], $separator = '_') {
-		// Lấy toàn bộ query string từ URL
-		$request = $this->request ?: $this->funcs->getApplication('request');
-		$queryParams = $request->query->all();
-
-		$selectedParts = [];
-
-		// Chỉ lấy những params được khai báo
-		foreach ($params as $key) {
-			if (isset($queryParams[$key])) {
-				// Ghép key và value để phân biệt
-				$selectedParts[] = $key . '=' . $queryParams[$key];
-			}
-		}
-
-		// Ghép các phần lại thành một chuỗi
-		$slug = implode($separator, $selectedParts);
-
-		// Làm sạch chuỗi thành dạng slug
-		$slug = preg_replace('/[^0-9a-zA-Z]/iu', $separator, $slug);
-
-		// Thêm tiền tố app name (nếu có)
-		$prefix = $this->funcs->_env('APP_SHORT_NAME', true);
-		if ($prefix) {
-			$slug = $prefix . $separator . $slug;
-		}
-
-		// Gán vào biến class
-		return $slug;
-	}
 
 	/*
 	 *
@@ -74,13 +42,13 @@ trait BaseInstancesTrait {
 		if (isset($this->funcs->request) && $this->funcs->request) {
 			$this->request = $this->funcs->request;
 		}
+		elseif (isset($this->funcs) && $this->funcs) {
+			$this->request = $this->funcs->getApplication('request');
+		}
 		else {
-			$this->request = \Illuminate\Http\Request::capture();
+			$this->request = Request::capture();
 		}
-
-		if (!$this->request) {
-			unset($this->request);
-		}
+		unset($this->extraParams['request']);
 	}
 
 	private function prepareFuncs(): void {
@@ -97,12 +65,7 @@ trait BaseInstancesTrait {
 				$this->funcs = $this->extraParams['funcs'];
 			}
 		}
-
 		unset($this->extraParams['funcs']);
-
-		if (!$this->funcs) {
-			unset($this->funcs);
-		}
 	}
 
 	/*

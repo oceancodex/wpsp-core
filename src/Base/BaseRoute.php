@@ -61,7 +61,7 @@ abstract class BaseRoute extends BaseInstances {
 		$request = $request ?? $app->make('request');
 
 		// Helper: chạy 1 middleware descriptor, trả về chuẩn ['ok' => bool, 'response' => Response|null]
-		$runOne = function($desc) use ($request) {
+		$runOne = function($desc) use ($request, $app) {
 			// $next giả: middleware gọi $next($request) => được coi là "pass" -> trả Response 200
 			$next = function($req = null) {
 				return new Response('', 200);
@@ -80,7 +80,12 @@ abstract class BaseRoute extends BaseInstances {
 						return ['ok' => false, 'response' => null];
 					}
 
-					$instance = new $class();
+					// 🚀 Quan trọng: dùng Container để tự động Dependency Injection
+					try {
+						$instance = $app->make($class);
+					} catch (\Throwable $e) {
+						return ['ok' => false, 'response' => null];
+					}
 
 					// nếu method không tồn tại, cố gọi handle, nếu không có -> fail
 					if (!method_exists($instance, $method)) {

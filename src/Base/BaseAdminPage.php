@@ -24,7 +24,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function  = $this->extraParams['callback_function'];
-		$this->screen_options_key = $this->screen_options_key ?: $this->slugParams(['page']) ?? $this->menu_slug;
+		$this->screen_options_key = $this->screen_options_key ?: $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
 		$this->overrideMenuSlug($this->extraParams['path']);
 		$this->customProperties();
 	}

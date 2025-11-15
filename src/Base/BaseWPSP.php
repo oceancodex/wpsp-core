@@ -14,13 +14,15 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Request;
+use Illuminate\Session\Middleware\StartSession;
 use WPSPCORE\Console\Commands\MakeAdminPageCommand;
+use WPSPCORE\Funcs;
 use WPSPCORE\Http\Middleware\StartSessionIfAuthenticated;
 
 abstract class BaseWPSP extends BaseInstances {
 
-	public ?Application $application = null;
-	public ?\Symfony\Component\HttpFoundation\Response $response = null;
+	public $application = null;
+	public $response = null;
 
 	/*
 	 *
@@ -66,15 +68,55 @@ abstract class BaseWPSP extends BaseInstances {
 	protected function bindings(): void {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('request', Request::capture());
+		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 	}
 
-	protected function handleRequest(): void {
+	protected function handleRequestx(): void {
 		$request = $this->application['request'];
 		$kernel = $this->application->make(Kernel::class);
 		$response = $kernel->handle($request);
 		$this->response = $response;
 		$kernel->terminate($request, $this->response);
 //		$this->restoreSessionsForWordPress();
+	}
+
+	protected function handleRequest(): void {
+		$request = $this->application['request'];
+
+		// 1. Run pre-middleware pipeline: EncryptCookies, StartSessionIfAuthenticated
+		$preMiddleware = [
+			\Illuminate\Cookie\Middleware\EncryptCookies::class,
+			\WPSPCORE\Http\Middleware\StartSessionIfAuthenticated::class,
+		];
+
+		$pipeline = new \Illuminate\Pipeline\Pipeline($this->application);
+		$pipeline->send($request)
+			->through($preMiddleware)
+			->then(function ($req) {
+				// noop — middleware chỉ cần biến đổi request
+				return $req;
+			});
+
+		// 2. Handle request via Kernel (controller/action etc.)
+		$kernel = $this->application->make(Kernel::class);
+		$response = $kernel->handle($request);
+
+		// 3. Run post-middleware pipeline to attach queued cookies to response
+		$postMiddleware = [
+			\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+		];
+
+		$pipeline = new \Illuminate\Pipeline\Pipeline($this->application);
+		$finalResponse = $pipeline->send($request)
+			->through($postMiddleware)
+			->then(function ($req) use ($response) {
+				return $response;
+			});
+
+		$this->response = $finalResponse;
+
+		// Terminate kernel as Laravel would
+		$kernel->terminate($request, $this->response);
 	}
 
 	public function restoreSessionsForWordPress(): void {

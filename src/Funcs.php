@@ -617,6 +617,9 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
+
+
+
 	public function _buildUrl($baseUrl = null, $args = []) {
 		$url = add_query_arg($args ?? [], $baseUrl ?? '');
 		return $this->_sanitizeURL($url);
@@ -624,6 +627,37 @@ class Funcs extends BaseInstances {
 
 	public function _nonceName($name = null): string {
 		return $this->_env('APP_SHORT_NAME', true) . ($name ? '_' . $name : '') . '_nonce';
+	}
+
+	public function _slugParams($params = [], $separator = '_') {
+		// Lấy toàn bộ query string từ URL
+		$request = $this->request ?? $this->getApplication('request');
+		$queryParams = $request->query->all();
+
+		$selectedParts = [];
+
+		// Chỉ lấy những params được khai báo
+		foreach ($params as $key) {
+			if (isset($queryParams[$key])) {
+				// Ghép key và value để phân biệt
+				$selectedParts[] = $key . '=' . $queryParams[$key];
+			}
+		}
+
+		// Ghép các phần lại thành một chuỗi
+		$slug = implode($separator, $selectedParts);
+
+		// Làm sạch chuỗi thành dạng slug
+		$slug = preg_replace('/[^0-9a-zA-Z]/iu', $separator, $slug);
+
+		// Thêm tiền tố app name (nếu có)
+		$prefix = $this->_env('APP_SHORT_NAME', true);
+		if ($prefix) {
+			$slug = $prefix . $separator . $slug;
+		}
+
+		// Gán vào biến class
+		return $slug;
 	}
 
 	public function _isDebug(): bool {
