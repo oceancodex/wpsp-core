@@ -5,6 +5,7 @@ use WPSPCORE\Base\BaseInstances;
 
 abstract class Auth extends BaseInstances {
 
+	/** @var \Illuminate\Support\Facades\Auth */
 	public $auth;
 
 	/*
@@ -27,6 +28,11 @@ abstract class Auth extends BaseInstances {
 		$attempt = $this->auth->attempt($credentials, $remember);
 		$this->saveSessionsAndCookies();
 		return $attempt;
+	}
+
+	public function logout(): void {
+		$this->auth->logout();
+		$this->saveSessionsAndCookies();
 	}
 
 	/*
@@ -57,6 +63,28 @@ abstract class Auth extends BaseInstances {
 					'samesite' => $cookie->getSameSite(),
 				]
 			);
+		}
+	}
+
+	/*
+	 *
+	 */
+
+	public function __call($name, $arguments) {
+		if (method_exists(static::instance(), $name)) {
+			return static::instance()->$name(...$arguments);
+		}
+		else {
+			return static::instance()->getAuth()->$name(...$arguments);
+		}
+	}
+
+	public static function __callStatic($name, $arguments) {
+		if (method_exists(static::instance(), $name)) {
+			return static::instance()->$name(...$arguments);
+		}
+		else {
+			return static::instance()->getAuth()->$name(...$arguments);
 		}
 	}
 
