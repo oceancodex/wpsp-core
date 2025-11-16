@@ -7,12 +7,14 @@ trait ApisRouteTrait {
 	use HookRunnerTrait, GroupRoutesTrait;
 
 	public function init() {
+		$this->namespace($this->funcs->_getAppShortName());
 		$this->apis();
 		$this->hooks();
 		return $this;
 	}
 
 	public function initForRouterMap() {
+		$this->namespace($this->funcs->_getAppShortName());
 		$this->apis();
 		return $this;
 	}
