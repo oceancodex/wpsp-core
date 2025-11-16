@@ -6,10 +6,7 @@ trait GroupRoutesTrait {
 
 	public  $isForRouterMap   = false;
 	private $prefixStack      = [];
-
-	private $routeNameStack   = [];
-	private $groupNameStack   = [];
-
+	private $nameStack        = [];
 	private $middlewareStack  = [];
 	private $currentRouteName = null;
 
@@ -18,9 +15,8 @@ trait GroupRoutesTrait {
 	private $callMiddlewareTimes = 0;
 	private $callGroupTimes      = 0;
 
-	protected $namespace = null;
-	protected $version   = null;
-
+	protected $namespace        = null;
+	protected $version          = null;
 	protected $defaultNamespace = null;
 	protected $defaultVersion   = null;
 
@@ -150,20 +146,6 @@ trait GroupRoutesTrait {
 		if ($middlewares !== null) {
 			$this->middleware($middlewares);
 		}
-
-		// Check middleware trước khi chạy group (chỉ khi không build map)
-//		if (!$this->isForRouterMap) {
-//			$allMiddlewares = $this->getFlattenedMiddlewares();
-//			if (!$this->isPassedMiddleware($allMiddlewares, $this->request)) {
-//				// Pop các stack và return nếu không pass middleware
-//				$this->popStacks();
-//				// Đảm bảo pop middleware đã thêm vào
-//				while (count($this->middlewareStack) > $middlewareCountBefore) {
-//					array_pop($this->middlewareStack);
-//				}
-//				return $this;
-//			}
-//		}
 
 		// Chạy callback
 		$callback();
