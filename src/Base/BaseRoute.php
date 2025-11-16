@@ -268,4 +268,10 @@ abstract class BaseRoute extends BaseInstances {
 		$this->setInitClasses($initClasses);
 	}
 
+	/*
+	 *
+	 */
+
+	public function customProperties() {}
+
 }

@@ -7,12 +7,14 @@ trait AdminPagesRouteTrait {
 	use HookRunnerTrait, GroupRoutesTrait;
 
 	public function init() {
+		$this->customProperties();
 		$this->admin_pages();
 		$this->hooks();
 		return $this;
 	}
 
 	public function initForRouterMap() {
+		$this->customProperties();
 		$this->admin_pages();
 		return $this;
 	}

@@ -7,12 +7,57 @@ abstract class Auth extends BaseInstances {
 
 	public $auth;
 
-	public function setAuth() {
+	/*
+	 *
+	 */
+
+	public function setAuth(): void {
 		$this->auth = $this->funcs->getApplication('auth');
 	}
 
 	public function getAuth() {
 		return $this->auth;
+	}
+
+	/*
+	 *
+	 */
+
+	public function attempt($credentials, $remember = false) {
+		$attempt = $this->auth->attempt($credentials, $remember);
+		$this->saveSessionsAndCookies();
+		return $attempt;
+	}
+
+	/*
+	 *
+	 */
+
+	public function saveSessionsAndCookies(): void {
+		// Save session.
+		$session = $this->funcs->getApplication('session');
+		$clientSession = $_COOKIE['wpsp-session'] ?? null;
+		if ($clientSession) {
+			$session->setId($clientSession);
+			$session->save();
+		}
+
+		// Save cookies.
+		$queued = $this->funcs->getApplication('cookie')->getQueuedCookies();
+		foreach ($queued as $cookie) {
+			setcookie(
+				$cookie->getName(),
+				$cookie->getValue(),
+				[
+					'expires'  => $cookie->getExpiresTime(),
+					'path'     => $cookie->getPath(),
+					'domain'   => $cookie->getDomain(),
+					'secure'   => $cookie->isSecure(),
+					'httponly' => $cookie->isHttpOnly(),
+					'samesite' => $cookie->getSameSite(),
+				]
+			);
+		}
 	}
 
 }

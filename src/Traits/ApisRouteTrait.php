@@ -7,14 +7,14 @@ trait ApisRouteTrait {
 	use HookRunnerTrait, GroupRoutesTrait;
 
 	public function init() {
-		$this->namespace($this->funcs->_getAppShortName());
+		$this->customProperties();
 		$this->apis();
 		$this->hooks();
 		return $this;
 	}
 
 	public function initForRouterMap() {
-		$this->namespace($this->funcs->_getAppShortName());
+		$this->customProperties();
 		$this->apis();
 		return $this;
 	}
@@ -64,6 +64,7 @@ trait ApisRouteTrait {
 	 */
 
 	public function restApiInit($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null): void {
+
 		// Xây dựng full path
 		$fullPath = $this->buildFullPath($path);
 

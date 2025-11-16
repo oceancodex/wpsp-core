@@ -29,6 +29,19 @@ class StartSessionIfAuthenticated {
 	 * This middleware is safe to run for REST/API requests.
 	 */
 	public function handle(Request $request, Closure $next) {
+		$session = $this->sessionManager->driver();
+
+		// Lấy session id từ cookie request (tên cookie nằm ở $session->getName())
+		$sessionId = $request->cookies->get($session->getName());
+		if ($sessionId) {
+			$session->setId($sessionId);
+		}
+
+		// Start nếu chưa start
+		if (!$session->isStarted()) {
+			$session->start();
+		}
+
 		return $next($request);
 	}
 

@@ -15,8 +15,13 @@ trait GroupRoutesTrait {
 	private $callMiddlewareTimes = 0;
 	private $callGroupTimes      = 0;
 
-	private $namespace = null;
-	private $version   = null;
+	protected $namespace = null;
+	protected $version   = null;
+
+	protected $defaultNamespace = null;
+	protected $defaultVersion   = null;
+
+	private $routeMapClassName = null;
 
 	/**
 	 * Bật chế độ build route map
@@ -59,6 +64,11 @@ trait GroupRoutesTrait {
 			// Không có current route đang chờ => đây chắc chắn là group prefix
 			$this->nameStack[]      = $name;
 			$this->currentRouteName = null;
+		}
+
+		// Reset namespace cho Apis routes.
+		if ($this->routeMapClassName == 'Apis') {
+			$this->namespace($this->defaultNamespace ?? $this->funcs->_config('app.short_name'));
 		}
 
 		return $this;
@@ -252,6 +262,7 @@ trait GroupRoutesTrait {
 		if ($this->isForRouterMap && $this->currentRouteName !== null) {
 			$routeMap  = $this->funcs->getRouteMap();
 			$className = (new \ReflectionClass($this))->getShortName();
+			$this->routeMapClassName = $className;
 
 			if (!isset($routeMap->map[$className])) {
 				$routeMap->map[$className]     = [];
@@ -263,7 +274,7 @@ trait GroupRoutesTrait {
 				'name'      => $fullName,
 				'file'      => 'routes/' . $className . '.php',
 				'line'      => (new \Exception())->getTrace()[1]['line'] ?? 0,
-				'namespace' => $this->namespace ?: $this->funcs->_getRootNamespace(),
+				'namespace' => $this->namespace ?? $this->defaultNamespace ?? $this->funcs->_getRootNamespace(),
 				'version'   => $this->version ?: 'v1',
 				'path'      => $this->currentRouteName['path'],
 			];
