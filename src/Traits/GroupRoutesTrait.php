@@ -6,7 +6,10 @@ trait GroupRoutesTrait {
 
 	public  $isForRouterMap   = false;
 	private $prefixStack      = [];
-	private $nameStack        = [];
+
+	private $routeNameStack   = [];
+	private $groupNameStack   = [];
+
 	private $middlewareStack  = [];
 	private $currentRouteName = null;
 
