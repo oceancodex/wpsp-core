@@ -89,20 +89,30 @@ abstract class BaseWPSP extends BaseInstances {
 	protected function normalizeEnvPrefix(): void {
 		$prefix = (string)$this->prefixEnv;
 		if ($prefix === '') return;
+
 		$len = strlen($prefix);
+
 		foreach (array_keys($_ENV) as $key) {
 			if (strpos($key, $prefix) === 0) {
+
 				$plain = substr($key, $len);
+
+				// Nếu plain rỗng hoặc trùng key => bỏ qua
 				if ($plain === '' || $plain === $key) {
 					continue;
 				}
+
+				// Nếu key dạng PREFIXPREFIX_something => bỏ qua
 				if (strpos($plain, $prefix) === 0) {
 					continue;
 				}
+
 				$value = $_ENV[$key];
-				if (!isset($_ENV[$plain])) $_ENV[$plain] = $value;
-				if (!isset($_SERVER[$plain])) $_SERVER[$plain] = $value;
-				if (getenv($plain) === false) @putenv("$plain=$value");
+
+				// Tạo key không prefix
+//				if (!isset($_ENV[$plain])) $_ENV[$plain] = $value;
+//				if (!isset($_SERVER[$plain])) $_SERVER[$plain] = $value;
+//				if (getenv($plain) === false) @putenv("$plain=$value");
 			}
 		}
 	}
