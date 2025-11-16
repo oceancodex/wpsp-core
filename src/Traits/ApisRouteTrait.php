@@ -30,12 +30,14 @@ trait ApisRouteTrait {
 	 */
 
 	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
+		$this->currentCallMethod = 'route';
 		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 		$this->middlewareStack = [];
 		return $this;
 	}
 
 	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
+		$this->currentCallMethod = 'route';
 		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
 		$this->middlewareStack = [];
 		return $this;

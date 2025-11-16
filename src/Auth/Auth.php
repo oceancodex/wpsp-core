@@ -1,4 +1,5 @@
 <?php
+
 namespace WPSPCORE\Auth;
 
 use WPSPCORE\Base\BaseInstances;
@@ -26,6 +27,14 @@ abstract class Auth extends BaseInstances {
 
 	public function attempt($credentials, $remember = false) {
 		$attempt = $this->auth->attempt($credentials, $remember);
+
+		if ($attempt) {
+			$user = $this->auth->user();
+			if ($user) {
+				$this->cleanupOldSessionsForUser($user->getAuthIdentifier());
+			}
+		}
+
 		$this->saveSessionsAndCookies();
 		return $attempt;
 	}
@@ -39,10 +48,10 @@ abstract class Auth extends BaseInstances {
 	 *
 	 */
 
-	public function saveSessionsAndCookies(): void {
+	protected function saveSessionsAndCookies(): void {
 		// Save session.
-		$session = $this->funcs->getApplication('session');
-		$clientSession = $_COOKIE['wpsp-session'] ?? null;
+		$session       = $this->funcs->getApplication('session');
+		$clientSession = $_COOKIE[$this->funcs->_config('session.cookie')] ?? null;
 		if ($clientSession) {
 			$session->setId($clientSession);
 			$session->save();
@@ -64,6 +73,15 @@ abstract class Auth extends BaseInstances {
 				]
 			);
 		}
+	}
+
+	protected function cleanupOldSessionsForUser($userId): void {
+		$db = $this->funcs->getApplication('db'); // hoặc DB::connection()
+
+		// Xóa tất cả session cùng user_id trước đó.
+		$db->table('sessions')
+			->where('user_id', $userId)
+			->delete();
 	}
 
 	/*

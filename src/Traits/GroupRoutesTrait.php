@@ -4,23 +4,26 @@ namespace WPSPCORE\Traits;
 
 trait GroupRoutesTrait {
 
-	public  $isForRouterMap   = false;
-	private $prefixStack      = [];
-	private $nameStack        = [];
-	private $middlewareStack  = [];
-	private $currentRouteName = null;
+	public    $isForRouterMap      = false;
 
-	private $callPrefixTimes     = 0;
-	private $callNameTimes       = 0;
-	private $callMiddlewareTimes = 0;
-	private $callGroupTimes      = 0;
+	public    $currentCallMethod   = null;
 
-	protected $namespace        = null;
-	protected $version          = null;
-	protected $defaultNamespace = null;
-	protected $defaultVersion   = null;
+	private   $prefixStack         = [];
+	private   $nameStack           = [];
+	private   $middlewareStack     = [];
+	private   $currentRouteName    = null;
 
-	private $routeMapClassName = null;
+	private   $callPrefixTimes     = 0;
+	private   $callNameTimes       = 0;
+	private   $callMiddlewareTimes = 0;
+	private   $callGroupTimes      = 0;
+
+	protected $namespace           = null;
+	protected $version             = null;
+	protected $defaultNamespace    = null;
+	protected $defaultVersion      = null;
+
+	private   $routeMapClassName   = null;
 
 	/**
 	 * Bật chế độ build route map
@@ -36,7 +39,9 @@ trait GroupRoutesTrait {
 	 * Thêm prefix vào stack
 	 */
 	public function prefix($prefix) {
+		$this->currentCallMethod = 'prefix';
 		$this->callPrefixTimes++;
+
 		$this->prefixStack[] = $prefix;
 		return $this;
 	}
@@ -45,6 +50,9 @@ trait GroupRoutesTrait {
 	 * Thêm name vào stack hoặc đặt tên cho route
 	 */
 	public function name($name) {
+		$this->currentCallMethod = 'name';
+		$this->callNameTimes++;
+
 		// Nếu có currentRouteName nhưng chưa được đặt tên — kiểm tra xem name này là prefix hay route
 		if ($this->currentRouteName !== null) {
 			// Nếu name chứa dấu '.' ở cuối => coi là group prefix, KHÔNG phải route
@@ -93,6 +101,9 @@ trait GroupRoutesTrait {
 	 * Thêm middleware vào stack
 	 */
 	public function middleware($middlewares) {
+		$this->currentCallMethod = 'middleware';
+		$this->callMiddlewareTimes++;
+
 		// Reset middleware stack first.
 		$this->middlewareStack = []; // reset middleware
 
@@ -137,6 +148,7 @@ trait GroupRoutesTrait {
 	 * Nhóm các route lại với nhau
 	 */
 	public function group($callback, $middlewares = null) {
+		$this->currentCallMethod = 'group';
 		$this->callGroupTimes++;
 
 		// Lưu số lượng middleware hiện tại trước khi vào group
@@ -149,9 +161,6 @@ trait GroupRoutesTrait {
 
 		// Chạy callback
 		$callback();
-
-		// Reset callGroupTimes.
-		$this->callGroupTimes--;
 
 		// Pop các stack sau khi group chạy xong
 		$this->popStacks();
@@ -171,12 +180,16 @@ trait GroupRoutesTrait {
 	 * Pop các stack sau khi group kết thúc (KHÔNG pop middleware ở đây)
 	 */
 	protected function popStacks() {
-		if (!empty($this->prefixStack) && count($this->prefixStack) > $this->callGroupTimes) {
+		if (!empty($this->prefixStack) && count($this->prefixStack) >= $this->callGroupTimes) {
 			array_pop($this->prefixStack);
 		}
-		if (!empty($this->nameStack)) {
+
+		if (!empty($this->nameStack) && count($this->nameStack) >= $this->callGroupTimes) {
 			array_pop($this->nameStack);
+			$this->callGroupTimes--;
 		}
+
+		array_pop($this->prefixStack);
 	}
 
 	/**

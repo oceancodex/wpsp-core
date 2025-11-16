@@ -30,6 +30,8 @@ trait AdminPagesRouteTrait {
 	 */
 
 	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
+		$this->currentCallMethod = 'route';
+
 		// Build full path.
 		$fullPath = $this->buildFullPath($path);
 
@@ -57,7 +59,7 @@ trait AdminPagesRouteTrait {
 					|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)
 				)
 			) {
-				if ($this->isPassedMiddleware($allMiddlewares, $this->request)) {
+				if ($this->isPassedMiddleware($allMiddlewares, $this->request, $fullPath)) {
 					$constructParams = [
 						[
 							'path'              => $fullPath,
@@ -153,6 +155,8 @@ trait AdminPagesRouteTrait {
 	}
 
 	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
+		$this->currentCallMethod = 'route';
+
 		// Build full path.
 		$fullPath = $this->buildFullPath($path);
 
@@ -203,7 +207,7 @@ trait AdminPagesRouteTrait {
 				|| preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath)
 			)
 		) {
-			if ($this->isPassedMiddleware($middlewares, $this->request)) {
+			if ($this->isPassedMiddleware($middlewares, $this->request, $path)) {
 				$constructParams = [
 					[
 						'path'              => $path,

@@ -13,7 +13,7 @@ abstract class BaseRoute extends BaseInstances {
 	 *
 	 */
 
-	public function isPassedMiddleware($middlewares = null, $request = null): bool {
+	public function isPassedMiddleware($middlewares = null, $request = null, $path = null): bool {
 		// Không có middleware -> pass
 		if (empty($middlewares)) {
 			return true;
@@ -61,7 +61,7 @@ abstract class BaseRoute extends BaseInstances {
 		$request = $app->make('request');
 
 		// Helper: chạy 1 middleware descriptor, trả về chuẩn ['ok' => bool, 'response' => Response|null]
-		$runOne = function($desc) use ($request, $app) {
+		$runOne = function($desc) use ($request, $app, $path) {
 			// $next giả: middleware gọi $next($request) => được coi là "pass" -> trả Response 200
 			$next = function($req = null) {
 				return new Response('', 200);
@@ -90,14 +90,14 @@ abstract class BaseRoute extends BaseInstances {
 					// nếu method không tồn tại, cố gọi handle, nếu không có -> fail
 					if (!method_exists($instance, $method)) {
 						if (method_exists($instance, 'handle')) {
-							$res = $instance->handle($request, $next);
+							$res = $instance->handle($request, $next, $path);
 						}
 						else {
 							return ['ok' => false, 'response' => null];
 						}
 					}
 					else {
-						$res = $instance->$method($request, $next);
+						$res = $instance->$method($request, $next, $path);
 					}
 				}
 				else {
