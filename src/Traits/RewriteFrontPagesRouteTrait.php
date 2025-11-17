@@ -51,6 +51,7 @@ trait RewriteFrontPagesRouteTrait {
 	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		// Xây dựng full path
 		$fullPath = $this->buildFullPath($path);
+		$requestPath = trim($this->request->getRequestUri(), '/\\');
 
 		// Merge middlewares
 		$allMiddlewares = $this->getFlattenedMiddlewares();
@@ -85,7 +86,9 @@ trait RewriteFrontPagesRouteTrait {
 			], $constructParams);
 			$callback         = $this->prepareCallback($callback, $useInitClass, $constructParams);
 			$callback[1]      = 'init';
-			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($fullPath) : $callback;
+			$callParams = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
+			$this->resolveAndCall($callback, $callParams);
+//			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($fullPath) : $callback;
 		}
 
 		// Reset middleware khi gọi xong function.
@@ -115,6 +118,7 @@ trait RewriteFrontPagesRouteTrait {
 	public function executeHiddenMethod($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		// Xây dựng full path
 		$fullPath = $this->buildFullPath($path);
+		$requestPath = trim($this->request->getPathInfo(), '/\\');
 
 		// Merge middlewares
 		$allMiddlewares = $this->getFlattenedMiddlewares();
@@ -130,7 +134,6 @@ trait RewriteFrontPagesRouteTrait {
 			return $this;
 		}
 
-		$requestPath = trim($this->request->getPathInfo(), '/\\');
 		if (
 			preg_match('/' . $fullPath . '/iu', $requestPath)
 			&& $this->isPassedMiddleware($allMiddlewares, $this->request, ['path' => $fullPath, 'custom_properties' => $customProperties])
@@ -150,7 +153,9 @@ trait RewriteFrontPagesRouteTrait {
 			], $constructParams);
 			$callback         = $this->prepareCallback($callback, $useInitClass, $constructParams);
 			$callback[1]      = 'init';
-			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($fullPath) : $callback;
+			$callParams = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
+			$this->resolveAndCall($callback, $callParams);
+//			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($fullPath) : $callback;
 		}
 		return $this;
 	}

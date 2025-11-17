@@ -284,68 +284,98 @@ trait GroupRoutesTrait {
 	 * Build call params as associative array so Container::call can autowire and inject properly.
 	 */
 	protected function getCallParams($path, $requestPath, $class, $method) {
+		// Lấy container / request
 		$app = $this->funcs->getApplication() ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
 		if (!$app) {
 			throw new \RuntimeException('Container instance not found when building call params.');
 		}
-
 		$baseRequest = $app->bound('request') ? $app->make('request') : ($this->request ?? \Illuminate\Http\Request::capture());
-		preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath, $matches);
+
+		// Chuẩn hóa requestPath: loại bỏ query string, trim
+		$requestPath = preg_replace('/\?.*$/', '', $requestPath);
+		$requestPath = trim($requestPath, '/\\');
+
+		// Match pattern: KHÔNG escape path vì path đã là regex pattern (có thể chứa (?P<name>...))
+		// Nếu $path có ^ hoặc $ thì vẫn dùng như vậy; nếu không có, ta match toàn chuỗi.
+		$pattern = '/' . $path . '/iu';
+
+		if (!preg_match($pattern, $requestPath, $matches)) {
+			return []; // Không match => không param
+		}
+
+		// Named groups: keys là tên (PHP returns associative entries for named groups)
 		$named = array_filter($matches, fn($k) => !is_int($k), ARRAY_FILTER_USE_KEY);
 
-		// Lấy các capture positional (1..n) — loại bỏ index 0 (full match)
+		// Positional captures (1..n)
 		$positional = [];
 		foreach ($matches as $k => $v) {
-			if (is_int($k) && $k > 0) {
-				$positional[] = $v;
-			}
+			if (is_int($k) && $k > 0) $positional[] = $v;
 		}
 		$posIndex = 0;
 
-		$query = $baseRequest->query->all();
-		$post  = $baseRequest->request->all();
-		$attr  = $baseRequest->attributes->all();
+		// Request sources
+		$query = $baseRequest->query->all();      // GET params
+		$post  = $baseRequest->request->all();    // POST params
+		$attr  = $baseRequest->attributes->all(); // attributes
 
+		// Reflection method để đọc danh sách tham số của callback
 		$reflection = new \ReflectionMethod($class, $method);
 		$callParams = [];
 
 		foreach ($reflection->getParameters() as $param) {
-			$name  = $param->getName();
-			$type  = $param->getType();
-			$value = null;
+			$name = $param->getName();
+			$type = $param->getType();
 
-			// Nếu param có type-hint class (VD: Request) → để Container tự inject
+			// Nếu param có type-hint là class (non-builtin) -> để container xử lý, KHÔNG gán value vào routeParams
+			// (Container::call sẽ tự inject class instances)
 			if ($type && !$type->isBuiltin()) {
+				// Không set $callParams[$name] — container sẽ resolve type-hint
 				continue;
 			}
 
-			// Ưu tiên theo tên param trong named match, attributes, post, query
+			$value = null;
+
+			// 1) Nếu có named capture trùng tên param -> ưu tiên
 			if (array_key_exists($name, $named)) {
 				$value = $named[$name];
 			}
+			// 2) attributes (request attributes)
 			elseif (array_key_exists($name, $attr)) {
 				$value = $attr[$name];
 			}
+			// 3) POST (body)
 			elseif (array_key_exists($name, $post)) {
 				$value = $post[$name];
 			}
+			// 4) Query string
 			elseif (array_key_exists($name, $query)) {
 				$value = $query[$name];
 			}
-			// Nếu không có giá trị theo tên thì lấy theo thứ tự positional capture
+			// 5) Positional capture fallback
 			elseif (isset($positional[$posIndex])) {
-				$value = $positional[$posIndex];
-				$posIndex++;
+				$value = $positional[$posIndex++];
 			}
-			// Nếu không có positional thì dùng default (nếu có)
+			// 6) Default value from signature
 			elseif ($param->isDefaultValueAvailable()) {
 				$value = $param->getDefaultValue();
 			}
-			else {
-				$value = null;
+			// 7) else null
+
+			// Nếu là string, decode URL-encoded values (an toàn)
+			if (is_string($value)) {
+				$value = urldecode($value);
 			}
 
 			$callParams[$name] = $value;
+		}
+
+		// Ngoài các params lấy từ signature (primitive params),
+		// ta cũng muốn expose ALL named captures (dù method không khai báo param cụ thể)
+		// — giúp bạn có thể lấy $routeParams['endpoint'] trong middleware hoặc log.
+		foreach ($named as $k => $v) {
+			if (!array_key_exists($k, $callParams)) {
+				$callParams[$k] = is_string($v) ? urldecode($v) : $v;
+			}
 		}
 
 		return $callParams;
