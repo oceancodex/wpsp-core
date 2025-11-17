@@ -2,79 +2,80 @@
 
 namespace WPSPCORE\Console\Commands;
 
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use WPSPCORE\FileSystem\FileSystem;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 use WPSPCORE\Console\Traits\CommandsTrait;
 
 class MakeTaxonomyColumnCommand extends Command {
 
 	use CommandsTrait;
 
-	protected function configure() {
-		$this
-			->setName('make:taxonomy-column')
-			->setDescription('Create a new taxonomy column.             | Eg: bin/wpsp make:taxonomy-column my_custom_column')
-			->setHelp('This command allows you to create a custom column for taxonomy list table.')
-			->addArgument('name', InputArgument::OPTIONAL, 'The name of the taxonomy column.');
-	}
+	protected $signature = 'make:taxonomy-column
+        {name? : The name of the taxonomy column.}';
 
-	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$name = $input->getArgument('name');
+	protected $description = 'Create a new taxonomy column.             | Eg: bin/wpsp make:taxonomy-column my_custom_column';
 
-		$helper = $this->getHelper('question');
+	protected $help = 'This command allows you to create a custom column for taxonomy list table.';
+
+	public function handle(): void {
+		$this->funcs = $this->getLaravel()->make('funcs');
+		$mainPath    = $this->funcs->mainPath;
+
+		$name = $this->argument('name');
+
+		// Ask interactively
 		if (!$name) {
-			$nameQuestion = new Question('Please enter the name of the taxonomy column: ');
-			$name         = $helper->ask($input, $output, $nameQuestion);
+			$name = $this->ask('Please enter the name of the taxonomy column');
 
 			if (empty($name)) {
-				$this->writeln($output, 'Missing name for the taxonomy column. Please try again.');
-				return Command::INVALID;
+				$this->error('Missing name for the taxonomy column. Please try again.');
+				exit;
 			}
 		}
 
-
-		// Define variables.
 		$nameSlugify = Str::slug($name, '_');
 
-		// Validate class name.
-		$this->validateClassName($output, $name);
+		// Validate class name
+		$this->validateClassName($name);
 
-		// Check exist.
-		$path = $this->mainPath . '/app/Components/TaxonomyColumns/' . $name . '.php';
-		if (FileSystem::exists($path)) {
-			$this->writeln($output, '[ERROR] Taxonomy column: "' . $name . '" already exists! Please try again.');
-			return Command::FAILURE;
+		// Path
+		$path = $mainPath . '/app/Components/TaxonomyColumns/' . $name . '.php';
+
+		// Check exists
+		if (File::exists($path)) {
+			$this->error('[ERROR] Taxonomy column: "' . $name . '" already exists! Please try again.');
+			exit;
 		}
 
-		// Create class file.
-		$stub = FileSystem::get(__DIR__ . '/../Stubs/TaxonomyColumns/taxonomy_column.stub');
+		/* -------------------------------------------------
+		 * Create class file
+		 * ------------------------------------------------- */
+		$stub = File::get(__DIR__ . '/../Stubs/TaxonomyColumns/taxonomy_column.stub');
 		$stub = str_replace('{{ className }}', $name, $stub);
 		$stub = $this->replaceNamespaces($stub);
-		FileSystem::put($path, $stub);
 
-		// Prepare new line for find function.
-		$func = FileSystem::get(__DIR__ . '/../Funcs/TaxonomyColumns/taxonomy_column.func');
-		$func = str_replace('{{ name }}', $name, $func);
-		$func = str_replace('{{ name_slugify }}', $nameSlugify, $func);
+		File::ensureDirectoryExists(dirname($path));
+		File::put($path, $stub);
 
-		// Prepare new line for use class.
-		$use = FileSystem::get(__DIR__ . '/../Uses/TaxonomyColumns/taxonomy_column.use');
-		$use = str_replace('{{ name }}', $name, $use);
-		$use = str_replace('{{ name_slugify }}', $nameSlugify, $use);
+		/* -------------------------------------------------
+		 * Register route entry
+		 * ------------------------------------------------- */
+		$func = File::get(__DIR__ . '/../Funcs/TaxonomyColumns/taxonomy_column.func');
+		$func = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $func);
+
+		$use = File::get(__DIR__ . '/../Uses/TaxonomyColumns/taxonomy_column.use');
+		$use = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $use);
 		$use = $this->replaceNamespaces($use);
 
-		// Add class to route.
 		$this->addClassToRoute('TaxonomyColumns', 'taxonomy_columns', $func, $use);
 
-		// Output message.
-		$this->writeln($output, '<green>Created new taxonomy column: "' . $name . '"</green>');
+		/* -------------------------------------------------
+		 * Done
+		 * ------------------------------------------------- */
+		$this->info('Created new taxonomy column: "' . $name . '"');
 
-		return Command::SUCCESS;
+		exit;
 	}
 
 }

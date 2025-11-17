@@ -1,3 +1,0 @@
-		$this->meta_box('{{ id }}', [{{ id_slugify }}::class, 'index'], true, null, [
-//			[AdministratorCapability::class, 'handle'],
-		]);

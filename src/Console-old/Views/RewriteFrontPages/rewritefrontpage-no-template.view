@@ -1,9 +1,0 @@
-@extends('modules.rewrite-front-pages.layout.main')
-
-@section('title')
-    {{ path }}
-@endsection
-
-@section('content')
-    Rewrite front page with path: "{{ path }}".
-@endsection

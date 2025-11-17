@@ -16,6 +16,7 @@ use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Vite;
 use WPSPCORE\Console\Commands\MakeAdminPageCommand;
 use WPSPCORE\Funcs;
 use WPSPCORE\Http\Middleware\StartSessionIfAuthenticated;
@@ -30,14 +31,13 @@ abstract class BaseWPSP extends BaseInstances {
 	 */
 
 	public function setApplication(string $basePath) {
+		$commands = $this->funcs->_getAllClassesInDir('WPSPCORE\Console\Commands', __DIR__ . '/../Console/Commands');
 		$this->application = Application::configure($basePath)
 			->withMiddleware(function(Middleware $middleware): void {
 				$middleware->append(StartSessionIfAuthenticated::class);
 			})
 			->withExceptions(function(Exceptions $exceptions): void {})
-			->withCommands([
-				MakeAdminPageCommand::class,
-			])
+			->withCommands($commands)
 			->create();
 
 		$this->bootstrap();
@@ -66,6 +66,9 @@ abstract class BaseWPSP extends BaseInstances {
 		(new LoadConfiguration)->bootstrap($this->application);
 		(new RegisterFacades)->bootstrap($this->application);
 		(new RegisterProviders)->bootstrap($this->application);
+//		Vite::createAssetPathsUsing(function ($path, $manifest) {
+//			return $this->funcs->_getPublicUrl() . '/' . $path;
+//		});
 	}
 
 	protected function bindings(): void {

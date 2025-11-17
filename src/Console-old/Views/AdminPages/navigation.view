@@ -1,4 +1,0 @@
-<div class="nav-tab-wrapper">
-	<a href="?page={{$menuSlug}}" class="nav-tab {{ !isset($requestParams['tab']) || $requestParams['tab'] == 'dashboard' ? 'nav-tab-active' : '' }}">Dashboard</a>
-	<a href="?page={{$menuSlug}}&tab=tab-1" class="nav-tab {{ isset($requestParams['tab']) && $requestParams['tab'] == 'tab-1' ? 'nav-tab-active' : '' }}">Tab 1</a>
-</div>

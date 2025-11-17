@@ -1,1 +1,0 @@
-use {{ rootNamespace }}\app\Components\NavigationMenus\Locations\{{ name_slugify }};

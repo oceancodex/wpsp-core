@@ -1,1 +1,0 @@
-        $this->schedule('{{ hook }}', '{{ interval_slugify }}', [{{ hook_slugify }}::class, 'run']);

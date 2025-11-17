@@ -1,1 +1,0 @@
-use {{ rootNamespace }}\app\Components\Templates\{{ name_slugify }};

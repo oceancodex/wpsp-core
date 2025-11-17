@@ -15,11 +15,11 @@ class MakeAdminPageCommand extends Command {
         {path? : The path of the admin page}
         {--create-view : Create view files for this admin page}';
 
-	protected $description = 'Create a new admin page. Example: php artisan make:admin-page custom-admin-page --create-view';
+	protected $description = 'Create a new admin page.                  | Eg: php artisan make:admin-page custom-admin-page --create-view';
 
 	public function handle(): void {
 		$this->funcs = $this->getLaravel()->make('funcs');
-		echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($this->funcs); echo '</pre>';
+		$mainPath    = $this->funcs->mainPath;
 
 		$path = $this->argument('path');
 
@@ -29,6 +29,7 @@ class MakeAdminPageCommand extends Command {
 
 			if (empty($path)) {
 				$this->error('Missing path for the admin page. Please try again.');
+				exit;
 			}
 
 			$createView = $this->confirm('Do you want to create view files for this admin page?', false);
@@ -46,7 +47,6 @@ class MakeAdminPageCommand extends Command {
 		$this->validateClassName($nameSlugify);
 
 		// Prepare paths.
-		$mainPath       = $this->funcs->mainPath;
 		$adminClassPath = $mainPath . '/app/Components/AdminPages/' . $nameSlugify . '.php';
 		$viewDirPath    = $mainPath . '/resources/views/modules/admin-pages/' . $path;
 
@@ -125,6 +125,8 @@ class MakeAdminPageCommand extends Command {
 		$this->addClassToRoute('AdminPages', 'admin_pages', $func, $use);
 
 		$this->info("Created new admin page: {$path}");
+
+		exit;
 	}
 
 }

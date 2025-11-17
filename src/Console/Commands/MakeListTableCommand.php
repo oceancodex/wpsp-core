@@ -2,63 +2,66 @@
 
 namespace WPSPCORE\Console\Commands;
 
-use WPSPCORE\FileSystem\FileSystem;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use WPSPCORE\Console\Traits\CommandsTrait;
 
 class MakeListTableCommand extends Command {
 
 	use CommandsTrait;
 
-	protected function configure() {
-		$this
-			->setName('make:list-table')
-			->setDescription('Create a new list table.                  | Eg: bin/wpsp make:list-table MyListTable')
-			->setHelp('This command allows you to create a list table.')
-			->addArgument('name', InputArgument::OPTIONAL, 'The name of the list table.');
-	}
+	protected $signature = 'make:list-table
+        {name? : The name of the list table.}';
 
-	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$name = $input->getArgument('name');
+	// Giữ nguyên spacing trong | Eg:
+	protected $description = 'Create a new list table.                  | Eg: bin/wpsp make:list-table MyListTable';
 
-		$helper = $this->getHelper('question');
+	protected $help = 'This command allows you to create a list table.';
+
+	public function handle(): void {
+		$this->funcs = $this->getLaravel()->make('funcs');
+		$mainPath    = $this->funcs->mainPath;
+
+		$name = $this->argument('name');
+
+		// Ask interactively if missing
 		if (!$name) {
-			$nameQuestion = new Question('Please enter the name of the list table: ');
-			$name         = $helper->ask($input, $output, $nameQuestion);
+			$name = $this->ask('Please enter the name of the list table');
 
 			if (empty($name)) {
-				$this->writeln($output, 'Missing name for the list table. Please try again.');
-				return Command::INVALID;
+				$this->error('Missing name for the list table. Please try again.');
+				exit;
 			}
 		}
 
-		// Create class file.
-		$content = FileSystem::get(__DIR__ . '/../Stubs/ListTables/listtable.stub');
+		// Validate class name
+		$this->validateClassName($name);
+
+		// Build path
+		$path = $mainPath . '/app/Components/ListTables/' . $name . '.php';
+
+		// Check exists? (FileSystem trước đây không check)
+		// Nếu muốn check trùng, uncomment:
+		// if (File::exists($path)) {
+		//     $this->error('[ERROR] List table: "' . $name . '" already exists! Please try again.');
+		//     exit;
+		// }
+
+		// Load stub
+		$content = File::get(__DIR__ . '/../Stubs/ListTables/listtable.stub');
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = $this->replaceNamespaces($content);
-		FileSystem::put($this->mainPath . '/app/Components/ListTables/' . $name . '.php', $content);
 
-		// Output message.
-		$this->writeln($output, '<green>Created new list table: "' . $name . '"</green>');
+		// Ensure directory exists
+		File::ensureDirectoryExists(dirname($path));
 
-		// this method must return an integer number with the "exit status code"
-		// of the command. You can also use these constants to make code more readable
+		// Create file
+		File::put($path, $content);
 
-		// return this if there was no problem running the command
-		// (it's equivalent to returning int(0))
-		return Command::SUCCESS;
+		// Output
+		$this->info('Created new list table: "' . $name . '"');
 
-		// or return this if some error happened during the execution
-		// (it's equivalent to returning int(1))
-		// return Command::FAILURE;
-
-		// or return this to indicate incorrect command usage; e.g. invalid options
-		// or missing arguments (it's equivalent to returning int(2))
-		// return Command::INVALID
+		exit;
 	}
 
 }

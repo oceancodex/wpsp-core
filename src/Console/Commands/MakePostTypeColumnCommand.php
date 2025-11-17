@@ -2,79 +2,86 @@
 
 namespace WPSPCORE\Console\Commands;
 
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use WPSPCORE\FileSystem\FileSystem;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 use WPSPCORE\Console\Traits\CommandsTrait;
 
 class MakePostTypeColumnCommand extends Command {
 
 	use CommandsTrait;
 
-	protected function configure() {
-		$this
-			->setName('make:post-type-column')
-			->setDescription('Create a new post type column.            | Eg: bin/wpsp make:post-type-column my_custom_column')
-			->setHelp('This command allows you to create a custom column for post type list table.')
-			->addArgument('name', InputArgument::OPTIONAL, 'The name of the post type column.');
-	}
+	protected $signature = 'make:post-type-column
+        {name? : The name of the post type column.}';
 
-	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$name = $input->getArgument('name');
+	// Giữ nguyên spacing trước | Eg:
+	protected $description = 'Create a new post type column.            | Eg: bin/wpsp make:post-type-column my_custom_column';
 
-		$helper = $this->getHelper('question');
+	protected $help = 'This command allows you to create a custom column for post type list table.';
+
+	public function handle(): void {
+		$this->funcs = $this->getLaravel()->make('funcs');
+		$mainPath    = $this->funcs->mainPath;
+
+		$name = $this->argument('name');
+
+		// Ask interactively if not provided
 		if (!$name) {
-			$nameQuestion = new Question('Please enter the name of the post type column: ');
-			$name         = $helper->ask($input, $output, $nameQuestion);
+			$name = $this->ask('Please enter the name of the post type column');
 
 			if (empty($name)) {
-				$this->writeln($output, 'Missing name for the post type column. Please try again.');
-				return Command::INVALID;
+				$this->error('Missing name for the post type column. Please try again.');
+				exit;
 			}
 		}
 
-
-		// Define variables.
+		// Normalize
 		$nameSlugify = Str::slug($name, '_');
 
-		// Validate class name.
-		$this->validateClassName($output, $name);
+		// Validate class name
+		$this->validateClassName($name);
 
-		// Check exist.
-		$path = $this->mainPath . '/app/Components/PostTypeColumns/' . $name . '.php';
-		if (FileSystem::exists($path)) {
-			$this->writeln($output, '[ERROR] Post type column: "' . $name . '" already exists! Please try again.');
-			return Command::FAILURE;
+		// Path
+		$path = $mainPath . '/app/Components/PostTypeColumns/' . $name . '.php';
+
+		// Check exists
+		if (File::exists($path)) {
+			$this->error('[ERROR] Post type column: "' . $name . '" already exists! Please try again.');
+			exit;
 		}
 
-		// Create class file.
-		$stub = FileSystem::get(__DIR__ . '/../Stubs/PostTypeColumns/post_type_column.stub');
+		// Create class file
+		$stub = File::get(__DIR__ . '/../Stubs/PostTypeColumns/post_type_column.stub');
 		$stub = str_replace('{{ className }}', $name, $stub);
 		$stub = $this->replaceNamespaces($stub);
-		FileSystem::put($path, $stub);
 
-		// Prepare new line for find function.
-		$func = FileSystem::get(__DIR__ . '/../Funcs/PostTypeColumns/post_type_column.func');
-		$func = str_replace('{{ name }}', $name, $func);
-		$func = str_replace('{{ name_slugify }}', $nameSlugify, $func);
+		File::ensureDirectoryExists(dirname($path));
+		File::put($path, $stub);
 
-		// Prepare new line for use class.
-		$use = FileSystem::get(__DIR__ . '/../Uses/PostTypeColumns/post_type_column.use');
-		$use = str_replace('{{ name }}', $name, $use);
-		$use = str_replace('{{ name_slugify }}', $nameSlugify, $use);
+		// Func line
+		$func = File::get(__DIR__ . '/../Funcs/PostTypeColumns/post_type_column.func');
+		$func = str_replace(
+			['{{ name }}', '{{ name_slugify }}'],
+			[$name, $nameSlugify],
+			$func
+		);
+
+		// Use line
+		$use = File::get(__DIR__ . '/../Uses/PostTypeColumns/post_type_column.use');
+		$use = str_replace(
+			['{{ name }}', '{{ name_slugify }}'],
+			[$name, $nameSlugify],
+			$use
+		);
 		$use = $this->replaceNamespaces($use);
 
-		// Add class to route.
+		// Register
 		$this->addClassToRoute('PostTypeColumns', 'post_type_columns', $func, $use);
 
-		// Output message.
-		$this->writeln($output, '<green>Created new post type column: "' . $name . '"</green>');
+		// Done
+		$this->info('Created new post type column: "' . $name . '"');
 
-		return Command::SUCCESS;
+		exit;
 	}
 
 }

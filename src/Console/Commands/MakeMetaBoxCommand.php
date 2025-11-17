@@ -2,107 +2,99 @@
 
 namespace WPSPCORE\Console\Commands;
 
-use WPSPCORE\FileSystem\FileSystem;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Question\Question;
 use WPSPCORE\Console\Traits\CommandsTrait;
 
 class MakeMetaBoxCommand extends Command {
 
 	use CommandsTrait;
 
-	protected function configure() {
-		$this
-			->setName('make:meta-box')
-			->setDescription('Create a new meta box.                    | Eg: bin/wpsp make:meta-box custom_meta_box --create-view')
-			->setHelp('This command allows you to create a meta box.')
-			->addArgument('id', InputArgument::OPTIONAL, 'The id of the meta box.')
-			->addOption('create-view', 'create-view', InputOption::VALUE_NONE, 'Create view files for this meta box or not?');
-	}
+	protected $signature = 'make:meta-box
+        {id? : The ID of the meta box.}
+        {--create-view : Create a view file for this meta box}';
 
-	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$id = $input->getArgument('id');
+	// Giữ nguyên spacing trong | Eg:
+	protected $description = 'Create a new meta box.                    | Eg: bin/wpsp make:meta-box custom_meta_box --create-view';
 
-		$helper = $this->getHelper('question');
+	protected $help = 'This command allows you to create a meta box.';
+
+	public function handle(): void {
+		$this->funcs = $this->getLaravel()->make('funcs');
+		$mainPath    = $this->funcs->mainPath;
+
+		$id = $this->argument('id');
+
+		// Interactive questions
 		if (!$id) {
-			$idQuestion = new Question('Please enter the ID of the meta box: ');
-			$id         = $helper->ask($input, $output, $idQuestion);
+			$id = $this->ask('Please enter the ID of the meta box');
 
 			if (empty($id)) {
-				$this->writeln($output, 'Missing ID for the meta box. Please try again.');
-				return Command::INVALID;
+				$this->error('Missing ID for the meta box. Please try again.');
+				exit;
 			}
 
-			$createViewQuestion = new ConfirmationQuestion('Do you want to create view files for this meta box? [y/N]: ', false);
-			$createView         = $helper->ask($input, $output, $createViewQuestion);
-		}
-		$idSlugify  = Str::slug($id, '_');
-		$createView = $createView ?? $input->getOption('create-view');
-
-		// Check exist.
-		$exist = FileSystem::exists($this->mainPath . '/app/Components/MetaBoxes/' . $idSlugify . '.php');
-//		$exist = $exist || FileSystem::exists(__DIR__ . '/../../../resources/views/modules/meta-boxes/'. $id . '.blade.php');
-		if ($exist) {
-			$this->writeln($output, '[ERROR] Meta box: "' . $id . '" already exists! Please try again.');
-			return Command::FAILURE;
-		}
-
-		if ($createView) {
-			// Create a view file.
-			$view = FileSystem::get(__DIR__ . '/../Views/MetaBoxes/meta-box.view');
-			$view = str_replace('{{ id }}', $id, $view);
-			$view = str_replace('{{ id_slugify }}', $idSlugify, $view);
-			FileSystem::put($this->mainPath . '/resources/views/modules/meta-boxes/' . $id . '.blade.php', $view);
-			$content = FileSystem::get(__DIR__ . '/../Stubs/MetaBoxes/meta-box-view.stub');
+			$createView = $this->confirm('Do you want to create view files for this meta box?', false);
 		}
 		else {
-			$content = FileSystem::get(__DIR__ . '/../Stubs/MetaBoxes/meta-box.stub');
+			$createView = $this->option('create-view');
 		}
 
-		// Create class file.
-		$content = str_replace('{{ className }}', $idSlugify, $content);
-		$content = str_replace('{{ id }}', $id, $content);
-		$content = str_replace('{{ id_slugify }}', $idSlugify, $content);
+		// Normalize
+		$idSlugify = Str::slug($id, '_');
+
+		// Check exists
+		$componentPath = $mainPath . '/app/Components/MetaBoxes/' . $idSlugify . '.php';
+		$viewPath      = $mainPath . '/resources/views/modules/meta-boxes/' . $id . '.blade.php';
+
+		if (File::exists($componentPath)) {
+			$this->error('[ERROR] Meta box "' . $id . '" already exists! Please try again.');
+			exit;
+		}
+
+		/* ---- Create view ---- */
+		if ($createView) {
+			File::ensureDirectoryExists(dirname($viewPath));
+
+			$view = File::get(__DIR__ . '/../Views/MetaBoxes/meta-box.view');
+			$view = str_replace(['{{ id }}', '{{ id_slugify }}'], [$id, $idSlugify], $view);
+
+			File::put($viewPath, $view);
+
+			$content = File::get(__DIR__ . '/../Stubs/MetaBoxes/meta-box-view.stub');
+		}
+		else {
+			$content = File::get(__DIR__ . '/../Stubs/MetaBoxes/meta-box.stub');
+		}
+
+		/* ---- Create class file ---- */
+		$content = str_replace(
+			['{{ className }}', '{{ id }}', '{{ id_slugify }}'],
+			[$idSlugify, $id, $idSlugify],
+			$content
+		);
+
 		$content = $this->replaceNamespaces($content);
-		FileSystem::put($this->mainPath . '/app/Components/MetaBoxes/' . $idSlugify . '.php', $content);
 
-		// Prepare new line for find function.
-		$func = FileSystem::get(__DIR__ . '/../Funcs/MetaBoxes/meta-box.func');
-		$func = str_replace('{{ id }}', $id, $func);
-		$func = str_replace('{{ id_slugify }}', $idSlugify, $func);
+		File::ensureDirectoryExists(dirname($componentPath));
+		File::put($componentPath, $content);
 
-		// Prepare new line for use class.
-		$use = FileSystem::get(__DIR__ . '/../Uses/MetaBoxes/meta-box.use');
-		$use = str_replace('{{ id }}', $id, $use);
-		$use = str_replace('{{ id_slugify }}', $idSlugify, $use);
+		/* ---- Register in Funcs/Uses ---- */
+		$func = File::get(__DIR__ . '/../Funcs/MetaBoxes/meta-box.func');
+		$func = str_replace(['{{ id }}', '{{ id_slugify }}'], [$id, $idSlugify], $func);
+
+		$use = File::get(__DIR__ . '/../Uses/MetaBoxes/meta-box.use');
+		$use = str_replace(['{{ id }}', '{{ id_slugify }}'], [$id, $idSlugify], $use);
 		$use = $this->replaceNamespaces($use);
 
-		// Add class to route.
+		// Add to route
 		$this->addClassToRoute('MetaBoxes', 'meta_boxes', $func, $use);
 
-		// Output message.
-		$this->writeln($output, '<green>Created new meta box: "' . $id . '"</green>');
+		/* ---- Done ---- */
+		$this->info('Created new meta box: "' . $id . '"');
 
-		// this method must return an integer number with the "exit status code"
-		// of the command. You can also use these constants to make code more readable
-
-		// return this if there was no problem running the command
-		// (it's equivalent to returning int(0))
-		return Command::SUCCESS;
-
-		// or return this if some error happened during the execution
-		// (it's equivalent to returning int(1))
-//		 return Command::FAILURE;
-
-		// or return this to indicate incorrect command usage; e.g. invalid options
-		// or missing arguments (it's equivalent to returning int(2))
-		// return Command::INVALID
+		exit;
 	}
 
 }

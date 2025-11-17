@@ -1,1 +1,0 @@
-use {{ rootNamespace }}\app\Components\MetaBoxes\{{ id_slugify }};

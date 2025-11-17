@@ -1,3 +1,0 @@
-        $this->shortcode('{{ name }}', [{{ name_slugify }}::class, 'index'], true, null, [
-//			[AdministratorCapability::class, 'handle'],
-		]);

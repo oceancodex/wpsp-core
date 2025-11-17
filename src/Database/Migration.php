@@ -15,7 +15,7 @@ class Migration extends BaseInstances {
 	protected string $migrationTable = 'migrations';
 	protected string $migrationPath;
 
-	public function afterConstruct() {
+	public function afterConstruct(): void {
 		$app                 = $this->funcs->getApplication();
 		$this->migrationPath = $app->basePath('database/migrations');
 	}
@@ -213,7 +213,7 @@ class Migration extends BaseInstances {
 	/**
 	 * Xóa toàn bộ bảng.
 	 */
-	public function dropAllDatabaseTables($output = null) {
+	public function dropAllDatabaseTables($output = null): array {
 		$tz                    = function_exists('wp_timezone') ? wp_timezone() : new \DateTimeZone('Asia/Ho_Chi_Minh');
 		$dt                    = new \DateTime('now', $tz);
 		$timestamp             = '[' . $dt->format('Y-m-d H:i:s') . ']';
