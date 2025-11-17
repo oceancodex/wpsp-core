@@ -22,7 +22,7 @@ trait HookRunnerTrait {
 	 */
 
 	public function hook($type, $hook, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
-		if ($this->isPassedMiddleware($middlewares, $this->request)) {
+		if ($this->isPassedMiddleware($middlewares, $this->request, ['type' => $type, 'hook' => $hook, 'custom_properties' => $customProperties])) {
 			$callback = $this->prepareCallback($callback, $useInitClass, $customProperties);
 			if ($type == 'action') {
 				add_action($hook, $callback, $priority, $argsNumber);
@@ -46,7 +46,7 @@ trait HookRunnerTrait {
 	 */
 
 	public function remove_hook($type, $hook, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10) {
-		if ($this->isPassedMiddleware($middlewares, $this->request)) {
+		if ($this->isPassedMiddleware($middlewares, $this->request, ['type' => $type, 'hook' => $hook, 'custom_properties' => $customProperties])) {
 			$callback = $this->prepareCallback($callback, $useInitClass, $customProperties);
 			if ($type == 'action') {
 				remove_action($hook, $callback, $priority);

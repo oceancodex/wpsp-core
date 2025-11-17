@@ -68,7 +68,7 @@ trait RewriteFrontPagesRouteTrait {
 
 		if (!is_admin()
 			&& $this->request->isMethod('GET')
-			&& $this->isPassedMiddleware($allMiddlewares, $this->request)
+			&& $this->isPassedMiddleware($allMiddlewares, $this->request, ['path' => $fullPath, 'custom_properties' => $customProperties])
 		) {
 			$this->defineMark('REWRITE_FRONT_PAGE');
 			$constructParams = [
@@ -133,7 +133,7 @@ trait RewriteFrontPagesRouteTrait {
 		$requestPath = trim($this->request->getPathInfo(), '/\\');
 		if (
 			preg_match('/' . $fullPath . '/iu', $requestPath)
-			&& $this->isPassedMiddleware($allMiddlewares, $this->request)
+			&& $this->isPassedMiddleware($allMiddlewares, $this->request, ['path' => $fullPath, 'custom_properties' => $customProperties])
 		) {
 			$this->defineMark('REWRITE_FRONT_PAGE');
 			$constructParams = [

@@ -59,7 +59,7 @@ trait AdminPagesRouteTrait {
 					|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)
 				)
 			) {
-				if ($this->isPassedMiddleware($allMiddlewares, $this->request, $fullPath)) {
+				if ($this->isPassedMiddleware($allMiddlewares, $this->request, ['path' => $fullPath, 'custom_properties' => $customProperties])) {
 					$constructParams = [
 						[
 							'path'              => $fullPath,
@@ -207,7 +207,7 @@ trait AdminPagesRouteTrait {
 				|| preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath)
 			)
 		) {
-			if ($this->isPassedMiddleware($middlewares, $this->request, $path)) {
+			if ($this->isPassedMiddleware($middlewares, $this->request, ['path' => $path, 'custom_properties' => $customProperties])) {
 				$constructParams = [
 					[
 						'path'              => $path,

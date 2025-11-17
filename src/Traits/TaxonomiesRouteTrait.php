@@ -22,7 +22,7 @@ trait TaxonomiesRouteTrait {
 	 */
 
 	public function taxonomy($taxonomy, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
-		if ($this->isPassedMiddleware($middlewares, $this->request)) {
+		if ($this->isPassedMiddleware($middlewares, $this->request, ['taxonomy' => $taxonomy, 'custom_properties' => $customProperties])) {
 			$constructParams = [
 				[
 					'taxonomy'          => $taxonomy,

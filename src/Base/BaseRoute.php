@@ -13,7 +13,7 @@ abstract class BaseRoute extends BaseInstances {
 	 *
 	 */
 
-	public function isPassedMiddleware($middlewares = null, $request = null, $path = null): bool {
+	public function isPassedMiddleware($middlewares = null, $request = null, $args = []): bool {
 		// Không có middleware -> pass
 		if (empty($middlewares)) {
 			return true;
@@ -33,12 +33,12 @@ abstract class BaseRoute extends BaseInstances {
 		$normalized = [];
 		foreach ($middlewares as $m) {
 			if ($m instanceof \Closure) {
-				$normalized[] = ['type' => 'closure', 'closure' => $m];
+				$normalizedMiddleware = ['type' => 'closure', 'closure' => $m];
 				continue;
 			}
 
 			if (is_string($m)) {
-				$normalized[] = ['type' => 'class', 'class' => $m, 'method' => 'handle'];
+				$normalizedMiddleware = ['type' => 'class', 'class' => $m, 'method' => 'handle'];
 				continue;
 			}
 
@@ -46,13 +46,26 @@ abstract class BaseRoute extends BaseInstances {
 				// [Class, method?] or nested structure
 				if (isset($m[0]) && $m[0] instanceof \Closure) {
 					// closure inside array
-					$normalized[] = ['type' => 'closure', 'closure' => $m[0]];
+					$normalizedMiddleware = ['type' => 'closure', 'closure' => $m[0]];
 				}
 				elseif (isset($m[0]) && is_string($m[0])) {
 					$method       = isset($m[1]) && is_string($m[1]) ? $m[1] : 'handle';
-					$normalized[] = ['type' => 'class', 'class' => $m[0], 'method' => $method];
+
+					if (preg_match('/^(abilities:|ability:)(.*?)$/iu', $method, $matches)) {
+						$ability_relation = $matches[1] == 'abilities:' ? 'AND' : 'OR';
+						$abilities = explode(',', $matches[2]);
+						$normalizedMiddleware = ['type' => 'class', 'class' => $m[0], 'method' => 'handle', 'args' => ['abilities' => $abilities, 'ability_relation' => $ability_relation]];
+						$method = 'handle';
+					}
+					else {
+						$normalizedMiddleware = ['type' => 'class', 'class' => $m[0], 'method' => $method];
+					}
 				}
-				// else ignore invalid entry
+			}
+
+			if (isset($normalizedMiddleware)) {
+				$normalizedMiddleware['args'] = array_merge($normalizedMiddleware['args'] ?? [], $args);
+				$normalized[] = $normalizedMiddleware;
 			}
 		}
 
@@ -61,19 +74,19 @@ abstract class BaseRoute extends BaseInstances {
 		$request = $app->make('request');
 
 		// Helper: chạy 1 middleware descriptor, trả về chuẩn ['ok' => bool, 'response' => Response|null]
-		$runOne = function($desc) use ($request, $app, $path) {
+		$runOne = function($normalizedMiddleware) use ($request, $app) {
 			// $next giả: middleware gọi $next($request) => được coi là "pass" -> trả Response 200
 			$next = function($req = null) {
 				return new Response('', 200);
 			};
 
 			try {
-				if ($desc['type'] === 'closure') {
-					$res = call_user_func($desc['closure'], $request, $next);
+				if ($normalizedMiddleware['type'] === 'closure') {
+					$res = call_user_func($normalizedMiddleware['closure'], $request, $next);
 				}
-				elseif ($desc['type'] === 'class') {
-					$class  = $desc['class'];
-					$method = $desc['method'] ?? 'handle';
+				elseif ($normalizedMiddleware['type'] === 'class') {
+					$class  = $normalizedMiddleware['class'];
+					$method = $normalizedMiddleware['method'] ?? 'handle';
 
 					// nếu class không tồn tại, coi như fail
 					if (!class_exists($class)) {
@@ -90,14 +103,14 @@ abstract class BaseRoute extends BaseInstances {
 					// nếu method không tồn tại, cố gọi handle, nếu không có -> fail
 					if (!method_exists($instance, $method)) {
 						if (method_exists($instance, 'handle')) {
-							$res = $instance->handle($request, $next, $path);
+							$res = $instance->handle($request, $next, $normalizedMiddleware['args'] ?? []);
 						}
 						else {
 							return ['ok' => false, 'response' => null];
 						}
 					}
 					else {
-						$res = $instance->$method($request, $next, $path);
+						$res = $instance->$method($request, $next, $normalizedMiddleware['args'] ?? []);
 					}
 				}
 				else {
@@ -134,8 +147,8 @@ abstract class BaseRoute extends BaseInstances {
 
 		// Logic OR: chỉ cần 1 pass => pass toàn bộ
 		if ($relation === 'OR') {
-			foreach ($normalized as $desc) {
-				$r = $runOne($desc);
+			foreach ($normalized as $normalizedMiddleware) {
+				$r = $runOne($normalizedMiddleware);
 				if ($r['ok'] === true) {
 					return true; // pass sớm
 				}
@@ -144,8 +157,8 @@ abstract class BaseRoute extends BaseInstances {
 		}
 
 		// Logic AND: tất cả phải pass
-		foreach ($normalized as $desc) {
-			$r = $runOne($desc);
+		foreach ($normalized as $normalizedMiddleware) {
+			$r = $runOne($normalizedMiddleware);
 			if ($r['ok'] !== true) {
 				return false; // có 1 fail -> fail ngay
 			}

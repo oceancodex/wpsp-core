@@ -66,7 +66,6 @@ trait ApisRouteTrait {
 	 */
 
 	public function restApiInit($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null): void {
-
 		// Xây dựng full path
 		$fullPath = $this->buildFullPath($path);
 
@@ -113,10 +112,10 @@ trait ApisRouteTrait {
 //					}
 //				],
 			],
-			'permission_callback' => function (\WP_REST_Request $request) use ($middlewares) {
+			'permission_callback' => function (\WP_REST_Request $request) use ($middlewares, $path, $customProperties) {
 				static $permissionCallback = null;
 				if ($permissionCallback !== null) return $permissionCallback;
-				$permissionCallback =  $this->isPassedMiddleware($middlewares, $request);
+				$permissionCallback =  $this->isPassedMiddleware($middlewares, $request, ['path' => $path, 'custom_properties' => $customProperties]);
 				return $permissionCallback;
 			},
 		],
