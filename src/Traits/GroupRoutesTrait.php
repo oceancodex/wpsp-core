@@ -292,8 +292,8 @@ trait GroupRoutesTrait {
 		$baseRequest = $app->bound('request') ? $app->make('request') : ($this->request ?? \Illuminate\Http\Request::capture());
 
 		// Chuẩn hóa requestPath: loại bỏ query string, trim
-		$requestPath = preg_replace('/\?.*$/', '', $requestPath);
-		$requestPath = trim($requestPath, '/\\');
+//		$requestPath = preg_replace('/\?.*$/', '', $requestPath);
+//		$requestPath = trim($requestPath, '/\\');
 
 		// Match pattern: KHÔNG escape path vì path đã là regex pattern (có thể chứa (?P<name>...))
 		// Nếu $path có ^ hoặc $ thì vẫn dùng như vậy; nếu không có, ta match toàn chuỗi.
