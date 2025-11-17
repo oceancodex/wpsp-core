@@ -43,38 +43,57 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			// Rewrite rule.
 			add_rewrite_rule($path, 'index.php?post_type=' . $this->rewriteFrontPagePostType . '&pagename=' . $this->rewriteFrontPageSlug . '&is_rewrite=true' . $stringMatches, 'top');
 
+			$requestPath = trim($this->request->getPathInfo(), '/\\');
+
 			// Fix "404" for custom permalinks.
-			add_action('parse_request', function($wp) use ($path, $stringMatches) {
-				if (preg_match('/' . $path . '/iu', $this->request->getUri())) {
-					$stringMatches = ltrim($stringMatches, '&');
-					parse_str($stringMatches, $stringMatchesArr);
-
-					unset($wp->query_vars['attachment']);
-					unset($wp->query_vars['page']);
-					unset($wp->query_vars['name']);
-
-					$wp->query_vars['is_rewrite'] = true;
-//					$wp->query_vars['page']       = $this->rewriteFrontPageSlug;
-					$wp->query_vars['pagename']   = $this->rewriteFrontPageSlug;
-					$wp->query_vars['post_type']  = $this->rewriteFrontPagePostType;
-
-					foreach ($stringMatchesArr as $stringMatchesArrKey => $stringMatchesArrValue) {
-						$wp->query_vars[$stringMatchesArrKey] = $stringMatchesArrValue;
+			add_action('parse_request', function($wp) use ($path, $requestPath, $stringMatches) {
+				try {
+					$matched = preg_match('/' . $this->funcs->_escapeRegex($path) . '/iu', $requestPath);
+					if (!$matched) {
+						$matched = preg_match('/' . $path . '/iu', $requestPath);
 					}
+				}
+				catch (\Throwable $e) {
+					$matched = false;
+				}
+
+				if (!$matched) return;
+
+				$stringMatches = ltrim($stringMatches, '&');
+				parse_str($stringMatches, $stringMatchesArr);
+
+				unset($wp->query_vars['attachment']);
+				unset($wp->query_vars['page']);
+				unset($wp->query_vars['name']);
+
+				$wp->query_vars['is_rewrite'] = true;
+//					$wp->query_vars['page']       = $this->rewriteFrontPageSlug;
+				$wp->query_vars['pagename']   = $this->rewriteFrontPageSlug;
+				$wp->query_vars['post_type']  = $this->rewriteFrontPagePostType;
+
+				foreach ($stringMatchesArr as $stringMatchesArrKey => $stringMatchesArrValue) {
+					$wp->query_vars[$stringMatchesArrKey] = $stringMatchesArrValue;
 				}
 			}, 10);
 
 			if (!is_admin()) {
 				// Access URL that match rewrite rule.
-				add_action('wp', function() use ($path) {
-					$requestPath = trim($this->request->getPathInfo(), '/\\');
-					if (preg_match('/' . $this->funcs->_escapeRegex($path) . '/iu', $requestPath)
-						|| preg_match('/' . $path . '/iu', $requestPath)
-					) {
-						$this->maybeNoTemplate();
-//						$this->{$this->callback_function}();
-						$this->callWithDependencies($this->callback_function);
+				add_action('wp', function() use ($path, $requestPath) {
+					try {
+						$matched = preg_match('/' . $this->funcs->_escapeRegex($path) . '/iu', $requestPath);
+						if (!$matched) {
+							$matched = preg_match('/' . $path . '/iu', $requestPath);
+						}
 					}
+					catch (\Throwable $e) {
+						$matched = false;
+					}
+
+					if (!$matched) return;
+
+					$this->maybeNoTemplate();
+//					$this->{$this->callback_function}();
+					$this->callWithDependencies($this->callback_function);
 				});
 			}
 		}
