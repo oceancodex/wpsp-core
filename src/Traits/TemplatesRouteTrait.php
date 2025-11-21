@@ -22,7 +22,7 @@ trait TemplatesRouteTrait {
 	 */
 
 	public function template($name, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
-		if ($this->isPassedMiddleware($middlewares, $this->request)) {
+		if ($this->isPassedMiddleware($middlewares, $this->request, ['name' => $name, 'custom_properties' => $customProperties])) {
 			$constructParams = [
 				[
 					'name'              => $name,

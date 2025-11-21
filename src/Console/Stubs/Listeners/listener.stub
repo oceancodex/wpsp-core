@@ -1,0 +1,26 @@
+<?php
+
+namespace {{ rootNamespace }}\app\Listeners;
+
+use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\Funcs;
+use {{ coreNamespace }}\Base\BaseInstances;
+use {{ coreNamespace }}\Events\Contracts\ListenerContract;
+
+class {{ className }} extends BaseInstances implements ListenerContract {
+
+	use InstancesTrait;
+
+	public function handle($event, $payload = []) {
+
+		// Code here...
+
+		Funcs::notice('{{ className }} fired! in: ' . __FILE__, 'info', true);
+
+	}
+
+	public function shouldQueue(): bool {
+		return false;
+	}
+
+}

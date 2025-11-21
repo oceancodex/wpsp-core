@@ -7,12 +7,14 @@ trait AdminPagesRouteTrait {
 	use HookRunnerTrait, GroupRoutesTrait;
 
 	public function init() {
+		$this->customProperties();
 		$this->admin_pages();
 		$this->hooks();
 		return $this;
 	}
 
 	public function initForRouterMap() {
+		$this->customProperties();
 		$this->admin_pages();
 		return $this;
 	}
@@ -28,6 +30,8 @@ trait AdminPagesRouteTrait {
 	 */
 
 	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
+		$this->currentCallMethod = 'route';
+
 		// Build full path.
 		$fullPath = $this->buildFullPath($path);
 
@@ -44,7 +48,6 @@ trait AdminPagesRouteTrait {
 		if ($this->isForRouterMap) {
 			return $this;
 		}
-
 		if (!empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantsJson()) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
 			if (
@@ -56,7 +59,7 @@ trait AdminPagesRouteTrait {
 					|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)
 				)
 			) {
-				if ($this->isPassedMiddleware($allMiddlewares, $this->request)) {
+				if ($this->isPassedMiddleware($allMiddlewares, $this->request, ['path' => $fullPath, 'custom_properties' => $customProperties])) {
 					$constructParams = [
 						[
 							'path'              => $fullPath,
@@ -118,14 +121,16 @@ trait AdminPagesRouteTrait {
 							if (preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)) {
 								$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
 								$callParams = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
-								isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
+								$this->resolveAndCall($callback, $callParams);
+//								isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
 							}
 						}
 						else {
 							$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
 							if (($callback[1] == 'index' || !isset($callback[1]))) $callback[1] = 'init';
 							$callParams = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
-							isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
+							$this->resolveAndCall($callback, $callParams);
+//							isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
 						}
 					}
 				}
@@ -150,6 +155,8 @@ trait AdminPagesRouteTrait {
 	}
 
 	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
+		$this->currentCallMethod = 'route';
+
 		// Build full path.
 		$fullPath = $this->buildFullPath($path);
 
@@ -200,7 +207,7 @@ trait AdminPagesRouteTrait {
 				|| preg_match('/' . $this->funcs->_escapeRegex($path) . '$/iu', $requestPath)
 			)
 		) {
-			if ($this->isPassedMiddleware($middlewares, $this->request)) {
+			if ($this->isPassedMiddleware($middlewares, $this->request, ['path' => $path, 'custom_properties' => $customProperties])) {
 				$constructParams = [
 					[
 						'path'              => $path,
@@ -215,7 +222,8 @@ trait AdminPagesRouteTrait {
 				], $constructParams);
 				$callback        = $this->prepareCallback($callback, $useInitClass, $constructParams);
 				$callParams      = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
-				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
+				$this->resolveAndCall($callback, $callParams);
+//				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
 			}
 			else {
 				wp_die(

@@ -5,45 +5,19 @@ namespace WPSPCORE;
 use Carbon\Carbon;
 use NumberFormatter;
 use WPSPCORE\Base\BaseInstances;
-use WPSPCORE\Database\Eloquent;
-use WPSPCORE\Finder\Finder;
-use WPSPCORE\Migration\Migration;
 
 class Funcs extends BaseInstances {
 
-	private $bladeClass;
 	private $routeMapClass;
-	private $eloquentClass;
-	private $migrationClass;
-	private $validationClass;
-	private $environmentClass;
-	private $translationClass;
+	private $WPSPClass;
 
 	/*
 	 *
 	 */
 
 	public function afterConstruct() {
-		// Prepare blade instance.
-		$this->bladeClass = '\\' . $this->rootNamespace . '\app\Workers\View\Blade';
-
-		// Prepare route map instance.
-		$this->routeMapClass = '\\' . $this->rootNamespace . '\app\Workers\Routes\RouteMap';
-
-		// Prepare eloquent instance.
-		$this->eloquentClass = '\\' . $this->rootNamespace . '\app\Workers\Database\Eloquent';
-
-		// Prepare migration instance.
-		$this->migrationClass = '\\' . $this->rootNamespace . '\app\Workers\Database\Migration';
-
-		// Prepare validation instance.
-		$this->validationClass = '\\' . $this->rootNamespace . '\app\Workers\Validation\Validation';
-
-		// Prepare environment instance.
-		$this->environmentClass = '\\' . $this->rootNamespace . '\app\Workers\Environment\Environment';
-
-		// Prepare environment instance.
-		$this->translationClass = '\\' . $this->rootNamespace . '\app\Workers\Translation\Translation';
+		$this->WPSPClass = '\\' . $this->rootNamespace . '\WPSP';
+		$this->routeMapClass = '\\' . $this->rootNamespace . '\app\Instances\Routes\RouteMap';
 	}
 
 	/*
@@ -51,19 +25,7 @@ class Funcs extends BaseInstances {
 	 */
 
 	/**
-	 * @return \WPSPCORE\View\Blade
-	 */
-	public function getBlade() {
-		try {
-			return $this->bladeClass::instance();
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-
-	/**
-	 * @return \WPSPCORE\Objects\RouteMap
+	 * @return \WPSPCORE\Routes\RouteMap
 	 */
 	public function getRouteMap() {
 		try {
@@ -74,71 +36,36 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	/**
-	 * @return \WPSPCORE\Database\Eloquent
-	 */
-	public function getEloquent() {
+	public function getApplication($abstract = null, $parameters = []) {
 		try {
-			return $this->eloquentClass::instance();
+			if ($abstract) {
+				return $this->getWPSP()->getApplication()->make($abstract, $parameters);
+			}
+			return $this->getWPSP()->getApplication();
 		}
 		catch (\Throwable $e) {
 			return null;
 		}
 	}
 
-	/**
-	 * @return \WPSPCORE\Migration\Migration
-	 */
-	public function getMigration() {
+	public function getWPSP() {
 		try {
-			return $this->migrationClass::instance();
+			return $this->WPSPClass::instance();
 		}
 		catch (\Throwable $e) {
 			return null;
 		}
 	}
 
-	/**
-	 * @return \WPSPCORE\Validation\Validation
-	 */
-	public function getValidation() {
-		try {
-			return $this->validationClass::instance();
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-
-	/**
-	 * @return \WPSPCORE\Environment\Environment
-	 */
-	public function getEnvironment() {
-		try {
-			return $this->environmentClass::instance();
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
-	}
-
-	/**
-	 * @return \WPSPCORE\Translation\Translation
-	 */
-	public function getTranslation() {
-		try {
-			return $this->translationClass::instance();
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
+	public function getWPSPClass() {
+		return $this->WPSPClass;
 	}
 
 	/*
 	 *
 	 */
 
-	public function _getMainPath($path = null) {
+	public function _getMainPath($path = null): string {
 		return rtrim($this->mainPath, '/\\') . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
@@ -154,8 +81,8 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _getBearerToken($request = null) {
-		$request = $request ?? $this->request ?? null;
+	public function _getBearerToken($request = null): ?string {
+		$request = $request ?? $this->getApplication('request') ?? null;
 
 		// --- Lấy raw header ---
 		if ($request && method_exists($request, 'headers')) {
@@ -186,38 +113,11 @@ class Funcs extends BaseInstances {
 		return $this->_env('APP_SHORT_NAME', true);
 	}
 
-	/**
-	 * @return Eloquent
-	 */
-	public function _getAppEloquent() {
-		$globalEloquent = $this->_getAppShortName() . '_eloquent';
-		global ${$globalEloquent};
-		return ${$globalEloquent};
-	}
-
-	/**
-	 * @return Migration
-	 */
-	public function _getAppMigration() {
-		$globalMigration = $this->_getAppShortName() . '_migration';
-		global ${$globalMigration};
-		return ${$globalMigration};
-	}
-
-	/**
-	 * @return \WPSPCORE\Validation\Validation
-	 */
-	public function _getAppValidation() {
-		$globalValidation = $this->_getAppShortName() . '_validation';
-		global ${$globalValidation};
-		return ${$globalValidation};
-	}
-
-	public function _getMainBaseName() {
+	public function _getMainBaseName(): string {
 		return basename($this->_getMainPath());
 	}
 
-	public function _getSitePath($appendPath = null) {
+	public function _getSitePath($appendPath = null): string {
 		if (defined('WP_CONTENT_DIR')) {
 			$path = WP_CONTENT_DIR;
 			$path = preg_replace('/wp-content$/iu', '', $path);
@@ -233,58 +133,58 @@ class Funcs extends BaseInstances {
 		return $path;
 	}
 
-	public function _getMainFilePath() {
+	public function _getMainFilePath(): string {
 		return $this->_getMainPath() . '/main.php';
 	}
 
-	public function _getAppPath($path = null) {
+	public function _getAppPath($path = null): string {
 		return $this->_getMainPath() . '/app' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getControllerPath() {
+	public function _getControllerPath(): string {
 		return $this->_getAppPath() . '/Http/Controllers';
 	}
 
-	public function _getConfigPath() {
+	public function _getConfigPath(): string {
 		return $this->_getMainPath() . '/config';
 	}
 
-	public function _getRoutesPath() {
+	public function _getRoutesPath(): string {
 		return $this->_getMainPath() . '/routes';
 	}
 
-	public function _getResourcesPath($path = null) {
+	public function _getResourcesPath($path = null): string {
 		return $this->_getMainPath() . '/resources' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getStoragePath($path = null) {
+	public function _getStoragePath($path = null): string {
 		return $this->_getMainPath() . '/storage' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getDatabasePath() {
+	public function _getDatabasePath(): string {
 		return $this->_getMainPath() . '/database';
 	}
 
-	public function _getMigrationPath() {
+	public function _getMigrationPath(): string {
 		return $this->_getDatabasePath() . '/migrations';
 	}
 
-	public function _getMainUrl() {
+	public function _getMainUrl(): string {
 		if (!function_exists('plugin_dir_url')) {
 			require($this->_getSitePath() . '/wp-admin/includes/plugin.php');
 		}
 		return rtrim(plugin_dir_url($this->_getMainFilePath()), '/\\');
 	}
 
-	public function _getPublicUrl() {
+	public function _getPublicUrl(): string {
 		return $this->_getMainUrl() . '/public';
 	}
 
-	public function _getPublicPath($path = null) {
+	public function _getPublicPath($path = null): string {
 		return $this->_getMainPath() . '/public' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getPluginData() {
+	public function _getPluginData(): array {
 		if (!function_exists('get_plugin_data')) {
 			require($this->_getSitePath() . '/wp-admin/includes/plugin.php');
 		}
@@ -303,8 +203,8 @@ class Funcs extends BaseInstances {
 		return $this->_getPluginData()['RequiresPHP'];
 	}
 
-	public function _getAllFilesInFolder($path) {
-		$finder = new Finder();
+	public function _getAllFilesInFolder($path): array {
+		$finder = new \Symfony\Component\Finder\Finder();
 		$finder->files()->in($path);
 		foreach ($finder as $file) {
 			$files[] = [
@@ -326,15 +226,15 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _getDBCustomMigrationTablePrefix() {
+	public function _getDBCustomMigrationTablePrefix(): string {
 		return $this->_getDBTablePrefix() . 'cm_';
 	}
 
-	public function _getDBTableName($name) {
+	public function _getDBTableName($name): string {
 		return $this->_getDBTablePrefix() . $name;
 	}
 
-	public function _getDBCustomMigrationTableName($name) {
+	public function _getDBCustomMigrationTableName($name): string {
 		return $this->_getDBTablePrefix() . 'cm_' . $name;
 	}
 
@@ -342,7 +242,7 @@ class Funcs extends BaseInstances {
 		return preg_replace('/^(.*?)' . $targetDir . '(.*?)$/iu', $targetDir . '$2', $path);
 	}
 
-	public function _getAllClassesInDir($namespace = __NAMESPACE__, $path = __DIR__) {
+	public function _getAllClassesInDir($namespace = __NAMESPACE__, $path = __DIR__): array {
 		$finder = new \Symfony\Component\Finder\Finder();
 		$finder->files()->in($path)->name('*.php');
 		foreach ($finder as $file) {
@@ -417,11 +317,11 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _getPluginDirName() {
+	public function _getPluginDirName(): string {
 		return $this->_getMainBaseName();
 	}
 
-	public function _getWPConfig($file = null) {
+	public function _getWPConfig($file = null): array {
 		if (!$file) {
 			$file = $this->_getSitePath() . '/wp-config.php';
 		}
@@ -486,22 +386,13 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _locale() {
-		if (function_exists('get_locale')) {
-			return get_locale();
-		}
-		else {
-			return $this->_env('APP_LOCALE', true, 'en');
-		}
+	public function _app($abstract, $parameters = []) {
+		return $this->getApplication($abstract, $parameters);
 	}
 
 	public function _env($var, $addPrefix = false, $default = null) {
-		/** @var \WPSPCORE\Environment\Environment $environment */
-		$environment = $this->getEnvironment();
-		if ($environment) {
-			$result = $environment->get($addPrefix ? $this->_getPrefixEnv() . $var : $var, $default);
-		}
-		elseif (function_exists('env')) {
+		$var = $addPrefix ? $this->_getPrefixEnv() . $var : $var;
+		if (function_exists('env')) {
 			$result = env($var, $default) ?? $default;
 		}
 		elseif (function_exists('getenv')) {
@@ -513,7 +404,56 @@ class Funcs extends BaseInstances {
 		return $result;
 	}
 
-	public function _asset($path, $secure = null) {
+	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
+		/** @var \Illuminate\View\Factory $blade */
+		$blade = $this->getApplication('view');
+		try {
+			if (!$viewName && $instance) {
+				return $blade ?? null;
+			}
+			if ($blade !== null) {
+				return $blade->make($viewName, $data, $mergeData);
+			}
+			return null;
+		}
+		catch (\Throwable $e) {
+			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
+		}
+	}
+
+	public function _debug($message = '', $print = false, $varDump = false) {
+
+		// If "var_dump" mode is OFF.
+		if ($varDump) {
+
+			// Start buffer capture.
+			ob_start();
+
+			// Dump the values.
+			var_dump($message);
+
+			// Put the buffer into a variable.
+			$message = ob_get_contents();
+
+			// End capture.
+			ob_end_clean();
+
+			// Error log the message.
+
+		}
+
+		if ($print) {
+			echo '<pre>';
+			print_r($message);
+			echo '</pre>';
+		}
+		else {
+			error_log(print_r($message, true));
+		}
+
+	}
+
+	public function _asset($path, $secure = null): string {
 		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
 	}
 
@@ -550,14 +490,40 @@ class Funcs extends BaseInstances {
 							unset($args[$paramName]); // Đã xử lý rồi thì bỏ đi
 						}
 					}
+				} else {
+					// Nếu không có group tên -> match lần lượt group không tên ()
+					if (preg_match_all('/\(([^?][^)]+)\)/', $routeFromMap, $unnamedGroups)) {
+						$i = 0;
+						foreach ($unnamedGroups[0] as $groupPattern) {
+							if (isset($args[$i])) {
+								$routeFromMap = preg_replace(
+									'/' . preg_quote($groupPattern, '/') . '/',
+									rawurlencode($args[$i]),
+									$routeFromMap,
+									1
+								);
+							}
+							$i++;
+						}
+						$args = array_slice($args, $i); // Bỏ các args đã thay
+					}
 				}
 
 				// Nếu còn args chưa mapping vào route thì nối query string như cũ
 				if (!empty($args)) {
+					$routeFromMap = add_query_arg($args, $routeFromMap);
 					$routeFromMap = add_query_arg($args, rawurlencode($routeFromMap));
 					$routeFromMap = rawurldecode($routeFromMap);
 				}
 			}
+
+			// 🧹 Làm sạch regex pattern thừa
+			$routeFromMap = preg_replace([
+				'/\^\//',      // bỏ ^/
+				'/\/?\$$/',    // bỏ /?$
+				'/\$$/',       // bỏ $
+			], '', $routeFromMap);
+			$routeFromMap = preg_replace('/\\\\\//', '/', $routeFromMap);
 
 			if ($buildURL || (is_bool($args) && $args)) {
 				switch ($routeClass) {
@@ -570,10 +536,16 @@ class Funcs extends BaseInstances {
 					case 'AdminPages':
 						$routeFromMap = $this->_sanitizeURL(admin_url('admin.php?page=' . $routeFromMap));
 						break;
+					case 'RewriteFrontPages':
+						$routeFromMap = $this->_sanitizeURL(home_url($routeFromMap));
+						break;
 					default:
 				}
 			}
 		}
+
+		// Bỏ dấu / dư đầu-cuối
+		$routeFromMap = trim($routeFromMap, '/');
 
 		return $routeFromMap;
 	}
@@ -584,7 +556,7 @@ class Funcs extends BaseInstances {
 				return __($string, $this->_getTextDomain());
 			}
 			else {
-				$translation = $this->getTranslation();
+				$translation = $this->getApplication('translator');
 				return $translation->has($string) ? $translation->get($string) : $translation->get($string, [], $this->_config('app.fallback_locale'));
 			}
 		}
@@ -595,20 +567,21 @@ class Funcs extends BaseInstances {
 
 	public function _config($key = null, $default = null) {
 		try {
-			$configs = [];
-			$files   = $this->_getAllFilesInFolder($this->_getMainPath() . '/config');
-			foreach ($files as $file) {
-				$configKey        = $file['relative_path'];
-				$configKey        = preg_replace('/\.php/iu', '', $configKey);
-				$configItemNested = $this->_explodeToNestedArray('/', $configKey, \Noodlehaus\Config::load($file['real_path'])->all());
-				$configs          = array_merge_recursive($configs, $configItemNested);
-			}
-			$configs = new \Dflydev\DotAccessData\Data($configs);
-			return $configs->get($key);
+			$config = $this->getApplication('config');
+			return $config->get($key);
 		}
 		catch (\Throwable $e) {
+			return null;
 		}
-		return null;
+	}
+
+	public function _locale() {
+		if (function_exists('get_locale')) {
+			return get_locale();
+		}
+		else {
+			return $this->_env('APP_LOCALE', true, 'en');
+		}
 	}
 
 	public function _notice($message = '', $type = 'info', $echo = false, $wrap = false, $class = null, $dismiss = true) {
@@ -624,114 +597,98 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _debug($message = '', $print = false, $varDump = false) {
-
-		// If "var_dump" mode is OFF.
-		if ($varDump) {
-
-			// Start buffer capture.
-			ob_start();
-
-			// Dump the values.
-			var_dump($message);
-
-			// Put the buffer into a variable.
-			$message = ob_get_contents();
-
-			// End capture.
-			ob_end_clean();
-
-			// Error log the message.
-
-		}
-
-		if ($print) {
-			echo '<pre>';
-			print_r($message);
-			echo '</pre>';
-		}
-		else {
-			error_log(print_r($message, true));
-		}
-
-	}
-
-	public function _response($success = false, $data = [], $message = '', $code = 204) {
+	public function _response($success = false, $data = [], $message = ''): array {
 		return [
 			'success' => $success,
 			'data'    => $data,
 			'message' => $message,
-			'code'    => $code,
 		];
-	}
-
-	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
-		/** @var \WPSPCORE\View\Blade $blade */
-		$blade = $this->getBlade();
-		try {
-			if (!$viewName && $instance) {
-				return $blade->getFactory() ?? null;
-			}
-			if ($blade !== null) {
-				return $blade->getFactory()->make($viewName, $data, $mergeData);
-			}
-			return null;
-		}
-		catch (\Throwable $e) {
-			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
-		}
-	}
-
-	public function _viewInstance() {
-		return $this->_view(null, [], [], true);
 	}
 
 	public function _viewInject($views, $callback) {
 		return $this->_viewInstance()->composer($views, $callback);
 	}
 
+	public function _viewInstance() {
+		return $this->_view(null, [], [], true);
+	}
+
 	/*
 	 *
 	 */
+
+
+
 
 	public function _buildUrl($baseUrl = null, $args = []) {
 		$url = add_query_arg($args ?? [], $baseUrl ?? '');
 		return $this->_sanitizeURL($url);
 	}
 
-	public function _nonceName($name = null) {
+	public function _nonceName($name = null): string {
 		return $this->_env('APP_SHORT_NAME', true) . ($name ? '_' . $name : '') . '_nonce';
 	}
 
-	public function _isDebug() {
+	public function _slugParams($params = [], $separator = '_') {
+		// Lấy toàn bộ query string từ URL
+		$request = $this->request ?? $this->getApplication('request');
+		$queryParams = $request->query->all();
+
+		$selectedParts = [];
+
+		// Chỉ lấy những params được khai báo
+		foreach ($params as $key) {
+			if (isset($queryParams[$key])) {
+				// Ghép key và value để phân biệt
+				$selectedParts[] = $key . '=' . $queryParams[$key];
+			}
+		}
+
+		// Ghép các phần lại thành một chuỗi
+		$slug = implode($separator, $selectedParts);
+
+		// Làm sạch chuỗi thành dạng slug
+		$slug = preg_replace('/[^0-9a-zA-Z]/iu', $separator, $slug);
+
+		// Thêm tiền tố app name (nếu có)
+		$prefix = $this->_env('APP_SHORT_NAME', true);
+		if ($prefix) {
+			$slug = $prefix . $separator . $slug;
+		}
+
+		// Gán vào biến class
+		return $slug;
+	}
+
+	public function _isDebug(): bool {
 		return $this->_env('APP_DEBUG', true) == 'true';
 	}
 
-	public function _isWPDebug() {
+	public function _isWPDebug(): bool {
 		return defined('WP_DEBUG') && WP_DEBUG;
 	}
 
-	public function _isWPDebugLog() {
+	public function _isWPDebugLog(): bool {
 		return defined('WP_DEBUG_LOG') && WP_DEBUG_LOG;
 	}
 
-	public function _isWPDebugDisplay() {
+	public function _isWPDebugDisplay(): bool {
 		return defined('WP_DEBUG_DISPLAY') && WP_DEBUG_DISPLAY;
 	}
 
-	public function _isLocal() {
-		return $this->_env('APP_ENV', true) == 'local';
-	}
-
-	public function _isDev() {
+	public function _isDev(): bool {
 		return $this->_env('APP_ENV', true) == 'dev';
 	}
 
-	public function _isProduction() {
+	public function _isLocal(): bool {
+		return $this->_env('APP_ENV', true) == 'local';
+	}
+
+	public function _isProduction(): bool {
 		return $this->_env('APP_ENV', true) == 'production';
 	}
 
-	public function _wantsJson() {
+	public function _wantsJson(): bool {
 		// WordPress AJAX
 		if (function_exists('wp_doing_ajax') && wp_doing_ajax()) {
 			return true;
@@ -758,11 +715,11 @@ class Funcs extends BaseInstances {
 		return false;
 	}
 
-	public function _expectsJson() {
+	public function _expectsJson(): bool {
 		return $this->_wantsJson();
 	}
 
-	public function _escapeRegex($pattern, $delimiter = '/') {
+	public function _escapeRegex($pattern, $delimiter = '/'): string {
 		$result = '';
 		$depth  = 0;
 		$buffer = '';
@@ -852,7 +809,7 @@ class Funcs extends BaseInstances {
 		return preg_replace('/(\?|\&)+$/', '', $url);
 	}
 
-	public function _commentTokens() {
+	public function _commentTokens(): array {
 		$commentTokens = [T_COMMENT];
 
 		if (defined('T_DOC_COMMENT')) {
@@ -869,13 +826,13 @@ class Funcs extends BaseInstances {
 		return str_replace('\\', '/', $path);
 	}
 
-	public function _trailingslashit($path) {
+	public function _trailingslashit($path): string {
 		$path = str_replace('\\', '/', $path);
 		$path = rtrim($path, '/\\');
 		return $path . '/';
 	}
 
-	public function _untrailingslashit($path) {
+	public function _untrailingslashit($path): string {
 		$path = str_replace('\\', '/', $path);
 		return rtrim($path, '/\\');
 	}
@@ -964,7 +921,7 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _prefixArrayKeys($array, $prefix = null) {
+	public function _prefixArrayKeys($array, $prefix = null): array {
 		$results = [];
 		foreach ($array as $key => $value) {
 			$results[$prefix . $key] = $value;
@@ -972,7 +929,7 @@ class Funcs extends BaseInstances {
 		return $results;
 	}
 
-	public function _removePrefixArrayKeys($array, $prefix = null) {
+	public function _removePrefixArrayKeys($array, $prefix = null): array {
 		$results = [];
 		foreach ($array as $key => $value) {
 			$key           = preg_replace('/' . $prefix . '/iu', '', $key);
@@ -981,8 +938,14 @@ class Funcs extends BaseInstances {
 		return $results;
 	}
 
-	public function _folderExists($path = null) {
+	public function _folderExists($path = null): bool {
 		return is_dir($path);
+	}
+
+	public function _vendorFolderExists($package = null): bool {
+		$vendorPath = $this->_getMainPath('/vendor');
+		$package = trim($package, '/');
+		return $this->_folderExists($vendorPath . '/' . $package);
 	}
 
 }

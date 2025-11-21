@@ -1,0 +1,5 @@
+		$this->get('{{ path }}\/?$', [{{ name_slugify }}::class, 'index'], true, null, [
+//			'relation' => 'OR',
+//			[AdministratorCapability::class, 'handle'],
+//			[EditorCapability::class, 'handle']
+        ]);

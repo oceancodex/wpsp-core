@@ -1,0 +1,32 @@
+<?php
+
+namespace {{ rootNamespace }}\app\Components\Shortcodes;
+
+use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\Funcs;
+use {{ coreNamespace }}\Base\BaseShortcode;
+
+class {{ className }} extends BaseShortcode {
+
+	use InstancesTrait;
+
+//	public $shortcode = null;
+
+	/*
+	 *
+	 */
+
+	public function index($atts, $content, $tag) {
+		return Funcs::view('modules.shortcodes.{{ name }}')->render();
+	}
+
+
+	/*
+	 *
+	 */
+
+	public function customProperties() {
+//		$this->shortcode = 'custom_shortcode';
+	}
+
+}

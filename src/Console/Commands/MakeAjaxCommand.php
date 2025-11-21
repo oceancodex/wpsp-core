@@ -1,0 +1,74 @@
+<?php
+
+namespace WPSPCORE\Console\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use WPSPCORE\Console\Traits\CommandsTrait;
+
+class MakeAjaxCommand extends Command {
+
+	use CommandsTrait;
+
+	protected $signature = 'make:ajax
+        {method? : The method of the Ajax (GET, POST, etc)}
+        {action? : The action name of the Ajax}
+        {--nopriv : Allow access for non-logged users}';
+
+	protected $description = 'Create a new Ajax action.                 | Eg: php artisan make:ajax GET my_action --nopriv';
+
+	public function handle() {
+		$this->funcs = $this->getLaravel()->make('funcs');
+
+		$method = $this->argument('method');
+		$action = $this->argument('action');
+
+		// If no action provided → interactive mode
+		if (!$action) {
+			$action = $this->ask('Please enter the action name of the ajax');
+
+			if (empty($action)) {
+				$this->error('Missing action name for the ajax. Please try again.');
+				exit;
+			}
+
+			$nopriv = $this->confirm('Do you want to allow access for non-logged users (nopriv)?', false);
+		}
+		else {
+			$nopriv = $this->option('nopriv');
+		}
+
+		// Define variables
+		$method        = strtolower($method);
+		$actionSlugify = Str::slug($action, '_');
+		$noprivValue   = $nopriv ? 'true' : 'false';
+
+		// Prepare line for find function
+		$func = File::get(__DIR__ . '/../Funcs/Ajaxs/ajax.func');
+		$func = str_replace(
+			['{{ method }}', '{{ action }}', '{{ action_slugify }}', '{{ nopriv }}'],
+			[$method, $action, $actionSlugify, $noprivValue],
+			$func
+		);
+
+		// Prepare line for use class
+		$use = File::get(__DIR__ . '/../Uses/Ajaxs/ajax.use');
+		$use = str_replace(
+			['{{ method }}', '{{ action }}', '{{ action_slugify }}', '{{ nopriv }}'],
+			[$method, $action, $actionSlugify, $noprivValue],
+			$use
+		);
+
+		$use = $this->replaceNamespaces($use);
+
+		// Add to routes
+		$this->addClassToRoute('Ajaxs', 'ajaxs', $func, $use);
+
+		// Output
+		$this->info("Created new Ajax action: {$action}");
+
+		exit;
+	}
+
+}

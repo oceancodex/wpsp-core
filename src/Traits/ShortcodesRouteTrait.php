@@ -22,7 +22,7 @@ trait ShortcodesRouteTrait {
 	 */
 
 	public function shortcode($shortcode, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
-		if ($this->isPassedMiddleware($middlewares, $this->request)) {
+		if ($this->isPassedMiddleware($middlewares, $this->request, ['short_code' => $shortcode, 'custom_properties' => $customProperties])) {
 			$constructParams = [
 				[
 					'shortcode'         => $shortcode,

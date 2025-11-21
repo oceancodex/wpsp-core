@@ -22,7 +22,7 @@ trait RolesRouteTrait {
 	 */
 
 	public function role($role, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
-		if ($this->isPassedMiddleware($middlewares, $this->request)) {
+		if ($this->isPassedMiddleware($middlewares, $this->request, ['role' => $role, 'custom_properties' => $customProperties])) {
 			if (is_array($callback)) {
 				$constructParams = [
 					[

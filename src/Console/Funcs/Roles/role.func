@@ -1,0 +1,5 @@
+		$this->role('{{ name }}', [{{ name_slugify }}::class, null], true, null, [
+//			'relation' => 'OR',
+//			[AdministratorCapability::class, 'handle'],
+//			[EditorCapability::class, 'handle'],
+		]);

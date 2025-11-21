@@ -7,12 +7,14 @@ trait ApisRouteTrait {
 	use HookRunnerTrait, GroupRoutesTrait;
 
 	public function init() {
+		$this->customProperties();
 		$this->apis();
 		$this->hooks();
 		return $this;
 	}
 
 	public function initForRouterMap() {
+		$this->customProperties();
 		$this->apis();
 		return $this;
 	}
@@ -28,30 +30,42 @@ trait ApisRouteTrait {
 	 */
 
 	public function get($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
-		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		$this->currentCallMethod = 'route';
+		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		$this->middlewareStack = [];
+		return $this;
 	}
 
 	public function post($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
-		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		$this->currentCallMethod = 'route';
+		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		$this->middlewareStack = [];
+		return $this;
 	}
 
 	public function put($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
-		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		$this->middlewareStack = [];
+		return $this;
 	}
 
 	public function delete($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
-		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		$this->middlewareStack = [];
+		return $this;
 	}
 
 	public function patch($path, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
-		return $this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		$this->restApiInit($path, strtoupper(__FUNCTION__), $callback, $useInitClass, $customProperties, $middlewares, $namespace, $version);
+		$this->middlewareStack = [];
+		return $this;
 	}
 
 	/*
 	 *
 	 */
 
-	public function restApiInit($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
+	public function restApiInit($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null): void {
 		// Xây dựng full path
 		$fullPath = $this->buildFullPath($path);
 
@@ -66,20 +80,15 @@ trait ApisRouteTrait {
 
 		// Nếu đang build router map, chỉ lưu thông tin
 		if ($this->isForRouterMap) {
-			return $this;
+			return;
 		}
 
 		add_action('rest_api_init', function () use ($fullPath, $method, $callback, $useInitClass, $customProperties, $allMiddlewares, $namespace, $version) {
 			$this->registerRestRoute($fullPath, $method, $callback, $useInitClass, $customProperties, $allMiddlewares, $namespace, $version);
 		});
-
-		// Reset middleware khi gọi xong function.
-		$this->middlewareStack = [];
-
-		return $this;
 	}
 
-	public function registerRestRoute($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null) {
+	public function registerRestRoute($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null): void {
 		$constructParams = [
 			[
 				'path'              => $path,
@@ -103,10 +112,10 @@ trait ApisRouteTrait {
 //					}
 //				],
 			],
-			'permission_callback' => function (\WP_REST_Request $request) use ($middlewares) {
+			'permission_callback' => function (\WP_REST_Request $request) use ($middlewares, $path, $customProperties) {
 				static $permissionCallback = null;
 				if ($permissionCallback !== null) return $permissionCallback;
-				$permissionCallback =  $this->isPassedMiddleware($middlewares, $request);
+				$permissionCallback =  $this->isPassedMiddleware($middlewares, $request, ['path' => $path, 'custom_properties' => $customProperties]);
 				return $permissionCallback;
 			},
 		],

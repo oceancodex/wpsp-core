@@ -22,7 +22,7 @@ trait PostTypesRouteTrait {
 	 */
 
 	public function post_type($postType, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
-		if ($this->isPassedMiddleware($middlewares, $this->request)) {
+		if ($this->isPassedMiddleware($middlewares, $this->request, ['post_type' => $postType, 'custom_properties' => $customProperties])) {
 			if (is_array($callback)) {
 				$constructParams = [
 					[

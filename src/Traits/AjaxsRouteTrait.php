@@ -47,7 +47,7 @@ trait AjaxsRouteTrait {
 		$hookAction = 'wp_ajax_' . ($nopriv ? 'nopriv_' : '') . $fullPath;
 
 		add_action($hookAction, function() use ($fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares) {
-			if (!$this->isPassedMiddleware($allMiddlewares, $this->request)) {
+			if (!$this->isPassedMiddleware($allMiddlewares, $this->request, ['path' => $fullPath, 'custom_properties' => $customProperties])) {
 				wp_send_json($this->funcs->_response(false, [], 'Access denied.', 403), 403);
 				return;
 			}
