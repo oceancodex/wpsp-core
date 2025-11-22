@@ -1,8 +1,8 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Components\Shortcodes;
+namespace {{ rootNamespace }}\App\Components\Shortcodes;
 
-use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
 use {{ coreNamespace }}\Base\BaseShortcode;
 

@@ -1,12 +1,12 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Components\ListTables;
+namespace {{ rootNamespace }}\App\Components\ListTables;
 
 use Symfony\Contracts\Cache\ItemInterface;
-use {{ rootNamespace }}\app\Workers\Cache\Cache;
-use {{ rootNamespace }}\app\Models\PostsModel;
-use {{ rootNamespace }}\app\Models\SettingsModel;
-use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\App\Workers\Cache\Cache;
+use {{ rootNamespace }}\App\Models\PostsModel;
+use {{ rootNamespace }}\App\Models\SettingsModel;
+use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
 use {{ coreNamespace }}\Base\BaseListTable;
 
@@ -69,9 +69,9 @@ class {{ className }} extends BaseListTable {
 
 	public function get_data() {
 		try {
-//			$model = \{{ rootNamespace }}\app\Models\AccountsModel::query();
-			$model = \{{ rootNamespace }}\app\Models\SettingsModel::query();
-//			$model = \{{ rootNamespace }}\app\Models\VideosModel::query();
+//			$model = \{{ rootNamespace }}\App\Models\AccountsModel::query();
+			$model = \{{ rootNamespace }}\App\Models\SettingsModel::query();
+//			$model = \{{ rootNamespace }}\App\Models\VideosModel::query();
 
 			$this->total_items = $model->count();
 

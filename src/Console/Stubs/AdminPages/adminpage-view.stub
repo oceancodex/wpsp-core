@@ -1,17 +1,17 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Components\AdminPages;
+namespace {{ rootNamespace }}\App\Components\AdminPages;
 
 use Symfony\Contracts\Cache\ItemInterface;
-use {{ rootNamespace }}\app\Components\License\License;
-use {{ rootNamespace }}\app\Workers\Cache\Cache;
-use {{ rootNamespace }}\app\Workers\Cache\RateLimiter;
-use {{ rootNamespace }}\app\Workers\Database\Migration;
-use {{ rootNamespace }}\app\Models\SettingsModel;
-use {{ rootNamespace }}\app\Models\UsersModel;
-use {{ rootNamespace }}\app\Models\VideosModel;
-use {{ rootNamespace }}\app\Traits\InstancesTrait;
-use {{ rootNamespace }}\app\View\Share;
+use {{ rootNamespace }}\App\Components\License\License;
+use {{ rootNamespace }}\App\Workers\Cache\Cache;
+use {{ rootNamespace }}\App\Workers\Cache\RateLimiter;
+use {{ rootNamespace }}\App\Workers\Database\Migration;
+use {{ rootNamespace }}\App\Models\SettingsModel;
+use {{ rootNamespace }}\App\Models\UsersModel;
+use {{ rootNamespace }}\App\Models\VideosModel;
+use {{ rootNamespace }}\App\Traits\InstancesTrait;
+use {{ rootNamespace }}\App\View\Share;
 use {{ rootNamespace }}\Funcs;
 use {{ coreNamespace }}\Base\BaseAdminPage;
 
@@ -125,7 +125,7 @@ class {{ className }} extends BaseAdminPage {
 
 	public function afterLoad($adminPage) {
 //		if (in_array($this->request->get('tab'), ['table'])) {
-//			$this->table = new \{{ rootNamespace }}\app\Components\ListTables\Settings();
+//			$this->table = new \{{ rootNamespace }}\App\Components\ListTables\Settings();
 //		}
 	}
 

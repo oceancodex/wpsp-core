@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\app\Http\Controllers\ApisController;
+use {{ rootNamespace }}\App\Http\Controllers\ApisController;

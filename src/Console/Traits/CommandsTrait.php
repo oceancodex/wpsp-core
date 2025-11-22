@@ -52,7 +52,7 @@ trait CommandsTrait {
 	public function addClassToRoute($routeName, $findFunction, $newLineForFindFunction, $newLineUseClass): void {
 		$routeContent = $this->getRouteContent($routeName);
 		$routeContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{/iu', 'public function ' . $findFunction . "$1{\n" . $newLineForFindFunction, $routeContent);
-		if (!strpos($routeContent, $newLineUseClass) !== false) {
+		if (!strpos($routeContent, $newLineUseClass)) {
 			$routeContent = preg_replace('/(\n\s*)class ' . $routeName . ' extends/iu', "\n" . $newLineUseClass . '$1class ' . $routeName . ' extends', $routeContent);
 		}
 		$this->saveRouteContent($routeName, $routeContent);

@@ -1,9 +1,9 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Http\Controllers;
+namespace {{ rootNamespace }}\App\Http\Controllers;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
 use {{ coreNamespace }}\Base\BaseController;
 

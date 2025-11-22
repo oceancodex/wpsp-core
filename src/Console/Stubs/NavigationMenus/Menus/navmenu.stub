@@ -1,8 +1,8 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Components\NavigationMenus\Menus;
+namespace {{ rootNamespace }}\App\Components\NavigationMenus\Menus;
 
-use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ coreNamespace }}\Base\BaseNavigationMenu;
 
 class {{ className }} extends BaseNavigationMenu {

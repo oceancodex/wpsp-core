@@ -1,6 +1,6 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Http\Middleware;
+namespace {{ rootNamespace }}\App\Http\Middleware;
 
 use {{ coreNamespace }}\Base\BaseMiddleware;
 

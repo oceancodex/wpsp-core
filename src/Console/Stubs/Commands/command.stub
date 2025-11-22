@@ -1,6 +1,6 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Console\Commands;
+namespace {{ rootNamespace }}\App\Console\Commands;
 
 use {{ coreNamespace }}\Console\Traits\CommandsTrait;
 use Symfony\Component\Console\Command\Command;

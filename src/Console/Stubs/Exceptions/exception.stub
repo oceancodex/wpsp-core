@@ -1,8 +1,8 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Exceptions;
+namespace {{ rootNamespace }}\App\Exceptions;
 
-use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
 use {{ coreNamespace }}\Base\BaseException;
 

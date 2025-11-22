@@ -1,8 +1,8 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Listeners;
+namespace {{ rootNamespace }}\App\Listeners;
 
-use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
 use {{ coreNamespace }}\Base\BaseInstances;
 use {{ coreNamespace }}\Events\Contracts\ListenerContract;

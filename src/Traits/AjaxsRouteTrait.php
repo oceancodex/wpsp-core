@@ -44,17 +44,37 @@ trait AjaxsRouteTrait {
 			return $this;
 		}
 
-		$hookAction = 'wp_ajax_' . ($nopriv ? 'nopriv_' : '') . $fullPath;
+		$hookAction = 'wp_ajax_' . $fullPath;
+		$this->addAjaxAction($hookAction, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
+		if ($nopriv) {
+//			$hookNoprivAction = 'wp_ajax_nopriv_' . $fullPath;
+//			$this->addAjaxAction($hookNoprivAction, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
+		}
 
-		add_action($hookAction, function() use ($fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares) {
-			if (!$this->isPassedMiddleware($allMiddlewares, $this->request, ['path' => $fullPath, 'custom_properties' => $customProperties])) {
+		// Reset middleware khi gọi xong function.
+		$this->middlewareStack = [];
+
+		return $this;
+	}
+
+	public function post($action, $callback, $useInitClass = false, $nopriv = false, $customProperties = null, $middlewares = null) {
+		return $this->get($action, $callback, $useInitClass, $nopriv, $customProperties, $middlewares);
+	}
+
+	/*
+	 *
+	 */
+
+	public function addAjaxAction($action, $path, $callback, $useInitClass, $customProperties, $allMiddlewares): void {
+		add_action($action, function() use ($path, $callback, $useInitClass, $customProperties, $allMiddlewares) {
+			if (!$this->isPassedMiddleware($allMiddlewares, $this->request, ['path' => $path, 'custom_properties' => $customProperties])) {
 				wp_send_json($this->funcs->_response(false, [], 'Access denied.', 403), 403);
 				return;
 			}
 
 			$constructParams = [
 				[
-					'path'              => $fullPath,
+					'path'              => $path,
 					'callback_function' => $callback[1] ?? null,
 					'custom_properties' => $customProperties,
 				],
@@ -67,21 +87,12 @@ trait AjaxsRouteTrait {
 			$callback        = $this->prepareCallback($callback, $useInitClass, $constructParams);
 
 			if (isset($callback[0]) && isset($callback[1])) {
-				$callback[0]->{$callback[1]}($fullPath);
+				$callback[0]->{$callback[1]}($path);
 			}
 			else {
-				$callback($fullPath);
+				$callback($path);
 			}
 		});
-
-		// Reset middleware khi gọi xong function.
-		$this->middlewareStack = [];
-
-		return $this;
-	}
-
-	public function post($action, $callback, $useInitClass = false, $nopriv = false, $customProperties = null, $middlewares = null) {
-		return $this->get($action, $callback, $useInitClass, $nopriv, $customProperties, $middlewares);
 	}
 
 }

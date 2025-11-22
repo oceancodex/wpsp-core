@@ -1,8 +1,8 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Components\NavigationMenus\Locations;
+namespace {{ rootNamespace }}\App\Components\NavigationMenus\Locations;
 
-use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ coreNamespace }}\Base\BaseNavigationLocation;
 
 class {{ className }} extends BaseNavigationLocation {

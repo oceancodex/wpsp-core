@@ -12,8 +12,8 @@ class MakeAjaxCommand extends Command {
 	use CommandsTrait;
 
 	protected $signature = 'make:ajax
-        {method? : The method of the Ajax (GET, POST, etc)}
         {action? : The action name of the Ajax}
+        {--method : The HTTP method of the Ajax (GET, POST, PUT, DELETE)}
         {--nopriv : Allow access for non-logged users}';
 
 	protected $description = 'Create a new Ajax action.                 | Eg: php artisan make:ajax GET my_action --nopriv';
@@ -21,8 +21,9 @@ class MakeAjaxCommand extends Command {
 	public function handle() {
 		$this->funcs = $this->getLaravel()->make('funcs');
 
-		$method = $this->argument('method');
 		$action = $this->argument('action');
+		$method = $this->option('method');
+		$nopriv = $this->option('nopriv');
 
 		// If no action provided → interactive mode
 		if (!$action) {
@@ -33,14 +34,12 @@ class MakeAjaxCommand extends Command {
 				exit;
 			}
 
+			$method = $this->ask('Please enter the HTTP method of the ajax (GET, POST, PUT, DELETE)');
 			$nopriv = $this->confirm('Do you want to allow access for non-logged users (nopriv)?', false);
-		}
-		else {
-			$nopriv = $this->option('nopriv');
 		}
 
 		// Define variables
-		$method        = strtolower($method);
+		$method        = $method ? strtolower($method) : 'get';
 		$actionSlugify = Str::slug($action, '_');
 		$noprivValue   = $nopriv ? 'true' : 'false';
 

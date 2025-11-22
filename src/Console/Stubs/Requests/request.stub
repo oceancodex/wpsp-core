@@ -1,8 +1,8 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Http\Requests;
+namespace {{ rootNamespace }}\App\Http\Requests;
 
-use {{ rootNamespace }}\app\Workers\Requests\FormRequest;
+use {{ rootNamespace }}\App\Workers\Requests\FormRequest;
 
 class {{ className }} extends FormRequest {
 

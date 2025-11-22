@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\app\Components\NavigationMenus\Locations\{{ name_slugify }};
+use {{ rootNamespace }}\App\Components\NavigationMenus\Locations\{{ name_slugify }};

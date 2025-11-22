@@ -1,8 +1,8 @@
 <?php
 
-namespace {{ rootNamespace }}\app\Events;
+namespace {{ rootNamespace }}\App\Events;
 
-use {{ rootNamespace }}\app\Traits\InstancesTrait;
+use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ coreNamespace }}\Base\BaseInstances;
 
 class {{ className }} extends BaseInstances {
