@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\RateLimiter;
 
+use Illuminate\Cache\CacheManager;
 use WPSPCORE\Base\BaseInstances;
 
 abstract class RateLimiter extends BaseInstances {
@@ -13,7 +14,9 @@ abstract class RateLimiter extends BaseInstances {
 	}
 
 	public function setRateLimiter(): void {
-		$cacheStore = ($this->funcs->getApplication('cache'))->store();
+		/** @var CacheManager $cacheManager */
+		$cacheManager      = $this->funcs->getApplication('cache');
+		$cacheStore        = $cacheManager->store();
 		$this->rateLimiter = new \Illuminate\Cache\RateLimiter($cacheStore);
 	}
 

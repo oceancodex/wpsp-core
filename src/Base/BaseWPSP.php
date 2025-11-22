@@ -2,8 +2,6 @@
 
 namespace WPSPCORE\Base;
 
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Bootstrap\LoadConfiguration;
@@ -14,10 +12,6 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\Facades\Vite;
-use WPSPCORE\Console\Commands\MakeAdminPageCommand;
 use WPSPCORE\Funcs;
 use WPSPCORE\Http\Middleware\StartSessionIfAuthenticated;
 
@@ -60,7 +54,6 @@ abstract class BaseWPSP extends BaseInstances {
 	protected function bootstrap() {
 		// Load environment variables.
 		(new LoadEnvironmentVariables)->bootstrap($this->application);
-		$this->normalizeEnvPrefix();
 
 		// Load config & facades.
 		(new LoadConfiguration)->bootstrap($this->application);
@@ -105,7 +98,7 @@ abstract class BaseWPSP extends BaseInstances {
 					continue;
 				}
 
-				// Nếu key dạng PREFIXPREFIX_something => bỏ qua
+				// Nếu key dạng PREFIX_something => bỏ qua
 				if (strpos($plain, $prefix) === 0) {
 					continue;
 				}
@@ -113,9 +106,9 @@ abstract class BaseWPSP extends BaseInstances {
 				$value = $_ENV[$key];
 
 				// Tạo key không prefix
-//				if (!isset($_ENV[$plain])) $_ENV[$plain] = $value;
-//				if (!isset($_SERVER[$plain])) $_SERVER[$plain] = $value;
-//				if (getenv($plain) === false) @putenv("$plain=$value");
+				if (!isset($_ENV[$plain])) $_ENV[$plain] = $value;
+				if (!isset($_SERVER[$plain])) $_SERVER[$plain] = $value;
+				if (getenv($plain) === false) @putenv("$plain=$value");
 			}
 		}
 	}

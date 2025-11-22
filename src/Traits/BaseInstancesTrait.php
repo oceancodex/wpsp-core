@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
  * BaseInstancesTrait.
  *
  * @property \WPSPCORE\Funcs|null $funcs
+ * @property \Illuminate\Http\Request|null $request
  */
 trait BaseInstancesTrait {
 
