@@ -47,8 +47,8 @@ trait AjaxsRouteTrait {
 		$hookAction = 'wp_ajax_' . $fullPath;
 		$this->addAjaxAction($hookAction, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
 		if ($nopriv) {
-//			$hookNoprivAction = 'wp_ajax_nopriv_' . $fullPath;
-//			$this->addAjaxAction($hookNoprivAction, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
+			$hookNoprivAction = 'wp_ajax_nopriv_' . $fullPath;
+			$this->addAjaxAction($hookNoprivAction, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
 		}
 
 		// Reset middleware khi gọi xong function.
