@@ -67,7 +67,10 @@ trait AjaxsRouteTrait {
 
 	public function addAjaxAction($action, $path, $callback, $useInitClass, $customProperties, $allMiddlewares): void {
 		add_action($action, function() use ($path, $callback, $useInitClass, $customProperties, $allMiddlewares) {
-			if (!$this->isPassedMiddleware($allMiddlewares, $this->request, ['path' => $path, 'custom_properties' => $customProperties])) {
+			if (!$this->isPassedMiddleware($allMiddlewares, $this->request, [
+				'path' => $path,
+				'custom_properties' => $customProperties
+			])) {
 				wp_send_json($this->funcs->_response(false, [], 'Access denied.', 403), 403);
 				return;
 			}
@@ -86,12 +89,15 @@ trait AjaxsRouteTrait {
 			], $constructParams);
 			$callback        = $this->prepareCallback($callback, $useInitClass, $constructParams);
 
-			if (isset($callback[0]) && isset($callback[1])) {
-				$callback[0]->{$callback[1]}($path);
-			}
-			else {
-				$callback($path);
-			}
+//			if (isset($callback[0]) && isset($callback[1])) {
+//				$callback[0]->{$callback[1]}($path);
+				$requestPath = trim($this->request->getRequestUri(), '/\\');
+				$callParams = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
+				$this->resolveAndCall($callback, $callParams);
+//			}
+//			else {
+//				$callback($path);
+//			}
 		});
 	}
 
