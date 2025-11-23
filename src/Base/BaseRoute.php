@@ -80,7 +80,7 @@ abstract class BaseRoute extends BaseInstances {
 				return new Response('', 200);
 			};
 
-			try {
+//			try {
 				if ($normalizedMiddleware['type'] === 'closure') {
 					$res = call_user_func($normalizedMiddleware['closure'], $request, $next);
 				}
@@ -116,11 +116,11 @@ abstract class BaseRoute extends BaseInstances {
 				else {
 					return ['ok' => false, 'response' => null];
 				}
-			}
-			catch (\Throwable $e) {
-				// lỗi khi chạy middleware => coi là fail
-				return ['ok' => false, 'response' => null];
-			}
+//			}
+//			catch (\Throwable $e) {
+//				// lỗi khi chạy middleware => coi là fail
+//				return ['ok' => false, 'response' => null];
+//			}
 
 			// Chuẩn hóa kết quả:
 			// - Nếu là Symfony Response (Illuminate Response kế thừa) -> check status

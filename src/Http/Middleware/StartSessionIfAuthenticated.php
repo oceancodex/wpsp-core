@@ -29,18 +29,41 @@ class StartSessionIfAuthenticated {
 	 * This middleware is safe to run for REST/API requests.
 	 */
 	public function handle(Request $request, Closure $next) {
-		$session = $this->sessionManager->driver();
+		$application   = $this->sessionManager->getContainer();
 
-		// Lấy session id từ cookie request (tên cookie nằm ở $session->getName())
-		$sessionId = $request->cookies->get($session->getName());
-		if ($sessionId) {
-			$session->setId($sessionId);
+		$session       = $application->make('session');
+		$funcs         = $application->make('funcs');
+
+		$sessionStore  = $this->sessionManager->driver();
+
+		$sessionCookieName = $sessionStore->getName();
+		$clientSessionId   = $request->cookie($sessionCookieName);
+
+		if ($clientSessionId) {
+			$session->setId($clientSessionId);
+		}
+		else {
+			$cookie = cookie(
+				$sessionStore->getName(),
+				$sessionStore->getId(),
+				$funcs->_config('session.lifetime'),
+				'/',
+				null,
+				true,
+				true,
+				false,
+				$funcs->_config('session.same_site')
+			);
+
+			header('Set-Cookie: ' . $cookie, false);
 		}
 
 		// Start nếu chưa start
 		if (!$session->isStarted()) {
 			$session->start();
 		}
+
+		$request->setLaravelSession($sessionStore);
 
 		return $next($request);
 	}

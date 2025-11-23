@@ -369,6 +369,9 @@ trait GroupRoutesTrait {
 			$callParams[$name] = $value;
 		}
 
+		$callParams['path'] = $path;
+		$callParams['requestPath'] = $requestPath;
+
 		// Ngoài các params lấy từ signature (primitive params),
 		// ta cũng muốn expose ALL named captures (dù method không khai báo param cụ thể)
 		// — giúp bạn có thể lấy $routeParams['endpoint'] trong middleware hoặc log.

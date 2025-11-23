@@ -7,6 +7,7 @@ use WPSPCORE\Base\BaseInstances;
 
 abstract class RateLimiter extends BaseInstances {
 
+	/** @var \Illuminate\Cache\RateLimiter */
 	private $rateLimiter;
 
 	public function getRateLimiter() {
