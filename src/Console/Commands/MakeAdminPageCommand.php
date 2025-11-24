@@ -13,9 +13,9 @@ class MakeAdminPageCommand extends Command {
 
 	protected $signature = 'make:admin-page
         {path? : The path of the admin page}
-        {--create-view : Create view files for this admin page}';
+        {--view : Create view files for this admin page}';
 
-	protected $description = 'Create a new admin page.                  | Eg: php artisan make:admin-page custom-admin-page --create-view';
+	protected $description = 'Create a new admin page.                  | Eg: php artisan make:admin-page custom-admin-page --view';
 
 	public function handle(): void {
 		$this->funcs = $this->getLaravel()->make('funcs');
@@ -35,7 +35,7 @@ class MakeAdminPageCommand extends Command {
 			$createView = $this->confirm('Do you want to create view files for this admin page?', false);
 		}
 		else {
-			$createView = $this->option('create-view');
+			$createView = $this->option('view');
 		}
 
 		// Define variables.
