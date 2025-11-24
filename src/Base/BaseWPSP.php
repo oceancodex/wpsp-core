@@ -18,14 +18,16 @@ use WPSPCORE\Http\Middleware\StartSessionIfAuthenticated;
 abstract class BaseWPSP extends BaseInstances {
 
 	public $application = null;
-	public $response = null;
+	public $response    = null;
 
 	/*
 	 *
 	 */
 
 	public function setApplication(string $basePath) {
-		$commands = $this->funcs->_getAllClassesInDir('WPSPCORE\Console\Commands', __DIR__ . '/../Console/Commands');
+		// Load command classes
+		$commands          = $this->funcs->_getAllClassesInDir('WPSPCORE\Console\Commands', __DIR__ . '/../Console/Commands');
+
 		$this->application = Application::configure($basePath)
 			->withMiddleware(function(Middleware $middleware): void {
 				$middleware->append(StartSessionIfAuthenticated::class); // Start session trước mọi code (bao gồm cả view share).
@@ -39,6 +41,30 @@ abstract class BaseWPSP extends BaseInstances {
 		$this->application->boot();
 		$this->handleRequest();
 	}
+
+	public function setApplicationForConsole(string $basePath) {
+		// Load command classes
+		$commands = $this->funcs->_getAllClassesInDir(
+			'WPSPCORE\Console\Commands',
+			__DIR__ . '/../Console/Commands'
+		);
+
+		$this->application = Application::configure($basePath)
+			->withCommands($commands)
+			->withMiddleware(function(Middleware $middleware) {})
+			->withExceptions(function(Exceptions $exceptions) {})
+			->withProviders([])
+			->create();
+
+		$this->bootstrapConsole();
+		$this->bindingsConsole();
+
+		return $this->application;
+	}
+
+	/*
+	 *
+	 */
 
 	public function getApplication($abstract = null, $parameters = []) {
 		if ($abstract) {
@@ -65,11 +91,41 @@ abstract class BaseWPSP extends BaseInstances {
 		(new RegisterProviders)->bootstrap($this->application);
 	}
 
+	protected function bootstrapConsole() {
+		(new LoadEnvironmentVariables)->bootstrap($this->application);
+		(new LoadConfiguration)->bootstrap($this->application);
+	}
+
 	protected function bindings(): void {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('request', Request::capture());
-		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
+		$this->application->instance('funcs',
+			$this->funcs ??
+			new Funcs(
+				$this->mainPath,
+				$this->rootNamespace,
+				$this->prefixEnv,
+				$this->extraParams
+			)
+		);
 	}
+
+	protected function bindingsConsole() {
+		$this->application->instance('files', new Filesystem());
+		$this->application->instance('funcs',
+			$this->funcs ??
+			new Funcs(
+				$this->mainPath,
+				$this->rootNamespace,
+				$this->prefixEnv,
+				$this->extraParams
+			)
+		);
+	}
+
+	/*
+	 *
+	 */
 
 	protected function handleRequest(): void {
 		$request        = $this->application['request'];
