@@ -47,7 +47,7 @@ trait SchedulesRouteTrait {
 			$this->funcs->_getRootNamespace(),
 			$this->funcs->_getPrefixEnv()
 		], $constructParams);
-		$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
+		$callback = $this->prepareRouteCallback($callback, $useInitClass, $constructParams);
 		add_action($hook, $callback);
 		if (!wp_next_scheduled($hook)) {
 			wp_schedule_event(time(), $interval, $hook);

@@ -71,7 +71,6 @@ trait RewriteFrontPagesRouteTrait {
 			&& $this->request->isMethod('GET')
 			&& $this->isPassedMiddleware($allMiddlewares, $this->request, ['path' => $fullPath, 'custom_properties' => $customProperties])
 		) {
-			$this->defineMark('REWRITE_FRONT_PAGE');
 			$constructParams = [
 				[
 					'path'              => $fullPath,
@@ -84,7 +83,7 @@ trait RewriteFrontPagesRouteTrait {
 				$this->funcs->_getRootNamespace(),
 				$this->funcs->_getPrefixEnv(),
 			], $constructParams);
-			$callback         = $this->prepareCallback($callback, $useInitClass, $constructParams);
+			$callback         = $this->prepareRouteCallback($callback, $useInitClass, $constructParams);
 			$callback[1]      = 'init';
 			$callParams = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
 			$this->resolveAndCall($callback, $callParams);
@@ -138,7 +137,6 @@ trait RewriteFrontPagesRouteTrait {
 			preg_match('/' . $fullPath . '/iu', $requestPath)
 			&& $this->isPassedMiddleware($allMiddlewares, $this->request, ['path' => $fullPath, 'custom_properties' => $customProperties])
 		) {
-			$this->defineMark('REWRITE_FRONT_PAGE');
 			$constructParams = [
 				[
 					'path'              => $fullPath,
@@ -151,7 +149,7 @@ trait RewriteFrontPagesRouteTrait {
 				$this->funcs->_getRootNamespace(),
 				$this->funcs->_getPrefixEnv(),
 			], $constructParams);
-			$callback         = $this->prepareCallback($callback, $useInitClass, $constructParams);
+			$callback         = $this->prepareRouteCallback($callback, $useInitClass, $constructParams);
 			$callback[1]      = 'init';
 			$callParams = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
 			$this->resolveAndCall($callback, $callParams);

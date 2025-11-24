@@ -35,7 +35,7 @@ trait MetaBoxesRouteTrait {
 				$this->funcs->_getRootNamespace(),
 				$this->funcs->_getPrefixEnv()
 			], $constructParams);
-			$callback         = $this->prepareCallback($callback, $useInitClass, $constructParams);
+			$callback         = $this->prepareRouteCallback($callback, $useInitClass, $constructParams);
 			$callback[1]      = 'init';
 			add_action('add_meta_boxes', $callback, $priority, $argsNumber);
 		}

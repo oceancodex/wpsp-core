@@ -35,7 +35,7 @@ trait UserMetaBoxesRouteTrait {
 				$this->funcs->_getRootNamespace(),
 				$this->funcs->_getPrefixEnv(),
 			], $constructParams);
-			$callback = $this->prepareCallback($callback, $useInitClass, $constructParams);
+			$callback = $this->prepareRouteCallback($callback, $useInitClass, $constructParams);
 			add_action('show_user_profile', $callback, $priority, $argsNumber);
 			add_action('edit_user_profile', $callback, $priority, $argsNumber);
 		}

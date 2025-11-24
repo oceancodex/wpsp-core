@@ -13,7 +13,32 @@ abstract class BaseRoute extends BaseInstances {
 	 *
 	 */
 
-	public function isPassedMiddleware($middlewares = null, $request = null, $args = []): bool {
+	protected function prepareRouteCallback($callback, $useInitClass = false, $constructParams = []) {
+
+		// If callback is a closure.
+		if ($callback instanceof \Closure) {
+			return $callback;
+		}
+
+		// If callback is an array with class and method.
+		if (is_array($callback)) {
+			if ($useInitClass) {
+				$class = $this->getInitClass($callback[0], $useInitClass, $constructParams);
+			}
+			else {
+				$class = new $callback[0](...$constructParams ?? []);
+			}
+			return [$class, $callback[1] ?? null];
+		}
+
+		// If callback is a string.
+		return function() use ($callback) {
+			return $callback;
+		};
+
+	}
+
+	protected function isPassedMiddleware($middlewares = null, $request = null, $args = []): bool {
 		// Không có middleware -> pass
 		if (empty($middlewares)) {
 			return true;
@@ -49,23 +74,34 @@ abstract class BaseRoute extends BaseInstances {
 					$normalizedMiddleware = ['type' => 'closure', 'closure' => $m[0]];
 				}
 				elseif (isset($m[0]) && is_string($m[0])) {
-					$method       = isset($m[1]) && is_string($m[1]) ? $m[1] : 'handle';
+					$method = isset($m[1]) && is_string($m[1]) ? $m[1] : 'handle';
 
 					if (preg_match('/^(abilities:|ability:)(.*?)$/iu', $method, $matches)) {
-						$ability_relation = $matches[1] == 'abilities:' ? 'AND' : 'OR';
-						$abilities = explode(',', $matches[2]);
-						$normalizedMiddleware = ['type' => 'class', 'class' => $m[0], 'method' => 'handle', 'args' => ['abilities' => $abilities, 'ability_relation' => $ability_relation]];
-						$method = 'handle';
+						$ability_relation     = $matches[1] == 'abilities:' ? 'AND' : 'OR';
+						$abilities            = explode(',', $matches[2]);
+						$normalizedMiddleware = [
+							'type'   => 'class',
+							'class'  => $m[0],
+							'method' => 'handle',
+							'args'   => [
+								'abilities'        => $abilities,
+								'ability_relation' => $ability_relation,
+							],
+						];
 					}
 					else {
-						$normalizedMiddleware = ['type' => 'class', 'class' => $m[0], 'method' => $method];
+						$normalizedMiddleware = [
+							'type'   => 'class',
+							'class'  => $m[0],
+							'method' => $method,
+						];
 					}
 				}
 			}
 
 			if (isset($normalizedMiddleware)) {
 				$normalizedMiddleware['args'] = array_merge($normalizedMiddleware['args'] ?? [], $args);
-				$normalized[] = $normalizedMiddleware;
+				$normalized[]                 = $normalizedMiddleware;
 			}
 		}
 
@@ -81,41 +117,42 @@ abstract class BaseRoute extends BaseInstances {
 			};
 
 //			try {
-				if ($normalizedMiddleware['type'] === 'closure') {
-					$res = call_user_func($normalizedMiddleware['closure'], $request, $next);
+			if ($normalizedMiddleware['type'] === 'closure') {
+				$res = call_user_func($normalizedMiddleware['closure'], $request, $next);
+			}
+			elseif ($normalizedMiddleware['type'] === 'class') {
+				$class  = $normalizedMiddleware['class'];
+				$method = $normalizedMiddleware['method'] ?? 'handle';
+
+				// nếu class không tồn tại, coi như fail
+				if (!class_exists($class)) {
+					return ['ok' => false, 'response' => null];
 				}
-				elseif ($normalizedMiddleware['type'] === 'class') {
-					$class  = $normalizedMiddleware['class'];
-					$method = $normalizedMiddleware['method'] ?? 'handle';
 
-					// nếu class không tồn tại, coi như fail
-					if (!class_exists($class)) {
-						return ['ok' => false, 'response' => null];
-					}
+				// 🚀 Quan trọng: dùng Container để tự động Dependency Injection
+				try {
+					$instance = $app->make($class);
+				}
+				catch (\Throwable $e) {
+					return ['ok' => false, 'response' => null];
+				}
 
-					// 🚀 Quan trọng: dùng Container để tự động Dependency Injection
-					try {
-						$instance = $app->make($class);
-					} catch (\Throwable $e) {
-						return ['ok' => false, 'response' => null];
-					}
-
-					// nếu method không tồn tại, cố gọi handle, nếu không có -> fail
-					if (!method_exists($instance, $method)) {
-						if (method_exists($instance, 'handle')) {
-							$res = $instance->handle($request, $next, $normalizedMiddleware['args'] ?? []);
-						}
-						else {
-							return ['ok' => false, 'response' => null];
-						}
+				// nếu method không tồn tại, cố gọi handle, nếu không có -> fail
+				if (!method_exists($instance, $method)) {
+					if (method_exists($instance, 'handle')) {
+						$res = $instance->handle($request, $next, $normalizedMiddleware['args'] ?? []);
 					}
 					else {
-						$res = $instance->$method($request, $next, $normalizedMiddleware['args'] ?? []);
+						return ['ok' => false, 'response' => null];
 					}
 				}
 				else {
-					return ['ok' => false, 'response' => null];
+					$res = $instance->$method($request, $next, $normalizedMiddleware['args'] ?? []);
 				}
+			}
+			else {
+				return ['ok' => false, 'response' => null];
+			}
 //			}
 //			catch (\Throwable $e) {
 //				// lỗi khi chạy middleware => coi là fail
@@ -168,90 +205,11 @@ abstract class BaseRoute extends BaseInstances {
 		return true;
 	}
 
-	public function prepareCallback($callback, $useInitClass = false, $constructParams = []) {
+	/*
+	 *
+	 */
 
-		// If callback is a closure.
-		if ($callback instanceof \Closure) {
-			return $callback;
-		}
-
-		// If callback is an array with class and method.
-		if (is_array($callback)) {
-			if ($useInitClass) {
-				$class = $this->getInitClass($callback[0], $useInitClass, $constructParams);
-			}
-			else {
-				$class = new $callback[0](...$constructParams ?? []);
-			}
-			return [$class, $callback[1] ?? null];
-		}
-
-		// If callback is a string.
-		return function() use ($callback) {
-			return $callback;
-		};
-
-	}
-
-	public function prepareClass($callback, $useInitClass = false, $constructParams = []) {
-		if ($useInitClass) {
-			$class = $this->getInitClass($callback[0], $useInitClass, $constructParams);
-		}
-		else {
-			$class = new $callback[0](...$constructParams ?? []);
-		}
-		return $class;
-	}
-
-	public function resolveAndCall($callback, array $routeParams = []) {
-		// 🔹 Lấy container Laravel từ Application hoặc fallback
-		$app = $this->funcs->getApplication();
-		$container = $app ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
-
-		if (!$container) {
-			throw new \RuntimeException('Container instance not found.');
-		}
-
-		[$classOrInstance, $method] = $callback;
-
-		// 🔹 Resolve instance controller
-		$instance = is_object($classOrInstance)
-			? $classOrInstance
-			: $container->make($classOrInstance);
-
-		// 🔹 Tự động inject FormRequest nếu có
-		$reflection = new \ReflectionMethod($instance, $method);
-		$baseRequest = $container->bound('request')
-			? $container->make('request')
-			: \Illuminate\Http\Request::capture();
-
-		foreach ($reflection->getParameters() as $param) {
-			$type = $param->getType();
-			if ($type && !$type->isBuiltin()) {
-				$paramClass = $type->getName();
-
-				// Inject FormRequest (nếu có)
-				if (is_subclass_of($paramClass, \Illuminate\Foundation\Http\FormRequest::class)) {
-					$formRequest = $paramClass::createFromBase($baseRequest);
-					$formRequest->setContainer($container);
-					$formRequest->setRedirector($container->make(\Illuminate\Routing\Redirector::class));
-					if (method_exists($formRequest, 'validateResolved')) {
-						$formRequest->validateResolved();
-					}
-					$container->instance($paramClass, $formRequest);
-				}
-			}
-		}
-
-		// 🔹 Gọi thông qua Container::call() để Laravel tự inject linh hoạt
-		return $container->call([$instance, $method], $routeParams);
-	}
-
-	public function defineMark($name) {
-		$prefix = $this->funcs->_getRootNamespace();
-		$markStr = $prefix . '_IS_' . strtoupper($name);
-		return !defined($markStr) && define($markStr, true);
-	}
+	public function customProperties() {}
 
 
 	/*
@@ -280,11 +238,5 @@ abstract class BaseRoute extends BaseInstances {
 		$initClasses[$className] = $classInstance;
 		$this->setInitClasses($initClasses);
 	}
-
-	/*
-	 *
-	 */
-
-	public function customProperties() {}
 
 }

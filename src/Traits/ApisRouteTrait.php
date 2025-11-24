@@ -104,7 +104,7 @@ trait ApisRouteTrait {
 		], $constructParams);
 		register_rest_route(($namespace ?? $this->funcs->_config('app.short_name')) . '/' . ($version ?? 'v1'), $path, [
 			'methods'             => $method,
-			'callback'            => $this->prepareCallback($callback, $useInitClass, $constructParams),
+			'callback'            => $this->prepareRouteCallback($callback, $useInitClass, $constructParams),
 			'args'                => [
 //				'id' => [
 //					'validate_callback' => function($param, $request, $key) {

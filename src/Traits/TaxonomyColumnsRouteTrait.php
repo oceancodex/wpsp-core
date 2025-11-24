@@ -36,7 +36,7 @@ trait TaxonomyColumnsRouteTrait {
 					$this->funcs->_getRootNamespace(),
 					$this->funcs->_getPrefixEnv(),
 				], $constructParams);
-				$callback        = $this->prepareCallback($callback, $useInitClass, $constructParams);
+				$callback        = $this->prepareRouteCallback($callback, $useInitClass, $constructParams);
 				$callback[1]     = 'init';
 				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($column) : $callback;
 			}

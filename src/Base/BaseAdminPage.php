@@ -2,8 +2,6 @@
 
 namespace WPSPCORE\Base;
 
-use Illuminate\Http\Request;
-
 abstract class BaseAdminPage extends BaseInstances {
 
 	public $menu_title                  = null;
@@ -67,17 +65,11 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	private function addMenuPage() {
+	private function addMenuPage(): string {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$callback = function() {
-				$container = $this->funcs->getApplication() ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
-				if (!$container) {
-					// fallback bình thường nếu không có container
-					return $this->{$this->callback_function}();
-				}
-				// Dùng container->call() để auto inject dependencies
-				return $container->call([$this, $this->callback_function]);
+				return $this->prepareCallbackFunction($this->callback_function, $this->menu_slug);
 			};
 		}
 		$menuPage = add_menu_page(
@@ -111,11 +103,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$callback = function() {
-				$container = $this->funcs->getApplication() ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
-				if (!$container) {
-					return $this->{$this->callback_function}();
-				}
-				return $container->call([$this, $this->callback_function]);
+				return $this->prepareCallbackFunction($this->callback_function, $this->menu_slug);
 			};
 		}
 		return add_submenu_page(
