@@ -52,16 +52,17 @@ abstract class BaseWPSP extends BaseInstances {
 	 */
 
 	protected function bootstrap() {
-		// Load environment variables.
+		// Environment variables.
 		(new LoadEnvironmentVariables)->bootstrap($this->application);
 
-		// Load config & facades.
+		// Configs.
 		(new LoadConfiguration)->bootstrap($this->application);
+
+		// Facades.
 		(new RegisterFacades)->bootstrap($this->application);
+
+		// Providers.
 		(new RegisterProviders)->bootstrap($this->application);
-//		Vite::createAssetPathsUsing(function ($path, $manifest) {
-//			return $this->funcs->_getPublicUrl() . '/' . $path;
-//		});
 	}
 
 	protected function bindings(): void {

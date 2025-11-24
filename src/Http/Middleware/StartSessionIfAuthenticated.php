@@ -14,14 +14,8 @@ class StartSessionIfAuthenticated {
 	 */
 	protected $sessionManager;
 
-	/**
-	 * @var \Illuminate\Contracts\Auth\Factory
-	 */
-	protected $authFactory;
-
-	public function __construct(SessionManager $sessionManager, AuthFactory $authFactory) {
+	public function __construct(SessionManager $sessionManager) {
 		$this->sessionManager = $sessionManager;
-		$this->authFactory    = $authFactory;
 	}
 
 	/**
@@ -38,29 +32,38 @@ class StartSessionIfAuthenticated {
 
 		if ($clientSessionId) {
 			$session->setId($clientSessionId);
+			if (!$session->isStarted()) {
+				$session->start();
+			}
 		}
 		else {
-			$cookie = cookie(
-				$session->getName(),
-				$session->getId(),
-				$sessionConfig['lifetime'],
-				'/',
-				null,
-				true,
-				true,
-				false,
-				$sessionConfig['same_site']
-			);
-
-			header('Set-Cookie: ' . $cookie, false);
-		}
-
-		if (!$session->isStarted()) {
-			$session->start();
-			if (!$clientSessionId) {
+			if (!$session->isStarted()) {
 				$userAgent = $request->userAgent();
 				if (!preg_match('/WordPress\//', $userAgent)) {
+					$session->start();
+					$newSessionId = $session->getId();
+
 					$session->save();
+					$session->setId($newSessionId);
+
+					$attributes = $session->all();
+					foreach ($attributes as $key => $value) {
+						$session->put($key, $value);
+					}
+
+					$session->save();
+					$cookie = cookie(
+						$session->getName(),
+						$session->getId(),
+						$sessionConfig['lifetime'],
+						'/',
+						null,
+						true,
+						true,
+						false,
+						$sessionConfig['same_site']
+					);
+					header('Set-Cookie: ' . $cookie, false);
 				}
 			}
 		}
