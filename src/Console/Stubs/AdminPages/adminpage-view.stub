@@ -114,15 +114,9 @@ class {{ className }} extends BaseAdminPage {
 	 */
 
 	public function index(Request $request) {
-        echo Funcs::view('modules.admin-pages.{{ path }}.main', compact(
-				'requestParams',
-				'menuSlug',
-			));
-		}
-		catch (\Throwable $e) {
-			Funcs::notice($e->getMessage() . ' <code>(' . __CLASS__ . ')</code>', 'error', true, true);
-			include(Funcs::instance()->_getResourcesPath('/views/modules/admin-pages/{{ path }}/main.php'));
-		}
+		$requestParams = $request->all();
+		$menuSlug      = $this->getMenuSlug();
+        echo Funcs::view('modules.admin-pages.{{ path }}.main', compact('requestParams', 'menuSlug'));
 	}
 
 	public function update() {}

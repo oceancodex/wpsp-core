@@ -3,8 +3,8 @@
 namespace WPSPCORE\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use WPSPCORE\Console\Traits\CommandsTrait;
 
 class MakeAdminPageCommand extends Command {
