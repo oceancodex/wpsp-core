@@ -83,15 +83,16 @@ trait ApisRouteTrait {
 			return;
 		}
 
-		add_action('rest_api_init', function () use ($fullPath, $method, $callback, $useInitClass, $customProperties, $allMiddlewares, $namespace, $version) {
-			$this->registerRestRoute($fullPath, $method, $callback, $useInitClass, $customProperties, $allMiddlewares, $namespace, $version);
+		add_action('rest_api_init', function () use ($path, $fullPath, $method, $callback, $useInitClass, $customProperties, $allMiddlewares, $namespace, $version) {
+			$this->registerRestRoute($path, $fullPath, $method, $callback, $useInitClass, $customProperties, $allMiddlewares, $namespace, $version);
 		});
 	}
 
-	public function registerRestRoute($path, $method, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $namespace = null, $version = null): void {
+	public function registerRestRoute($path, $fullPath, $method, $callback, $useInitClass = false, $customProperties = [], $allMiddlewares = null, $namespace = null, $version = null): void {
 		$constructParams = [
 			[
 				'path'              => $path,
+				'full_path'         => $fullPath,
 				'method'            => $method,
 				'callback_function' => $callback[1] ?? null,
 				'custom_properties' => $customProperties,
@@ -102,7 +103,7 @@ trait ApisRouteTrait {
 			$this->funcs->_getRootNamespace(),
 			$this->funcs->_getPrefixEnv(),
 		], $constructParams);
-		register_rest_route(($namespace ?? $this->funcs->_config('app.short_name')) . '/' . ($version ?? 'v1'), $path, [
+		register_rest_route(($namespace ?? $this->funcs->_config('app.short_name')) . '/' . ($version ?? 'v1'), $fullPath, [
 			'methods'             => $method,
 			'callback'            => $this->prepareRouteCallback($callback, $useInitClass, $constructParams),
 			'args'                => [
@@ -112,10 +113,15 @@ trait ApisRouteTrait {
 //					}
 //				],
 			],
-			'permission_callback' => function (\WP_REST_Request $request) use ($middlewares, $path, $customProperties) {
+			'permission_callback' => function (\WP_REST_Request $request) use ($allMiddlewares, $path, $fullPath, $customProperties) {
 				static $permissionCallback = null;
 				if ($permissionCallback !== null) return $permissionCallback;
-				$permissionCallback =  $this->isPassedMiddleware($middlewares, $request, ['path' => $path, 'custom_properties' => $customProperties]);
+				$permissionCallback =  $this->isPassedMiddleware($allMiddlewares, $request, [
+					'path' => $path,
+					'full_path' => $fullPath,
+					'all_middlewares' => $allMiddlewares,
+					'custom_properties' => $customProperties
+				]);
 				return $permissionCallback;
 			},
 		],

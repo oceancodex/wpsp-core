@@ -65,6 +65,6 @@ abstract class BasePostType extends BaseInstances {
 	 *
 	 */
 
-	abstract public function customProperties();
+	public function customProperties() {}
 
 }

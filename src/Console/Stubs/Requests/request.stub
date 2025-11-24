@@ -2,7 +2,7 @@
 
 namespace {{ rootNamespace }}\App\Http\Requests;
 
-use {{ rootNamespace }}\App\Workers\Requests\FormRequest;
+use {{ rootNamespace }}\App\Instances\Requests\FormRequest;
 
 class {{ className }} extends FormRequest {
 

@@ -3,7 +3,7 @@
 namespace {{ rootNamespace }}\App\Components\ListTables;
 
 use Symfony\Contracts\Cache\ItemInterface;
-use {{ rootNamespace }}\App\Workers\Cache\Cache;
+use {{ rootNamespace }}\App\Instances\Cache\Cache;
 use {{ rootNamespace }}\App\Models\PostsModel;
 use {{ rootNamespace }}\App\Models\SettingsModel;
 use {{ rootNamespace }}\App\Traits\InstancesTrait;

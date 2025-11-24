@@ -22,8 +22,13 @@ trait PostTypesRouteTrait {
 	 */
 
 	public function post_type($postType, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
-		if ($this->isPassedMiddleware($middlewares, $this->request, ['post_type' => $postType, 'custom_properties' => $customProperties])) {
-			if (is_array($callback)) {
+		$requestPath = trim($this->request->getRequestUri(), '/\\');
+		if ($this->isPassedMiddleware($middlewares, $this->request, [
+			'post_type' => $postType,
+			'all_middlewares' => $middlewares,
+			'custom_properties' => $customProperties
+		])) {
+			if (is_array($callback) || is_callable($callback) || is_null($callback[1])) {
 				$constructParams = [
 					[
 						'post_type'         => $postType,
@@ -38,11 +43,13 @@ trait PostTypesRouteTrait {
 				], $constructParams);
 				$callback        = $this->prepareRouteCallback($callback, $useInitClass, $constructParams);
 				$callback[1]     = 'init';
-				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($postType) : $callback;
+				$callParams = $this->getCallParams($postType, $postType, $requestPath, $callback[0], $callback[1]);
+				$this->resolveAndCall($callback, $callParams);
+//				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($postType) : $callback;
 			}
-			elseif (is_callable($callback)) {
-				$callback();
-			}
+//			elseif (is_callable($callback)) {
+//				$callback();
+//			}
 		}
 	}
 

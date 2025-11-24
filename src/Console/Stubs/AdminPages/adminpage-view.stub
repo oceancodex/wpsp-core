@@ -2,14 +2,15 @@
 
 namespace {{ rootNamespace }}\App\Components\AdminPages;
 
-use Symfony\Contracts\Cache\ItemInterface;
+use Illuminate\Http\Request;
 use {{ rootNamespace }}\App\Components\License\License;
-use {{ rootNamespace }}\App\Workers\Cache\Cache;
-use {{ rootNamespace }}\App\Workers\Cache\RateLimiter;
-use {{ rootNamespace }}\App\Workers\Database\Migration;
+use {{ rootNamespace }}\App\Instances\Auth\Auth;
+use {{ rootNamespace }}\App\Instances\Cache\Cache;
+use {{ rootNamespace }}\App\Jobs\SendEmailJob;
+use {{ rootNamespace }}\App\Jobs\TestJob;
+use {{ rootNamespace }}\App\Instances\Database\Migration;
 use {{ rootNamespace }}\App\Models\SettingsModel;
 use {{ rootNamespace }}\App\Models\UsersModel;
-use {{ rootNamespace }}\App\Models\VideosModel;
 use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ rootNamespace }}\App\View\Share;
 use {{ rootNamespace }}\Funcs;
@@ -44,8 +45,6 @@ class {{ className }} extends BaseAdminPage {
 	/**
 	 * Custom properties.
 	 */
-//	private $checkDatabase              = null;
-	private $table                      = null;
 	private $currentTab                 = null;
 	private $currentPage                = null;
 
@@ -65,19 +64,16 @@ class {{ className }} extends BaseAdminPage {
 //	    $this->remove_first_submenu        = false;
 //		$this->urls_highlight_current_menu = [];
 //      $this->callback_function           = null;
+
 //      $this->$screen_options             = null;
 //      $this->$screen_options_key         = null;
 
 		$this->currentTab  = $this->request->get('tab');
 		$this->currentPage = $this->request->get('page');
-		if (class_exists('\{{ coreNamespace }}\Translation\Translator')) {
-			$this->page_title = ($this->currentTab ? Funcs::trans('messages.' . $this->currentTab) : Funcs::trans('messages.{{ name }}')) . ' - ' . Funcs::config('app.name');
-		}
-		else {
-			$pageTitle = $this->currentTab ?? 'Dashboard';
-			$this->page_title = Funcs::trans(ucfirst($pageTitle), true);
-		}
-//		$this->screen_options_key = $this->getQueryStringSlugify(['page', 'tab']);
+
+		$this->page_title = ($this->currentTab ? Funcs::trans('messages.' . $this->currentTab) : Funcs::trans('messages.{{ name }}')) . ' - ' . Funcs::config('app.name');
+
+//		$this->screen_options_key = $this->funcs->_slugParams(['page', 'tab']);
 //		if (in_array($this->currentTab, ['table', 'roles', 'permissions', 'users'])) {
 //			$this->screen_options = true;
 //		}
@@ -103,31 +99,9 @@ class {{ className }} extends BaseAdminPage {
 //				return $this->menu_slug;
 //			});
 //		}
-
-		// Redirect to the "Database" tab if database version not valid.
-//		try {
-//			if ($this->currentPage == $this->menu_slug) {
-//				// Check database version and maybe redirect.
-//				$this->checkDatabase = Migration::instance()->checkDatabaseVersion();
-//				if (empty($this->checkDatabase['result']) && $this->currentPage == $this->getMenuSlug() && $this->currentTab !== 'database') {
-//					$url = Funcs::instance()->_buildUrl($this->getParentSlug(), [
-//						'page' => $this->getMenuSlug(),
-//						'tab'  => 'database',
-//					]);
-//					wp_redirect($url);
-//				}
-//			}
-//		}
-//		catch (\Throwable $e) {
-//			Funcs::debug($e->getMessage());
-//		}
 	}
 
-	public function afterLoad($adminPage) {
-//		if (in_array($this->request->get('tab'), ['table'])) {
-//			$this->table = new \{{ rootNamespace }}\App\Components\ListTables\Settings();
-//		}
-	}
+	public function afterLoad($adminPage) {}
 
 //	public function screenOptions($adminPage) {
 //		if ($this->request->get('tab') == 'table') {
@@ -139,49 +113,11 @@ class {{ className }} extends BaseAdminPage {
 	 *
 	 */
 
-	public function index() {
-		$updated = $this->request->get('updated') ?? null;
-
-		if ($updated && $this->parent_slug !== 'options-general.php' && $this->request->get('tab') !== 'table') {
-			if ($updated == 'custom-updated') {
-				Funcs::notice(
-					Funcs::trans('Custom updated successfully', true),
-					'success',
-					!class_exists('\{{ coreNamespace }}\View\Blade')
-				);
-			}
-			else {
-				Funcs::notice(
-					Funcs::trans('Updated successfully', true),
-					'success',
-					!class_exists('\{{ coreNamespace }}\View\Blade')
-				);
-			}
-		}
-
-		$requestParams = $this->request->query->all();
-		$menuSlug      = $this->getMenuSlug();
-
-		try {
-//		    $checkLicense  = License::checkLicense();
-
-			// Test cache.
-//			$cacheTest = Cache::get('cache-test', function(ItemInterface $item) {
-//				$item->expiresAfter(60);
-//				return 'This is a cached value';
-//			});
-//			echo '<pre style="z-index: 9999; position: relative; clear: both;">'; print_r($cacheTest); echo '</pre>';
-
-			$table = $this->table;
-
-			echo Funcs::view('modules.admin-pages.{{ path }}.main', compact(
+	public function index(Request $request) {
+        echo Funcs::view('modules.admin-pages.{{ path }}.main', compact(
 				'requestParams',
 				'menuSlug',
-//			    'checkLicense',
-				'table'
-			))->with([
-//				'checkDatabase' => $this->checkDatabase,
-			]);
+			));
 		}
 		catch (\Throwable $e) {
 			Funcs::notice($e->getMessage() . ' <code>(' . __CLASS__ . ')</code>', 'error', true, true);
@@ -189,9 +125,7 @@ class {{ className }} extends BaseAdminPage {
 		}
 	}
 
-	public function update() {
-//		wp_safe_redirect(wp_get_raw_referer() . '&updated=true');
-	}
+	public function update() {}
 
 	/*
 	 *
@@ -200,13 +134,13 @@ class {{ className }} extends BaseAdminPage {
 	public function styles() {
 		wp_enqueue_style(
 			Funcs::config('app.short_name') . '-bootstrap-grid',
-			Funcs::instance()->_getPublicUrl() . '/plugins/bootstrap/css/bootstrap-grid.min.css',
+			Funcs::instance()->_getPublicUrl() . '/extras/plugins/bootstrap/css/bootstrap-grid.min.css',
 			null,
 			Funcs::instance()->_getVersion()
 		);
 		wp_enqueue_style(
 			Funcs::config('app.short_name') . '-bootstrap-utilities',
-			Funcs::instance()->_getPublicUrl() . '/plugins/bootstrap/css/bootstrap-utilities.min.css',
+			Funcs::instance()->_getPublicUrl() . '/extras/plugins/bootstrap/css/bootstrap-utilities.min.css',
 			null,
 			Funcs::instance()->_getVersion()
 		);

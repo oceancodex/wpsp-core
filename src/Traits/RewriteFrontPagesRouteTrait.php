@@ -69,7 +69,10 @@ trait RewriteFrontPagesRouteTrait {
 
 		if (!is_admin()
 			&& $this->request->isMethod('GET')
-			&& $this->isPassedMiddleware($allMiddlewares, $this->request, ['path' => $fullPath, 'custom_properties' => $customProperties])
+			&& $this->isPassedMiddleware($allMiddlewares, $this->request, [
+				'path' => $fullPath,
+				'custom_properties' => $customProperties
+			])
 		) {
 			$constructParams = [
 				[
