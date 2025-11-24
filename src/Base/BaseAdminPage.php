@@ -69,7 +69,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$callback = function() {
-				return $this->prepareCallbackFunction($this->callback_function, $this->menu_slug);
+				return $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
 			};
 		}
 		$menuPage = add_menu_page(
@@ -103,7 +103,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$callback = function() {
-				return $this->prepareCallbackFunction($this->callback_function, $this->menu_slug);
+				return $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
 			};
 		}
 		return add_submenu_page(

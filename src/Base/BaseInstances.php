@@ -33,7 +33,7 @@ abstract class BaseInstances {
 	 *
 	 */
 
-	protected function getCallParams($path, $requestPath, $class, $method): array {
+	protected function getCallParams($path, $fullPath, $requestPath, $class, $method): array {
 		// Lấy container / request
 		$app = $this->funcs->getApplication();
 		if (!$app) {
@@ -120,6 +120,7 @@ abstract class BaseInstances {
 		}
 
 		$callParams['path'] = $path;
+		$callParams['fullPath'] = $fullPath;
 		$callParams['requestPath'] = $requestPath;
 
 		// Ngoài các params lấy từ signature (primitive params),
@@ -179,12 +180,12 @@ abstract class BaseInstances {
 	}
 
 	/*
-	 *
+	 * 
 	 */
 
-	protected function prepareCallbackFunction($callbackFunction, $path, $requestPath = null) {
+	protected function prepareCallbackFunction($callbackFunction, $path, $fullPath, $requestPath = null) {
 		$requestPath = $requestPath ?? trim($this->request->getRequestUri(), '/\\');
-		$callParams = $this->getCallParams($path, $requestPath, $this, $callbackFunction);
+		$callParams = $this->getCallParams($path, $fullPath, $requestPath, $this, $callbackFunction);
 		return $this->resolveAndCall([$this, $callbackFunction], $callParams);
 	}
 

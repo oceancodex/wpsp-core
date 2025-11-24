@@ -85,7 +85,7 @@ trait RewriteFrontPagesRouteTrait {
 			], $constructParams);
 			$callback         = $this->prepareRouteCallback($callback, $useInitClass, $constructParams);
 			$callback[1]      = 'init';
-			$callParams = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
+			$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
 			$this->resolveAndCall($callback, $callParams);
 //			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($fullPath) : $callback;
 		}
@@ -151,7 +151,7 @@ trait RewriteFrontPagesRouteTrait {
 			], $constructParams);
 			$callback         = $this->prepareRouteCallback($callback, $useInitClass, $constructParams);
 			$callback[1]      = 'init';
-			$callParams = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
+			$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
 			$this->resolveAndCall($callback, $callParams);
 //			isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($fullPath) : $callback;
 		}

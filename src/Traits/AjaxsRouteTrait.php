@@ -45,10 +45,10 @@ trait AjaxsRouteTrait {
 		}
 
 		$hookAction = 'wp_ajax_' . $fullPath;
-		$this->addAjaxAction($hookAction, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
+		$this->addAjaxAction($hookAction, $action, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
 		if ($nopriv) {
 			$hookNoprivAction = 'wp_ajax_nopriv_' . $fullPath;
-			$this->addAjaxAction($hookNoprivAction, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
+			$this->addAjaxAction($hookNoprivAction, $action, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
 		}
 
 		// Reset middleware khi gọi xong function.
@@ -65,11 +65,12 @@ trait AjaxsRouteTrait {
 	 *
 	 */
 
-	public function addAjaxAction($action, $path, $callback, $useInitClass, $customProperties, $allMiddlewares): void {
-		add_action($action, function() use ($action, $path, $callback, $useInitClass, $customProperties, $allMiddlewares) {
+	public function addAjaxAction($action, $path, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares): void {
+		add_action($action, function() use ($action, $path, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares) {
 			if (!$this->isPassedMiddleware($allMiddlewares, $this->request, [
-				'path' => $path,
 				'action' => $action,
+				'path' => $path,
+				'full_path' => $fullPath,
 				'custom_properties' => $customProperties
 			])) {
 				wp_send_json($this->funcs->_response(false, [], 'Access denied.', 403), 403);
@@ -80,6 +81,7 @@ trait AjaxsRouteTrait {
 				[
 					'action'            => $action,
 					'path'              => $path,
+					'full_path'         => $fullPath,
 					'callback_function' => $callback[1] ?? null,
 					'custom_properties' => $customProperties,
 				],
@@ -89,12 +91,12 @@ trait AjaxsRouteTrait {
 				$this->funcs->_getRootNamespace(),
 				$this->funcs->_getPrefixEnv(),
 			], $constructParams);
-			$callback        = $this->prepareRouteCallback($callback, $useInitClass, $constructParams);
+			$callback = $this->prepareRouteCallback($callback, $useInitClass, $constructParams);
 
 //			if (isset($callback[0]) && isset($callback[1])) {
 //				$callback[0]->{$callback[1]}($path);
 				$requestPath = trim($this->request->getRequestUri(), '/\\');
-				$callParams = $this->getCallParams($path, $requestPath, $callback[0], $callback[1]);
+				$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
 				$this->resolveAndCall($callback, $callParams);
 //			}
 //			else {
