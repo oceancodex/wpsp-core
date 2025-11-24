@@ -28,7 +28,7 @@ abstract class BaseWPSP extends BaseInstances {
 		$commands = $this->funcs->_getAllClassesInDir('WPSPCORE\Console\Commands', __DIR__ . '/../Console/Commands');
 		$this->application = Application::configure($basePath)
 			->withMiddleware(function(Middleware $middleware): void {
-				$middleware->append(StartSessionIfAuthenticated::class);
+				$middleware->append(StartSessionIfAuthenticated::class); // Start session trước mọi code (bao gồm cả view share).
 			})
 			->withExceptions(function(Exceptions $exceptions): void {})
 			->withCommands($commands)

@@ -29,14 +29,11 @@ class StartSessionIfAuthenticated {
 	 * This middleware is safe to run for REST/API requests.
 	 */
 	public function handle(Request $request, Closure $next) {
-		$application   = $this->sessionManager->getContainer();
+		/** @var \Illuminate\Session\Store $session */
+		$session       = $this->sessionManager->driver();
+		$sessionConfig = $this->sessionManager->getSessionConfig();
 
-		$session       = $application->make('session');
-		$funcs         = $application->make('funcs');
-
-		$sessionStore  = $this->sessionManager->driver();
-
-		$sessionCookieName = $sessionStore->getName();
+		$sessionCookieName = $session->getName();
 		$clientSessionId   = $request->cookie($sessionCookieName);
 
 		if ($clientSessionId) {
@@ -44,26 +41,31 @@ class StartSessionIfAuthenticated {
 		}
 		else {
 			$cookie = cookie(
-				$sessionStore->getName(),
-				$sessionStore->getId(),
-				$funcs->_config('session.lifetime'),
+				$session->getName(),
+				$session->getId(),
+				$sessionConfig['lifetime'],
 				'/',
 				null,
 				true,
 				true,
 				false,
-				$funcs->_config('session.same_site')
+				$sessionConfig['same_site']
 			);
 
 			header('Set-Cookie: ' . $cookie, false);
 		}
 
-		// Start nếu chưa start
 		if (!$session->isStarted()) {
 			$session->start();
+			if (!$clientSessionId) {
+				$userAgent = $request->userAgent();
+				if (!preg_match('/WordPress\//', $userAgent)) {
+					$session->save();
+				}
+			}
 		}
 
-		$request->setLaravelSession($sessionStore);
+		$request->setLaravelSession($session);
 
 		return $next($request);
 	}
