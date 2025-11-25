@@ -4,7 +4,7 @@ namespace WPSPCORE\Base;
 
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class BaseRouter extends BaseInstances {
+abstract class BaseRoute extends BaseInstances {
 
 	public $initClasses = null;
 
