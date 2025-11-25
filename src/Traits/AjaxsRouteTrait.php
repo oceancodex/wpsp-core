@@ -44,6 +44,9 @@ trait AjaxsRouteTrait {
 			return $this;
 		}
 
+		echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($action); echo '</pre>';
+		echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($allMiddlewares); echo '</pre>';
+
 		$hookAction = 'wp_ajax_' . $fullPath;
 		$this->addAjaxAction($hookAction, $action, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
 		if ($nopriv) {
@@ -74,7 +77,7 @@ trait AjaxsRouteTrait {
 				'all_middlewares' => $allMiddlewares,
 				'custom_properties' => $customProperties
 			])) {
-				wp_send_json($this->funcs->_response(false, [], 'Access denied.', 403), 403);
+				wp_send_json($this->funcs->_response(false, null, 'Access denied.'), 403);
 				return;
 			}
 

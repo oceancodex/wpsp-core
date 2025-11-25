@@ -33,13 +33,7 @@ abstract class BaseInstances {
 	 *
 	 */
 
-	protected function getCallParams($path, $fullPath, $requestPath, $class, $method): array {
-		// Lấy container / request
-		$app = $this->funcs->getApplication();
-		if (!$app) {
-			throw new \RuntimeException('Container instance not found when building call params.');
-		}
-		$baseRequest = $app->bound('request') ? $app->make('request') : ($this->request ?? Request::capture());
+	protected function getCallParams($path, $fullPath, $requestPath, $class, $method, $args = []): array {
 
 		// Chuẩn hóa requestPath: loại bỏ query string, trim
 //		$requestPath = preg_replace('/\?.*$/', '', $requestPath);
@@ -49,9 +43,32 @@ abstract class BaseInstances {
 		// Nếu $path có ^ hoặc $ thì vẫn dùng như vậy; nếu không có, ta match toàn chuỗi.
 		$pattern = '/' . $path . '/iu';
 
-		if (!preg_match($pattern, $requestPath, $matches)) {
-			return []; // Không match => không param
+		$passed = false;
+
+		// Nếu nơi gọi hàm này là route "Ajaxs" với method POST, check action và match path.
+		if (preg_match('/Ajaxs$/', static::class)) {
+			$httpMethod = $this->request->getMethod();
+			if ($httpMethod === 'POST') {
+				$params = $this->request->all();
+				$passed = isset($params['action']) && $params['action'] === $path;
+			}
 		}
+
+		// Kiểm tra path có khớp với request path hiện tại không?
+		if (preg_match($pattern, $requestPath, $matches)) {
+			$passed = true;
+		}
+
+		if (!$passed) {
+			return [];
+		}
+
+		// Lấy container / request
+		$app = $this->funcs->getApplication();
+		if (!$app) {
+			throw new \RuntimeException('Container instance not found when building call params.');
+		}
+		$baseRequest = $app->bound('request') ? $app->make('request') : ($this->request ?? Request::capture());
 
 		// Named groups: keys là tên (PHP returns associative entries for named groups)
 		$named = array_filter($matches, fn($k) => !is_int($k), ARRAY_FILTER_USE_KEY);
