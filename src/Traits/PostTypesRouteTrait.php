@@ -4,7 +4,7 @@ namespace WPSPCORE\Traits;
 
 trait PostTypesRouteTrait {
 
-	use HookRunnerTrait, GroupRoutesTrait;
+	use HookRunnerTrait, RouteTrait;
 
 	public function init() {
 		$this->post_types();

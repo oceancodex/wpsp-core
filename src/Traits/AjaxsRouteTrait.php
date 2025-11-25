@@ -4,7 +4,7 @@ namespace WPSPCORE\Traits;
 
 trait AjaxsRouteTrait {
 
-	use HookRunnerTrait, GroupRoutesTrait;
+	use HookRunnerTrait, RouteTrait;
 
 	public function init() {
 		$this->ajaxs();
@@ -27,6 +27,42 @@ trait AjaxsRouteTrait {
 	 */
 
 	public function get($action, $callback, $useInitClass = false, $nopriv = false, $customProperties = null, $middlewares = null) {
+		$this->callRouteTimes++;
+		$this->currentCallMethod = 'route';
+
+		$this->executeHiddenMethod($action, $callback, $useInitClass, $nopriv, $customProperties, $middlewares);
+
+		if ($this->callMiddlewareTimes >= $this->callRouteTimes) {
+			array_pop($this->middlewareStack);
+		}
+
+		$this->callRouteTimes--;
+		$this->callMiddlewareTimes--;
+
+		return $this;
+	}
+
+	public function post($action, $callback, $useInitClass = false, $nopriv = false, $customProperties = null, $middlewares = null) {
+		$this->callRouteTimes++;
+		$this->currentCallMethod = 'route';
+
+		$this->executeHiddenMethod($action, $callback, $useInitClass, $nopriv, $customProperties, $middlewares);
+
+		if ($this->callMiddlewareTimes >= $this->callRouteTimes) {
+			array_pop($this->middlewareStack);
+		}
+
+		$this->callRouteTimes--;
+		$this->callMiddlewareTimes--;
+
+		return $this;
+	}
+
+	/*
+	 *
+	 */
+
+	public function executeHiddenMethod($action, $callback, $useInitClass = false, $nopriv = false, $customProperties = null, $middlewares = null) {
 		// Xây dựng full path
 		$fullPath = $this->buildFullPath($action);
 
@@ -41,11 +77,8 @@ trait AjaxsRouteTrait {
 
 		// Nếu đang build router map, chỉ lưu thông tin
 		if ($this->isForRouterMap) {
-			return $this;
+			return;
 		}
-
-		echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($action); echo '</pre>';
-		echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($allMiddlewares); echo '</pre>';
 
 		$hookAction = 'wp_ajax_' . $fullPath;
 		$this->addAjaxAction($hookAction, $action, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
@@ -53,15 +86,6 @@ trait AjaxsRouteTrait {
 			$hookNoprivAction = 'wp_ajax_nopriv_' . $fullPath;
 			$this->addAjaxAction($hookNoprivAction, $action, $fullPath, $callback, $useInitClass, $customProperties, $allMiddlewares);
 		}
-
-		// Reset middleware khi gọi xong function.
-		$this->middlewareStack = [];
-
-		return $this;
-	}
-
-	public function post($action, $callback, $useInitClass = false, $nopriv = false, $customProperties = null, $middlewares = null) {
-		return $this->get($action, $callback, $useInitClass, $nopriv, $customProperties, $middlewares);
 	}
 
 	/*
@@ -75,7 +99,7 @@ trait AjaxsRouteTrait {
 				'path' => $path,
 				'full_path' => $fullPath,
 				'all_middlewares' => $allMiddlewares,
-				'custom_properties' => $customProperties
+				'custom_properties' => $customProperties,
 			])) {
 				wp_send_json($this->funcs->_response(false, null, 'Access denied.'), 403);
 				return;

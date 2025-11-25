@@ -4,7 +4,7 @@ namespace WPSPCORE\Traits;
 
 trait TemplatesRouteTrait {
 
-	use HookRunnerTrait, GroupRoutesTrait;
+	use HookRunnerTrait, RouteTrait;
 
 	public function init() {
 		$this->templates();

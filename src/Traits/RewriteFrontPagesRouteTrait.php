@@ -4,7 +4,7 @@ namespace WPSPCORE\Traits;
 
 trait RewriteFrontPagesRouteTrait {
 
-	use HookRunnerTrait, GroupRoutesTrait;
+	use HookRunnerTrait, RouteTrait;
 
 	public function init() {
 		$this->addQueryVars();

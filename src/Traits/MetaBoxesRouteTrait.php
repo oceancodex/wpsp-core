@@ -4,7 +4,7 @@ namespace WPSPCORE\Traits;
 
 trait MetaBoxesRouteTrait {
 
-	use HookRunnerTrait, GroupRoutesTrait;
+	use HookRunnerTrait, RouteTrait;
 
 	public function init() {
 		$this->meta_boxes();

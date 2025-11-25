@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Traits;
 
-trait GroupRoutesTrait {
+trait GroupRoutesTrait_old {
 
 	public    $isForRouterMap      = false;
 
@@ -17,6 +17,7 @@ trait GroupRoutesTrait {
 	private   $callNameTimes       = 0;
 	private   $callMiddlewareTimes = 0;
 	private   $callGroupTimes      = 0;
+	private   $callRouteTimes      = 0;
 
 	protected $namespace           = null;
 	protected $version             = null;
@@ -106,7 +107,7 @@ trait GroupRoutesTrait {
 		$this->callMiddlewareTimes++;
 
 		// Reset middleware stack first.
-		$this->middlewareStack = []; // reset middleware
+//		$this->middlewareStack = [];
 
 		// Chuẩn hóa middleware thành mảng
 		if (!is_array($middlewares)) {
@@ -152,9 +153,6 @@ trait GroupRoutesTrait {
 		$this->currentCallMethod = 'group';
 		$this->callGroupTimes++;
 
-		// Lưu số lượng middleware hiện tại trước khi vào group
-//		$middlewareCountBefore = count($this->middlewareStack);
-
 		// Merge middleware nếu được truyền vào
 		if ($middlewares !== null) {
 			$this->middleware($middlewares);
@@ -166,13 +164,10 @@ trait GroupRoutesTrait {
 		// Pop các stack sau khi group chạy xong
 		$this->popStacks();
 
-		// Đảm bảo pop tất cả middleware đã thêm trong group này
-//		while (count($this->middlewareStack) >= $middlewareCountBefore) {
-//			array_pop($this->middlewareStack);
-//		}
-
 		// Reset middleware if group() call lastest.
 		$this->middlewareStack = [];
+
+		$this->callMiddlewareTimes--;
 
 		return $this;
 	}
@@ -181,10 +176,6 @@ trait GroupRoutesTrait {
 	 * Pop các stack sau khi group kết thúc (KHÔNG pop middleware ở đây)
 	 */
 	protected function popStacks() {
-		if (!empty($this->prefixStack) && count($this->prefixStack) >= $this->callGroupTimes) {
-			array_pop($this->prefixStack);
-		}
-
 		if (!empty($this->nameStack) && count($this->nameStack) >= $this->callGroupTimes) {
 			array_pop($this->nameStack);
 		}

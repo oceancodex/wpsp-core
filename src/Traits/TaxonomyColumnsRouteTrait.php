@@ -4,7 +4,7 @@ namespace WPSPCORE\Traits;
 
 trait TaxonomyColumnsRouteTrait {
 
-	use HookRunnerTrait, GroupRoutesTrait;
+	use HookRunnerTrait, RouteTrait;
 
 	public function init() {
 		$this->taxonomy_columns();

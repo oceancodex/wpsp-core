@@ -4,7 +4,7 @@ namespace WPSPCORE\Traits;
 
 trait ApisRouteTrait {
 
-	use HookRunnerTrait, GroupRoutesTrait;
+	use HookRunnerTrait, RouteTrait;
 
 	public function init() {
 		$this->customProperties();

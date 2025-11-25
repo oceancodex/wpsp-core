@@ -4,7 +4,7 @@ namespace WPSPCORE\Traits;
 
 trait NavLocationsRouteTrait {
 
-	use HookRunnerTrait, GroupRoutesTrait;
+	use HookRunnerTrait, RouteTrait;
 
 	public function init() {
 		$this->nav_locations();

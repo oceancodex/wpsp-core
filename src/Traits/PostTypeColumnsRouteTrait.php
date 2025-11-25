@@ -4,7 +4,7 @@ namespace WPSPCORE\Traits;
 
 trait PostTypeColumnsRouteTrait {
 
-	use HookRunnerTrait, GroupRoutesTrait;
+	use HookRunnerTrait, RouteTrait;
 
 	public function init() {
 		$this->post_type_columns();

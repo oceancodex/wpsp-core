@@ -2,10 +2,9 @@
 
 namespace WPSPCORE\Base;
 
-use Illuminate\Pipeline\Pipeline;
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class BaseRoute extends BaseInstances {
+abstract class BaseRouter extends BaseInstances {
 
 	public $initClasses = null;
 
