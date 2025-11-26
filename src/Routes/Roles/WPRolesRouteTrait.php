@@ -1,0 +1,52 @@
+<?php
+
+namespace WPSPCORE\Routes\Roles;
+
+use WPSPCORE\Traits\HookRunnerTrait;
+use WPSPCORE\Traits\RouteTrait;
+
+trait WPRolesRouteTrait {
+
+	use HookRunnerTrait, RouteTrait;
+
+	public function init() {
+		$this->roles();
+		$this->hooks();
+	}
+
+	/*
+     *
+     */
+
+	public function roles() {}
+
+	/*
+	 *
+	 */
+
+	public function role($role, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
+		if ($this->isPassedMiddleware($middlewares, $this->request, ['role' => $role, 'custom_properties' => $customProperties])) {
+			if (is_array($callback)) {
+				$constructParams = [
+					[
+						'role'              => $role,
+						'callback_function' => $callback[1] ?? null,
+						'custom_properties' => $customProperties,
+					],
+				];
+				$constructParams = array_merge([
+					$this->funcs->_getMainPath(),
+					$this->funcs->_getRootNamespace(),
+					$this->funcs->_getPrefixEnv(),
+				], $constructParams);
+				$callback = $this->prepareRouteCallback($callback, $useInitClass, $constructParams);
+				$callback[1] = 'init';
+				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}($role) : $callback;
+			}
+			elseif (is_callable($callback)) {
+				$callback();
+			}
+		}
+	}
+
+}
