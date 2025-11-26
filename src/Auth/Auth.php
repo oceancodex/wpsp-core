@@ -2,12 +2,12 @@
 
 namespace WPSPCORE\Auth;
 
+use Illuminate\Auth\AuthManager;
 use WPSPCORE\Base\BaseInstances;
 
 abstract class Auth extends BaseInstances {
 
-	/** @var \Illuminate\Support\Facades\Auth */
-	public $auth;
+	public AuthManager $auth;
 
 	/*
 	 *
@@ -25,7 +25,7 @@ abstract class Auth extends BaseInstances {
 	 *
 	 */
 
-	public function attempt($credentials, $remember = false) {
+	public function attempt($credentials, $remember = false): bool {
 		$attempt = $this->auth->attempt($credentials, $remember);
 
 		if ($attempt) {
@@ -50,15 +50,15 @@ abstract class Auth extends BaseInstances {
 
 	protected function saveSessionsAndCookies(): void {
 		// Save session.
-		$session       = $this->funcs->getApplication('session');
-		$clientSession = $_COOKIE[$this->funcs->_config('session.cookie')] ?? null;
+		$session       = static::$funcs->getApplication('session');
+		$clientSession = $_COOKIE[static::$funcs->_config('session.cookie')] ?? null;
 		if ($clientSession) {
 			$session->setId($clientSession);
 			$session->save();
 		}
 
 		// Save cookies.
-		$queued = $this->funcs->getApplication('cookie')->getQueuedCookies();
+		$queued = static::$funcs->getApplication('cookie')->getQueuedCookies();
 		foreach ($queued as $cookie) {
 			setcookie(
 				$cookie->getName(),
@@ -76,7 +76,7 @@ abstract class Auth extends BaseInstances {
 	}
 
 	protected function cleanupOldSessionsForUser($userId): void {
-		$db = $this->funcs->getApplication('db'); // hoặc DB::connection()
+		$db = static::$funcs->getApplication('db'); // hoặc DB::connection()
 
 		// Xóa tất cả session cùng user_id trước đó.
 		$db->table('sessions')
@@ -88,21 +88,16 @@ abstract class Auth extends BaseInstances {
 	 *
 	 */
 
-	public function __call($name, $arguments) {
-		if (method_exists(static::instance(), $name)) {
-			return static::instance()->$name(...$arguments);
-		}
-		else {
-			return static::instance()->getAuth()->$name(...$arguments);
-		}
+	public function __call($method, $arguments) {
+		return static::__callStatic($method, $arguments);
 	}
 
-	public static function __callStatic($name, $arguments) {
-		if (method_exists(static::instance(), $name)) {
-			return static::instance()->$name(...$arguments);
+	public static function __callStatic($method, $arguments) {
+		if (method_exists(static::instance(), $method)) {
+			return static::instance()->$method(...$arguments);
 		}
 		else {
-			return static::instance()->getAuth()->$name(...$arguments);
+			return static::instance()->getAuth()->$method(...$arguments);
 		}
 	}
 

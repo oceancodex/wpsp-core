@@ -46,7 +46,10 @@ trait BaseRouteTrait {
 		$normalized = [];
 		foreach ($middlewares as $m) {
 			if ($m instanceof \Closure) {
-				$normalizedMiddleware = ['type' => 'closure', 'closure' => $m];
+				$normalizedMiddleware = [
+					'type' => 'closure',
+					'closure' => $m
+				];
 				continue;
 			}
 
@@ -100,55 +103,60 @@ trait BaseRouteTrait {
 		$app     = static::$funcs->getApplication();
 		$request = $app->make('request');
 
-		// Helper: chạy 1 middleware descriptor, trả về chuẩn ['ok' => bool, 'response' => Response|null]
+		/**
+		 * -----------------
+		 * Helper: chạy 1 middleware descriptor, trả về chuẩn
+		 * -----------------
+		 * ['ok' => bool, 'response' => Response|null]
+		 */
 		$runOne = function($normalizedMiddleware) use ($request, $app) {
 			// $next giả: middleware gọi $next($request) => được coi là "pass" -> trả Response 200
 			$next = function($req = null) {
 				return new Response('', 200);
 			};
 
-//			try {
-			if ($normalizedMiddleware['type'] === 'closure') {
-				$res = call_user_func($normalizedMiddleware['closure'], $request, $next);
-			}
-			elseif ($normalizedMiddleware['type'] === 'class') {
-				$class  = $normalizedMiddleware['class'];
-				$method = $normalizedMiddleware['method'] ?? 'handle';
-
-				// nếu class không tồn tại, coi như fail
-				if (!class_exists($class)) {
-					return ['ok' => false, 'response' => null];
+			try {
+				if ($normalizedMiddleware['type'] === 'closure') {
+					$res = call_user_func($normalizedMiddleware['closure'], $request, $next);
 				}
+				elseif ($normalizedMiddleware['type'] === 'class') {
+					$class  = $normalizedMiddleware['class'];
+					$method = $normalizedMiddleware['method'] ?? 'handle';
 
-				// 🚀 Quan trọng: dùng Container để tự động Dependency Injection
-				try {
-					$instance = $app->make($class);
-				}
-				catch (\Throwable $e) {
-					return ['ok' => false, 'response' => null];
-				}
+					// nếu class không tồn tại, coi như fail
+					if (!class_exists($class)) {
+						return ['ok' => false, 'response' => null];
+					}
 
-				// nếu method không tồn tại, cố gọi handle, nếu không có -> fail
-				if (!method_exists($instance, $method)) {
-					if (method_exists($instance, 'handle')) {
-						$res = $instance->handle($request, $next, $normalizedMiddleware['args'] ?? []);
+					// 🚀 Quan trọng: dùng Container để tự động Dependency Injection
+					try {
+						$instance = $app->make($class);
+					}
+					catch (\Throwable $e) {
+						return ['ok' => false, 'response' => null];
+					}
+
+					// nếu method không tồn tại, cố gọi handle, nếu không có -> fail
+					if (!method_exists($instance, $method)) {
+						if (method_exists($instance, 'handle')) {
+							$res = $instance->handle($request, $next, $normalizedMiddleware['args'] ?? []);
+						}
+						else {
+							return ['ok' => false, 'response' => null];
+						}
 					}
 					else {
-						return ['ok' => false, 'response' => null];
+						$res = $instance->$method($request, $next, $normalizedMiddleware['args'] ?? []);
 					}
 				}
 				else {
-					$res = $instance->$method($request, $next, $normalizedMiddleware['args'] ?? []);
+					return ['ok' => false, 'response' => null];
 				}
 			}
-			else {
+			catch (\Throwable $e) {
+				// lỗi khi chạy middleware => coi là fail
 				return ['ok' => false, 'response' => null];
 			}
-//			}
-//			catch (\Throwable $e) {
-//				// lỗi khi chạy middleware => coi là fail
-//				return ['ok' => false, 'response' => null];
-//			}
 
 			// Chuẩn hóa kết quả:
 			// - Nếu là Symfony Response (Illuminate Response kế thừa) -> check status
@@ -172,6 +180,9 @@ trait BaseRouteTrait {
 			// Trường hợp trả string/other -> coi là pass (hoặc bạn có thể đổi thành fail)
 			return ['ok' => true, 'response' => null];
 		};
+		/**
+		 * -----------------
+		 */
 
 		// Logic OR: chỉ cần 1 pass => pass toàn bộ
 		if ($relation === 'OR') {

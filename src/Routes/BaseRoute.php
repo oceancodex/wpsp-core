@@ -8,10 +8,10 @@ use WPSPCORE\Base\BaseInstances;
  * Hỗ trợ gọi động: prefix(), name(), middleware(), group(),
  * và các HTTP verb (get/post/put/patch/delete/options)
  *
- * @method $this middleware(array|string $middlewares)
- * @method $this group($callback)
  * @method $this name(string $name)
+ * @method $this group($callback)
  * @method $this prefix(string $prefix)
+ * @method $this middleware(array|string $middlewares)
  */
 abstract class BaseRoute extends BaseInstances {
 
@@ -97,7 +97,7 @@ abstract class BaseRoute extends BaseInstances {
 			}
 
 			// Push toàn bộ thuộc tính group vào RouteManager
-			RouteManager::pushGroupAttributes($attrs);
+			static::$funcs->getRouteManager()::pushGroupAttributes($attrs);
 
 			// reset pending để không ảnh hưởng route khác
 			static::$pending = [];
@@ -112,7 +112,7 @@ abstract class BaseRoute extends BaseInstances {
 			}
 
 			// pop group attributes khỏi stack
-			RouteManager::popGroupAttributes();
+			static::$funcs->getRouteManager()::popGroupAttributes();
 
 			return new static;
 		}
@@ -134,9 +134,10 @@ abstract class BaseRoute extends BaseInstances {
 	public static function buildRoute($method, $arguments): RouteData {
 		$path     = $arguments[0];
 		$callback = $arguments[1] ?? null;
+		$args     = $arguments[2] ?? [];
 
 		// Lấy attributes của tất cả group đang active
-		$group = RouteManager::currentGroupAttributes();
+		$group = static::$funcs->getRouteManager()::currentGroupAttributes();
 
 		/**
 		 * Hợp nhất prefix tạm (chỉ có tác dụng cho route này)
@@ -170,9 +171,20 @@ abstract class BaseRoute extends BaseInstances {
 		 * 4) Tạo đối tượng RouteData
 		 * RouteData sẽ giữ method, path, callback, prefix, middlewares
 		 */
-		$route = static::class;
-		$type  = basename(str_replace('\\', '/', $route));
-		$route = new RouteData($type, $route, $method, $path, $callback, $group, static::$funcs);
+		$routeClass = static::class;
+		$parentRouteClass = get_parent_class($routeClass);
+		$type  = basename(str_replace('\\', '/', $routeClass));
+		$route = new RouteData(
+			$type,
+			$routeClass,
+			$parentRouteClass,
+			$method,
+			$path,
+			$callback,
+			array_merge($args, ['route' => '123']),
+			$group,
+			static::$funcs
+		);
 
 		/**
 		 * Gắn nameStack hiện tại vào route
@@ -181,7 +193,7 @@ abstract class BaseRoute extends BaseInstances {
 		$route->setGroupNameStack(static::$nameStack);
 
 		// Lưu route vào RouteManager.
-		RouteManager::addRoute($route);
+		static::$funcs->getRouteManager()::addRoute($route);
 
 		// Reset pending sau khi tạo route.
 		static::$pending = [];

@@ -8,8 +8,9 @@ use WPSPCORE\Base\BaseInstances;
 
 class Funcs extends BaseInstances {
 
-	public $routeMapClass;
 	public $WPSPClass;
+	public $routeMapClass;
+	public $routeManagerClass;
 
 	/*
 	 *
@@ -18,22 +19,24 @@ class Funcs extends BaseInstances {
 	public function afterConstruct() {
 		$this->WPSPClass = '\\' . static::$rootNamespace . '\WPSP';
 		$this->routeMapClass = '\\' . static::$rootNamespace . '\App\Instances\Routes\RouteMap';
+		$this->routeManagerClass = '\\' . static::$rootNamespace . '\App\Instances\Routes\RouteManager';
 	}
 
 	/*
 	 *
 	 */
 
-	/**
-	 * @return \WPSPCORE\Routes\RouteMap
-	 */
-	public function getRouteMap() {
+	public function getWPSP() {
 		try {
-			return $this->routeMapClass::instance();
+			return $this->WPSPClass::instance();
 		}
 		catch (\Throwable $e) {
 			return null;
 		}
+	}
+
+	public function getWPSPClass() {
+		return $this->WPSPClass;
 	}
 
 	public function getApplication($abstract = null, $parameters = []) {
@@ -48,17 +51,28 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function getWPSP() {
+	/**
+	 * @return \WPSPCORE\Routes\RouteMap
+	 */
+	public function getRouteMap() {
 		try {
-			return $this->WPSPClass::instance();
+			return $this->routeMapClass::instance();
 		}
 		catch (\Throwable $e) {
 			return null;
 		}
 	}
 
-	public function getWPSPClass() {
-		return $this->WPSPClass;
+	/**
+	 * @return \WPSPCORE\Routes\RouteManager
+	 */
+	public function getRouteManager() {
+		try {
+			return $this->routeManagerClass::instance();
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
 	}
 
 	/*

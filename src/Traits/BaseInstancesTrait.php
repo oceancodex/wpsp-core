@@ -21,19 +21,23 @@ trait BaseInstancesTrait {
 	public static $request       = null;
 
 	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = null) {
+		$this->instanceConstruct();
 		$this->beforeConstruct();
-		if ($mainPath)      static::$mainPath         = $mainPath;
-		if ($rootNamespace) static::$rootNamespace    = $rootNamespace;
-		if ($prefixEnv)     static::$prefixEnv        = $prefixEnv;
-		if ($extraParams)   static::$extraParams      = $extraParams;
+		if ($mainPath)      static::$mainPath       = $mainPath;
+		if ($rootNamespace) static::$rootNamespace  = $rootNamespace;
+		if ($prefixEnv)     static::$prefixEnv      = $prefixEnv;
+		if ($extraParams)   static::$extraParams    = $extraParams;
 		$this->prepareFuncs();
 		$this->prepareRequest();
 		$this->afterConstruct();
+		$this->customProperties();
 	}
 
 	/*
 	 *
 	 */
+
+	public function customProperties() {}
 
 	/*
 	 *
@@ -75,17 +79,19 @@ trait BaseInstancesTrait {
 	 *
 	 */
 
-	public function getRequest() {
+	public function getRequest(): ?Request {
 		return static::$request;
 	}
 
-	public function getExtraParams() {
+	public function getExtraParams(): array {
 		return static::$extraParams;
 	}
 
 	/*
 	 *
 	 */
+
+	public function instanceConstruct() {}
 
 	public function beforeConstruct() {}
 

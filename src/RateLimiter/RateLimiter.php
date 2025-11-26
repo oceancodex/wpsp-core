@@ -7,16 +7,15 @@ use WPSPCORE\Base\BaseInstances;
 
 abstract class RateLimiter extends BaseInstances {
 
-	/** @var \Illuminate\Cache\RateLimiter */
-	private $rateLimiter;
+	private \Illuminate\Cache\RateLimiter $rateLimiter;
 
-	public function getRateLimiter() {
+	public function getRateLimiter(): \Illuminate\Cache\RateLimiter {
 		return $this->rateLimiter;
 	}
 
 	public function setRateLimiter(): void {
 		/** @var CacheManager $cacheManager */
-		$cacheManager      = $this->funcs->getApplication('cache');
+		$cacheManager      = static::$funcs->getApplication('cache');
 		$cacheStore        = $cacheManager->store();
 		$this->rateLimiter = new \Illuminate\Cache\RateLimiter($cacheStore);
 	}
@@ -25,21 +24,16 @@ abstract class RateLimiter extends BaseInstances {
 	 *
 	 */
 
-	public function __call($name, $arguments) {
-		if (method_exists(static::instance(), $name)) {
-			return static::instance()->$name(...$arguments);
-		}
-		else {
-			return static::instance()->getRateLimiter()->$name(...$arguments);
-		}
+	public function __call($method, $arguments) {
+		return static::__callStatic($method, $arguments);
 	}
 
-	public static function __callStatic($name, $arguments) {
-		if (method_exists(static::instance(), $name)) {
-			return static::instance()->$name(...$arguments);
+	public static function __callStatic($method, $arguments) {
+		if (method_exists(static::instance(), $method)) {
+			return static::instance()->$method(...$arguments);
 		}
 		else {
-			return static::instance()->getRateLimiter()->$name(...$arguments);
+			return static::instance()->getRateLimiter()->$method(...$arguments);
 		}
 	}
 

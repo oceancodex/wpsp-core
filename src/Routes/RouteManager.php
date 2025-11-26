@@ -143,4 +143,27 @@ class RouteManager {
 		return static::$routes;
 	}
 
+	/**
+	 * Chạy tất cả các route đã tạo.
+	 */
+	public static function executeAllRoutes() {
+		$routes = static::all();
+		foreach ($routes as $routeItem) {
+			$type        = $routeItem->type;
+			$route       = $routeItem->route;
+			$parentRoute = '\\' . trim($routeItem->parentRoute, '\\');
+			$method      = $routeItem->method;
+			$path        = $routeItem->path;
+			$fullPath    = $routeItem->fullPath;
+			$callback    = $routeItem->callback;
+			$args        = $routeItem->args;
+			$name        = $routeItem->name;
+			$middlewares = $routeItem->middlewares;
+
+			if ($type == 'Apis') {
+				$parentRoute::$method($path, $callback, array_merge($args, ['route' => $routeItem]));
+			}
+		}
+	}
+
 }
