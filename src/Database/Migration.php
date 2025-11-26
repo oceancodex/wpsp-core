@@ -7,7 +7,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Contracts\Console\Kernel as ArtisanKernel;
 
 /**
- * Migration checker tương thích Laravel Application nội bộ (đa plugin).
+ * Migration checker tương thích với Application nội bộ (đa plugin).
  * Tương thích PHP 7.4
  */
 class Migration extends BaseInstances {
@@ -51,7 +51,7 @@ class Migration extends BaseInstances {
 	}
 
 	/**
-	 * Chạy migrate() qua Laravel Kernel (Artisan)
+	 * Chạy migrate()
 	 */
 	public function migrate(): array {
 		$app     = $this->funcs->getApplication();

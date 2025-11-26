@@ -4,14 +4,18 @@ namespace WPSPCORE\Routes;
 
 class RouteData {
 
+	public $funcs;
+
 	public $type;
+	public $route;
 
-	public $method;        // HTTP method (GET, POST, ...)
-	public $path;          // Full path sau khi áp dụng prefix
-	public $callback;      // Controller action hoặc Closure
+	public $method;                 // HTTP method (GET, POST, ...)
+	public $path;                   // Path của route
+	public $fullPath;               // Full path sau khi áp dụng prefix
+	public $callback;               // Controller action hoặc Closure
 
-	public $name        = null;   // Tên route đầy đủ sau khi gọi ->name()
-	public $middlewares = [];     // Danh sách middleware áp dụng cho route
+	public $name        = null;     // Tên route đầy đủ sau khi gọi ->name()
+	public $middlewares = [];       // Danh sách middleware áp dụng cho route
 
 	/**
 	 * Lưu stack các tên group (name prefix) theo thứ tự.
@@ -30,7 +34,7 @@ class RouteData {
 	 * @param mixed  $callback        Controller + method hoặc Closure
 	 * @param array  $groupAttributes Các thuộc tính gộp từ tất cả group (prefix, name, middleware)
 	 */
-	public function __construct(string $type, string $method, string $path, $callback, array $groupAttributes) {
+	public function __construct(string $type, string $route, string $method, string $path, $callback, array $groupAttributes, $funcs = null) {
 
 		// Lấy prefix từ group, chuẩn hoá: đảm bảo luôn kết thúc bằng '/'
 		$prefix = $groupAttributes['prefix'] ?? '';
@@ -40,9 +44,12 @@ class RouteData {
 
 		// Gán thông tin cơ bản
 		$this->type     = $type;
+		$this->route    = $route;
 		$this->method   = $method;
-		$this->path     = $prefix . ltrim($path, '/'); // ghép prefix + uri
+		$this->path     = ltrim($path, '/');
+		$this->fullPath = $prefix . $this->path;
 		$this->callback = $callback;
+		$this->funcs    = $funcs;
 
 		// Gộp middleware từ group (unique để tránh lặp)
 		$this->middlewares = isset($groupAttributes['middlewares'])
@@ -73,11 +80,14 @@ class RouteData {
 	 */
 	public function name(string $name) {
 
-		// Ghép toàn bộ prefix name từ stack (theo đúng cơ chế Laravel)
+		// Ghép toàn bộ prefix name từ stack.
 		$prefix = implode('', $this->nameStack ?? []);
 
-		// Gán name hoàn chỉnh
+		// Gán name hoàn chỉnh.
 		$this->name = $prefix . $name;
+
+		// Add route map khi có name.
+		$this->funcs->getRouteMap()->add($this);
 
 		return $this;
 	}

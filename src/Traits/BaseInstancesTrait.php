@@ -12,23 +12,23 @@ use Illuminate\Http\Request;
  */
 trait BaseInstancesTrait {
 
-	public $mainPath      = null;
-	public $rootNamespace = null;
-	public $prefixEnv     = null;
-	public $extraParams   = [];
-	public $funcs         = null;
-	public $request       = null;
+	public static $funcs         = null;
+	public static $mainPath      = null;
+	public static $rootNamespace = null;
+	public static $prefixEnv     = null;
+
+	public static $extraParams   = [];
+	public static $request       = null;
 
 	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = null) {
 		$this->beforeConstruct();
-		if ($mainPath)      $this->mainPath         = $mainPath;
-		if ($rootNamespace) $this->rootNamespace    = $rootNamespace;
-		if ($prefixEnv)     $this->prefixEnv        = $prefixEnv;
-		if ($extraParams)   $this->extraParams      = $extraParams;
+		if ($mainPath)      static::$mainPath         = $mainPath;
+		if ($rootNamespace) static::$rootNamespace    = $rootNamespace;
+		if ($prefixEnv)     static::$prefixEnv        = $prefixEnv;
+		if ($extraParams)   static::$extraParams      = $extraParams;
 		$this->prepareFuncs();
 		$this->prepareRequest();
 		$this->afterConstruct();
-		if (empty($this->extraParams)) unset($this->extraParams);
 	}
 
 	/*
@@ -40,49 +40,47 @@ trait BaseInstancesTrait {
 	 */
 
 	private function prepareRequest(): void {
-		if (isset($this->funcs->request) && $this->funcs->request) {
-			$this->request = $this->funcs->request;
-		}
-		elseif (isset($this->funcs) && $this->funcs) {
-			$this->request = $this->funcs->getApplication('request');
+		if (isset(static::$funcs) && $funcs = static::$funcs) {
+			if (isset($funcs::$request) && $funcs::$request) {
+				static::$request = $funcs::$request;
+			}
+			else {
+				static::$request = static::$funcs->getApplication('request');
+			}
 		}
 		else {
-			$this->request = Request::capture();
+			static::$request = Request::capture();
 		}
-		unset($this->extraParams['request']);
+		unset(static::$extraParams['request']);
 	}
 
 	private function prepareFuncs(): void {
-		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
-			if (is_bool($this->extraParams['funcs'])) {
-				$this->funcs = new \WPSPCORE\Funcs(
+		if (isset(static::$extraParams['funcs']) && static::$extraParams['funcs'] && !static::$funcs) {
+			if (is_bool(static::$extraParams['funcs'])) {
+				static::$funcs = new \WPSPCORE\Funcs(
 					$this->mainPath,
 					$this->rootNamespace,
 					$this->prefixEnv,
-					$this->extraParams
+					static::$extraParams
 				);
 			}
 			else {
-				$this->funcs = $this->extraParams['funcs'];
+				static::$funcs = static::$extraParams['funcs'];
 			}
 		}
-		unset($this->extraParams['funcs']);
+		unset(static::$extraParams['funcs']);
 	}
 
 	/*
 	 *
 	 */
 
-	public function getLocale() {
-		return $this->locale;
-	}
-
 	public function getRequest() {
-		return $this->request;
+		return static::$request;
 	}
 
 	public function getExtraParams() {
-		return $this->extraParams;
+		return static::$extraParams;
 	}
 
 	/*

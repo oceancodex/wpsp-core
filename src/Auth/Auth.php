@@ -14,7 +14,7 @@ abstract class Auth extends BaseInstances {
 	 */
 
 	public function setAuth(): void {
-		$this->auth = $this->funcs->getApplication('auth');
+		$this->auth = static::$funcs->getApplication('auth');
 	}
 
 	public function getAuth() {

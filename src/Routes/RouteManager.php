@@ -14,7 +14,7 @@ class RouteManager {
 	 * Stack chứa các group attributes (prefix, name, middlewares)
 	 * được push/pop trong quá trình xử lý group().
 	 *
-	 * Cơ chế giống Laravel:
+	 * Cơ chế:
 	 * - Mỗi lần vào group(), push attributes
 	 * - Khi thoát group(), pop attributes
 	 * - Dồn tất cả attributes của các group lại cho route con
@@ -44,7 +44,7 @@ class RouteManager {
 		];
 
 		// Push vào stack
-		self::$groupStack[] = $attrs;
+		static::$groupStack[] = $attrs;
 	}
 
 	/**
@@ -52,12 +52,12 @@ class RouteManager {
 	 * Gọi khi kết thúc một group().
 	 */
 	public static function popGroupAttributes() {
-		array_pop(self::$groupStack);
+		array_pop(static::$groupStack);
 	}
 
 	/**
 	 * Lấy toàn bộ prefix, name, middleware đã merge từ tất cả group cha.
-	 * Cơ chế giống Laravel: group cha luôn bao group con.
+	 * Cơ chế: group cha luôn bao group con.
 	 *
 	 * Kết quả hợp nhất có dạng:
 	 * [
@@ -72,7 +72,7 @@ class RouteManager {
 		$merged = ['prefix' => '', 'name' => '', 'middlewares' => []];
 
 		// Lần lượt merge từ group bên ngoài → group vào trong
-		foreach (self::$groupStack as $g) {
+		foreach (static::$groupStack as $g) {
 
 			/**
 			 * Merge prefix:
@@ -133,14 +133,14 @@ class RouteManager {
 	 * Route được truyền vào là những đối tượng RouteData đã hoàn chỉnh.
 	 */
 	public static function addRoute(RouteData $route) {
-		self::$routes[] = $route;
+		static::$routes[] = $route;
 	}
 
 	/**
 	 * Lấy toàn bộ route đã tạo.
 	 */
 	public static function all(): array {
-		return self::$routes;
+		return static::$routes;
 	}
 
 }

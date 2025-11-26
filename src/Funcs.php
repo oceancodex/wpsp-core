@@ -8,16 +8,16 @@ use WPSPCORE\Base\BaseInstances;
 
 class Funcs extends BaseInstances {
 
-	private $routeMapClass;
-	private $WPSPClass;
+	public $routeMapClass;
+	public $WPSPClass;
 
 	/*
 	 *
 	 */
 
 	public function afterConstruct() {
-		$this->WPSPClass = '\\' . $this->rootNamespace . '\WPSP';
-		$this->routeMapClass = '\\' . $this->rootNamespace . '\app\Instances\Routes\RouteMap';
+		$this->WPSPClass = '\\' . static::$rootNamespace . '\WPSP';
+		$this->routeMapClass = '\\' . static::$rootNamespace . '\App\Instances\Routes\RouteMap';
 	}
 
 	/*
@@ -66,15 +66,15 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function _getMainPath($path = null): string {
-		return rtrim($this->mainPath, '/\\') . ($path ? '/' . ltrim($path, '/\\') : '');
+		return rtrim(static::$mainPath, '/\\') . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
 	public function _getRootNamespace() {
-		return $this->rootNamespace;
+		return static::$rootNamespace;
 	}
 
 	public function _getPrefixEnv() {
-		return $this->prefixEnv;
+		return static::$prefixEnv;
 	}
 
 	/*

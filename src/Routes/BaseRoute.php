@@ -2,6 +2,8 @@
 
 namespace WPSPCORE\Routes;
 
+use WPSPCORE\Base\BaseInstances;
+
 /**
  * Hỗ trợ gọi động: prefix(), name(), middleware(), group(),
  * và các HTTP verb (get/post/put/patch/delete/options)
@@ -11,7 +13,9 @@ namespace WPSPCORE\Routes;
  * @method $this name(string $name)
  * @method $this prefix(string $prefix)
  */
-abstract class BaseRoute {
+abstract class BaseRoute extends BaseInstances {
+
+	use BaseRouteTrait;
 
 	/**
 	 * Lưu các giá trị được gọi trước khi gọi HTTP verb
@@ -23,7 +27,7 @@ abstract class BaseRoute {
 	protected static array $pending = [];
 
 	/**
-	 * Stack dùng để lưu các prefix name của group theo đúng cơ chế Laravel
+	 * Stack dùng để lưu các prefix name của group.
 	 * Ví dụ:
 	 *     Route::name('admin.')->group(function() {
 	 *         Route::name('user.')->group(function() {
@@ -36,63 +40,67 @@ abstract class BaseRoute {
 	 */
 	protected static array $nameStack = [];
 
+	/*
+	 *
+	 */
+
 	/**
 	 * Nếu gọi method thông thường (non-static) → chuyển sang static handler
 	 */
-	public function __call($name, $arguments) {
-		return static::__callStatic($name, $arguments);
+	public function __call($method, $arguments) {
+		return static::__callStatic($method, $arguments);
 	}
 
 	/**
-	 * Xử lý tất cả method động theo kiểu Laravel
+	 * Xử lý tất cả method động.
 	 */
-	public static function __callStatic($name, $arguments) {
-		$lower = strtolower($name);
+	public static function __callStatic($method, $arguments) {
+		$method = strtolower($method);
 
 		/**
 		 * 1) Nếu gọi prefix(), name(), middleware()
 		 * → chỉ lưu vào pending, chưa tạo route
 		 */
-		if (in_array($lower, ['prefix', 'name', 'middleware'])) {
+		if (in_array($method, ['prefix', 'name', 'middleware'])) {
 
 			// middleware có thể là array hoặc string
-			if ($lower === 'middleware') {
-				self::$pending['middlewares'] = is_array($arguments[0])
+			if ($method === 'middleware') {
+				static::$pending['middlewares'] = is_array($arguments[0])
 					? $arguments[0]
 					: [$arguments[0]];
 			}
 			else {
 				// prefix hoặc name
-				self::$pending[$lower] = $arguments[0];
+				static::$pending[$method] = $arguments[0];
 			}
 
 			// trả về new static để chain tiếp
-			return new static;
+			return new static();
 		}
 
 		/**
 		 * 2) Xử lý group()
 		 * → tạo phạm vi group và áp dụng prefix/name/middleware cho các route con
 		 */
-		elseif ($lower === 'group') {
+		elseif ($method === 'group') {
 
 			// Lấy toàn bộ giá trị pending trước group
 			$attrs = [
-				'prefix'      => self::$pending['prefix'] ?? '',
-				'name'        => self::$pending['name'] ?? '',
-				'middlewares' => self::$pending['middlewares'] ?? [],
+				'prefix'      => static::$pending['prefix'] ?? '',
+				'name'        => static::$pending['name'] ?? '',
+				'middlewares' => static::$pending['middlewares'] ?? [],
 			];
 
-			// Nếu group có khai báo name() → push vào nameStack giống Laravel
+			// Nếu group có khai báo name() → push vào nameStack.
 			if (!empty($attrs['name'])) {
-				self::$nameStack[] = $attrs['name'];
+				static::$nameStack[] = $attrs['name'];
 			}
 
 			// Push toàn bộ thuộc tính group vào RouteManager
 			RouteManager::pushGroupAttributes($attrs);
 
 			// reset pending để không ảnh hưởng route khác
-			self::$pending = [];
+			static::$pending = [];
 
 			// chạy callback group (tạo route con)
 			$callback = $arguments[0];
@@ -100,7 +108,7 @@ abstract class BaseRoute {
 
 			// Sau khi group kết thúc → remove prefix name
 			if (!empty($attrs['name'])) {
-				array_pop(self::$nameStack);
+				array_pop(static::$nameStack);
 			}
 
 			// pop group attributes khỏi stack
@@ -113,67 +121,72 @@ abstract class BaseRoute {
 		 * 3) Xử lý HTTP verbs (get/post/put/patch/delete/options)
 		 * Đây là lúc route thực sự được tạo.
 		 */
-//		if (in_array($lower, ['get', 'post', 'put', 'patch', 'delete', 'options'])) {
-		else {
-			$method   = $lower;
-			$path     = $arguments[0];
-			$callback = $arguments[1] ?? null;
+		return static::buildRoute($method, $arguments);
+	}
 
-			// Lấy attributes của tất cả group đang active
-			$group = RouteManager::currentGroupAttributes();
+	/*
+	 *
+	 */
 
-			/**
-			 * Hợp nhất prefix tạm (chỉ có tác dụng cho route này)
-			 * Ví dụ:
-			 *     Route::prefix('x')->get(...)
-			 */
-			if (!empty(self::$pending['prefix'])) {
-				$group['prefix'] .= rtrim(self::$pending['prefix'], '/') . '/';
-			}
+	/**
+	 * Tạo đối tượng RouteData và lưu vào RouteManager.
+	 */
+	public static function buildRoute($method, $arguments): RouteData {
+		$path     = $arguments[0];
+		$callback = $arguments[1] ?? null;
 
-			/**
-			 * Hợp nhất name tạm
-			 * Ví dụ:
-			 *     Route::name('x.')->get(...)
-			 */
-			if (!empty(self::$pending['name'])) {
-				$group['name'] .= self::$pending['name'];
-			}
+		// Lấy attributes của tất cả group đang active
+		$group = RouteManager::currentGroupAttributes();
 
-			/**
-			 * Hợp nhất middleware tạm
-			 */
-			if (!empty(self::$pending['middlewares'])) {
-				$group['middlewares'] = array_values(array_unique(array_merge(
-					$group['middlewares'],
-					self::$pending['middlewares']
-				)));
-			}
-
-			/**
-			 * 4) Tạo đối tượng RouteData
-			 * RouteData sẽ giữ method, uri, callback, prefix, middlewares
-			 */
-			$type = basename(str_replace('\\', '/', static::class));
-			$route = new RouteData($type, $method, $path, $callback, $group);
-
-			/**
-			 * Gắn nameStack hiện tại vào route
-			 * Khi người dùng gọi ->name('abc') thì RouteData sẽ dùng nameStack
-			 * để build full route name giống Laravel.
-			 */
-			$route->setGroupNameStack(self::$nameStack);
-
-			// Lưu route vào RouteManager
-			RouteManager::addRoute($route);
-
-			// reset pending sau khi tạo route
-			self::$pending = [];
-
-			return $route;
+		/**
+		 * Hợp nhất prefix tạm (chỉ có tác dụng cho route này)
+		 * Ví dụ:
+		 *     Route::prefix('x')->get(...)
+		 */
+		if (!empty(static::$pending['prefix'])) {
+			$group['prefix'] .= rtrim(static::$pending['prefix'], '/') . '/';
 		}
 
-		return null;
+		/**
+		 * Hợp nhất name tạm
+		 * Ví dụ:
+		 *     Route::name('x.')->get(...)
+		 */
+		if (!empty(static::$pending['name'])) {
+			$group['name'] .= static::$pending['name'];
+		}
+
+		/**
+		 * Hợp nhất middleware tạm
+		 */
+		if (!empty(static::$pending['middlewares'])) {
+			$group['middlewares'] = array_values(array_unique(array_merge(
+				$group['middlewares'],
+				static::$pending['middlewares']
+			)));
+		}
+
+		/**
+		 * 4) Tạo đối tượng RouteData
+		 * RouteData sẽ giữ method, path, callback, prefix, middlewares
+		 */
+		$route = static::class;
+		$type  = basename(str_replace('\\', '/', $route));
+		$route = new RouteData($type, $route, $method, $path, $callback, $group, static::$funcs);
+
+		/**
+		 * Gắn nameStack hiện tại vào route
+		 * Khi người dùng gọi ->name('abc') thì RouteData sẽ dùng nameStack để build full route name.
+		 */
+		$route->setGroupNameStack(static::$nameStack);
+
+		// Lưu route vào RouteManager.
+		RouteManager::addRoute($route);
+
+		// Reset pending sau khi tạo route.
+		static::$pending = [];
+
+		return $route;
 	}
 
 }

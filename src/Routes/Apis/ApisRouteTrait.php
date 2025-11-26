@@ -15,12 +15,6 @@ trait ApisRouteTrait {
 		return $this;
 	}
 
-	public function initForRouterMap() {
-		$this->customProperties();
-		$this->apis();
-		return $this;
-	}
-
 	/*
 	 *
 	 */
