@@ -33,11 +33,10 @@ abstract class BaseInstances {
 	 *
 	 */
 
-	protected function getCallParams($path, $fullPath, $requestPath, $class, $method, $args = []): array {
-
-		// Chuẩn hóa requestPath: loại bỏ query string, trim
-//		$requestPath = preg_replace('/\?.*$/', '', $requestPath);
-//		$requestPath = trim($requestPath, '/\\');
+	public static function getCallParams($path, $fullPath, $requestPath, $class, $method, $args = []): array {
+		if (preg_match('/(\(.*?\))/iu', $path)) {
+			$path = str_replace('/', '\/', $path);
+		}
 
 		// Match pattern: KHÔNG escape path vì path đã là regex pattern (có thể chứa (?P<name>...))
 		// Nếu $path có ^ hoặc $ thì vẫn dùng như vậy; nếu không có, ta match toàn chuỗi.
@@ -47,9 +46,9 @@ abstract class BaseInstances {
 
 		// Nếu nơi gọi hàm này là route "Ajaxs" với method POST, check action và match path.
 		if (preg_match('/Ajaxs$/', static::class)) {
-			$httpMethod = $this->request->getMethod();
+			$httpMethod = static::$request->getMethod();
 			if ($httpMethod === 'POST') {
-				$params = $this->request->all();
+				$params = static::$request->all();
 				$passed = isset($params['action']) && $params['action'] === $path;
 			}
 		}
@@ -64,11 +63,11 @@ abstract class BaseInstances {
 		}
 
 		// Lấy container / request
-		$app = $this->funcs->getApplication();
+		$app = static::$funcs->getApplication();
 		if (!$app) {
 			throw new \RuntimeException('Container instance not found when building call params.');
 		}
-		$baseRequest = $app->bound('request') ? $app->make('request') : ($this->request ?? Request::capture());
+		$baseRequest = $app->bound('request') ? $app->make('request') : (static::$request ?? Request::capture());
 
 		// Named groups: keys là tên (PHP returns associative entries for named groups)
 		$named = array_filter($matches, fn($k) => !is_int($k), ARRAY_FILTER_USE_KEY);
@@ -152,9 +151,9 @@ abstract class BaseInstances {
 		return $callParams;
 	}
 
-	protected function resolveAndCall($callback, array $routeParams = []) {
-		// 🔹 Lấy container Laravel từ Application hoặc fallback
-		$app = $this->funcs->getApplication();
+	public static function resolveAndCall($callback, array $routeParams = []) {
+		// 🔹 Lấy container từ Application hoặc fallback
+		$app = static::$funcs->getApplication();
 		$container = $app ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
 
 		if (!$container) {
@@ -192,7 +191,7 @@ abstract class BaseInstances {
 			}
 		}
 
-		// 🔹 Gọi thông qua Container::call() để Laravel tự inject linh hoạt
+		// 🔹 Gọi thông qua Container::call() để tự inject linh hoạt
 		return $container->call([$instance, $method], $routeParams);
 	}
 
@@ -200,10 +199,10 @@ abstract class BaseInstances {
 	 * 
 	 */
 
-	protected function prepareCallbackFunction($callbackFunction, $path, $fullPath, $requestPath = null) {
-		$requestPath = $requestPath ?? trim($this->request->getRequestUri(), '/\\');
-		$callParams = $this->getCallParams($path, $fullPath, $requestPath, $this, $callbackFunction);
-		return $this->resolveAndCall([$this, $callbackFunction], $callParams);
+	public static function prepareCallbackFunction($callbackFunction, $path, $fullPath, $requestPath = null) {
+		$requestPath = $requestPath ?? trim(static::$request->getRequestUri(), '/\\');
+		$callParams = static::getCallParams($path, $fullPath, $requestPath, static::class, $callbackFunction);
+		return static::resolveAndCall([static::class, $callbackFunction], $callParams);
 	}
 
 }
