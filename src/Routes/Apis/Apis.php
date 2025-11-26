@@ -47,17 +47,25 @@ class Apis extends BaseRoute {
 			static::$prefixEnv,
 		], $constructParams);
 
-		$callback   = static::prepareRouteCallback($callback, false, $constructParams);
-		$callParams = static::getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
-		$callback   = static::resolveAndCall($callback, $callParams);
+		$callback = static::prepareRouteCallback($callback, false, $constructParams);
 
 		register_rest_route(
 			($namespace ?? 'wpsp') . '/' . ($version ?? 'v1'),
 			$fullPath,
 			[
-				'methods'             => strtoupper($method),
-				'callback'            => $callback,
-				'args'                => [
+				'methods' => strtoupper($method),
+				'callback' => function(\WP_REST_Request $request) use ($callback, $path, $fullPath, $requestPath) {
+					$callParams = static::getCallParams(
+						$path,
+						$fullPath,
+						$requestPath,
+						$callback[0],
+						$callback[1],
+						['request' => $request]
+					);
+					return static::resolveAndCall($callback, $callParams);
+				},
+				'args' => [
 //				    'id' => [
 //					    'validate_callback' => function($param, $request, $key) {
 //						    return is_numeric($param);

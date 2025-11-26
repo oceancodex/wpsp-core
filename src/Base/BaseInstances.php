@@ -59,7 +59,32 @@ abstract class BaseInstances {
 		}
 
 		if (!$passed) {
-			return [];
+			// Build all params as null for primitive args
+			$reflection = new \ReflectionMethod($class, $method);
+			$callParams = [];
+
+			foreach ($reflection->getParameters() as $param) {
+				$type = $param->getType();
+
+				// Nếu type là class → container sẽ inject sau
+				if ($type && !$type->isBuiltin()) {
+					continue;
+				}
+
+				// Primitive → NULL
+				$callParams[$param->getName()] = null;
+			}
+
+			// Thêm các giá trị hệ thống
+			$callParams['path']        = $path ?? null;
+			$callParams['fullPath']    = $fullPath ?? null;
+			$callParams['requestPath'] = $requestPath ?? null;
+
+			foreach ($args as $argKey => $argValue) {
+				$callParams[$argKey] = $argValue;
+			}
+
+			return $callParams;
 		}
 
 		// Lấy container / request
@@ -138,6 +163,10 @@ abstract class BaseInstances {
 		$callParams['path'] = $path;
 		$callParams['fullPath'] = $fullPath;
 		$callParams['requestPath'] = $requestPath;
+
+		foreach ($args as $argKey => $argValue) {
+			$callParams[$argKey] = $argValue;
+		}
 
 		// Ngoài các params lấy từ signature (primitive params),
 		// ta cũng muốn expose ALL named captures (dù method không khai báo param cụ thể)
