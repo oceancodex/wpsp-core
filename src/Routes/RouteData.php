@@ -123,8 +123,8 @@ class RouteData {
 			// Chuẩn hóa middleware
 			$normalized = $this->normalizeMiddleware($middleware);
 
-			// Format output: mỗi middleware thành: [ [class, method] ]
-			$result[] = [$normalized];
+			// Format output: mỗi middleware thành: [class, method]
+			$result[] = $normalized;
 		}
 
 		$this->middlewares = $result;
