@@ -11,6 +11,8 @@ use WPSPCORE\Base\BaseInstances;
  * @method $this name(string $name)
  * @method $this group($callback)
  * @method $this prefix(string $prefix)
+ * @method $this namespace(string $namespace)
+ * @method $this version(string $version)
  * @method $this middleware(array|string $middlewares)
  */
 abstract class BaseRoute extends BaseInstances {
@@ -61,20 +63,18 @@ abstract class BaseRoute extends BaseInstances {
 		 * 1) Nếu gọi prefix(), name(), middleware()
 		 * → chỉ lưu vào pending, chưa tạo route
 		 */
-		if (in_array($method, ['prefix', 'name', 'middleware'])) {
+		if (in_array($method, ['prefix', 'name', 'middleware', 'namespace', 'version'])) {
 
-			// middleware có thể là array hoặc string
+			// middleware dạng array hoặc string
 			if ($method === 'middleware') {
 				static::$pending['middlewares'] = is_array($arguments[0])
 					? $arguments[0]
 					: [$arguments[0]];
 			}
 			else {
-				// prefix hoặc name
 				static::$pending[$method] = $arguments[0];
 			}
 
-			// trả về new static để chain tiếp
 			return new static();
 		}
 
@@ -86,9 +86,11 @@ abstract class BaseRoute extends BaseInstances {
 
 			// Lấy toàn bộ giá trị pending trước group
 			$attrs = [
-				'prefix'      => static::$pending['prefix'] ?? '',
-				'name'        => static::$pending['name'] ?? '',
+				'prefix'      => static::$pending['prefix'] ?? null,
+				'name'        => static::$pending['name'] ?? null,
 				'middlewares' => static::$pending['middlewares'] ?? [],
+				'namespace'   => static::$pending['namespace'] ?? null,
+				'version'     => static::$pending['version'] ?? null,
 			];
 
 			// Nếu group có khai báo name() → push vào nameStack.
@@ -168,20 +170,33 @@ abstract class BaseRoute extends BaseInstances {
 		}
 
 		/**
+		 * Hợp nhất namespace tạm (override)
+		 */
+		if (array_key_exists('namespace', static::$pending)) {
+			$group['namespace'] = static::$pending['namespace'];
+		}
+
+		/**
+		 * Hợp nhất version tạm (override)
+		 */
+		if (array_key_exists('version', static::$pending)) {
+			$group['version'] = static::$pending['version'];
+		}
+
+
+		/**
 		 * 4) Tạo đối tượng RouteData
 		 * RouteData sẽ giữ method, path, callback, prefix, middlewares
 		 */
 		$routeClass = static::class;
-		$parentRouteClass = get_parent_class($routeClass);
-		$type  = basename(str_replace('\\', '/', $routeClass));
-		$route = new RouteData(
+		$type       = basename(str_replace('\\', '/', $routeClass));
+		$route      = new RouteData(
 			$type,
 			$routeClass,
-			$parentRouteClass,
 			$method,
 			$path,
 			$callback,
-			array_merge($args, ['route' => '123']),
+			$args,
 			$group,
 			static::$funcs
 		);

@@ -6,13 +6,13 @@ use WPSPCORE\Routes\BaseRoute;
 use WPSPCORE\Routes\RouteData;
 
 /**
- * @method $this get(string $path, callable|array $callback, string|null $namespace = null, string|null $version = null)
- * @method $this post(string $path, callable|array $callback, string|null $namespace = null, string|null $version = null)
- * @method $this put(string $path, callable|array $callback, string|null $namespace = null, string|null $version = null)
- * @method $this patch(string $path, callable|array $callback, string|null $namespace = null, string|null $version = null)
- * @method $this delete(string $path, callable|array $callback, string|null $namespace = null, string|null $version = null)
- * @method $this options(string $path, callable|array $callback, string|null $namespace = null, string|null $version = null)
- * @method $this head(string $path, callable|array $callback, string|null $namespace = null, string|null $version = null)
+ * @method $this get(string $path, callable|array $callback)
+ * @method $this post(string $path, callable|array $callback)
+ * @method $this put(string $path, callable|array $callback)
+ * @method $this patch(string $path, callable|array $callback)
+ * @method $this delete(string $path, callable|array $callback)
+ * @method $this options(string $path, callable|array $callback)
+ * @method $this head(string $path, callable|array $callback)
  */
 class Apis extends BaseRoute {
 
@@ -31,30 +31,41 @@ class Apis extends BaseRoute {
 	 *
 	 */
 
-	public static function get($path, $callback, $args): RouteData {
-		return $args['route'];
+	public static function get($path, $callback, $args = []): RouteData {
+		return static::register(__FUNCTION__, $path, $callback, $args);
 	}
 
-	public static function post($path, $callback, $args): RouteData {
-		echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($args); echo '</pre>';
-		return $args['route'];
+	public static function post($path, $callback, $args = []): RouteData {
+		return static::register(__FUNCTION__, $path, $callback, $args);
 	}
 
 	/*
 	 *
 	 */
 
-	public static function execute($method, $path, $callback, $args): RouteData {
-		add_action('rest_api_init', function() use ($method, $path, $callback, $args) {
-			static::registerRestRoute($method, $path, $callback, $args);
-		});
-		return $args['route'];
+	public static function register($method, $path, $callback, $args = []): RouteData {
+		return static::buildRoute($method, [$path, $callback, $args]);
 	}
 
-	public static function registerRestRoute($method, $path, $callback, $args): void {
+	public static function execute($route) {
+		add_action('rest_api_init', function() use ($route) {
+			static::registerRestRoute($route);
+		});
+	}
+
+	/*
+	 *
+	 */
+
+	public static function registerRestRoute($route): void {
 		$requestPath = trim(static::$request->getRequestUri(), '/\\');
-		$fullPath = $args['route']->fullPath ?? $path;
-		$middlewares = $args['route']->middlewares ?? [];
+		$method      = $route->method;
+		$path        = $route->path;
+		$fullPath    = $route->fullPath;
+		$callback    = $route->callback;
+		$middlewares = $route->middlewares ?? [];
+		$namespace   = $route->namespace ?? static::$defaultNamespace;
+		$version     = $route->version ?? static::$defaultVersion;
 
 		$constructParams = [
 			[
@@ -73,7 +84,7 @@ class Apis extends BaseRoute {
 		$callback = static::prepareRouteCallback($callback, false, $constructParams);
 
 		register_rest_route(
-			($args['namespace'] ?? static::$defaultNamespace) . '/' . ($args['version'] ?? static::$defaultVersion),
+			$namespace . '/' . $version,
 			$fullPath,
 			[
 				'methods' => strtoupper($method),
@@ -88,7 +99,7 @@ class Apis extends BaseRoute {
 					);
 					return static::resolveAndCall($callback, $callParams);
 				},
-				'args' => [
+				'args' > [
 //				    'id' => [
 //					    'validate_callback' => function($param, $request, $key) {
 //						    return is_numeric($param);

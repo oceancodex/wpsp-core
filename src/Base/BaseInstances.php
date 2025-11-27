@@ -34,9 +34,9 @@ abstract class BaseInstances {
 	 */
 
 	public static function getCallParams($path, $fullPath, $requestPath, $class, $method, $args = []): array {
-		if (preg_match('/(\(.*?\))/iu', $path)) {
-			$path = str_replace('/', '\/', $path);
-		}
+//		if (preg_match('/(\(.*?\))/iu', $path)) {
+//			$path = str_replace('/', '\/', $path);
+//		}
 
 		// Match pattern: KHÔNG escape path vì path đã là regex pattern (có thể chứa (?P<name>...))
 		// Nếu $path có ^ hoặc $ thì vẫn dùng như vậy; nếu không có, ta match toàn chuỗi.

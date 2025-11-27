@@ -41,6 +41,8 @@ class RouteManager {
 			'prefix'      => $attrs['prefix'] ?? '',
 			'name'        => $attrs['name'] ?? '',
 			'middlewares' => $attrs['middlewares'] ?? [],
+			'namespace'   => $attrs['namespace'] ?? null,
+			'version'     => $attrs['version'] ?? null,
 		];
 
 		// Push vào stack
@@ -69,7 +71,13 @@ class RouteManager {
 	public static function currentGroupAttributes(): array {
 
 		// Khởi tạo giá trị trống
-		$merged = ['prefix' => '', 'name' => '', 'middlewares' => []];
+		$merged = [
+			'prefix'      => '',
+			'name'        => '',
+			'middlewares' => [],
+			'namespace'   => null,
+			'version'     => null,
+		];
 
 		// Lần lượt merge từ group bên ngoài → group vào trong
 		foreach (static::$groupStack as $g) {
@@ -118,6 +126,20 @@ class RouteManager {
 					$g['middlewares']
 				);
 			}
+
+			/**
+			 * Merge namespace (override).
+			 */
+			if (!empty($g['namespace'])) {
+				$merged['namespace'] = $g['namespace'];
+			}
+
+			/**
+			 * Merge version (override).
+			 */
+			if (!empty($g['version'])) {
+				$merged['version'] = $g['version'];
+			}
 		}
 
 		// Đảm bảo prefix phải kết thúc bằng '/'
@@ -151,17 +173,17 @@ class RouteManager {
 		foreach ($routes as $routeItem) {
 			$type        = $routeItem->type;
 			$route       = $routeItem->route;
-			$parentRoute = '\\' . trim($routeItem->parentRoute, '\\');
-			$method      = $routeItem->method;
-			$path        = $routeItem->path;
-			$fullPath    = $routeItem->fullPath;
-			$callback    = $routeItem->callback;
-			$args        = $routeItem->args;
-			$name        = $routeItem->name;
-			$middlewares = $routeItem->middlewares;
+//			$parentRoute = '\\' . trim($routeItem->parentRoute, '\\');
+//			$method      = $routeItem->method;
+//			$path        = $routeItem->path;
+//			$fullPath    = $routeItem->fullPath;
+//			$callback    = $routeItem->callback;
+//			$args        = $routeItem->args;
+//			$name        = $routeItem->name;
+//			$middlewares = $routeItem->middlewares;
 
 			if ($type == 'Apis') {
-				$parentRoute::$method($path, $callback, array_merge($args, ['route' => $routeItem]));
+				$route::execute($routeItem);
 			}
 		}
 	}

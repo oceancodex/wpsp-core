@@ -11,6 +11,8 @@ class RouteData {
 	public ?string $method      = null;     // HTTP method (GET, POST, ...)
 	public ?string $path        = null;     // Path của route
 	public ?string $fullPath    = null;     // Full path sau khi áp dụng prefix
+	public ?string $namespace   = null;
+	public ?string $version     = null;
 	public         $callback    = null;     // Controller action hoặc Closure
 	public array   $args        = [];
 	public ?string $name        = null;     // Tên route đầy đủ sau khi gọi ->name()
@@ -36,7 +38,6 @@ class RouteData {
 	public function __construct(
 		string $type,
 		string $route,
-		string $parentRoute,
 		string $method,
 		string $path,
 		$callback,
@@ -54,13 +55,16 @@ class RouteData {
 		// Gán thông tin cơ bản
 		$this->type        = $type;
 		$this->route       = $route;
-		$this->parentRoute = $parentRoute;
+		$this->parentRoute = get_parent_class($route);
 		$this->method      = $method;
 		$this->path        = ltrim($path, '/');
 		$this->fullPath    = $prefix . $this->path;
 		$this->callback    = $callback;
+		$this->namespace   = $groupAttributes['namespace'] ?? null;
+		$this->version     = $groupAttributes['version'] ?? null;
 		$this->args        = $args;
 		$this->funcs       = $funcs;
+
 
 		// Gộp middleware từ group (unique để tránh lặp)
 		$this->middlewares = isset($groupAttributes['middlewares'])
@@ -125,6 +129,31 @@ class RouteData {
 
 		$this->middlewares = $result;
 
+		return $this;
+	}
+
+
+	/**
+	 * Gán namespace cho route.
+	 * Ví dụ:
+	 * Route::namespace('wpsp')->group(...)
+	 * Route::namespace('wpsp')->get(...)
+	 * → namespace = 'wpsp'
+	 */
+	public function namespace($value): RouteData {
+		$this->namespace = $value;
+		return $this;
+	}
+
+	/**
+	 * Gán version cho route.
+	 * Ví dụ:
+	 * Route::version('v1')->group(...)
+	 * Route::version('v1')->get(...)
+	 * → version = 'v1'
+	 */
+	public function version($value): RouteData {
+		$this->version = $value;
 		return $this;
 	}
 

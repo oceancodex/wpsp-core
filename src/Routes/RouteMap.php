@@ -31,7 +31,7 @@ class RouteMap extends BaseInstances {
 		return $this->map;
 	}
 
-	public function build() {
+	public function build(): void {
 		$filePath             = static::$funcs->_getMainPath('/.wpsp-routes.json');
 		$prepareMap           = [];
 		$prepareMap['scope']  = static::$funcs->_getPluginDirName();
@@ -40,11 +40,13 @@ class RouteMap extends BaseInstances {
 		File::put($filePath, $prepareMap);
 	}
 
-	public function add($route) {
-		$type     = $route->type;
-		$name     = $route->name;
-		$path     = $route->path;
-		$fullPath = $route->fullPath;
+	public function add($route): void {
+		$type      = $route->type;
+		$name      = $route->name;
+		$path      = $route->path;
+		$fullPath  = $route->fullPath;
+		$namespace = $route->namespace;
+		$version   = $route->version;
 
 		if (!isset($this->map[$type])) {
 			$this->map[$type] = [];
@@ -54,8 +56,8 @@ class RouteMap extends BaseInstances {
 			'name'      => $name,
 			'file'      => 'routes/' . $type . '.php',
 			'line'      => (new \Exception())->getTrace()[1]['line'] ?? 0,
-			'namespace' => 'wpsp',
-			'version'   => 'v1',
+			'namespace' => $namespace,
+			'version'   => $version,
 			'path'      => $path,
 			'full_path' => $fullPath,
 		];
