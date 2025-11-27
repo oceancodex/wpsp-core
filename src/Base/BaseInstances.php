@@ -182,7 +182,7 @@ abstract class BaseInstances {
 		return $callParams;
 	}
 
-	public static function resolveAndCall($callback, array $routeParams = []) {
+	public static function resolveAndCall($callback, array $callParams = [], $call = true) {
 		// 🔹 Lấy container từ Application hoặc fallback
 		$app = static::$funcs->getApplication();
 		$container = $app ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
@@ -222,8 +222,19 @@ abstract class BaseInstances {
 			}
 		}
 
+		if (!$call) {
+			// 🔹 Trả về callable đã resolve hoàn chỉnh và không call.
+			return function() use ($container, $instance, $method, $callParams) {
+				return $container->call([$instance, $method], $callParams);
+			};
+		}
+
 		// 🔹 Gọi thông qua Container::call() để tự inject linh hoạt
-		return $container->call([$instance, $method], $routeParams);
+		return $container->call([$instance, $method], $callParams);
+	}
+
+	public static function resolveCallback($callback, array $callParams = []) {
+		return static::resolveAndCall($callback, $callParams, false);
 	}
 
 	/*

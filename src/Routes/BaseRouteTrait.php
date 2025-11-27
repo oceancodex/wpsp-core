@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 trait BaseRouteTrait {
 
-	public static function prepareRouteCallback($callback, $useInitClass = false, $constructParams = []) {
+	public static function prepareRouteCallback($callback, $constructParams = []) {
 
 		// If callback is a closure.
 		if ($callback instanceof \Closure) {

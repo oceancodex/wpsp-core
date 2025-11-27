@@ -3,6 +3,7 @@
 namespace WPSPCORE\Routes;
 
 use WPSPCORE\Base\BaseInstances;
+use WPSPCORE\Traits\HookRunnerTrait;
 
 /**
  * Hỗ trợ gọi động: prefix(), name(), middleware(), group(),
@@ -17,7 +18,7 @@ use WPSPCORE\Base\BaseInstances;
  */
 abstract class BaseRoute extends BaseInstances {
 
-	use BaseRouteTrait;
+	use BaseRouteTrait, HookRunnerTrait;
 
 	/**
 	 * Lưu các giá trị được gọi trước khi gọi HTTP verb

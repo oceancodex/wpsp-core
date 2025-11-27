@@ -21,14 +21,16 @@ trait HookRunnerTrait {
 	 *
 	 */
 
-	public function hook($type, $hook, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
-		if ($this->isPassedMiddleware($middlewares, $this->request, [
+	public static function hook($type, $hook, $callback, $middlewares = [], $priority = 10, $argsNumber = 1) {
+		if (static::isPassedMiddleware($middlewares, static::$request, [
 			'type' => $type,
 			'hook' => $hook,
-			'all_middlewares' => $middlewares,
-			'custom_properties' => $customProperties
+			'middlewares' => $middlewares,
 		])) {
-			$callback = $this->prepareRouteCallback($callback, $useInitClass, $customProperties);
+			$requestPath = trim(static::$request->getRequestUri(), '/\\');
+			$callback = static::prepareRouteCallback($callback, []);
+			$callParams = static::getCallParams($hook, $hook, $requestPath, $callback[0], $callback[1]);
+			$callback = static::resolveCallback($callback, $callParams);
 			if ($type == 'action') {
 				add_action($hook, $callback, $priority, $argsNumber);
 			}
@@ -38,12 +40,12 @@ trait HookRunnerTrait {
 		}
 	}
 
-	public function action($hook, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
-		$this->hook('action', $hook, $callback, $useInitClass, $customProperties, $middlewares, $priority, $argsNumber);
+	public static function action($hook, $callback, $priority = 10, $argsNumber = 1) {
+		return static::buildRoute(__FUNCTION__, [$hook, $callback, $priority, $argsNumber]);
 	}
 
-	public function filter($hook, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10, $argsNumber = 1) {
-		$this->hook('filter', $hook, $callback, $useInitClass, $customProperties, $middlewares, $priority, $argsNumber);
+	public static function filter($hook, $callback, $priority = 10, $argsNumber = 1) {
+		return static::buildRoute(__FUNCTION__, [$hook, $callback, $priority, $argsNumber]);
 	}
 
 	/*
