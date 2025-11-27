@@ -207,6 +207,11 @@ abstract class BaseRoute extends BaseInstances {
 		 */
 		$route->setGroupNameStack(static::$nameStack);
 
+		// Nếu pending có name → áp dụng cho route
+		if (!empty(static::$pending['name'])) {
+			$route->name(static::$pending['name']);
+		}
+
 		// Lưu route vào RouteManager.
 		static::$funcs->getRouteManager()::addRoute($route);
 

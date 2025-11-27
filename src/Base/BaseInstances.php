@@ -230,8 +230,7 @@ abstract class BaseInstances {
 	 * 
 	 */
 
-	public static function convertPathToRegex(string $path): string {
-		// `{id}` → `(?P<id>[^/]+)`
+	protected static function convertPathToRegex(string $path): string {
 		return preg_replace('/\{(\w+)\}/', '(?P<$1>[^/]+)', $path);
 	}
 

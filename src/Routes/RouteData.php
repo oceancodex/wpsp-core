@@ -107,31 +107,38 @@ class RouteData {
 	 */
 	public function middleware($middlewares): RouteData {
 
-		// đảm bảo là array
 		$middlewares = is_array($middlewares) ? $middlewares : [$middlewares];
 
 		$result = $this->middlewares ?: [];
 
 		foreach ($middlewares as $key => $middleware) {
-
-			// Giữ nguyên relation
-			if ($key == 'relation') {
+			if ($key === 'relation') {
 				$result['relation'] = $middleware;
 				continue;
 			}
 
-			// Chuẩn hóa middleware
 			$normalized = $this->normalizeMiddleware($middleware);
-
-			// Format output: mỗi middleware thành: [class, method]
 			$result[] = $normalized;
 		}
 
-		$this->middlewares = $result;
+		// 🔥 Reindex về 0,1,2,... và giữ nguyên relation
+		$relation = $result['relation'] ?? null;
+		$indexed = [];
+		$i = 0;
+
+		foreach ($result as $k => $v) {
+			if ($k === 'relation') continue;
+			$indexed[$i++] = $v;
+		}
+
+		if ($relation !== null) {
+			$indexed['relation'] = $relation;
+		}
+
+		$this->middlewares = $indexed;
 
 		return $this;
 	}
-
 
 	/**
 	 * Gán namespace cho route.
@@ -229,7 +236,7 @@ class RouteData {
 		if ($relation !== null) {
 			$result['relation'] = $relation;
 		}
-		$idx = 1;
+		$idx = 0;
 		foreach ($uniqueItems as $ui) {
 			$result[$idx] = $ui;
 			$idx++;

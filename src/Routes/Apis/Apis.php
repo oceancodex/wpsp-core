@@ -23,7 +23,7 @@ class Apis extends BaseRoute {
 	 *
 	 */
 
-	public function beforeConstruct() {
+	public function beforeConstruct(): void {
 		static::$defaultNamespace = static::$funcs->_getAppShortName();
 	}
 
@@ -47,7 +47,7 @@ class Apis extends BaseRoute {
 		return static::buildRoute($method, [$path, $callback, $args]);
 	}
 
-	public static function execute($route) {
+	public static function execute($route): void {
 		add_action('rest_api_init', function() use ($route) {
 			static::registerRestRoute($route);
 		});
@@ -66,6 +66,9 @@ class Apis extends BaseRoute {
 		$middlewares = $route->middlewares ?? [];
 		$namespace   = $route->namespace ?? static::$defaultNamespace;
 		$version     = $route->version ?? static::$defaultVersion;
+
+		$path     = static::convertPathToRegex($path);
+		$fullPath = static::convertPathToRegex($fullPath);
 
 		$constructParams = [
 			[
