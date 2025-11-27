@@ -84,7 +84,7 @@ class Apis extends BaseRoute {
 			static::$prefixEnv,
 		], $constructParams);
 
-		$callback = static::prepareRouteCallback($callback, false, $constructParams);
+		$callback = static::prepareRouteCallback($callback, $constructParams);
 
 		register_rest_route(
 			$namespace . '/' . $version,

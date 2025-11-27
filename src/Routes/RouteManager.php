@@ -174,7 +174,7 @@ class RouteManager {
 			$type        = $routeItem->type;
 			$route       = $routeItem->route;
 //			$parentRoute = '\\' . trim($routeItem->parentRoute, '\\');
-//			$method      = $routeItem->method;
+			$method      = $routeItem->method;
 //			$path        = $routeItem->path;
 //			$fullPath    = $routeItem->fullPath;
 //			$callback    = $routeItem->callback;
@@ -182,7 +182,13 @@ class RouteManager {
 //			$name        = $routeItem->name;
 //			$middlewares = $routeItem->middlewares;
 
-			if ($type == 'Apis') {
+			if ($method == 'action' || $method == 'filter') {
+				$route::hook($routeItem);
+			}
+			elseif ($method == 'remove_action' || $method == 'remove_filter') {
+				$route::remove_hook($routeItem);
+			}
+			else {
 				$route::execute($routeItem);
 			}
 		}

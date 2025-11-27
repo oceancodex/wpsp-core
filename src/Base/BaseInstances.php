@@ -33,10 +33,16 @@ abstract class BaseInstances {
 	 *
 	 */
 
-	public static function getCallParams($path, $fullPath, $requestPath, $class, $method, $args = []): array {
-//		if (preg_match('/(\(.*?\))/iu', $path)) {
-//			$path = str_replace('/', '\/', $path);
-//		}
+	public static function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []): array {
+		// NEW: detect closure
+		if ($callbackOrClass instanceof \Closure) {
+			$reflection = new \ReflectionFunction($callbackOrClass);
+			$class = null;
+			$method = null;
+		} else {
+			$class = $callbackOrClass;
+			$reflection = new \ReflectionMethod($class, $method);
+		}
 
 		// Match pattern: KHÔNG escape path vì path đã là regex pattern (có thể chứa (?P<name>...))
 		// Nếu $path có ^ hoặc $ thì vẫn dùng như vậy; nếu không có, ta match toàn chuỗi.
@@ -62,7 +68,7 @@ abstract class BaseInstances {
 
 		if (!$passed) {
 			// Build all params as null for primitive args
-			$reflection = new \ReflectionMethod($class, $method);
+//			$reflection = new \ReflectionMethod($class, $method);
 			$callParams = [];
 
 			foreach ($reflection->getParameters() as $param) {
@@ -112,7 +118,7 @@ abstract class BaseInstances {
 		$attr  = $baseRequest->attributes->all(); // attributes
 
 		// Reflection method để đọc danh sách tham số của callback
-		$reflection = new \ReflectionMethod($class, $method);
+//		$reflection = new \ReflectionMethod($class, $method);
 		$callParams = [];
 
 		foreach ($reflection->getParameters() as $param) {
@@ -189,6 +195,15 @@ abstract class BaseInstances {
 
 		if (!$container) {
 			throw new \RuntimeException('Container instance not found.');
+		}
+
+		// NEW: support Closure
+		if ($callback instanceof \Closure) {
+			return $call
+				? $container->call($callback, $callParams)
+				: function() use ($container, $callback, $callParams) {
+					return $container->call($callback, $callParams);
+				};
 		}
 
 		[$classOrInstance, $method] = $callback;

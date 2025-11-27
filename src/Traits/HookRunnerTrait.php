@@ -21,43 +21,64 @@ trait HookRunnerTrait {
 	 *
 	 */
 
-	public static function hook($type, $hook, $callback, $middlewares = [], $priority = 10, $argsNumber = 1) {
-		if (static::isPassedMiddleware($middlewares, static::$request, [
-			'type' => $type,
-			'hook' => $hook,
+	public static function hook($route) {
+		$method       = $route->method;
+		$path         = $route->path;
+		$fullPath     = $route->fullPath;
+		$callback     = $route->callback;
+		$middlewares  = $route->middlewares;
+		$priority     = $route->args['priority'] ?? 10;
+		$acceptedArgs = $route->args['accepted_args'] ?? 1;
+		if (static::isPassedMiddleware($route->middlewares, static::$request, [
+			'method'      => $method,
+			'path'        => $path,
 			'middlewares' => $middlewares,
 		])) {
+
+			$constructParams = [
+				[
+					'path'      => $path,
+					'full_path' => $fullPath,
+					'method'    => $method,
+				],
+			];
+			$constructParams = array_merge([
+				static::$mainPath,
+				static::$rootNamespace,
+				static::$prefixEnv,
+			], $constructParams);
+
 			$requestPath = trim(static::$request->getRequestUri(), '/\\');
-			$callback = static::prepareRouteCallback($callback, []);
-			$callParams = static::getCallParams($hook, $hook, $requestPath, $callback[0], $callback[1]);
-			$callback = static::resolveCallback($callback, $callParams);
-			if ($type == 'action') {
-				add_action($hook, $callback, $priority, $argsNumber);
+			$callback    = static::prepareRouteCallback($callback, $constructParams);
+			$callParams  = static::getCallParams($path, $fullPath, $requestPath, $callback);
+			$callback    = static::resolveCallback($callback, $callParams);
+			if ($method == 'action') {
+				add_action($path, $callback, $priority, $acceptedArgs);
 			}
-			elseif ($type == 'filter') {
-				add_filter($hook, $callback, $priority, $argsNumber);
+			elseif ($method == 'filter') {
+				add_filter($path, $callback, $priority, $acceptedArgs);
 			}
 		}
 	}
 
-	public static function action($hook, $callback, $priority = 10, $argsNumber = 1) {
-		return static::buildRoute(__FUNCTION__, [$hook, $callback, $priority, $argsNumber]);
+	public static function action($hook, $callback, $priority = 10, $acceptedArgs = 1) {
+		return static::buildRoute(__FUNCTION__, [$hook, $callback, ['priority' => $priority, 'accepted_args' => $acceptedArgs]]);
 	}
 
-	public static function filter($hook, $callback, $priority = 10, $argsNumber = 1) {
-		return static::buildRoute(__FUNCTION__, [$hook, $callback, $priority, $argsNumber]);
+	public static function filter($hook, $callback, $priority = 10, $acceptedArgs = 1) {
+		return static::buildRoute(__FUNCTION__, [$hook, $callback, ['priority' => $priority, 'accepted_args' => $acceptedArgs]]);
 	}
 
 	/*
 	 *
 	 */
 
-	public function remove_hook($type, $hook, $callback, $useInitClass = false, $customProperties = [], $middlewares = null, $priority = 10) {
+	public function remove_hook($route) {
 		if ($this->isPassedMiddleware($middlewares, $this->request, [
-			'type' => $type,
-			'hook' => $hook,
-			'all_middlewares' => $middlewares,
-			'custom_properties' => $customProperties
+			'type'              => $type,
+			'hook'              => $hook,
+			'all_middlewares'   => $middlewares,
+			'custom_properties' => $customProperties,
 		])) {
 			$callback = $this->prepareRouteCallback($callback, $useInitClass, $customProperties);
 			if ($type == 'action') {
