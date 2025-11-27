@@ -40,7 +40,9 @@ abstract class BaseInstances {
 
 		// Match pattern: KHÔNG escape path vì path đã là regex pattern (có thể chứa (?P<name>...))
 		// Nếu $path có ^ hoặc $ thì vẫn dùng như vậy; nếu không có, ta match toàn chuỗi.
-		$pattern = '/' . $path . '/iu';
+//		$pattern = '/' . $path . '/iu';
+		$regexPath = static::convertPathToRegex($path);
+		$pattern = '#' . $regexPath . '#iu';
 
 		$passed = false;
 
@@ -227,6 +229,11 @@ abstract class BaseInstances {
 	/*
 	 * 
 	 */
+
+	public static function convertPathToRegex(string $path): string {
+		// `{id}` → `(?P<id>[^/]+)`
+		return preg_replace('/\{(\w+)\}/', '(?P<$1>[^/]+)', $path);
+	}
 
 	public static function prepareCallbackFunction($callbackFunction, $path, $fullPath, $requestPath = null) {
 		$requestPath = $requestPath ?? trim(static::$request->getRequestUri(), '/\\');
