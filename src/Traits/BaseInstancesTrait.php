@@ -22,7 +22,7 @@ trait BaseInstancesTrait {
 	public static array    $extraParams   = [];
 	public static ?Request $request       = null;
 
-	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = null): void {
+	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []): void {
 		$this->instanceConstruct();
 		$this->beforeConstruct();
 		if ($mainPath)      static::$mainPath       = $mainPath;

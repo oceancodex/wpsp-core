@@ -26,7 +26,6 @@ abstract class BaseAdminPage extends BaseInstances {
 		$this->callback_function  = static::$extraParams['callback_function'];
 		$this->screen_options_key = $this->screen_options_key ?: static::$funcs->_slugParams(['page']) ?? $this->menu_slug;
 		$this->overrideMenuSlug(static::$extraParams['path']);
-		$this->customProperties();
 	}
 
 	/*
@@ -50,18 +49,6 @@ abstract class BaseAdminPage extends BaseInstances {
 		$this->highlightCurrentMenu();
 		$this->afterInit();
 	}
-
-	/*
-	 *
-	 */
-
-	public function beforeInit() {}
-
-	public function afterInit() {}
-
-	public function afterAddAdminMenuPage() {}
-
-	public function afterLoad($adminPage) {}
 
 	/*
 	 *
@@ -121,7 +108,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	private function addAdminMenuPage() {
 		add_action('admin_menu', function() {
 			$adminPage = $this->is_submenu_page ? $this->addSubMenuPage() : $this->addMenuPage();
-			$this->afterAddAdminMenuPage();
+			$this->afterAddAdminPage();
 			add_action('load-' . $adminPage, function() use ($adminPage) {
 				// Enqueue scripts.
 				add_action('admin_enqueue_scripts', [$this, 'assets']);
@@ -130,7 +117,7 @@ abstract class BaseAdminPage extends BaseInstances {
 				if ($this->screen_options) $this->screenOptions($adminPage);
 
 				// After load this admin page.
-				$this->afterLoad($adminPage);
+				$this->afterLoadAdminPage($adminPage);
 			});
 		});
 
@@ -175,6 +162,18 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
+	public function beforeInit() {}
+
+	public function afterInit() {}
+
+	public function afterAddAdminPage() {}
+
+	public function afterLoadAdminPage($adminPage) {}
+
+	/*
+	 *
+	 */
+
 	public function assets() {
 		$this->styles();
 		$this->scripts();
@@ -200,76 +199,5 @@ abstract class BaseAdminPage extends BaseInstances {
 	public function scripts() {}
 
 	public function localizeScripts() {}
-
-	public function customProperties() {}
-
-	/*
-	 *
-	 */
-
-	public function setMenutitle($menu_title) {
-		$this->menu_title = $menu_title;
-	}
-
-	public function setPageTitle($page_title) {
-		$this->page_title = $page_title;
-	}
-
-	public function setCapability($capability) {
-		$this->capability = $capability;
-	}
-
-	public function setMenuSlug($menu_slug) {
-		$this->menu_slug = $menu_slug;
-		return $this;
-	}
-
-	public function setIconUrl($icon_url) {
-		$this->icon_url = $icon_url;
-	}
-
-	public function setPosition($position) {
-		$this->position = $position;
-	}
-
-	public function setIsSubAdminPage($is_submenu_page) {
-		$this->is_submenu_page = $is_submenu_page;
-	}
-
-	public function setParentSlug($parent_slug) {
-		$this->parent_slug = $parent_slug;
-	}
-
-	public function getMenuTitle() {
-		return $this->menu_title;
-	}
-
-	public function getPageTitle() {
-		return $this->page_title;
-	}
-
-	public function getCapability() {
-		return $this->capability;
-	}
-
-	public function getMenuSlug() {
-		return $this->menu_slug;
-	}
-
-	public function getIconUrl() {
-		return $this->icon_url;
-	}
-
-	public function getPosition() {
-		return $this->position;
-	}
-
-	public function getIsSubAdminPage() {
-		return $this->is_submenu_page;
-	}
-
-	public function getParentSlug() {
-		return $this->parent_slug;
-	}
 
 }

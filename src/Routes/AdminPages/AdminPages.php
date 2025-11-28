@@ -70,7 +70,7 @@ class AdminPages extends BaseRoute {
 	 *
 	 */
 
-	public static function executeMethodGet($route) {
+	public static function executeMethodGet($route): void {
 		$request     = static::$request;
 		$requestPath = trim($request->getRequestUri(), '/\\');
 
@@ -89,11 +89,7 @@ class AdminPages extends BaseRoute {
 				|| preg_match('/' . static::$funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)
 			)
 		) {
-			if (static::isPassedMiddleware($middlewares, $request, [
-				'path'            => $path,
-				'full_path'       => $fullPath,
-				'all_middlewares' => $middlewares,
-			])) {
+			if (static::isPassedMiddleware($middlewares, $request, ['path' => $path, 'full_path' => $fullPath, 'middlewares' => $middlewares])) {
 				$constructParams = [
 					static::$funcs->_getMainPath(),
 					static::$funcs->_getRootNamespace(),
@@ -179,7 +175,7 @@ class AdminPages extends BaseRoute {
 		}
 	}
 
-	public static function executeHiddenMethod($route) {
+	public static function executeHiddenMethod($route): void {
 		$request = static::$request;
 
 		$path        = $route->path;

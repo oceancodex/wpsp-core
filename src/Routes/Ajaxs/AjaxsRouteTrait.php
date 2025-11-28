@@ -100,7 +100,7 @@ trait AjaxsRouteTrait {
 				'action' => $action,
 				'path' => $path,
 				'full_path' => $fullPath,
-				'all_middlewares' => $allMiddlewares,
+				'middlewares' => $allMiddlewares,
 				'custom_properties' => $customProperties,
 			])) {
 				wp_send_json($this->funcs->_response(false, null, 'Access denied.'), 403);

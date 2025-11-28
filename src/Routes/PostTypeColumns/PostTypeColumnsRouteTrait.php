@@ -27,7 +27,7 @@ trait PostTypeColumnsRouteTrait {
 	public function column($column, $callback, $useInitClass = false, $customProperties = [], $middlewares = null) {
 		if ($this->isPassedMiddleware($middlewares, $this->request, [
 			'column' => $column,
-			'all_middlewares' => $middlewares,
+			'middlewares' => $middlewares,
 			'custom_properties' => $customProperties
 		])) {
 			if (is_array($callback)) {

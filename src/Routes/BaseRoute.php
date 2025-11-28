@@ -66,10 +66,68 @@ abstract class BaseRoute extends BaseInstances {
 		if (in_array($method, ['prefix', 'name', 'middleware', 'namespace', 'version'])) {
 
 			// middleware dạng array hoặc string
+//			if ($method === 'middleware') {
+//				static::$pending['middlewares'] = is_array($arguments[0])
+//					? $arguments[0]
+//					: [$arguments[0]];
+//			}
 			if ($method === 'middleware') {
-				static::$pending['middlewares'] = is_array($arguments[0])
-					? $arguments[0]
-					: [$arguments[0]];
+				$raw = $arguments;
+
+				// Hợp nhất tham số (để hỗ trợ cả dạng middleware(a,b,c))
+				if (count($raw) === 1 && is_array($raw[0])) {
+					$raw = $raw[0];
+				}
+
+				$middlewares = [];
+				$relation = null;
+
+				foreach ($raw as $key => $item) {
+
+					// Nếu là relation
+					if ($key === 'relation' || $item === 'relation' || $key === 0 && is_string($item) && str_starts_with($item, 'relation')) {
+						$relation = is_array($raw) && isset($raw['relation'])
+							? $raw['relation']
+							: (is_string($item) ? $item : null);
+						continue;
+					}
+
+					// Nếu là class string: Namespace\Class
+					if (is_string($item)) {
+						$middlewares[] = [$item, 'handle'];
+						continue;
+					}
+
+					// Nếu là [class, method]
+					if (is_array($item)) {
+						// item[0] = class
+						// item[1] = method (optional)
+						$class = $item[0] ?? null;
+						$method = $item[1] ?? 'handle';
+
+						if ($class) {
+							$middlewares[] = [$class, $method];
+						}
+						continue;
+					}
+
+					// Nếu dạng không hợp lệ → bỏ qua
+				}
+
+				// Ghép lại đầy đủ format mong muốn
+				$final = [];
+
+				if ($relation !== null) {
+					$final['relation'] = $relation;
+				}
+
+				foreach ($middlewares as $mw) {
+					$final[] = $mw;
+				}
+
+				static::$pending['middlewares'] = $final;
+
+				return new static();
 			}
 			else {
 				static::$pending[$method] = $arguments[0];
@@ -162,11 +220,52 @@ abstract class BaseRoute extends BaseInstances {
 		/**
 		 * Hợp nhất middleware tạm
 		 */
-		if (!empty(static::$pending['middlewares'])) {
-			$group['middlewares'] = array_values(array_unique(array_merge(
-				$group['middlewares'],
-				static::$pending['middlewares']
-			)));
+		// Hợp nhất middleware tạm (an toàn nếu key không tồn tại)
+		$groupMiddlewares   = $group['middlewares'] ?? [];
+		$pendingMiddlewares = static::$pending['middlewares'] ?? [];
+
+		if (!empty($pendingMiddlewares)) {
+
+			// Merge thẳng
+			$merged = array_merge($groupMiddlewares, $pendingMiddlewares);
+
+			// Unique an toàn cho phần tử có thể là array hoặc string
+			$unique = [];
+			$seen   = [];
+
+			foreach ($merged as $mw) {
+				// String -> dùng chính string làm key
+				if (is_string($mw)) {
+					$hash = 'str:' . $mw;
+					if (!isset($seen[$hash])) {
+						$seen[$hash] = true;
+						$unique[] = $mw;
+					}
+					continue;
+				}
+
+				// Array -> serialize để tạo key (an toàn cho nested arrays)
+				if (is_array($mw)) {
+					$hash = 'arr:' . serialize($mw);
+					if (!isset($seen[$hash])) {
+						$seen[$hash] = true;
+						$unique[] = $mw;
+					}
+					continue;
+				}
+
+				// Khác (object/number...) -> cast sang string làm fallback key
+				$hash = 'oth:' . @serialize($mw);
+				if (!isset($seen[$hash])) {
+					$seen[$hash] = true;
+					$unique[] = $mw;
+				}
+			}
+
+			$group['middlewares'] = array_values($unique);
+		} else {
+			// Nếu pending rỗng thì giữ nguyên group middlewares (hoặc đảm bảo key tồn tại)
+			$group['middlewares'] = $groupMiddlewares;
 		}
 
 		/**

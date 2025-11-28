@@ -77,7 +77,7 @@ trait HookRunnerTrait {
 		if ($this->isPassedMiddleware($middlewares, $this->request, [
 			'type'              => $type,
 			'hook'              => $hook,
-			'all_middlewares'   => $middlewares,
+			'middlewares'   => $middlewares,
 			'custom_properties' => $customProperties,
 		])) {
 			$callback = $this->prepareRouteCallback($callback, $useInitClass, $customProperties);

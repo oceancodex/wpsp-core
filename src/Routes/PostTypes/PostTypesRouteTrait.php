@@ -28,7 +28,7 @@ trait PostTypesRouteTrait {
 		$requestPath = trim($this->request->getRequestUri(), '/\\');
 		if ($this->isPassedMiddleware($middlewares, $this->request, [
 			'post_type' => $postType,
-			'all_middlewares' => $middlewares,
+			'middlewares' => $middlewares,
 			'custom_properties' => $customProperties
 		])) {
 			if (is_array($callback) || is_callable($callback) || is_null($callback[1])) {
