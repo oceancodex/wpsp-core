@@ -92,10 +92,9 @@ class RouteData {
 		$this->name = $prefix . $name;
 
 		// Add route map khi có name.
-		$this->funcs->getRouteMap()->add($this);
-
-		// Xóa bỏ funcs sau khi add vào RouteMap để object gọn gàng hơn.
-		unset($this->funcs);
+		if (isset($this->funcs) && $this->name) {
+			$this->funcs->getRouteMap()->add($this);
+		}
 
 		return $this;
 	}

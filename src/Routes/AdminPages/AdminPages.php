@@ -32,7 +32,7 @@ class AdminPages extends BaseRoute {
 			}
 			else {
 				if ($request->getMethod() !== 'GET' && $request->isMethod(strtoupper($method))) {
-					$this->executeHiddenMethod($route);
+					$this->executeMethod($route);
 				}
 			}
 		}
@@ -41,6 +41,71 @@ class AdminPages extends BaseRoute {
 	/*
 	 *
 	 */
+
+	public function executeMethod($route): void {
+		$request = $this->request;
+
+		$path        = $route->path;
+		$fullPath    = $route->fullPath;
+		$callback    = $route->callback;
+		$middlewares = $route->middlewares;
+
+
+		$screenOptions = $request->get('wp_screen_options');
+		if ($screenOptions) {
+			return;
+		}
+
+		$requestPath = trim($request->getRequestUri(), '/\\');
+		if (
+			(
+				($callback instanceof \Closure)
+				||
+				(
+					(is_array($callback) || is_callable($callback))
+					&&
+					(isset($callback[1]) && $callback[1] !== 'index')
+				)
+			)
+			&&
+			(
+				($request->get('page') == $fullPath && preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath))
+				|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)
+			)
+		) {
+			if ($this->isPassedMiddleware($middlewares, $request, [
+				'path'        => $path,
+				'full_path'   => $fullPath,
+				'middlewares' => $middlewares,
+			])) {
+				$constructParams = [
+					$this->funcs->_getMainPath(),
+					$this->funcs->_getRootNamespace(),
+					$this->funcs->_getPrefixEnv(),
+					[
+						'path'              => $path,
+						'full_path'         => $fullPath,
+						'callback_function' => $callback[1],
+					],
+				];
+				$callback        = $this->prepareRouteCallback($callback, $constructParams);
+				$callParams      = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
+				$this->resolveAndCall($callback, $callParams);
+//				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
+			}
+			else {
+				wp_die(
+					'<h1>ERROR: 403 - Truy cập bị từ chối</h1>' .
+					'<p>Bạn không được phép truy cập vào trang này.</p>',
+					'ERROR: 403 - Truy cập bị từ chối',
+					[
+						'response'  => 403,
+						'back_link' => true,
+					]
+				);
+			}
+		}
+	}
 
 	public function executeMethodGet($route): void {
 		$request     = $this->request;
@@ -137,71 +202,6 @@ class AdminPages extends BaseRoute {
 				}
 			}
 			elseif (preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)) {
-				wp_die(
-					'<h1>ERROR: 403 - Truy cập bị từ chối</h1>' .
-					'<p>Bạn không được phép truy cập vào trang này.</p>',
-					'ERROR: 403 - Truy cập bị từ chối',
-					[
-						'response'  => 403,
-						'back_link' => true,
-					]
-				);
-			}
-		}
-	}
-
-	public function executeHiddenMethod($route): void {
-		$request = $this->request;
-
-		$path        = $route->path;
-		$fullPath    = $route->fullPath;
-		$callback    = $route->callback;
-		$middlewares = $route->middlewares;
-
-
-		$screenOptions = $request->get('wp_screen_options');
-		if ($screenOptions) {
-			return;
-		}
-
-		$requestPath = trim($request->getRequestUri(), '/\\');
-		if (
-			(
-				($callback instanceof \Closure)
-				||
-				(
-					(is_array($callback) || is_callable($callback))
-					&&
-					(isset($callback[1]) && $callback[1] !== 'index')
-				)
-			)
-			&&
-			(
-				($request->get('page') == $fullPath && preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath))
-				|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)
-			)
-		) {
-			if ($this->isPassedMiddleware($middlewares, $request, [
-				'path'        => $path,
-				'full_path'   => $fullPath,
-				'middlewares' => $middlewares,
-			])) {
-				$constructParams = [
-					$this->funcs->_getMainPath(),
-					$this->funcs->_getRootNamespace(),
-					$this->funcs->_getPrefixEnv(),
-					[
-						'path'              => $path,
-						'full_path'         => $fullPath,
-						'callback_function' => $callback[1],
-					],
-				];
-				$callback        = $this->prepareRouteCallback($callback, $constructParams);
-				$callParams      = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
-				$this->resolveAndCall($callback, $callParams);
-//				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
-			}
-			else {
 				wp_die(
 					'<h1>ERROR: 403 - Truy cập bị từ chối</h1>' .
 					'<p>Bạn không được phép truy cập vào trang này.</p>',
