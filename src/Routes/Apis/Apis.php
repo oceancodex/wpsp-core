@@ -3,60 +3,36 @@
 namespace WPSPCORE\Routes\Apis;
 
 use WPSPCORE\Routes\BaseRoute;
-use WPSPCORE\Routes\RouteData;
 
 /**
- * @method $this get(string $path, callable|array $callback)
- * @method $this post(string $path, callable|array $callback)
- * @method $this put(string $path, callable|array $callback)
- * @method $this patch(string $path, callable|array $callback)
- * @method $this delete(string $path, callable|array $callback)
- * @method $this options(string $path, callable|array $callback)
- * @method $this head(string $path, callable|array $callback)
+ * @method static $this get(string $path, callable|array $callback)
+ * @method static $this post(string $path, callable|array $callback)
+ * @method static $this put(string $path, callable|array $callback)
+ * @method static $this patch(string $path, callable|array $callback)
+ * @method static $this delete(string $path, callable|array $callback)
+ * @method static $this options(string $path, callable|array $callback)
+ * @method static $this head(string $path, callable|array $callback)
  */
 class Apis extends BaseRoute {
 
-	public static string $defaultNamespace = 'wpsp';
-	public static string $defaultVersion   = 'v1';
+	public string $defaultNamespace = 'wpsp';
+	public string $defaultVersion   = 'v1';
 
 	/*
 	 *
 	 */
 
 	public function beforeConstruct(): void {
-		static::$defaultNamespace = static::$funcs->_getAppShortName();
-	}
-
-	/**
-	 * Những method thực tế Route được phép gọi.
-	 */
-
-	public static function get($path, $callback, $args = []): RouteData {
-		return static::register(__FUNCTION__, $path, $callback, $args);
-	}
-
-	public static function post($path, $callback, $args = []): RouteData {
-		return static::register(__FUNCTION__, $path, $callback, $args);
-	}
-
-	/*
-	 *
-	 */
-
-	/**
-	 * Đăng ký route với Route Manager.
-	 */
-	public static function register($method, $path, $callback, $args = []): RouteData {
-		return static::buildRoute($method, [$path, $callback, $args]);
+		$this->defaultNamespace = $this->funcs->_getAppShortName();
 	}
 
 	/**
 	 * Xử lý route đã được đăng ký thông qua Route Manager.\
 	 * RouteManager::executeAllRoutes()
 	 */
-	public static function execute($route): void {
+	public function execute($route): void {
 		add_action('rest_api_init', function() use ($route) {
-			static::registerRestRoute($route);
+			$this->registerRestRoute($route);
 		});
 	}
 
@@ -64,18 +40,18 @@ class Apis extends BaseRoute {
 	 *
 	 */
 
-	public static function registerRestRoute($route): void {
-		$requestPath = trim(static::$request->getRequestUri(), '/\\');
+	public function registerRestRoute($route): void {
+		$requestPath = trim($this->request->getRequestUri(), '/\\');
 		$method      = $route->method;
 		$path        = $route->path;
 		$fullPath    = $route->fullPath;
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares ?? [];
-		$namespace   = $route->namespace ?? static::$defaultNamespace;
-		$version     = $route->version ?? static::$defaultVersion;
+		$namespace   = $route->namespace ?? $this->defaultNamespace;
+		$version     = $route->version ?? $this->defaultVersion;
 
-		$path     = static::convertPathToRegex($path);
-		$fullPath = static::convertPathToRegex($fullPath);
+		$path     = $this->convertPathToRegex($path);
+		$fullPath = $this->convertPathToRegex($fullPath);
 
 		$constructParams = [
 			[
@@ -86,12 +62,12 @@ class Apis extends BaseRoute {
 			],
 		];
 		$constructParams = array_merge([
-			static::$mainPath,
-			static::$rootNamespace,
-			static::$prefixEnv,
+			$this->mainPath,
+			$this->rootNamespace,
+			$this->prefixEnv,
 		], $constructParams);
 
-		$callback = static::prepareRouteCallback($callback, $constructParams);
+		$callback = $this->prepareRouteCallback($callback, $constructParams);
 
 		register_rest_route(
 			$namespace . '/' . $version,
@@ -99,7 +75,7 @@ class Apis extends BaseRoute {
 			[
 				'methods' => strtoupper($method),
 				'callback' => function(\WP_REST_Request $wpRestRequest) use ($callback, $path, $fullPath, $requestPath) {
-					$callParams = static::getCallParams(
+					$callParams = $this->getCallParams(
 						$path,
 						$fullPath,
 						$requestPath,
@@ -107,7 +83,7 @@ class Apis extends BaseRoute {
 						$callback[1],
 						['wpRestRequest' => $wpRestRequest]
 					);
-					return static::resolveAndCall($callback, $callParams);
+					return $this->resolveAndCall($callback, $callParams);
 				},
 				'args' > [
 //				    'id' => [
@@ -119,7 +95,7 @@ class Apis extends BaseRoute {
 				'permission_callback' => function(\WP_REST_Request $request) use ($path, $fullPath, $middlewares) {
 					static $permissionCallback = null;
 					if ($permissionCallback !== null) return $permissionCallback;
-					$permissionCallback = static::isPassedMiddleware($middlewares, $request, [
+					$permissionCallback = $this->isPassedMiddleware($middlewares, $request, [
 						'path'        => $path,
 						'full_path'   => $fullPath,
 						'middlewares' => $middlewares,

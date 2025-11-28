@@ -8,7 +8,7 @@ trait AdminPagesRouteTrait {
 
 	use HookRunnerTrait;
 
-	public function init() {
+	public function register() {
 		$this->admin_pages();
 		$this->hooks();
 	}

@@ -2,13 +2,15 @@
 
 namespace WPSPCORE\Routes;
 
-class RouteManager {
+use WPSPCORE\Base\BaseInstances;
+
+class RouteManager extends BaseInstances {
 
 	/**
 	 * Danh sách toàn bộ route đã được tạo.
 	 * Mỗi phần tử là một đối tượng RouteData.
 	 */
-	private static array $routes = [];
+	private array $routes = [];
 
 	/**
 	 * Stack chứa các group attributes (prefix, name, middlewares)
@@ -19,7 +21,7 @@ class RouteManager {
 	 * - Khi thoát group(), pop attributes
 	 * - Dồn tất cả attributes của các group lại cho route con
 	 */
-	private static array $groupStack = [];
+	private array $groupStack = [];
 
 	/**
 	 * Push một group attribute mới vào stack.
@@ -34,7 +36,7 @@ class RouteManager {
 	 *       'middlewares' => [...],
 	 *   ]
 	 */
-	public static function pushGroupAttributes(array $attrs) {
+	public function pushGroupAttributes(array $attrs) {
 
 		// Chuẩn hóa giá trị để đảm bảo đủ key prefix/name/middlewares
 		$attrs = [
@@ -46,15 +48,15 @@ class RouteManager {
 		];
 
 		// Push vào stack
-		static::$groupStack[] = $attrs;
+		$this->groupStack[] = $attrs;
 	}
 
 	/**
 	 * Pop group attribute cuối cùng khỏi stack.
 	 * Gọi khi kết thúc một group().
 	 */
-	public static function popGroupAttributes() {
-		array_pop(static::$groupStack);
+	public function popGroupAttributes() {
+		array_pop($this->groupStack);
 	}
 
 	/**
@@ -68,7 +70,7 @@ class RouteManager {
 	 *     'middlewares' => [...],
 	 * ]
 	 */
-	public static function currentGroupAttributes(): array {
+	public function currentGroupAttributes(): array {
 
 		// Khởi tạo giá trị trống
 		$merged = [
@@ -80,7 +82,7 @@ class RouteManager {
 		];
 
 		// Lần lượt merge từ group bên ngoài → group vào trong
-		foreach (static::$groupStack as $g) {
+		foreach ($this->groupStack as $g) {
 
 			/**
 			 * Merge prefix:
@@ -154,23 +156,22 @@ class RouteManager {
 	 * Lưu một route vào danh sách tất cả routes.
 	 * Route được truyền vào là những đối tượng RouteData đã hoàn chỉnh.
 	 */
-	public static function addRoute(RouteData $route) {
-		static::$routes[] = $route;
+	public function addRoute(RouteData $route) {
+		$this->routes[] = $route;
 	}
 
 	/**
 	 * Lấy toàn bộ route đã tạo.
 	 */
-	public static function all(): array {
-		return static::$routes;
+	public function all(): array {
+		return $this->routes;
 	}
 
 	/**
 	 * Chạy tất cả các route đã tạo.
 	 */
-	public static function executeAllRoutes() {
-		$routes = static::all();
-		foreach ($routes as $routeItem) {
+	public function executeAllRoutes() {
+		foreach ($this->routes as $routeItem) {
 			$type        = $routeItem->type;
 			$route       = $routeItem->route;
 //			$parentRoute = '\\' . trim($routeItem->parentRoute, '\\');
@@ -183,13 +184,13 @@ class RouteManager {
 //			$middlewares = $routeItem->middlewares;
 
 			if ($method == 'action' || $method == 'filter') {
-				$route::hook($routeItem);
+				$route::instance()->hook($routeItem);
 			}
 			elseif ($method == 'remove_action' || $method == 'remove_filter') {
-				$route::remove_hook($routeItem);
+				$route::instance()->remove_hook($routeItem);
 			}
 			else {
-				$route::execute($routeItem);
+				$route::instance()->execute($routeItem);
 			}
 		}
 	}

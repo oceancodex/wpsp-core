@@ -8,14 +8,9 @@ trait AjaxsRouteTrait {
 
 	use HookRunnerTrait;
 
-	public function init() {
+	public function register() {
 		$this->ajaxs();
 		$this->hooks();
-	}
-
-	public function initForRouterMap() {
-		$this->ajaxs();
-		return $this;
 	}
 
 	/*

@@ -20,13 +20,18 @@ abstract class BaseRoute extends BaseInstances {
 	use BaseRouteTrait, HookRunnerTrait;
 
 	/**
+	 * Instance ví dụ: \WPSP\App\Instances\Routes\Apis
+	 */
+	public static $instance = null;
+
+	/**
 	 * Lưu các giá trị được gọi trước khi gọi HTTP verb
 	 * Ví dụ:
 	 *     Route::prefix('abc')->middleware(XYZ::class)->get(...)
 	 *
 	 * Các giá trị prefix / name / middlewares sẽ được lưu vào đây trước.
 	 */
-	protected static array $pending = [];
+	protected array $pending = [];
 
 	/**
 	 * Stack dùng để lưu các prefix name của group.
@@ -40,23 +45,24 @@ abstract class BaseRoute extends BaseInstances {
 	 * nameStack khi chạy route "list" sẽ là:
 	 *     ['admin.', 'user.']
 	 */
-	protected static array $nameStack = [];
+	protected array $nameStack = [];
+
+	/*
+	 *
+	 */
+
+	public static function instance() {
+		return static::$instance;
+	}
 
 	/*
 	 *
 	 */
 
 	/**
-	 * Nếu gọi method thông thường (non-static) → chuyển sang static handler
-	 */
-	public function __call($method, $arguments) {
-		return static::__callStatic($method, $arguments);
-	}
-
-	/**
 	 * Xử lý tất cả method động.
 	 */
-	public static function __callStatic($method, $arguments) {
+	public function __call($method, $arguments) {
 		$method = strtolower($method);
 
 		/**
@@ -65,12 +71,7 @@ abstract class BaseRoute extends BaseInstances {
 		 */
 		if (in_array($method, ['prefix', 'name', 'middleware', 'namespace', 'version'])) {
 
-			// middleware dạng array hoặc string
-//			if ($method === 'middleware') {
-//				static::$pending['middlewares'] = is_array($arguments[0])
-//					? $arguments[0]
-//					: [$arguments[0]];
-//			}
+			// Xử lý middlewares.
 			if ($method === 'middleware') {
 				$raw = $arguments;
 
@@ -125,15 +126,15 @@ abstract class BaseRoute extends BaseInstances {
 					$final[] = $mw;
 				}
 
-				static::$pending['middlewares'] = $final;
+				$this->pending['middlewares'] = $final;
 
-				return new static();
+				return $this;
 			}
 			else {
-				static::$pending[$method] = $arguments[0];
+				$this->pending[$method] = $arguments[0];
 			}
 
-			return new static();
+			return $this;
 		}
 
 		/**
@@ -144,23 +145,23 @@ abstract class BaseRoute extends BaseInstances {
 
 			// Lấy toàn bộ giá trị pending trước group
 			$attrs = [
-				'prefix'      => static::$pending['prefix'] ?? null,
-				'name'        => static::$pending['name'] ?? null,
-				'middlewares' => static::$pending['middlewares'] ?? [],
-				'namespace'   => static::$pending['namespace'] ?? null,
-				'version'     => static::$pending['version'] ?? null,
+				'prefix'      => $this->pending['prefix'] ?? null,
+				'name'        => $this->pending['name'] ?? null,
+				'middlewares' => $this->pending['middlewares'] ?? [],
+				'namespace'   => $this->pending['namespace'] ?? null,
+				'version'     => $this->pending['version'] ?? null,
 			];
 
 			// Nếu group có khai báo name() → push vào nameStack.
 			if (!empty($attrs['name'])) {
-				static::$nameStack[] = $attrs['name'];
+				$this->nameStack[] = $attrs['name'];
 			}
 
 			// Push toàn bộ thuộc tính group vào RouteManager
-			static::$funcs->getRouteManager()::pushGroupAttributes($attrs);
+			$this->funcs->getRouteManager()->pushGroupAttributes($attrs);
 
 			// reset pending để không ảnh hưởng route khác
-			static::$pending = [];
+			$this->pending = [];
 
 			// chạy callback group (tạo route con)
 			$callback = $arguments[0];
@@ -168,20 +169,28 @@ abstract class BaseRoute extends BaseInstances {
 
 			// Sau khi group kết thúc → remove prefix name
 			if (!empty($attrs['name'])) {
-				array_pop(static::$nameStack);
+				array_pop($this->nameStack);
 			}
 
 			// pop group attributes khỏi stack
-			static::$funcs->getRouteManager()::popGroupAttributes();
+			$this->funcs->getRouteManager()->popGroupAttributes();
 
-			return new static;
+			return $this;
 		}
 
 		/**
 		 * 3) Xử lý HTTP verbs (get/post/put/patch/delete/options)
 		 * Đây là lúc route thực sự được tạo.
 		 */
-		return static::buildRoute($method, $arguments);
+		return $this->buildRoute($method, $arguments);
+	}
+
+	/**
+	 * Nếu gọi static method, chuyển sang method thông thường với instance.\
+	 * Instance ví dụ: \WPSP\App\Instances\Routes\Apis
+	 */
+	public static function __callStatic($method, $arguments) {
+		return static::instance()->__call($method, $arguments);
 	}
 
 	/*
@@ -191,21 +200,21 @@ abstract class BaseRoute extends BaseInstances {
 	/**
 	 * Tạo đối tượng RouteData và lưu vào RouteManager.
 	 */
-	public static function buildRoute($method, $arguments): RouteData {
+	public function buildRoute($method, $arguments): RouteData {
 		$path     = $arguments[0];
 		$callback = $arguments[1] ?? null;
 		$args     = $arguments[2] ?? [];
 
 		// Lấy attributes của tất cả group đang active
-		$group = static::$funcs->getRouteManager()::currentGroupAttributes();
+		$group = $this->funcs->getRouteManager()->currentGroupAttributes();
 
 		/**
 		 * Hợp nhất prefix tạm (chỉ có tác dụng cho route này)
 		 * Ví dụ:
 		 *     Route::prefix('x')->get(...)
 		 */
-		if (!empty(static::$pending['prefix'])) {
-			$group['prefix'] .= rtrim(static::$pending['prefix'], '/') . '/';
+		if (!empty($this->pending['prefix'])) {
+			$group['prefix'] .= rtrim($this->pending['prefix'], '/') . '/';
 		}
 
 		/**
@@ -213,8 +222,8 @@ abstract class BaseRoute extends BaseInstances {
 		 * Ví dụ:
 		 *     Route::name('x.')->get(...)
 		 */
-		if (!empty(static::$pending['name'])) {
-			$group['name'] .= static::$pending['name'];
+		if (!empty($this->pending['name'])) {
+			$group['name'] .= $this->pending['name'];
 		}
 
 		/**
@@ -222,7 +231,7 @@ abstract class BaseRoute extends BaseInstances {
 		 */
 		// Hợp nhất middleware tạm (an toàn nếu key không tồn tại)
 		$groupMiddlewares   = $group['middlewares'] ?? [];
-		$pendingMiddlewares = static::$pending['middlewares'] ?? [];
+		$pendingMiddlewares = $this->pending['middlewares'] ?? [];
 
 		if (!empty($pendingMiddlewares)) {
 
@@ -271,15 +280,15 @@ abstract class BaseRoute extends BaseInstances {
 		/**
 		 * Hợp nhất namespace tạm (override)
 		 */
-		if (array_key_exists('namespace', static::$pending)) {
-			$group['namespace'] = static::$pending['namespace'];
+		if (array_key_exists('namespace', $this->pending)) {
+			$group['namespace'] = $this->pending['namespace'];
 		}
 
 		/**
 		 * Hợp nhất version tạm (override)
 		 */
-		if (array_key_exists('version', static::$pending)) {
-			$group['version'] = static::$pending['version'];
+		if (array_key_exists('version', $this->pending)) {
+			$group['version'] = $this->pending['version'];
 		}
 
 
@@ -287,7 +296,7 @@ abstract class BaseRoute extends BaseInstances {
 		 * 4) Tạo đối tượng RouteData
 		 * RouteData sẽ giữ method, path, callback, prefix, middlewares
 		 */
-		$routeClass = static::class;
+		$routeClass = get_class($this);
 		$type       = basename(str_replace('\\', '/', $routeClass));
 		$route      = new RouteData(
 			$type,
@@ -297,25 +306,25 @@ abstract class BaseRoute extends BaseInstances {
 			$callback,
 			$args,
 			$group,
-			static::$funcs
+			$this->funcs
 		);
 
 		/**
 		 * Gắn nameStack hiện tại vào route
 		 * Khi người dùng gọi ->name('abc') thì RouteData sẽ dùng nameStack để build full route name.
 		 */
-		$route->setGroupNameStack(static::$nameStack);
+		$route->setGroupNameStack($this->nameStack);
 
 		// Nếu pending có name → áp dụng cho route
-		if (!empty(static::$pending['name'])) {
-			$route->name(static::$pending['name']);
+		if (!empty($this->pending['name'])) {
+			$route->name($this->pending['name']);
 		}
 
 		// Lưu route vào RouteManager.
-		static::$funcs->getRouteManager()::addRoute($route);
+		$this->funcs->getRouteManager()->addRoute($route);
 
 		// Reset pending sau khi tạo route.
-		static::$pending = [];
+		$this->pending = [];
 
 		return $route;
 	}

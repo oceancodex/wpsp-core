@@ -33,7 +33,7 @@ abstract class BaseInstances {
 	 *
 	 */
 
-	public static function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []): array {
+	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []): array {
 		// NEW: detect closure
 		if ($callbackOrClass instanceof \Closure) {
 			$reflection = new \ReflectionFunction($callbackOrClass);
@@ -54,9 +54,9 @@ abstract class BaseInstances {
 
 		// Nếu nơi gọi hàm này là route "Ajaxs" với method POST, check action và match path.
 		if (preg_match('/Ajaxs$/', static::class)) {
-			$httpMethod = static::$request->getMethod();
+			$httpMethod = $this->request->getMethod();
 			if ($httpMethod === 'POST') {
-				$params = static::$request->all();
+				$params = $this->request->all();
 				$passed = isset($params['action']) && $params['action'] === $path;
 			}
 		}
@@ -96,11 +96,11 @@ abstract class BaseInstances {
 		}
 
 		// Lấy container / request
-		$app = static::$funcs->getApplication();
+		$app = $this->funcs->getApplication();
 		if (!$app) {
 			throw new \RuntimeException('Container instance not found when building call params.');
 		}
-		$baseRequest = $app->bound('request') ? $app->make('request') : (static::$request ?? Request::capture());
+		$baseRequest = $app->bound('request') ? $app->make('request') : ($this->request ?? Request::capture());
 
 		// Named groups: keys là tên (PHP returns associative entries for named groups)
 		$named = array_filter($matches, fn($k) => !is_int($k), ARRAY_FILTER_USE_KEY);
@@ -188,9 +188,9 @@ abstract class BaseInstances {
 		return $callParams;
 	}
 
-	public static function resolveAndCall($callback, array $callParams = [], $call = true) {
+	public function resolveAndCall($callback, array $callParams = [], $call = true) {
 		// 🔹 Lấy container từ Application hoặc fallback
-		$app = static::$funcs->getApplication();
+		$app = $this->funcs->getApplication();
 		$container = $app ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
 
 		if (!$container) {
@@ -248,7 +248,7 @@ abstract class BaseInstances {
 		return $container->call([$instance, $method], $callParams);
 	}
 
-	public static function resolveCallback($callback, array $callParams = []) {
+	public function resolveCallback($callback, array $callParams = []) {
 		return static::resolveAndCall($callback, $callParams, false);
 	}
 
@@ -256,14 +256,18 @@ abstract class BaseInstances {
 	 * 
 	 */
 
-	protected static function convertPathToRegex(string $path): string {
-		return preg_replace('/\{(\w+)\}/', '(?P<$1>[^/]+)', $path);
+	public function prepareCallbackFunction($callbackFunction, $path, $fullPath, $requestPath = null) {
+		$requestPath = $requestPath ?? trim($this->request->getRequestUri(), '/\\');
+		$callParams = static::getCallParams($path, $fullPath, $requestPath, $this, $callbackFunction);
+		return static::resolveAndCall([$this, $callbackFunction], $callParams);
 	}
 
-	public static function prepareCallbackFunction($callbackFunction, $path, $fullPath, $requestPath = null) {
-		$requestPath = $requestPath ?? trim(static::$request->getRequestUri(), '/\\');
-		$callParams = static::getCallParams($path, $fullPath, $requestPath, static::class, $callbackFunction);
-		return static::resolveAndCall([static::class, $callbackFunction], $callParams);
+	/*
+	 *
+	 */
+
+	public function convertPathToRegex(string $path): string {
+		return preg_replace('/\{(\w+)\}/', '(?P<$1>[^/]+)', $path);
 	}
 
 }

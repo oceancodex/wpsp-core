@@ -26,7 +26,7 @@ abstract class BaseWPSP extends BaseInstances {
 
 	public function setApplication(string $basePath) {
 		// Load command classes
-		$commands          = static::$funcs->_getAllClassesInDir('WPSPCORE\Console\Commands', __DIR__ . '/../Console/Commands');
+		$commands          = $this->funcs->_getAllClassesInDir('WPSPCORE\Console\Commands', __DIR__ . '/../Console/Commands');
 
 		$this->application = Application::configure($basePath)
 			->withMiddleware(function(Middleware $middleware): void {
@@ -44,7 +44,7 @@ abstract class BaseWPSP extends BaseInstances {
 
 	public function setApplicationForConsole(string $basePath) {
 		// Load command classes
-		$commands = static::$funcs->_getAllClassesInDir(
+		$commands = $this->funcs->_getAllClassesInDir(
 			'WPSPCORE\Console\Commands',
 			__DIR__ . '/../Console/Commands'
 		);
@@ -100,7 +100,7 @@ abstract class BaseWPSP extends BaseInstances {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('request', Request::capture());
 		$this->application->instance('funcs',
-			static::$funcs ??
+			$this->funcs ??
 			new Funcs(
 				$this->mainPath,
 				$this->rootNamespace,
@@ -113,7 +113,7 @@ abstract class BaseWPSP extends BaseInstances {
 	protected function bindingsConsole() {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('funcs',
-			static::$funcs ??
+			$this->funcs ??
 			new Funcs(
 				$this->mainPath,
 				$this->rootNamespace,

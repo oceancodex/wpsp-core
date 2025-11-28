@@ -13,22 +13,22 @@ use WPSPCORE\Funcs;
  */
 trait BaseInstancesTrait {
 
-	public static ?Funcs   $funcs         = null;
+	public ?Funcs   $funcs         = null;
 
-	public static ?string  $mainPath      = null;
-	public static ?string  $rootNamespace = null;
-	public static ?string  $prefixEnv     = null;
+	public ?string  $mainPath      = null;
+	public ?string  $rootNamespace = null;
+	public ?string  $prefixEnv     = null;
 
-	public static array    $extraParams   = [];
-	public static ?Request $request       = null;
+	public array    $extraParams   = [];
+	public ?Request $request       = null;
 
 	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []): void {
 		$this->instanceConstruct();
 		$this->beforeConstruct();
-		if ($mainPath)      static::$mainPath       = $mainPath;
-		if ($rootNamespace) static::$rootNamespace  = $rootNamespace;
-		if ($prefixEnv)     static::$prefixEnv      = $prefixEnv;
-		if ($extraParams)   static::$extraParams    = $extraParams;
+		if ($mainPath)      $this->mainPath      = $mainPath;
+		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
+		if ($prefixEnv)     $this->prefixEnv     = $prefixEnv;
+		if ($extraParams)   $this->extraParams   = $extraParams;
 		$this->prepareFuncs();
 		$this->prepareRequest();
 		$this->afterConstruct();
@@ -46,35 +46,35 @@ trait BaseInstancesTrait {
 	 */
 
 	private function prepareRequest(): void {
-		if (isset(static::$funcs) && $funcs = static::$funcs) {
+		if (isset($this->funcs) && $funcs = $this->funcs) {
 			if (isset($funcs::$request) && $funcs::$request) {
-				static::$request = $funcs::$request;
+				$this->request = $funcs::$request;
 			}
 			else {
-				static::$request = static::$funcs->getApplication('request');
+				$this->request = $this->funcs->getApplication('request');
 			}
 		}
 		else {
-			static::$request = Request::capture();
+			$this->request = Request::capture();
 		}
-		unset(static::$extraParams['request']);
+		unset($this->extraParams['request']);
 	}
 
 	private function prepareFuncs(): void {
-		if (isset(static::$extraParams['funcs']) && static::$extraParams['funcs'] && !static::$funcs) {
-			if (is_bool(static::$extraParams['funcs'])) {
-				static::$funcs = new \WPSPCORE\Funcs(
+		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
+			if (is_bool($this->extraParams['funcs'])) {
+				$this->funcs = new \WPSPCORE\Funcs(
 					$this->mainPath,
 					$this->rootNamespace,
 					$this->prefixEnv,
-					static::$extraParams
+					$this->extraParams
 				);
 			}
 			else {
-				static::$funcs = static::$extraParams['funcs'];
+				$this->funcs = $this->extraParams['funcs'];
 			}
 		}
-		unset(static::$extraParams['funcs']);
+		unset($this->extraParams['funcs']);
 	}
 
 	/*
@@ -82,11 +82,11 @@ trait BaseInstancesTrait {
 	 */
 
 	public function getRequest(): ?Request {
-		return static::$request;
+		return $this->request;
 	}
 
 	public function getExtraParams(): array {
-		return static::$extraParams;
+		return $this->extraParams;
 	}
 
 	/*

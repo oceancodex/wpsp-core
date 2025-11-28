@@ -12,35 +12,12 @@ class WPRoles extends BaseRoute {
 
 	public function beforeConstruct(): void {}
 
-	/*
-	 *
-	 */
-
-	/**
-	 * Những method thực tế Route được phép gọi.
-	 */
-
-	public static function role($role, $callback, $args = []): RouteData {
-		return static::register(__FUNCTION__, $role, $callback, $args);
-	}
-
-	/*
-	 *
-	 */
-
-	/**
-	 * Đăng ký route với Route Manager.
-	 */
-	public static function register($method, $path, $callback, $args = []): RouteData {
-		return static::buildRoute($method, [$path, $callback, $args]);
-	}
-
 	/**
 	 * Xử lý route đã được đăng ký thông qua Route Manager.\
 	 * RouteManager::executeAllRoutes()
 	 */
-	public static function execute($route): void {
-		$request     = static::$request;
+	public function execute($route): void {
+		$request     = $this->request;
 		$requestPath = trim($request->getRequestUri(), '/\\');
 
 		$middlewares = $route->middlewares;
@@ -52,9 +29,9 @@ class WPRoles extends BaseRoute {
 		$passedMiddlewares = static::isPassedMiddleware($middlewares, $request, $middlewareArgs);
 		if ($passedMiddlewares) {
 			$constructParams = [
-				static::$mainPath,
-				static::$rootNamespace,
-				static::$prefixEnv,
+				$this->mainPath,
+				$this->rootNamespace,
+				$this->prefixEnv,
 				[
 					'role'              => $role,
 					'callback_function' => $callback[1] ?? null,

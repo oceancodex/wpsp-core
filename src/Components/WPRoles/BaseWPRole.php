@@ -19,8 +19,8 @@ abstract class BaseWPRole extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->callback_function = static::$extraParams['callback_function'];
-		$this->overrideRole(static::$extraParams['role']);
+		$this->callback_function = $this->extraParams['callback_function'];
+		$this->overrideRole($this->extraParams['role']);
 	}
 
 	/*
@@ -48,7 +48,7 @@ abstract class BaseWPRole extends BaseInstances {
 						$role->add_cap($capability);
 					}
 				}
-				$role->add_cap('_role_bookmark_' . static::$funcs->_getAppShortName());
+				$role->add_cap('_role_bookmark_' . $this->funcs->_getAppShortName());
 			}
 		}
 	}

@@ -17,9 +17,9 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->WPSPClass = '\\' . static::$rootNamespace . '\WPSP';
-		$this->routeMapClass = '\\' . static::$rootNamespace . '\App\Instances\Routes\RouteMap';
-		$this->routeManagerClass = '\\' . static::$rootNamespace . '\App\Instances\Routes\RouteManager';
+		$this->WPSPClass = '\\' . $this->rootNamespace . '\WPSP';
+		$this->routeMapClass = '\\' . $this->rootNamespace . '\App\Instances\Routes\RouteMap';
+		$this->routeManagerClass = '\\' . $this->rootNamespace . '\App\Instances\Routes\RouteManager';
 	}
 
 	/*
@@ -80,15 +80,15 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function _getMainPath($path = null): string {
-		return rtrim(static::$mainPath, '/\\') . ($path ? '/' . ltrim($path, '/\\') : '');
+		return rtrim($this->mainPath, '/\\') . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
 	public function _getRootNamespace() {
-		return static::$rootNamespace;
+		return $this->rootNamespace;
 	}
 
 	public function _getPrefixEnv() {
-		return static::$prefixEnv;
+		return $this->prefixEnv;
 	}
 
 	/*

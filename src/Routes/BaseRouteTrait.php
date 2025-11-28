@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 trait BaseRouteTrait {
 
-	public static function prepareRouteCallback($callback, $constructParams = []) {
+	public function prepareRouteCallback($callback, $constructParams = []) {
 
 		// If callback is a closure.
 		if ($callback instanceof \Closure) {
@@ -26,7 +26,7 @@ trait BaseRouteTrait {
 
 	}
 
-	public static function isPassedMiddleware($middlewares = null, $request = null, $args = []): bool {
+	public function isPassedMiddleware($middlewares = null, $request = null, $args = []): bool {
 		// Không có middleware -> pass
 		if (empty($middlewares)) {
 			return true;
@@ -100,7 +100,7 @@ trait BaseRouteTrait {
 		}
 
 		// Lấy request & app
-		$app     = static::$funcs->getApplication();
+		$app     = $this->funcs->getApplication();
 		$request = $app->make('request');
 
 		/**

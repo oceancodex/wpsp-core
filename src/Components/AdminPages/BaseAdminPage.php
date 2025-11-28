@@ -23,9 +23,9 @@ abstract class BaseAdminPage extends BaseInstances {
 	protected $screen_options_key       = null;
 
 	public function afterConstruct() {
-		$this->callback_function  = static::$extraParams['callback_function'];
-		$this->screen_options_key = $this->screen_options_key ?: static::$funcs->_slugParams(['page']) ?? $this->menu_slug;
-		$this->overrideMenuSlug(static::$extraParams['path']);
+		$this->callback_function  = $this->extraParams['callback_function'];
+		$this->screen_options_key = $this->screen_options_key ?: $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
+		$this->overrideMenuSlug($this->extraParams['path']);
 	}
 
 	/*
@@ -58,7 +58,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$callback = function() {
-				return $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, static::$extraParams['full_path'] ?? $this->menu_slug);
+				return $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
 			};
 		}
 		$menuPage = add_menu_page(
@@ -92,7 +92,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$callback = function() {
-				return $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, static::$extraParams['full_path'] ?? $this->menu_slug);
+				return $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
 			};
 		}
 		return add_submenu_page(
@@ -129,7 +129,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	}
 
 	private function highlightCurrentMenu() {
-		$currentRequest = static::$request->getRequestUri();
+		$currentRequest = $this->request->getRequestUri();
 		if (preg_match('/' . preg_quote($this->menu_slug, '/') . '$|' . preg_quote($this->menu_slug, '/') . '&updated=true$/', $currentRequest)) {
 			add_filter('submenu_file', function($submenu_file) {
 				return $this->menu_slug;

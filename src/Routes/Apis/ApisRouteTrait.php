@@ -8,7 +8,7 @@ trait ApisRouteTrait {
 
 	use HookRunnerTrait;
 
-	public function init() {
+	public function register() {
 		$this->apis();
 		$this->hooks();
 	}

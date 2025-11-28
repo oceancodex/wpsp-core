@@ -86,7 +86,7 @@ class Handler extends BaseInstances {
 	}
 
 	public function expectsJson(): bool {
-		return static::$funcs->_expectsJson();
+		return $this->funcs->_expectsJson();
 	}
 
 	public function prepareResponse(\Throwable $e) {
@@ -108,7 +108,7 @@ class Handler extends BaseInstances {
 	public function prepareJsonResponse(\Throwable $e) {
 		$data = ['message' => $e->getMessage()];
 
-		if (static::$funcs->env('APP_DEBUG', true) == 'true') {
+		if ($this->funcs->env('APP_DEBUG', true) == 'true') {
 			$data['exception'] = get_class($e);
 			$data['file']      = $e->getFile();
 			$data['line']      = $e->getLine();
@@ -131,7 +131,7 @@ class Handler extends BaseInstances {
 	}
 
 	public function fallbackToIgnition(\Throwable $e) {
-		$app = static::$funcs->getApplication();
+		$app = $this->funcs->getApplication();
 
 		// 1) Nếu Laravel 12+ Renderer class tồn tại và container có thể make nó
 		if (class_exists(\Illuminate\Foundation\Exceptions\Renderer\Renderer::class) && $app && $app->bound(\Illuminate\Foundation\Exceptions\Renderer\Renderer::class)) {
@@ -251,7 +251,7 @@ class Handler extends BaseInstances {
 
 		// Sử dụng view.
 		try {
-			echo static::$funcs->view('errors.401', [
+			echo $this->funcs->view('errors.401', [
 				'message' => $message,
 			]);
 			exit;
@@ -298,7 +298,7 @@ class Handler extends BaseInstances {
 
 		// Sử dụng view.
 		try {
-			echo static::$funcs->view('errors.403', [
+			echo $this->funcs->view('errors.403', [
 				'message' => $message,
 			]);
 			exit;
@@ -356,10 +356,10 @@ class Handler extends BaseInstances {
 		// Sử dụng view.
 		try {
 			$viewName     = "errors.{$statusCode}";
-			$viewInstance = static::$funcs->_viewInstance();
+			$viewInstance = $this->funcs->_viewInstance();
 
 			if ($viewInstance->exists($viewName)) {
-				echo static::$funcs->view($viewName, [
+				echo $this->funcs->view($viewName, [
 					'message' => $message,
 					'code'    => $statusCode,
 					'status'  => 'Lỗi HTTP',
@@ -368,7 +368,7 @@ class Handler extends BaseInstances {
 			}
 
 			if ($viewInstance->exists('errors.default')) {
-				echo static::$funcs->view('errors.default', [
+				echo $this->funcs->view('errors.default', [
 					'message' => $message,
 					'code'    => $statusCode,
 					'status'  => 'Lỗi HTTP',
@@ -411,7 +411,7 @@ class Handler extends BaseInstances {
 		 */
 
 		// Debug mode.
-		if (static::$funcs->_isDebug()) {
+		if ($this->funcs->_isDebug()) {
 			$this->fallbackToIgnition($e);
 		}
 
@@ -429,7 +429,7 @@ class Handler extends BaseInstances {
 
 			// Sử dụng view.
 			try {
-				echo static::$funcs->view('errors.default', [
+				echo $this->funcs->view('errors.default', [
 					'message'      => 'Vui lòng kiểm tra lại dữ liệu theo thông tin bên dưới:',
 					'code'         => 422,
 					'errorMessage' => $errorList,
@@ -482,7 +482,7 @@ class Handler extends BaseInstances {
 
 		// Sử dụng view.
 		try {
-			echo static::$funcs->view('errors.model-not-found', [
+			echo $this->funcs->view('errors.model-not-found', [
 				'message' => $message,
 				'model'   => $modelName,
 			]);
@@ -517,7 +517,7 @@ class Handler extends BaseInstances {
 		if ($this->wantsJson()) {
 
 			// Debug mode.
-			if (static::$funcs->isDebug()) {
+			if ($this->funcs->isDebug()) {
 				wp_send_json([
 					'success' => false,
 					'data'    => null,
@@ -556,10 +556,10 @@ class Handler extends BaseInstances {
 		 */
 
 		// Debug mode.
-		if (static::$funcs->isDebug()) {
+		if ($this->funcs->isDebug()) {
 			// Sử dụng view.
 			try {
-				echo static::$funcs->view('errors.query', [
+				echo $this->funcs->view('errors.query', [
 					'message'  => $message,
 					'sql'      => $sql ?? null,
 					'bindings' => $bindings ?? [],
@@ -585,7 +585,7 @@ class Handler extends BaseInstances {
 		else {
 			// Sử dụng view.
 			try {
-				echo static::$funcs->view('errors.query', [
+				echo $this->funcs->view('errors.query', [
 					'message' => $message,
 					'error'   => $wpdb->last_error ?? null,
 				]);

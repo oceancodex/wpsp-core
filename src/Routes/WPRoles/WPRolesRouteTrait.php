@@ -8,7 +8,7 @@ trait WPRolesRouteTrait {
 
 	use HookRunnerTrait;
 
-	public function init() {
+	public function register() {
 		$this->roles();
 		$this->hooks();
 	}
