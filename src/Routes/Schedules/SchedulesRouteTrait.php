@@ -3,13 +3,12 @@
 namespace WPSPCORE\Routes\Schedules;
 
 use WPSPCORE\Traits\HookRunnerTrait;
-use WPSPCORE\Traits\RouteTrait;
 
 trait SchedulesRouteTrait {
 
-	use HookRunnerTrait, RouteTrait;
+	use HookRunnerTrait;
 
-	public function init() {
+	public function register() {
 		$this->intervals();
 		$this->schedules();
 		$this->hooks();
@@ -19,9 +18,9 @@ trait SchedulesRouteTrait {
 	 *
 	 */
 
-	public function intervals() {}
+	abstract public function intervals();
 
-	public function schedules() {}
+	abstract public function schedules();
 
 	/*
 	 *
@@ -34,31 +33,6 @@ trait SchedulesRouteTrait {
 				'display'  => $display
 			];
 			return $schedules;
-		});
-	}
-
-	public function schedule($hook, $interval, $callback, $useInitClass = false, $customProperties = []) {
-		$constructParams = [
-			[
-				'hook'              => $hook,
-				'callback_function' => $callback[1] ?? null,
-				'custom_properties' => $customProperties,
-			],
-		];
-		$constructParams = array_merge([
-			$this->funcs->_getMainPath(),
-			$this->funcs->_getRootNamespace(),
-			$this->funcs->_getPrefixEnv()
-		], $constructParams);
-		$callback = $this->prepareRouteCallback($callback, $useInitClass, $constructParams);
-		add_action($hook, $callback);
-		if (!wp_next_scheduled($hook)) {
-			wp_schedule_event(time(), $interval, $hook);
-		}
-		register_deactivation_hook($this->funcs->_getMainFilePath(), function() use ($hook) {
-			wp_unschedule_hook($hook);
-//			$timestamp = wp_next_scheduled($hook);
-//			if ($timestamp) wp_unschedule_event($timestamp, $hook);
 		});
 	}
 

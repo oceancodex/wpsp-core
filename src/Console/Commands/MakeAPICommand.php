@@ -17,7 +17,6 @@ class MakeAPICommand extends Command {
         {--namespace= : The namespace of the API end point.}
         {--ver= : The version of the API end point.}';
 
-	// Giữ nguyên chuỗi | Eg: với nhiều dấu cách giống 100% bản gốc
 	protected $description = 'Create a new API end point.               | Eg: bin/wpsp make:api my-api-endpoint';
 
 	public function handle(): void {

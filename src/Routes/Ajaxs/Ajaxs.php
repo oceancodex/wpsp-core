@@ -5,13 +5,13 @@ namespace WPSPCORE\Routes\Ajaxs;
 use WPSPCORE\Routes\BaseRoute;
 
 /**
- * @method static $this get(string $path, callable|array $callback)
- * @method static $this post(string $path, callable|array $callback)
- * @method static $this put(string $path, callable|array $callback)
- * @method static $this patch(string $path, callable|array $callback)
- * @method static $this delete(string $path, callable|array $callback)
- * @method static $this options(string $path, callable|array $callback)
- * @method static $this head(string $path, callable|array $callback)
+ * @method static $this get(string $action, callable|array $callback, array $args = [])
+ * @method static $this post(string $action, callable|array $callback, array $args = [])
+ * @method static $this put(string $action, callable|array $callback, array $args = [])
+ * @method static $this patch(string $action, callable|array $callback, array $args = [])
+ * @method static $this delete(string $action, callable|array $callback, array $args = [])
+ * @method static $this options(string $action, callable|array $callback, array $args = [])
+ * @method static $this head(string $action, callable|array $callback, array $args = [])
  */
 class Ajaxs extends BaseRoute {
 
@@ -22,53 +22,59 @@ class Ajaxs extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route): void {
-		$this->executeMethod($route);
+		$fullAction = $route->fullPath;
+		$nopriv = $route->args['nopriv'] ?? false;
+
+		$hookAction = 'wp_ajax_' . $fullAction;
+		$this->executeMethod($hookAction, $route);
+		if ($nopriv) {
+			$hookNoprivAction = 'wp_ajax_nopriv_' . $fullAction;
+			$this->executeMethod($hookNoprivAction, $route);
+		}
 	}
 
 	/*
 	 *
 	 */
 
-	public function executeMethod($route): void {
-	}
+	public function executeMethod($hookAction, $route) {
+		$action        = $route->path;
+		$fullAction    = $route->fullPath;
+		$requestPath = trim($this->request->getRequestUri(), '/\\');
 
-	/*
-	 *
-	 */
-
-	public function addAjaxAction($route): void {
-		add_action($action, function() use ($route) {
-			if (!$this->isPassedMiddleware($allMiddlewares, $this->request, [
-				'action' => $action,
-				'path' => $path,
-				'full_path' => $fullPath,
-				'middlewares' => $allMiddlewares,
-				'custom_properties' => $customProperties,
+		/**
+		 * Đăng ký ajax action ngay mà không cần kiểm tra phương thức HTTP.
+		 *  add_action chỉ đăng ký callback khi load plugin/theme.
+		 *  Kiểm tra request method phải thực hiện bên trong callback xử lý AJAX.
+		 */
+		add_action($hookAction, function() use ($hookAction, $action, $fullAction, $requestPath, $route) {
+			$callback    = $route->callback;
+			$middlewares = $route->middlewares;
+			if (!$this->isPassedMiddleware($route->middlewares, $this->request, [
+				'action'      => $action,
+				'full_action' => $fullAction,
+				'middlewares' => $middlewares,
 			])) {
 				wp_send_json($this->funcs->_response(false, null, 'Access denied.'), 403);
 				return;
 			}
 
 			$constructParams = [
-				[
-					'action'            => $action,
-					'path'              => $path,
-					'full_path'         => $fullPath,
-					'callback_function' => $callback[1] ?? null,
-					'custom_properties' => $customProperties,
-				],
-			];
-			$constructParams = array_merge([
 				$this->funcs->_getMainPath(),
 				$this->funcs->_getRootNamespace(),
 				$this->funcs->_getPrefixEnv(),
-			], $constructParams);
-			$callback = $this->prepareRouteCallback($callback, $constructParams);
+				[
+					'action'            => $action,
+					'full_action'       => $fullAction,
+					'callback_function' => $callback[1] ?? null,
+				],
+			];
 
-			$requestPath = trim($this->request->getRequestUri(), '/\\');
-			$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
+			$callback   = $this->prepareRouteCallback($callback, $constructParams);
+			$callParams = $this->getCallParams($action, $fullAction, $requestPath, $callback[0], $callback[1]);
 			$this->resolveAndCall($callback, $callParams);
 		});
+
 	}
 
 }

@@ -7,15 +7,14 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use WPSPCORE\Console\Traits\CommandsTrait;
 
-class MakeRoleCommand extends Command {
+class MakeWPRoleCommand extends Command {
 
 	use CommandsTrait;
 
-	protected $signature = 'make:role
+	protected $signature = 'make:wp-role
         {name? : The name of the role.}';
 
-	// Giữ nguyên spacing trước | Eg:
-	protected $description = 'Create a new role.                        | Eg: bin/wpsp make:role custom_role';
+	protected $description = 'Create a new role.                        | Eg: bin/wpsp make:wp-role custom_role';
 
 	protected $help = 'This command allows you to create a role...';
 
@@ -47,7 +46,7 @@ class MakeRoleCommand extends Command {
 		}
 
 		// Create class file
-		$content = File::get(__DIR__ . '/../Stubs/Roles/role.stub');
+		$content = File::get(__DIR__ . '/../Stubs/WPRoles/wprole.stub');
 		$content = str_replace(
 			['{{ className }}', '{{ name }}', '{{ name_slugify }}'],
 			[$nameSlugify, $name, $nameSlugify],

@@ -26,7 +26,7 @@ class RouteMap extends BaseInstances {
 		$name      = $route->name;
 		$path      = $route->path;
 		$fullPath  = $route->fullPath;
-		$namespace = $route->namespace ?? $this->rootNamespace;
+		$namespace = $route->namespace;
 		$version   = $route->version;
 
 		if (!isset($this->map[$type])) {

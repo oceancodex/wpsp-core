@@ -15,7 +15,6 @@ class MakeScheduleCommand extends Command {
         {hook? : The hook of the schedule.}
         {interval? : The interval of the schedule.}';
 
-	// GIỮ NGUYÊN spacing như bản gốc
 	protected $description = 'Create a new schedule.                    | Eg: bin/wpsp make:schedule custom_schedule_hook hourly';
 
 	protected $help = 'This command allows you to create a schedule.';

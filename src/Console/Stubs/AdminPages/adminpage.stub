@@ -104,7 +104,7 @@ class {{ className }} extends BaseAdminPage {
 	public function afterLoad($adminPage) {}
 
 //	public function screenOptions($adminPage) {
-//		if ($this->request->get('tab') == 'table') {
+//		if ($this->currentTab == 'table') {
 //			parent::screenOptions($adminPage);
 //		}
 //	}

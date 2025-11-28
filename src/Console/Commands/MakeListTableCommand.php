@@ -13,7 +13,6 @@ class MakeListTableCommand extends Command {
 	protected $signature = 'make:list-table
         {name? : The name of the list table.}';
 
-	// Giữ nguyên spacing trong | Eg:
 	protected $description = 'Create a new list table.                  | Eg: bin/wpsp make:list-table MyListTable';
 
 	protected $help = 'This command allows you to create a list table.';

@@ -61,10 +61,6 @@ trait HookRunnerTrait {
 		}
 	}
 
-	/*
-	 *
-	 */
-
 	public function remove_hook($route) {
 		$method       = $route->method;
 		$path         = $route->path;

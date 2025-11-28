@@ -14,7 +14,6 @@ class MakePostTypeColumnCommand extends Command {
 	protected $signature = 'make:post-type-column
         {name? : The name of the post type column.}';
 
-	// Giữ nguyên spacing trước | Eg:
 	protected $description = 'Create a new post type column.            | Eg: bin/wpsp make:post-type-column my_custom_column';
 
 	protected $help = 'This command allows you to create a custom column for post type list table.';

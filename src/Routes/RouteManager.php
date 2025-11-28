@@ -77,7 +77,7 @@ class RouteManager extends BaseInstances {
 			'prefix'      => '',
 			'name'        => '',
 			'middlewares' => [],
-			'namespace'   => null,
+			'namespace'   => $this->funcs->_getRootNamespace() ?? null,
 			'version'     => null,
 		];
 
