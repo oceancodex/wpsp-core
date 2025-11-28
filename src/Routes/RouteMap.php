@@ -9,20 +9,6 @@ class RouteMap extends BaseInstances {
 
 	public array $map = [];
 
-	/** @var static */
-	public static $instance;
-
-	/*
-	 *
-	 */
-
-	public static function instance() {
-		if (!static::$instance) {
-			static::$instance = new static();
-		}
-		return static::$instance;
-	}
-
 	/*
 	 *
 	 */
@@ -31,21 +17,16 @@ class RouteMap extends BaseInstances {
 		return $this->map;
 	}
 
-	public function build(): void {
-		$filePath             = static::$funcs->_getMainPath('/.wpsp-routes.json');
-		$prepareMap           = [];
-		$prepareMap['scope']  = static::$funcs->_getPluginDirName();
-		$prepareMap['routes'] = $this->map;
-		$prepareMap           = json_encode($prepareMap, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-		File::put($filePath, $prepareMap);
-	}
+	/*
+	 *
+	 */
 
 	public function add($route): void {
 		$type      = $route->type;
 		$name      = $route->name;
 		$path      = $route->path;
 		$fullPath  = $route->fullPath;
-		$namespace = $route->namespace;
+		$namespace = $route->namespace ?? static::$rootNamespace;
 		$version   = $route->version;
 
 		if (!isset($this->map[$type])) {
@@ -61,6 +42,15 @@ class RouteMap extends BaseInstances {
 			'path'      => $path,
 			'full_path' => $fullPath,
 		];
+	}
+
+	public function build(): void {
+		$filePath             = static::$funcs->_getMainPath('/.wpsp-routes.json');
+		$prepareMap           = [];
+		$prepareMap['scope']  = static::$funcs->_getPluginDirName();
+		$prepareMap['routes'] = $this->map;
+		$prepareMap           = json_encode($prepareMap, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		File::put($filePath, $prepareMap);
 	}
 
 }

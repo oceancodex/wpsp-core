@@ -3,6 +3,7 @@
 namespace WPSPCORE\Traits;
 
 use Illuminate\Http\Request;
+use WPSPCORE\Funcs;
 
 /**
  * BaseInstancesTrait.
@@ -12,15 +13,16 @@ use Illuminate\Http\Request;
  */
 trait BaseInstancesTrait {
 
-	public static $funcs         = null;
-	public static $mainPath      = null;
-	public static $rootNamespace = null;
-	public static $prefixEnv     = null;
+	public static ?Funcs   $funcs         = null;
 
-	public static $extraParams   = [];
-	public static $request       = null;
+	public static ?string  $mainPath      = null;
+	public static ?string  $rootNamespace = null;
+	public static ?string  $prefixEnv     = null;
 
-	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = null) {
+	public static array    $extraParams   = [];
+	public static ?Request $request       = null;
+
+	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = null): void {
 		$this->instanceConstruct();
 		$this->beforeConstruct();
 		if ($mainPath)      static::$mainPath       = $mainPath;

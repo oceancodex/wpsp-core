@@ -27,8 +27,8 @@ class Apis extends BaseRoute {
 		static::$defaultNamespace = static::$funcs->_getAppShortName();
 	}
 
-	/*
-	 *
+	/**
+	 * Những method thực tế Route được phép gọi.
 	 */
 
 	public static function get($path, $callback, $args = []): RouteData {
@@ -43,10 +43,17 @@ class Apis extends BaseRoute {
 	 *
 	 */
 
+	/**
+	 * Đăng ký route với Route Manager.
+	 */
 	public static function register($method, $path, $callback, $args = []): RouteData {
 		return static::buildRoute($method, [$path, $callback, $args]);
 	}
 
+	/**
+	 * Xử lý route đã được đăng ký thông qua Route Manager.\
+	 * RouteManager::executeAllRoutes()
+	 */
 	public static function execute($route): void {
 		add_action('rest_api_init', function() use ($route) {
 			static::registerRestRoute($route);

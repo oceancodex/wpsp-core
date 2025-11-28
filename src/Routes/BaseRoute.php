@@ -7,7 +7,6 @@ use WPSPCORE\Traits\HookRunnerTrait;
 
 /**
  * Hỗ trợ gọi động: prefix(), name(), middleware(), group(),
- * và các HTTP verb (get/post/put/patch/delete/options)
  *
  * @method $this name(string $name)
  * @method $this group($callback)
