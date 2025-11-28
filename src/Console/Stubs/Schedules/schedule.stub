@@ -1,6 +1,6 @@
 <?php
 
-namespace {{ rootNamespace }}\App\Components\Schedules;
+namespace {{ rootNamespace }}\App\WP\Schedules;
 
 use {{ rootNamespace }}\Funcs;
 use {{ coreNamespace }}\Base\BaseSchedule;

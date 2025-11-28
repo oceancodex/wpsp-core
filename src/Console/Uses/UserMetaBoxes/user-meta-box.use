@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\Components\UserMetaBoxes\{{ id_slugify }};
+use {{ rootNamespace }}\App\WP\UserMetaBoxes\{{ id_slugify }};

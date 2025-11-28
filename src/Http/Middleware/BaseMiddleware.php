@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Http\Middleware;
 
-use WPSPCORE\Base\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseMiddleware extends BaseInstances {
 

@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\Components\Schedules\{{ hook_slugify }};
+use {{ rootNamespace }}\App\WP\Schedules\{{ hook_slugify }};

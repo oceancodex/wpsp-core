@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\Components\Taxonomies\{{ name_slugify }};
+use {{ rootNamespace }}\App\WP\Taxonomies\{{ name_slugify }};

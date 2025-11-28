@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\Components\Shortcodes\{{ name_slugify }};
+use {{ rootNamespace }}\App\WP\Shortcodes\{{ name_slugify }};

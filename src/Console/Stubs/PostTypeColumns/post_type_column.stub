@@ -1,5 +1,5 @@
 <?php
-namespace {{ rootNamespace }}\App\Components\PostTypeColumns;
+namespace {{ rootNamespace }}\App\WP\PostTypeColumns;
 
 use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ coreNamespace }}\Base\BasePostTypeColumn;

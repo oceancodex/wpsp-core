@@ -1,6 +1,6 @@
 <?php
 
-namespace {{ rootNamespace }}\App\Components\Roles;
+namespace {{ rootNamespace }}\App\WP\Roles;
 
 use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ coreNamespace }}\Base\BaseRole;

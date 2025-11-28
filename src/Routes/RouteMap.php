@@ -3,7 +3,7 @@
 namespace WPSPCORE\Routes;
 
 use Illuminate\Support\Facades\File;
-use WPSPCORE\Base\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 class RouteMap extends BaseInstances {
 

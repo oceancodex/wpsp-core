@@ -4,19 +4,20 @@ namespace WPSPCORE\Routes;
 
 class RouteData {
 
-	public         $funcs;
-	public ?string $type        = null;     // Loại route.
-	public ?string $route       = null;     // Class của Route trong WPSP: \WPSP\App\Instances\Routes\Apis
-	public ?string $parentRoute = null;     // Class cha của Route trong WPSPCORE: \WPSPCORE\Routes\Apis\Apis
-	public ?string $method      = null;     // HTTP method (GET, POST, ...)
-	public ?string $path        = null;     // Path của route
-	public ?string $fullPath    = null;     // Full path sau khi áp dụng prefix
-	public ?string $namespace   = null;
-	public ?string $version     = null;
-	public         $callback    = null;     // Controller action hoặc Closure
-	public array   $args        = [];
-	public ?string $name        = null;     // Tên route đầy đủ sau khi gọi ->name()
-	public array   $middlewares = [];       // Danh sách middleware áp dụng cho route
+	public ?string      $type        = null;     // Loại route.
+	public ?string      $route       = null;     // Class của Route trong WPSP: \WPSP\App\Instances\Routes\Apis
+	public ?string      $parentRoute = null;     // Class cha của Route trong WPSPCORE: \WPSPCORE\Routes\Apis\Apis
+	public ?string      $method      = null;     // HTTP method (GET, POST, ...)
+	public ?string      $path        = null;     // Path của route
+	public ?string      $fullPath    = null;     // Full path sau khi áp dụng prefix
+	public ?string      $namespace   = null;
+	public ?string      $version     = null;
+	public              $callback    = null;     // Controller action hoặc Closure
+	public array        $args        = [];
+	public ?string      $name        = null;     // Tên route đầy đủ sau khi gọi ->name()
+	public array        $middlewares = [];       // Danh sách middleware áp dụng cho route
+
+	public              $funcs       = null;     // Funcs.
 
 	/**
 	 * Lưu stack các tên group (name prefix) theo thứ tự.
@@ -45,6 +46,8 @@ class RouteData {
 		array $groupAttributes,
 		$funcs = null
 	) {
+		// Loại bỏ một số properties từ $funcs để gọn gàng hơn.
+		unset($funcs->request);
 
 		// Lấy prefix từ group, chuẩn hoá: đảm bảo luôn kết thúc bằng '/'
 		$prefix = $groupAttributes['prefix'] ?? '';
@@ -53,17 +56,17 @@ class RouteData {
 		}
 
 		// Gán thông tin cơ bản
-		$this->type        = $type;
-		$this->route       = $route;
-		$this->parentRoute = get_parent_class($route);
-		$this->method      = $method;
-		$this->path        = ltrim($path, '/');
-		$this->fullPath    = $prefix . $this->path;
-		$this->callback    = $callback;
-		$this->namespace   = $groupAttributes['namespace'] ?? null;
-		$this->version     = $groupAttributes['version'] ?? null;
-		$this->args        = $args;
-		$this->funcs       = $funcs;
+		$this->type          = $type;
+		$this->route         = $route;
+		$this->parentRoute   = get_parent_class($route);
+		$this->method        = $method;
+		$this->path          = ltrim($path, '/');
+		$this->fullPath      = $prefix . $this->path;
+		$this->callback      = $callback;
+		$this->namespace     = $groupAttributes['namespace'] ?? null;
+		$this->version       = $groupAttributes['version'] ?? null;
+		$this->args          = $args;
+		$this->funcs         = $funcs;
 
 
 		// Gộp middleware từ group (unique để tránh lặp)
@@ -84,7 +87,6 @@ class RouteData {
 	 * Thì name = "admin.index"
 	 */
 	public function name(string $name): RouteData {
-
 		// Ghép toàn bộ prefix name từ stack.
 		$prefix = implode('', $this->nameStack ?? []);
 
@@ -92,9 +94,7 @@ class RouteData {
 		$this->name = $prefix . $name;
 
 		// Add route map khi có name.
-		if (isset($this->funcs) && $this->name) {
-			$this->funcs->getRouteMap()->add($this);
-		}
+		$this->funcs->getRouteMap()->add($this);
 
 		return $this;
 	}
@@ -108,13 +108,12 @@ class RouteData {
 	 * phương thức này bổ sung thêm middleware mức route.
 	 */
 	public function middleware($middlewares): RouteData {
-
 		$middlewares = is_array($middlewares) ? $middlewares : [$middlewares];
 
 		$result = $this->middlewares ?: [];
 
 		foreach ($middlewares as $key => $middleware) {
-			if ($key === 'relation') {
+			if ($key == 'relation') {
 				$result['relation'] = $middleware;
 				continue;
 			}

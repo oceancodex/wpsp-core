@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\Components\NavigationMenus\Locations\{{ name_slugify }};
+use {{ rootNamespace }}\App\WP\NavigationMenus\Locations\{{ name_slugify }};

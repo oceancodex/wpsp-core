@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Routes;
 
-use WPSPCORE\Base\BaseInstances;
+use WPSPCORE\BaseInstances;
 use WPSPCORE\Traits\HookRunnerTrait;
 
 /**
@@ -290,7 +290,6 @@ abstract class BaseRoute extends BaseInstances {
 		if (array_key_exists('version', $this->pending)) {
 			$group['version'] = $this->pending['version'];
 		}
-
 
 		/**
 		 * 4) Tạo đối tượng RouteData

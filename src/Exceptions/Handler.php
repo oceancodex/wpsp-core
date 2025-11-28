@@ -1,7 +1,7 @@
 <?php
 namespace WPSPCORE\Exceptions;
 
-use WPSPCORE\Base\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 class Handler extends BaseInstances {
 

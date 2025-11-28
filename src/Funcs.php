@@ -4,7 +4,6 @@ namespace WPSPCORE;
 
 use Carbon\Carbon;
 use NumberFormatter;
-use WPSPCORE\Base\BaseInstances;
 
 class Funcs extends BaseInstances {
 

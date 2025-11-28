@@ -3,13 +3,12 @@
 namespace WPSPCORE\Routes\Actions;
 
 use WPSPCORE\Traits\HookRunnerTrait;
-use WPSPCORE\Traits\RouteTrait;
 
 trait ActionsRouteTrait {
 
-	use HookRunnerTrait, RouteTrait;
+	use HookRunnerTrait;
 
-	public function init() {
+	public function register() {
 		$this->actions();
 	}
 

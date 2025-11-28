@@ -3,21 +3,15 @@
 namespace WPSPCORE\Routes\RewriteFrontPages;
 
 use WPSPCORE\Traits\HookRunnerTrait;
-use WPSPCORE\Traits\RouteTrait;
 
 trait RewriteFrontPagesRouteTrait {
 
-	use HookRunnerTrait, RouteTrait;
+	use HookRunnerTrait;
 
-	public function init() {
+	public function register() {
 		$this->addQueryVars();
 		$this->rewrite_front_pages();
 		$this->hooks();
-	}
-
-	public function initForRouterMap() {
-		$this->rewrite_front_pages();
-		return $this;
 	}
 
 	/*
@@ -25,20 +19,20 @@ trait RewriteFrontPagesRouteTrait {
 	 */
 
 	private function addQueryVars() {
-		$this->filter('query_vars', function($query_vars) {
+		add_filter('query_vars', function($query_vars) {
 			$query_vars[] = 'is_rewrite';
 			$query_vars[] = $this->funcs->_config('app.short_name') . '_rewrite_ident';
 			for ($i = 1; $i <= 20; $i++) {
 				$query_vars[] = $this->funcs->_config('app.short_name') . '_rewrite_group_' . $i;
 			}
 			return $query_vars;
-		}, true, null, null, 10, 1);
+		}, 10, 1);
 
 		// Chặn redirect canonical cho các trang front page vì sử dụng "post_type" và "pagename" trong rewrite rules.
-		$this->filter('redirect_canonical', function($redirect_url, $requested_url) {
+		add_filter('redirect_canonical', function($redirect_url, $requested_url) {
 			if (get_query_var('is_rewrite') == 'true') return false;
 			return $redirect_url;
-		}, false, null, null, 10, 2);
+		}, 10, 2);
 	}
 
 	/*

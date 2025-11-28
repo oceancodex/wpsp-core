@@ -3,7 +3,7 @@
 namespace WPSPCORE\Auth;
 
 use Illuminate\Auth\AuthManager;
-use WPSPCORE\Base\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 abstract class Auth extends BaseInstances {
 

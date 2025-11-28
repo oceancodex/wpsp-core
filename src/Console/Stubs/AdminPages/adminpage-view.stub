@@ -1,9 +1,9 @@
 <?php
 
-namespace {{ rootNamespace }}\App\Components\AdminPages;
+namespace {{ rootNamespace }}\App\WP\AdminPages;
 
 use Illuminate\Http\Request;
-use {{ rootNamespace }}\App\Components\License\License;
+use {{ rootNamespace }}\App\WP\License\License;
 use {{ rootNamespace }}\App\Instances\Auth\Auth;
 use {{ rootNamespace }}\App\Instances\Cache\Cache;
 use {{ rootNamespace }}\App\Jobs\SendEmailJob;

@@ -1,6 +1,6 @@
 <?php
 
-namespace {{ rootNamespace }}\App\Components\NavigationMenus\Locations;
+namespace {{ rootNamespace }}\App\WP\NavigationMenus\Locations;
 
 use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ coreNamespace }}\Base\BaseNavigationLocation;

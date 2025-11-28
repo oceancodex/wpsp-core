@@ -3,7 +3,7 @@
 namespace WPSPCORE\Cache;
 
 use Illuminate\Cache\CacheManager;
-use WPSPCORE\Base\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 abstract class Cache extends BaseInstances {
 

@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\Components\RewriteFrontPages\{{ name_slugify }};
+use {{ rootNamespace }}\App\WP\RewriteFrontPages\{{ name_slugify }};

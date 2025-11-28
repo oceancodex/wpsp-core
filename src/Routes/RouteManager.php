@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\Routes;
 
-use WPSPCORE\Base\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 class RouteManager extends BaseInstances {
 
@@ -36,7 +36,7 @@ class RouteManager extends BaseInstances {
 	 *       'middlewares' => [...],
 	 *   ]
 	 */
-	public function pushGroupAttributes(array $attrs) {
+	public function pushGroupAttributes(array $attrs): void {
 
 		// Chuẩn hóa giá trị để đảm bảo đủ key prefix/name/middlewares
 		$attrs = [
@@ -55,7 +55,7 @@ class RouteManager extends BaseInstances {
 	 * Pop group attribute cuối cùng khỏi stack.
 	 * Gọi khi kết thúc một group().
 	 */
-	public function popGroupAttributes() {
+	public function popGroupAttributes(): void {
 		array_pop($this->groupStack);
 	}
 
@@ -156,7 +156,7 @@ class RouteManager extends BaseInstances {
 	 * Lưu một route vào danh sách tất cả routes.
 	 * Route được truyền vào là những đối tượng RouteData đã hoàn chỉnh.
 	 */
-	public function addRoute(RouteData $route) {
+	public function addRoute(RouteData $route): void {
 		$this->routes[] = $route;
 	}
 
@@ -164,16 +164,17 @@ class RouteManager extends BaseInstances {
 	 * Lấy toàn bộ route đã tạo.
 	 */
 	public function all(): array {
-		return array_map(function($route) {
-			unset($route->funcs);
-			return $route;
-		}, $this->routes);
+		return $this->routes;
+//		return array_map(function($route) {
+//			unset($route->funcs);
+//			return $route;
+//		}, $this->routes);
 	}
 
 	/**
 	 * Chạy tất cả các route đã tạo.
 	 */
-	public function executeAllRoutes() {
+	public function executeAllRoutes(): void {
 		foreach ($this->routes as $routeItem) {
 			$type        = $routeItem->type;
 			$route       = $routeItem->route;

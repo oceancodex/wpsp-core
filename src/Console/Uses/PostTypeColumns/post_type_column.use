@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\Components\PostTypeColumns\{{ name_slugify }};
+use {{ rootNamespace }}\App\WP\PostTypeColumns\{{ name_slugify }};
