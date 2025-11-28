@@ -42,7 +42,7 @@ class MakeShortcodeCommand extends Command {
 		$createView  = $createView ?? $this->option('create-view');
 
 		// Paths
-		$classPath = $mainPath . '/app/Components/Shortcodes/' . $nameSlugify . '.php';
+		$classPath = $mainPath . '/app/WP/Shortcodes/' . $nameSlugify . '.php';
 		$viewPath  = $mainPath . '/resources/views/modules/shortcodes/' . $name . '.blade.php';
 
 		// Check exists

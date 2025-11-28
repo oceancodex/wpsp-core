@@ -8,9 +8,9 @@ abstract class BaseListTable extends \WP_List_Table {
 
 	use BaseInstancesTrait;
 
-	public $defaultOrder    = 'asc';
-	public $defaultOrderBy  = 'id';
-	public $removeQueryVars = [];
+	public string $defaultOrder    = 'asc';
+	public string $defaultOrderBy  = 'id';
+	public array  $removeQueryVars = [];
 
 	public function __construct($args = [], $mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 		parent::__construct($args);

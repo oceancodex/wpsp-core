@@ -38,7 +38,7 @@ class MakeListTableCommand extends Command {
 		$this->validateClassName($name);
 
 		// Build path
-		$path = $mainPath . '/app/Components/ListTables/' . $name . '.php';
+		$path = $mainPath . '/app/WP/ListTables/' . $name . '.php';
 
 		// Check exists? (FileSystem trước đây không check)
 		// Nếu muốn check trùng, uncomment:

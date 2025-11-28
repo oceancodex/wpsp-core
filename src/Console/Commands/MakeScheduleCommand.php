@@ -48,7 +48,7 @@ class MakeScheduleCommand extends Command {
 		$intervalSlugify = Str::slug($interval, '_');
 
 		// Path
-		$path = $mainPath . '/app/Components/Schedules/' . $hookSlugify . '.php';
+		$path = $mainPath . '/app/WP/Schedules/' . $hookSlugify . '.php';
 
 		// Check exists
 		if (File::exists($path)) {

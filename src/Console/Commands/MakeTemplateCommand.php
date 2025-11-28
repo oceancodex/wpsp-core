@@ -41,7 +41,7 @@ class MakeTemplateCommand extends Command {
 		/* -------------------------------------------------
 		 *  Check exists
 		 * ------------------------------------------------- */
-		$classPath = $mainPath . '/app/Components/Templates/' . $nameSlugify . '.php';
+		$classPath = $mainPath . '/app/WP/Templates/' . $nameSlugify . '.php';
 		$viewPath  = $mainPath . '/resources/views/modules/templates/' . $name . '.php';
 
 		if (File::exists($classPath)) {

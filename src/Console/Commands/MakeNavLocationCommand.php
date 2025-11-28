@@ -41,7 +41,7 @@ class MakeNavLocationCommand extends Command {
 		$this->validateClassName($nameSlugify);
 
 		// Path for class file
-		$path = $mainPath . '/app/Components/NavigationMenus/Locations/' . $nameSlugify . '.php';
+		$path = $mainPath . '/app/WP/NavigationMenus/Locations/' . $nameSlugify . '.php';
 
 		// Create content
 		$content = File::get(__DIR__ . '/../Stubs/NavigationMenus/Locations/navlocation.stub');

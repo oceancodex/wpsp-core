@@ -45,7 +45,7 @@ class MakeUserMetaBoxCommand extends Command {
 		/* -------------------------------------------------
 		 *  CHECK EXISTS
 		 * ------------------------------------------------- */
-		$classPath = $mainPath . '/app/Components/UserMetaBoxes/' . $idSlugify . '.php';
+		$classPath = $mainPath . '/app/WP/UserMetaBoxes/' . $idSlugify . '.php';
 		$viewDir   = $mainPath . '/resources/views/modules/user-meta-boxes/' . $idSlugify;
 
 		if (File::exists($classPath) || File::exists($viewDir)) {

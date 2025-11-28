@@ -40,7 +40,7 @@ class MakeTaxonomyColumnCommand extends Command {
 		$this->validateClassName($name);
 
 		// Path
-		$path = $mainPath . '/app/Components/TaxonomyColumns/' . $name . '.php';
+		$path = $mainPath . '/app/WP/TaxonomyColumns/' . $name . '.php';
 
 		// Check exists
 		if (File::exists($path)) {

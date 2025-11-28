@@ -45,7 +45,7 @@ class MakeMetaBoxCommand extends Command {
 		$idSlugify = Str::slug($id, '_');
 
 		// Check exists
-		$componentPath = $mainPath . '/app/Components/MetaBoxes/' . $idSlugify . '.php';
+		$componentPath = $mainPath . '/app/WP/MetaBoxes/' . $idSlugify . '.php';
 		$viewPath      = $mainPath . '/resources/views/modules/meta-boxes/' . $id . '.blade.php';
 
 		if (File::exists($componentPath)) {

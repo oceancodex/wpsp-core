@@ -47,7 +47,7 @@ class MakeAdminPageCommand extends Command {
 		$this->validateClassName($nameSlugify);
 
 		// Prepare paths.
-		$adminClassPath = $mainPath . '/app/Components/AdminPages/' . $nameSlugify . '.php';
+		$adminClassPath = $mainPath . '/app/WP/AdminPages/' . $nameSlugify . '.php';
 		$viewDirPath    = $mainPath . '/resources/views/modules/admin-pages/' . $path;
 
 		// Check exist.

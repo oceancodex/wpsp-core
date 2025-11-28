@@ -53,7 +53,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		$useTemplate            = $useTemplate ?? $this->option('use-template') ?: false;
 
 		// Check exists
-		$componentPath = $mainPath . '/app/Components/RewriteFrontPages/' . $nameSlugify . '.php';
+		$componentPath = $mainPath . '/app/WP/RewriteFrontPages/' . $nameSlugify . '.php';
 		$viewPath      = $mainPath . '/resources/views/modules/rewrite-front-pages/' . $path . '.blade.php';
 
 		if (File::exists($componentPath) || File::exists($viewPath)) {
