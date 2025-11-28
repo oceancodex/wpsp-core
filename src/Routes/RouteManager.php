@@ -164,7 +164,10 @@ class RouteManager extends BaseInstances {
 	 * Lấy toàn bộ route đã tạo.
 	 */
 	public function all(): array {
-		return $this->routes;
+		return array_map(function($route) {
+			unset($route->funcs);
+			return $route;
+		}, $this->routes);
 	}
 
 	/**
