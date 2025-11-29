@@ -16,6 +16,6 @@ trait ActionsRouteTrait {
      *
      */
 
-	public function actions() {}
+	abstract public function actions();
 
 }

@@ -3,8 +3,11 @@
 namespace WPSPCORE\WP\AdminPages;
 
 use WPSPCORE\BaseInstances;
+use WPSPCORE\Routes\RouteTrait;
 
 abstract class BaseAdminPage extends BaseInstances {
+
+	use RouteTrait;
 
 	public $menu_title                  = null;
 	public $page_title                  = null;
@@ -57,9 +60,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	private function addMenuPage(): string {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
-			$callback = function() {
-				return $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
-			};
+			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);;
 		}
 		$menuPage = add_menu_page(
 			$this->page_title,
@@ -91,9 +92,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	private function addSubMenuPage() {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
-			$callback = function() {
-				return $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
-			};
+			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
 		}
 		return add_submenu_page(
 			$this->parent_slug,

@@ -69,8 +69,8 @@ class AdminPages extends BaseRoute {
 			)
 			&&
 			(
-				($request->get('page') == $fullPath && preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath))
-				|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)
+				($request->get('page') == $fullPath && preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath))
+				|| preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
 			)
 		) {
 			if ($this->isPassedMiddleware($middlewares, $request, ['route' => $route])) {
@@ -121,7 +121,7 @@ class AdminPages extends BaseRoute {
 					!isset($callback[1])
 					|| $callback[1] == 'index'
 					|| $request->get('page') == $fullPath
-					|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)
+					|| preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
 				)
 			)
 		) {
@@ -183,7 +183,7 @@ class AdminPages extends BaseRoute {
 				}
 				else {
 					if (isset($callback[1]) && is_string($callback[1]) && $callback[1] !== 'index') {
-						if (preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)) {
+						if (preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
 							$callback   = $this->prepareRouteCallback($callback, $constructParams);
 							$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
 							$this->resolveAndCall($callback, $callParams);
@@ -197,7 +197,7 @@ class AdminPages extends BaseRoute {
 					}
 				}
 			}
-			elseif (preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)) {
+			elseif (preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
 				wp_die(
 					'<h1>ERROR: 403 - Truy cập bị từ chối</h1>' .
 					'<p>Bạn không được phép truy cập vào trang này.</p>',

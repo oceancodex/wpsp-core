@@ -50,7 +50,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			// Fix "404" for custom permalinks.
 			add_action('parse_request', function($wp) use ($path, $requestPath, $stringMatches) {
 				try {
-					$matched = preg_match('/' . $this->funcs->_escapeRegex($path) . '/iu', $requestPath);
+					$matched = preg_match('/' . $this->funcs->_regexPath($path) . '/iu', $requestPath);
 					if (!$matched) {
 						$matched = preg_match('/' . $path . '/iu', $requestPath);
 					}
@@ -82,7 +82,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 				// Access URL that match rewrite rule.
 				add_action('wp', function() use ($path, $requestPath) {
 					try {
-						$matched = preg_match('/' . $this->funcs->_escapeRegex($path) . '/iu', $requestPath);
+						$matched = preg_match('/' . $this->funcs->_regexPath($path) . '/iu', $requestPath);
 						if (!$matched) {
 							$matched = preg_match('/' . $path . '/iu', $requestPath);
 						}
@@ -110,14 +110,6 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			$this->path = $path;
 		}
 	}
-
-	/*
-	 *
-	 */
-
-//	abstract public function access();
-
-	abstract public function customProperties();
 
 	/*
 	 *

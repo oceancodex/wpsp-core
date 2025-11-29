@@ -50,8 +50,8 @@ class Apis extends BaseRoute {
 		$namespace   = $route->namespace ?? $this->defaultNamespace;
 		$version     = $route->version ?? $this->defaultVersion;
 
-		$path     = $this->convertPathToRegex($path);
-		$fullPath = $this->convertPathToRegex($fullPath);
+		$path     = $this->funcs->_regexPath($path);
+		$fullPath = $this->funcs->_regexPath($fullPath);
 
 		$constructParams = [
 			[

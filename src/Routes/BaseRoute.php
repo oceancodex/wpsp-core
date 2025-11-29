@@ -17,7 +17,7 @@ use WPSPCORE\Traits\HookRunnerTrait;
  */
 abstract class BaseRoute extends BaseInstances {
 
-	use BaseRouteTrait, HookRunnerTrait;
+	use RouteTrait, HookRunnerTrait;
 
 	/**
 	 * Instance ví dụ: \WPSP\App\Instances\Routes\Apis

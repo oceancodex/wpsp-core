@@ -8,6 +8,23 @@ trait RewriteFrontPagesRouteTrait {
 
 	use HookRunnerTrait;
 
+	public $funcs;
+	public $mainPath;
+	public $rootNamespace;
+	public $prefixEnv;
+
+	/*
+	 *
+	 */
+
+	public function __construct() {
+		$this->instanceConstruct();
+	}
+
+	/*
+	 *
+	 */
+
 	public function register() {
 		$this->addQueryVars();
 		$this->rewrite_front_pages();
@@ -68,7 +85,7 @@ trait RewriteFrontPagesRouteTrait {
 			&& $this->request->isMethod('GET')
 			&& $this->isPassedMiddleware($allMiddlewares, $this->request, [
 				'path' => $fullPath,
-				'custom_properties' => $customProperties
+				'custom_properties' => $customProperties,
 			])
 		) {
 			$constructParams = [
@@ -76,7 +93,7 @@ trait RewriteFrontPagesRouteTrait {
 					'path'              => $fullPath,
 					'callback_function' => $callback[1] ?? null,
 					'custom_properties' => $customProperties,
-				]
+				],
 			];
 			$constructParams = array_merge([
 				$this->funcs->_getMainPath(),
@@ -142,7 +159,7 @@ trait RewriteFrontPagesRouteTrait {
 					'path'              => $fullPath,
 					'callback_function' => $callback[1] ?? null,
 					'custom_properties' => $customProperties,
-				]
+				],
 			];
 			$constructParams = array_merge([
 				$this->funcs->_getMainPath(),

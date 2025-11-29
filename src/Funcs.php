@@ -732,44 +732,33 @@ class Funcs extends BaseInstances {
 		return $this->_wantsJson();
 	}
 
-	public function _escapeRegex($pattern, $delimiter = '/'): string {
-		$result = '';
-		$depth  = 0;
-		$buffer = '';
-
-		for ($i = 0; $i < strlen($pattern); $i++) {
-			$char = $pattern[$i];
-
-			if ($char === '(') {
-				if ($depth === 0 && $buffer !== '') {
-					$result .= preg_quote($buffer, $delimiter);
-					$buffer = '';
-				}
-				$depth++;
-				$result .= $char;
-			}
-			elseif ($char === ')') {
-				$depth--;
-				$result .= $char;
-				if ($depth === 0) {
-					// Continue dynamic regex directly
-				}
-			}
-			else {
-				if ($depth > 0) {
-					$result .= $char;
-				}
-				else {
-					$buffer .= $char;
-				}
-			}
+	public function _regexPath(string $pattern, string $delimiter = '/'): string {
+		// 0. Nếu chứa ký tự escaped slash -> đang là regex thật -> trả về nguyên
+		if (strpos($pattern, '\/') !== false) {
+			return $pattern;
 		}
 
-		if ($buffer !== '') {
-			$result .= preg_quote($buffer, $delimiter);
+		// 1. Nếu có regex group thật -> trả về nguyên
+		if (preg_match('/\((\?[:P=!<][^)]*|[^)]*)\)/', $pattern)) {
+			return $pattern;
 		}
 
-		return $result;
+		// 2. Optional params {id?}
+		if (preg_match('/\{\w+\?\}/', $pattern)) {
+			$pattern = preg_replace_callback('/\{(\w+)\?\}/', function($m) {
+				return '(?:/(?P<' . $m[1] . '>[^/]+))?';
+			}, $pattern);
+			return $pattern;
+		}
+
+		// 3. Required params {id}
+		if (preg_match('/\{\w+\}/', $pattern)) {
+			$pattern = preg_replace('/\{(\w+)\}/', '(?P<$1>[^/]+)', $pattern);
+			return $pattern;
+		}
+
+		// 4. Không có regex, không param -> escape path thuần
+		return preg_quote($pattern, $delimiter);
 	}
 
 	public function _sanitizeURL($url) {

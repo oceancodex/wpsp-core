@@ -3,13 +3,12 @@
 namespace WPSPCORE\Routes\Filters;
 
 use WPSPCORE\Traits\HookRunnerTrait;
-use WPSPCORE\Traits\RouteTrait;
 
 trait FiltersRouteTrait {
 
-	use HookRunnerTrait, RouteTrait;
+	use HookRunnerTrait;
 
-	public function init() {
+	public function register() {
 		$this->filters();
 	}
 
@@ -17,6 +16,6 @@ trait FiltersRouteTrait {
      *
      */
 
-	public function filters() {}
+	abstract public function filters();
 
 }
