@@ -15,8 +15,8 @@ use WPSPCORE\Routes\BaseRoute;
  */
 class Apis extends BaseRoute {
 
-	public string $defaultNamespace = 'wpsp';
-	public string $defaultVersion   = 'v1';
+	public $defaultNamespace = 'wpsp';
+	public $defaultVersion   = 'v1';
 
 	/*
 	 *
@@ -74,14 +74,14 @@ class Apis extends BaseRoute {
 			$fullPath,
 			[
 				'methods' => strtoupper($method),
-				'callback' => function(\WP_REST_Request $wpRestRequest) use ($callback, $path, $fullPath, $requestPath) {
+				'callback' => function(\WP_REST_Request $wpRestRequest) use ($callback, $path, $fullPath, $requestPath, $route) {
 					$callParams = $this->getCallParams(
 						$path,
 						$fullPath,
 						$requestPath,
 						$callback[0],
 						$callback[1],
-						['wpRestRequest' => $wpRestRequest]
+						['wpRestRequest' => $wpRestRequest, 'route' => $route]
 					);
 					return $this->resolveAndCall($callback, $callParams);
 				},
@@ -92,14 +92,10 @@ class Apis extends BaseRoute {
 //					    }
 //				    ],
 				],
-				'permission_callback' => function(\WP_REST_Request $request) use ($path, $fullPath, $middlewares) {
+				'permission_callback' => function(\WP_REST_Request $request) use ($route, $middlewares) {
 					static $permissionCallback = null;
 					if ($permissionCallback !== null) return $permissionCallback;
-					$permissionCallback = $this->isPassedMiddleware($middlewares, $request, [
-						'path'        => $path,
-						'full_path'   => $fullPath,
-						'middlewares' => $middlewares,
-					]);
+					$permissionCallback = $this->isPassedMiddleware($middlewares, $request, ['route' => $route]);
 					return $permissionCallback;
 				},
 			],

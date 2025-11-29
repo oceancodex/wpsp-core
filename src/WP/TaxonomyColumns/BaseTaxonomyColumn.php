@@ -13,6 +13,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 	use ObjectToArrayTrait;
 
 	public $column                  = null;
+	public $column_title            = null;
 	public $column_add_priority     = 10;
 	public $column_content_priority = 0;
 	public $taxonomies              = ['category'];
@@ -54,7 +55,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 
 						foreach ($columns as $key => $value) {
 							if (in_array($key, $before_columns)) {
-								$new_columns[$column] = $column;
+								$new_columns[$column] = $this->column_title ?? $column;
 								$inserted = true;
 							}
 							$new_columns[$key] = $value;
@@ -67,7 +68,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 						foreach ($columns as $key => $value) {
 							$new_columns[$key] = $value;
 							if (in_array($key, $after_columns)) {
-								$new_columns[$column] = $column;
+								$new_columns[$column] = $this->column_title ?? $column;
 								$inserted = true;
 							}
 						}
@@ -79,7 +80,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 
 						foreach ($columns as $key => $value) {
 							if ($i === $position) {
-								$new_columns[$column] = $column;
+								$new_columns[$column] = $this->column_title ?? $column;
 								$inserted = true;
 							}
 							$new_columns[$key] = $value;
@@ -88,14 +89,14 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 
 						// Nếu position lớn hơn số lượng columns hiện tại
 						if (!$inserted) {
-							$new_columns[$column] = $column;
+							$new_columns[$column] = $this->column_title ?? $column;
 							$inserted = true;
 						}
 					}
 
 					// Nếu chưa insert được (trường hợp không tìm thấy before/after column)
 					if (!$inserted) {
-						$new_columns[$column] = $column;
+						$new_columns[$column] = $this->column_title ?? $column;
 					}
 
 					return $new_columns;
@@ -139,10 +140,12 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 	 *
 	 */
 
-	abstract public function customProperties();
+	public function afterInit() {}
+
+	/*
+	 *
+	 */
 
 	abstract public function index($content, $columnName, $termId);
-
-	abstract public function afterInit();
 
 }

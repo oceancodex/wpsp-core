@@ -11,7 +11,7 @@ abstract class BaseMetaBox extends BaseInstances {
 	public $screen            = 'post';
 	public $context           = 'advanced';
 	public $priority          = 'default';
-	public $callback_args     = null;
+	public $callback_args     = [];
 	public $callback_function = null;
 
 	/*
@@ -47,13 +47,5 @@ abstract class BaseMetaBox extends BaseInstances {
 			);
 		}
 	}
-
-	/*
-	 *
-	 */
-
-//	abstract public function index($post, $meta_box);
-
-	abstract public function customProperties();
 
 }

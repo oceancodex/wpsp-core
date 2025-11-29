@@ -6,13 +6,14 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseTemplates extends BaseInstances {
 
-	public $name  = null;
-	public $label = null;
-	public $path  = null;
+	public $name              = null;
+	public $label             = null;
+	public $path              = null;
+	public $callback_function = null;
 
-	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
-		parent::__construct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
-		$this->overrideName($extraParams['name']);
+	public function afterConstruct() {
+		$this->callback_function = $this->extraParams['callback_function'] ?? null;
+		$this->overrideName($this->extraParams['name']);
 		$this->customProperties();
 		$this->templateInclude();
 	}
@@ -46,12 +47,6 @@ abstract class BaseTemplates extends BaseInstances {
 			$this->name = $name;
 		}
 	}
-
-	/*
-	 *
-	 */
-
-	abstract public function customProperties();
 
 	/*
 	 *

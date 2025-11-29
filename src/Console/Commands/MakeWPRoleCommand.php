@@ -38,7 +38,7 @@ class MakeWPRoleCommand extends Command {
 		$nameSlugify = Str::slug($name, '_');
 
 		// Check exists
-		$path = $mainPath . '/app/WP/Roles/' . $nameSlugify . '.php';
+		$path = $mainPath . '/app/WP/WPRoles/' . $nameSlugify . '.php';
 
 		if (File::exists($path)) {
 			$this->error('[ERROR] Role: "' . $name . '" already exists! Please try again.');
@@ -58,7 +58,7 @@ class MakeWPRoleCommand extends Command {
 		File::put($path, $content);
 
 		// Func line
-		$func = File::get(__DIR__ . '/../Funcs/Roles/role.func');
+		$func = File::get(__DIR__ . '/../Funcs/WPRoles/wprole.func');
 		$func = str_replace(
 			['{{ name }}', '{{ name_slugify }}'],
 			[$name, $nameSlugify],
@@ -66,7 +66,7 @@ class MakeWPRoleCommand extends Command {
 		);
 
 		// Use line
-		$use = File::get(__DIR__ . '/../Uses/Roles/role.use');
+		$use = File::get(__DIR__ . '/../Uses/WPRoles/wprole.use');
 		$use = str_replace(
 			['{{ name }}', '{{ name_slugify }}'],
 			[$name, $nameSlugify],

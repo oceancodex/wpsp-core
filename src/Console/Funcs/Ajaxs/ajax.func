@@ -1,4 +1,4 @@
-		$this->{{ method }}('{{ action }}', [AjaxsController::class, 'ajaxDemoGet'], {{ nopriv }}, true, null, [
+		Route::{{ method }}('{{ action }}', [AjaxsController::class, 'ajaxDemoGet'], {{ nopriv }}, true, null, [
 //			'relation' => 'OR',
 //			[AdministratorCapability::class, 'handle'],
 //			[EditorCapability::class]

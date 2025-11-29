@@ -69,7 +69,7 @@ class TaxonomyData {
 	public $_builtin;
 
 	// Custom properties.
-	public $preparedName;
+	public $preparedName = null;
 	public $taxonomyInstance;
 	public $previousArgs;
 
@@ -110,34 +110,34 @@ class TaxonomyData {
 	}
 
 	public function prepareLabels() {
-		$this->labels['name']                       = $this->preparedName;
-		$this->labels['singular_name']              = $this->preparedName;
-		$this->labels['search_items']               = 'Search ' . $this->preparedName;
-		$this->labels['popular_items']              = 'Popular ' . $this->preparedName;
-		$this->labels['all_items']                  = 'All ' . $this->preparedName;
-		$this->labels['parent_item']                = 'Parent ' . $this->preparedName;
-		$this->labels['parent_item_colon']          = 'Parent ' . $this->preparedName . ':';
-		$this->labels['name_field_description']     = 'The name is how it appears on your site';
-		$this->labels['slug_field_description']     = 'The “slug” is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens';
-		$this->labels['parent_field_description']   = 'Assign a parent term to create a hierarchy. The term Jazz, for example, would be the parent of Bebop and Big Band';
-		$this->labels['desc_field_description']     = 'The description is not prominent by default; however, some themes may show it';
-		$this->labels['edit_item']                  = 'Edit ' . $this->preparedName;
-		$this->labels['view_item']                  = 'View ' . $this->preparedName;
-		$this->labels['update_item']                = 'Update ' . $this->preparedName;
-		$this->labels['add_new_item']               = 'Add new ' . $this->preparedName;
-		$this->labels['new_item_name']              = 'New ' . $this->preparedName . ' name';
-		$this->labels['separate_items_with_commas'] = 'Separate ' . $this->preparedName . ' with commas';
-		$this->labels['add_or_remove_items']        = 'Add or remove ' . $this->preparedName;
-		$this->labels['choose_from_most_used']      = 'Choose from the most used ' . $this->preparedName;
-		$this->labels['not_found']                  = 'No ' . $this->preparedName . ' found';
-		$this->labels['no_terms']                   = 'No ' . $this->preparedName;
-		$this->labels['filter_by_item']             = 'Filter by ' . $this->preparedName;
-		$this->labels['items_list_navigation']      = '';
-		$this->labels['items_list']                 = '';
-		$this->labels['most_used']                  = 'Most ' . $this->preparedName . ' used';
-		$this->labels['back_to_items']              = 'Back to ' . $this->preparedName;
-		$this->labels['item_link']                  = $this->preparedName . ' link';
-		$this->labels['item_link_description']      = 'A link to a ' . $this->preparedName;
+		$this->labels['name']                       = $this->previousArgs->labels['name'] ?? $this->preparedName;
+		$this->labels['singular_name']              = $this->previousArgs->labels['singular_name'] ?? $this->preparedName;
+		$this->labels['search_items']               = $this->previousArgs->labels['search_items'] ?? 'Search ' . $this->preparedName;
+		$this->labels['popular_items']              = $this->previousArgs->labels['popular_items'] ?? 'Popular ' . $this->preparedName;
+		$this->labels['all_items']                  = $this->previousArgs->labels['all_items'] ?? 'All ' . $this->preparedName;
+		$this->labels['parent_item']                = $this->previousArgs->labels['parent_item'] ?? 'Parent ' . $this->preparedName;
+		$this->labels['parent_item_colon']          = $this->previousArgs->labels['parent_item_colon'] ?? 'Parent ' . $this->preparedName . ':';
+		$this->labels['name_field_description']     = $this->previousArgs->labels['name_field_description'] ?? 'The name is how it appears on your site';
+		$this->labels['slug_field_description']     = $this->previousArgs->labels['slug_field_description'] ?? 'The “slug” is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens';
+		$this->labels['parent_field_description']   = $this->previousArgs->labels['parent_field_description'] ?? 'Assign a parent term to create a hierarchy. The term Jazz, for example, would be the parent of Bebop and Big Band';
+		$this->labels['desc_field_description']     = $this->previousArgs->labels['desc_field_description'] ?? 'The description is not prominent by default; however, some themes may show it';
+		$this->labels['edit_item']                  = $this->previousArgs->labels['edit_item'] ?? 'Edit ' . $this->preparedName;
+		$this->labels['view_item']                  = $this->previousArgs->labels['view_item'] ?? 'View ' . $this->preparedName;
+		$this->labels['update_item']                = $this->previousArgs->labels['update_item'] ?? 'Update ' . $this->preparedName;
+		$this->labels['add_new_item']               = $this->previousArgs->labels['add_new_item'] ?? 'Add new ' . $this->preparedName;
+		$this->labels['new_item_name']              = $this->previousArgs->labels['new_item_name'] ?? 'New ' . $this->preparedName . ' name';
+		$this->labels['separate_items_with_commas'] = $this->previousArgs->labels['separate_items_with_commas'] ?? 'Separate ' . $this->preparedName . ' with commas';
+		$this->labels['add_or_remove_items']        = $this->previousArgs->labels['add_or_remove_items'] ?? 'Add or remove ' . $this->preparedName;
+		$this->labels['choose_from_most_used']      = $this->previousArgs->labels['choose_from_most_used'] ?? 'Choose from the most used ' . $this->preparedName;
+		$this->labels['not_found']                  = $this->previousArgs->labels['not_found'] ?? 'No ' . $this->preparedName . ' found';
+		$this->labels['no_terms']                   = $this->previousArgs->labels['no_terms'] ?? 'No ' . $this->preparedName;
+		$this->labels['filter_by_item']             = $this->previousArgs->labels['filter_by_item'] ?? 'Filter by ' . $this->preparedName;
+		$this->labels['items_list_navigation']      = $this->previousArgs->labels['items_list_navigation'] ?? '';
+		$this->labels['items_list']                 = $this->previousArgs->labels['items_list'] ?? '';
+		$this->labels['most_used']                  = $this->previousArgs->labels['most_used'] ?? 'Most ' . $this->preparedName . ' used';
+		$this->labels['back_to_items']              = $this->previousArgs->labels['back_to_items'] ?? 'Back to ' . $this->preparedName;
+		$this->labels['item_link']                  = $this->previousArgs->labels['item_link'] ?? $this->preparedName . ' link';
+		$this->labels['item_link_description']      = $this->previousArgs->labels['item_link_description'] ?? 'A link to a ' . $this->preparedName;
 		unset($this->preparedName);
 		foreach ($this->labels as $key => $label) {
 			unset($this->{$key});
@@ -145,16 +145,27 @@ class TaxonomyData {
 	}
 
 	public function prepareCustomVariables() {
-		$this->preparedName = $this->previousArgs->labels['name']
-			?? $this->previousArgs->labels['singular_name']
-			?? $this->taxonomyInstance->args->labels['name']
-			?? $this->taxonomyInstance->args->labels['singular_name']
-			?? $this->taxonomyInstance->taxonomy
-			?? $this->name
-			?? $this->singular_name
-			?? $this->taxonomy;
+		if ($this->previousArgs) {
+			$this->preparedName = $this->previousArgs->labels['name']
+				?? $this->previousArgs->labels['singular_name']
+				?? $this->taxonomyInstance->args->labels['name']
+				?? $this->taxonomyInstance->args->labels['singular_name']
+				?? $this->taxonomyInstance->taxonomy
+				?? $this->name
+				?? $this->singular_name
+				?? $this->taxonomy
+				?? null;
+		}
+		else {
+			$this->preparedName = $this->taxonomyInstance->name
+				?? $this->taxonomyInstance->singular_name
+				?? $this->taxonomyInstance->taxonomy
+				?? $this->name
+				?? $this->singular_name
+				?? $this->taxonomy
+				?? null;
+		}
 		unset($this->taxonomyInstance);
-		unset($this->previousArgs);
 	}
 
 }

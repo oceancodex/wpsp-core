@@ -22,10 +22,7 @@ class PostTypes extends BaseRoute {
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares;
 
-		if ($this->isPassedMiddleware($middlewares, $this->request, [
-			'post_type'   => $postType,
-			'middlewares' => $middlewares,
-		])) {
+		if ($this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
 			if (is_array($callback) || is_callable($callback) || is_null($callback[1])) {
 				$constructParams = [
 					$this->funcs->_getMainPath(),

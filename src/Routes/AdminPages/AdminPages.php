@@ -73,11 +73,7 @@ class AdminPages extends BaseRoute {
 				|| preg_match('/' . $this->funcs->_escapeRegex($fullPath) . '$/iu', $requestPath)
 			)
 		) {
-			if ($this->isPassedMiddleware($middlewares, $request, [
-				'path'        => $path,
-				'full_path'   => $fullPath,
-				'middlewares' => $middlewares,
-			])) {
+			if ($this->isPassedMiddleware($middlewares, $request, ['route' => $route])) {
 				$constructParams = [
 					$this->funcs->_getMainPath(),
 					$this->funcs->_getRootNamespace(),
@@ -129,7 +125,7 @@ class AdminPages extends BaseRoute {
 				)
 			)
 		) {
-			if ($this->isPassedMiddleware($middlewares, $request, ['path' => $path, 'full_path' => $fullPath, 'middlewares' => $middlewares])) {
+			if ($this->isPassedMiddleware($middlewares, $request, ['route' => $route])) {
 				$constructParams = [
 					$this->funcs->_getMainPath(),
 					$this->funcs->_getRootNamespace(),

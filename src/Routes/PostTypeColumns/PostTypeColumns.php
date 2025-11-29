@@ -23,11 +23,7 @@ class PostTypeColumns extends BaseRoute {
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares;
 
-		if ($this->isPassedMiddleware($middlewares, $this->request, [
-			'column'      => $column,
-			'full_column' => $fullColumn,
-			'middlewares' => $middlewares,
-		])) {
+		if ($this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
 			if (is_array($callback)) {
 				$constructParams = [
 					$this->funcs->_getMainPath(),

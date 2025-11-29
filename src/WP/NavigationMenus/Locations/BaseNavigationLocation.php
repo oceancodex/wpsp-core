@@ -33,10 +33,6 @@ abstract class BaseNavigationLocation extends BaseInstances {
 		}
 	}
 
-	/*
-	 *
-	 */
-
 
 	/*
 	 *
@@ -47,11 +43,5 @@ abstract class BaseNavigationLocation extends BaseInstances {
 			$this->location = $location;
 		}
 	}
-
-	/*
-	 *
-	 */
-
-	abstract public function customProperties();
 
 }

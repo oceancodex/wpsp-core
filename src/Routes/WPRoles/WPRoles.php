@@ -26,7 +26,7 @@ class WPRoles extends BaseRoute {
 		$callback    = $route->callback;
 
 		$middlewareArgs    = ['role' => $role];
-		$passedMiddlewares = static::isPassedMiddleware($middlewares, $request, $middlewareArgs);
+		$passedMiddlewares = $this->isPassedMiddleware($middlewares, $request, $middlewareArgs);
 		if ($passedMiddlewares) {
 			$constructParams = [
 				$this->mainPath,
@@ -38,17 +38,10 @@ class WPRoles extends BaseRoute {
 				],
 			];
 
-			$callback = static::prepareRouteCallback($callback, $constructParams);
-
-			if (is_array($callback)) {
-				$callback[1] = 'init';
-				$callParams  = static::getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
-			}
-			else {
-				$callParams = static::getCallParams($path, $fullPath, $requestPath, $callback);
-			}
-
-			static::resolveAndCall($callback, $callParams);
+			$callback = $this->prepareRouteCallback($callback, $constructParams);
+			$callback[1] = 'init';
+			$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
+			$this->resolveAndCall($callback, $callParams);
 		}
 	}
 

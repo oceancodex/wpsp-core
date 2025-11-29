@@ -41,12 +41,4 @@ abstract class BaseShortcode extends BaseInstances {
 		}
 	}
 
-	/*
-	 *
-	 */
-
-//	abstract public function index($atts, $content, $tag);
-
-	abstract public function customProperties();
-
 }

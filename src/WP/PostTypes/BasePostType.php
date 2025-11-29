@@ -61,10 +61,4 @@ abstract class BasePostType extends BaseInstances {
 		unset($this->args->post_type);
 	}
 
-	/*
-	 *
-	 */
-
-	public function customProperties() {}
-
 }

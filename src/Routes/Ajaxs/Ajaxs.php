@@ -50,11 +50,7 @@ class Ajaxs extends BaseRoute {
 		add_action($hookAction, function() use ($hookAction, $action, $fullAction, $requestPath, $route) {
 			$callback    = $route->callback;
 			$middlewares = $route->middlewares;
-			if (!$this->isPassedMiddleware($route->middlewares, $this->request, [
-				'action'      => $action,
-				'full_action' => $fullAction,
-				'middlewares' => $middlewares,
-			])) {
+			if (!$this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
 				wp_send_json($this->funcs->_response(false, null, 'Access denied.'), 403);
 				return;
 			}

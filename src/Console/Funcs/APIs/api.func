@@ -1,4 +1,4 @@
-		$this->{{ method }}('{{ path }}', [ApisController::class, 'wpsp'], true, null, [
+		Route::{{ method }}('{{ path }}', [ApisController::class, 'wpsp'], true, null, [
 //			'relation' => 'OR',
 //			[ApiAuthentication::class, 'handle'],
 //			[EditorCapability::class, 'handle']

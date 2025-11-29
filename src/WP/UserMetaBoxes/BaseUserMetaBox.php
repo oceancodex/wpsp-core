@@ -46,7 +46,7 @@ abstract class BaseUserMetaBox extends BaseInstances {
 		add_action('edit_user_profile_update', [$this, 'update']);
 	}
 
-	private function isUserEditPage($type = null) {
+	private function isUserEditPage($type = null): bool {
 		global $pagenow;
 
 		if ($type === 'profile') {
@@ -63,8 +63,6 @@ abstract class BaseUserMetaBox extends BaseInstances {
 	/*
 	 *
 	 */
-
-	abstract public function customProperties();
 
 	abstract public function index($user);
 
