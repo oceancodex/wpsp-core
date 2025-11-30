@@ -27,13 +27,11 @@ class AdminPages extends BaseRoute {
 		$callback = $route->callback;
 
 		if (!empty($callback) && is_admin() && !wp_doing_ajax() && !wp_doing_cron() && !$this->funcs->_wantsJson()) {
-			if (strtolower($method) == 'get') {
+			if ($method == 'get') {
 				$this->executeMethodGet($route);
 			}
-			else {
-				if ($request->getMethod() !== 'GET' && $request->isMethod(strtoupper($method))) {
-					$this->executeMethod($route);
-				}
+			elseif ($request->getMethod() !== 'GET' && $request->isMethod(strtoupper($method))) {
+				$this->executeMethod($route);
 			}
 		}
 	}

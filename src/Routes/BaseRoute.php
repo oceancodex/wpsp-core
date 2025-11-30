@@ -25,21 +25,21 @@ abstract class BaseRoute extends BaseInstances {
 	public static $instance = null;
 
 	/**
-	 * Lưu các giá trị được gọi trước khi gọi HTTP verb
+	 * Lưu các giá trị được gọi trước khi gọi HTTP verb\
 	 * Ví dụ:
 	 *     Route::prefix('abc')->middleware(XYZ::class)->get(...)
 	 *
-	 * Các giá trị prefix / name / middlewares sẽ được lưu vào đây trước.
+	 * Các giá trị prefix: name, middlewares, namespace, version,... sẽ được lưu vào đây trước.
 	 */
 	protected array $pending = [];
 
 	/**
-	 * Stack dùng để lưu các prefix name của group.
-	 * Ví dụ:
-	 *     Route::name('admin.')->group(function() {
-	 *         Route::name('user.')->group(function() {
-	 *             Route::get('list')->name('index');
-	 *         });
+	 * Stack dùng để lưu các prefix name của group.\
+	 * Ví dụ:\
+	 *     Route::name('admin.')->group(function() {\
+	 *         ....Route::name('user.')->group(function() {\
+	 *             ........Route::get('list')->name('index');\
+	 *         ....});\
 	 *     });
 	 *
 	 * nameStack khi chạy route "list" sẽ là:
@@ -95,7 +95,17 @@ abstract class BaseRoute extends BaseInstances {
 
 					// Nếu là class string: Namespace\Class
 					if (is_string($item)) {
-						$middlewares[] = [$item, 'handle'];
+//						$middlewares[] = [$item, 'handle'];
+
+						/**
+						 * Áp dụng chỗ này để tạo ra mảng middleware blocks.\
+						 * Group cha có middlewares: a, b, c\
+						 * Group con nằm trong group cha có middlewares: d, e, f\
+						 * Route nằm trong group con.
+						 * Thì Route sẽ trải qua block middleware: a, b, c trước rồi mới đến block middleware: d, e, f.\
+						 * Như vậy việc thực thi middlewares cho route sẽ lần lượt từ trên xuống dưới trong group lồng nhau.
+						 */
+						$middlewares[][] = [$item, 'handle'];
 						continue;
 					}
 
@@ -126,7 +136,15 @@ abstract class BaseRoute extends BaseInstances {
 					$final[] = $mw;
 				}
 
-				$this->pending['middlewares'] = $final;
+				/**
+				 * Áp dụng chỗ này để tạo ra mảng middleware blocks.\
+				 * Group cha có middlewares: a, b, c\
+				 * Group con nằm trong group cha có middlewares: d, e, f\
+				 * Route nằm trong group con.
+				 * Thì Route sẽ trải qua block middleware: a, b, c trước rồi mới đến block middleware: d, e, f.\
+				 * Như vậy việc thực thi middlewares cho route sẽ lần lượt từ trên xuống dưới trong group lồng nhau.
+				 */
+				$this->pending['middlewares'][] = $final;
 
 				return $this;
 			}

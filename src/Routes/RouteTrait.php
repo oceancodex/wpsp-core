@@ -7,184 +7,145 @@ use Symfony\Component\HttpFoundation\Response;
 
 trait RouteTrait {
 
-	public function isPassedMiddleware($middlewares = null, $request = null, $args = []): bool {
-		// Không có middleware -> pass
+	public function isPassedMiddleware($middlewares = [], $request = null, $args = []): bool {
+		// Không có middleware → pass
 		if (empty($middlewares)) {
 			return true;
 		}
 
-		// Lấy relation (AND/OR), mặc định AND
-		$relation = 'AND';
-		if (isset($middlewares['relation'])) {
-			$relation = strtoupper((string)$middlewares['relation']);
-			unset($middlewares['relation']);
-		}
+		// Mỗi phần tử trong $middlewares là 1 "middleware block"
+		// Route PASS khi TẤT CẢ block PASS
+		foreach ($middlewares as $blockMiddleware) {
 
-		// Chuẩn hoá middleware: mỗi item thành một "callable descriptor"
-		// descriptor có thể là:
-		// - ['type' => 'class', 'class' => ClassName, 'method' => 'handle']
-		// - ['type' => 'closure', 'closure' => Closure]
-		$normalized = [];
-		foreach ($middlewares as $m) {
-			if ($m instanceof \Closure) {
-				$normalizedMiddleware = [
-					'type' => 'closure',
-					'closure' => $m
-				];
-				continue;
+			// Đưa thêm block đang xử lý vào args để truyền vào middleware.
+			// Trong handle của middleware, có thể dùng $args['block_middleware'] để lấy block đang xử lý.
+			$args['current_block_middleware'] = $blockMiddleware;
+
+			// -----------------------------
+			// 1. Đọc relation của block
+			// -----------------------------
+			$relation = 'AND';
+			if (isset($blockMiddleware['relation'])) {
+				$relation = strtoupper($blockMiddleware['relation']);
+				unset($blockMiddleware['relation']);
 			}
 
-			if (is_string($m)) {
-				$normalizedMiddleware = [
-					'type'   => 'class',
-					'class'  => $m,
-					'method' => 'handle',
-				];
-			}
-
-			if (is_array($m)) {
-				// [Class, method?] or nested structure
-				if (isset($m[0]) && $m[0] instanceof \Closure) {
-					// closure inside array
-					$normalizedMiddleware = ['type' => 'closure', 'closure' => $m[0]];
+			// -----------------------------
+			// 2. Chuẩn hoá middleware trong block
+			// -----------------------------
+			$normalized = [];
+			foreach ($blockMiddleware as $mw) {
+				if ($mw instanceof \Closure) {
+					$normalized[] = [
+						'type'    => 'closure',
+						'closure' => $mw,
+						'args'    => $args,
+					];
+					continue;
 				}
-				elseif (isset($m[0]) && is_string($m[0])) {
-					$method = isset($m[1]) && is_string($m[1]) ? $m[1] : 'handle';
 
-					if (preg_match('/^(abilities:|ability:)(.*?)$/iu', $method, $matches)) {
-						$ability_relation     = $matches[1] == 'abilities:' ? 'AND' : 'OR';
-						$abilities            = explode(',', $matches[2]);
-						$normalizedMiddleware = [
-							'type'   => 'class',
-							'class'  => $m[0],
-							'method' => 'handle',
-							'args'   => [
-								'abilities'        => $abilities,
-								'ability_relation' => $ability_relation,
-							],
-						];
+				// [Class, method]
+				if (is_array($mw) && isset($mw[0]) && is_string($mw[0])) {
+					$normalized[] = [
+						'type'   => 'class',
+						'class'  => $mw[0],
+						'method' => $mw[1] ?? 'handle',
+						'args'   => $args,
+					];
+					continue;
+				}
+
+				// Class string
+				if (is_string($mw)) {
+					$normalized[] = [
+						'type'   => 'class',
+						'class'  => $mw,
+						'method' => 'handle',
+						'args'   => $args,
+					];
+					continue;
+				}
+			}
+
+			// -----------------------------
+			// 3. Hàm chạy từng middleware
+			// -----------------------------
+			$app     = $this->funcs->getApplication();
+			$request = $app->make('request');
+
+			$runOne = function($mw) use ($app, $request) {
+
+				$next = function() {
+					return new Response('', 200);
+				};
+
+				// Chỗ này không cần try-catch, vì middleware sẽ có thể throw Exception.
+//				try {
+					if ($mw['type'] === 'closure') {
+						$res = call_user_func($mw['closure'], $request, $next);
 					}
 					else {
-						$normalizedMiddleware = [
-							'type'   => 'class',
-							'class'  => $m[0],
-							'method' => $method,
-						];
+						$class  = $mw['class'];
+						$method = $mw['method'];
+
+						if (!class_exists($class)) {
+							return false;
+						}
+
+						$instance = $app->make($class);
+
+						// Ép method là handle nếu không có method chỉ định.
+						// Nếu không có method handle thì sẽ xảy ra lỗi, có thể bắt lỗi trong Exception Handler.
+						if (!method_exists($instance, $method)) {
+//							if (method_exists($instance, 'handle')) {
+								$method = 'handle';
+//							}
+//							else {
+//								return false;
+//							}
+						}
+
+						$res = $instance->$method($request, $next, $mw['args'] ?? []);
 					}
+//				}
+//				catch (\Throwable $e) {
+//					return false;
+//				}
+
+				if ($res instanceof Response) {
+					return $res->getStatusCode() < 400;
 				}
-			}
 
-			if (isset($normalizedMiddleware)) {
-				$normalizedMiddleware['args'] = array_merge($normalizedMiddleware['args'] ?? [], $args);
-				$normalized[]                 = $normalizedMiddleware;
-			}
-		}
+				if (is_bool($res)) return $res;
 
-		// Lấy request & app
-		$app     = $this->funcs->getApplication();
-		$request = $app->make('request');
-
-		/**
-		 * -----------------
-		 * Helper: chạy 1 middleware descriptor, trả về chuẩn
-		 * -----------------
-		 * ['ok' => bool, 'response' => Response|null]
-		 */
-		$runOne = function($normalizedMiddleware) use ($request, $app) {
-			// $next giả: middleware gọi $next($request) => được coi là "pass" -> trả Response 200
-			$next = function($req = null) {
-				return new Response('', 200);
+				return true;
 			};
 
-			try {
-				if ($normalizedMiddleware['type'] === 'closure') {
-					$res = call_user_func($normalizedMiddleware['closure'], $request, $next);
-				}
-				elseif ($normalizedMiddleware['type'] === 'class') {
-					$class  = $normalizedMiddleware['class'];
-					$method = $normalizedMiddleware['method'] ?? 'handle';
+			// -----------------------------
+			// 4. Evaluate block theo relation
+			// -----------------------------
 
-					// nếu class không tồn tại, coi như fail
-					if (!class_exists($class)) {
-						return ['ok' => false, 'response' => null];
-					}
-
-					// 🚀 Quan trọng: dùng Container để tự động Dependency Injection
-					try {
-						$instance = $app->make($class);
-					}
-					catch (\Throwable $e) {
-						return ['ok' => false, 'response' => null];
-					}
-
-					// nếu method không tồn tại, cố gọi handle, nếu không có -> fail
-					if (!method_exists($instance, $method)) {
-						if (method_exists($instance, 'handle')) {
-							$res = $instance->handle($request, $next, $normalizedMiddleware['args'] ?? []);
-						}
-						else {
-							return ['ok' => false, 'response' => null];
-						}
-					}
-					else {
-						$res = $instance->$method($request, $next, $normalizedMiddleware['args'] ?? []);
+			if ($relation === 'OR') {
+				$pass = false;
+				foreach ($normalized as $mw) {
+					if ($runOne($mw)) {
+						$pass = true;
+						break;
 					}
 				}
-				else {
-					return ['ok' => false, 'response' => null];
+				if (!$pass) return false;
+			}
+
+			if ($relation === 'AND') {
+				foreach ($normalized as $mw) {
+					if (!$runOne($mw)) {
+						return false;
+					}
 				}
-			}
-			catch (\Throwable $e) {
-				// lỗi khi chạy middleware => coi là fail
-				return ['ok' => false, 'response' => null];
-			}
-
-			// Chuẩn hóa kết quả:
-			// - Nếu là Symfony Response (Illuminate Response kế thừa) -> check status
-			// - Nếu là boolean true -> coi là pass
-			// - Nếu là boolean false -> coi là fail
-			// - Nếu là null -> coi là pass (nếu middleware gọi $next và không trả gì)
-			if ($res instanceof Response) {
-				$status = (int)$res->getStatusCode();
-				return ['ok' => ($status < 400), 'response' => $res];
-			}
-
-			if (is_bool($res)) {
-				return ['ok' => $res === true, 'response' => null];
-			}
-
-			if ($res === null) {
-				// mặc định coi là pass (nhiều middleware PHP cũ không return, nhưng gọi $next internally)
-				return ['ok' => true, 'response' => null];
-			}
-
-			// Trường hợp trả string/other -> coi là pass (hoặc bạn có thể đổi thành fail)
-			return ['ok' => true, 'response' => null];
-		};
-		/**
-		 * -----------------
-		 */
-
-		// Logic OR: chỉ cần 1 pass => pass toàn bộ
-		if ($relation === 'OR') {
-			foreach ($normalized as $normalizedMiddleware) {
-				$r = $runOne($normalizedMiddleware);
-				if ($r['ok'] === true) {
-					return true; // pass sớm
-				}
-			}
-			return false; // tất cả fail
-		}
-
-		// Logic AND: tất cả phải pass
-		foreach ($normalized as $normalizedMiddleware) {
-			$r = $runOne($normalizedMiddleware);
-			if ($r['ok'] !== true) {
-				return false; // có 1 fail -> fail ngay
 			}
 		}
 
-		// Tất cả pass
+		// TẤT CẢ block đều PASS
 		return true;
 	}
 
@@ -212,17 +173,18 @@ trait RouteTrait {
 		// NEW: detect closure
 		if ($callbackOrClass instanceof \Closure) {
 			$reflection = new \ReflectionFunction($callbackOrClass);
-			$class = null;
-			$method = null;
-		} else {
-			$class = $callbackOrClass;
+			$class      = null;
+			$method     = null;
+		}
+		else {
+			$class      = $callbackOrClass;
 			$reflection = new \ReflectionMethod($class, $method);
 		}
 
 		// Match pattern: KHÔNG escape path vì path đã là regex pattern (có thể chứa (?P<name>...))
 		// Nếu $path có ^ hoặc $ thì vẫn dùng như vậy; nếu không có, ta match toàn chuỗi.
 		$regexPath = $this->funcs->_regexPath($path);
-		$pattern = '#' . $regexPath . '#iu';
+		$pattern   = '#' . $regexPath . '#iu';
 
 		$passed = false;
 
@@ -342,8 +304,8 @@ trait RouteTrait {
 			$callParams[$name] = $value;
 		}
 
-		$callParams['path'] = $path;
-		$callParams['fullPath'] = $fullPath;
+		$callParams['path']        = $path;
+		$callParams['fullPath']    = $fullPath;
 		$callParams['requestPath'] = $requestPath;
 
 		foreach ($args as $argKey => $argValue) {
@@ -364,7 +326,7 @@ trait RouteTrait {
 
 	public function resolveAndCall($callback, array $callParams = [], $call = true) {
 		// 🔹 Lấy container từ Application hoặc fallback
-		$app = $this->funcs->getApplication();
+		$app       = $this->funcs->getApplication();
 		$container = $app ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
 
 		if (!$container) {
@@ -388,7 +350,7 @@ trait RouteTrait {
 			: $container->make($classOrInstance);
 
 		// 🔹 Tự động inject FormRequest nếu có
-		$reflection = new \ReflectionMethod($instance, $method);
+		$reflection  = new \ReflectionMethod($instance, $method);
 		$baseRequest = $container->bound('request')
 			? $container->make('request')
 			: \Illuminate\Http\Request::capture();
@@ -428,8 +390,36 @@ trait RouteTrait {
 
 	public function prepareCallbackFunction($callbackFunction, $path, $fullPath, $requestPath = null) {
 		$requestPath = $requestPath ?? trim($this->request->getRequestUri(), '/\\');
-		$callParams = $this->getCallParams($path, $fullPath, $requestPath, $this, $callbackFunction);
+		$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $this, $callbackFunction);
 		return $this->resolveAndCall([$this, $callbackFunction], $callParams, false);
+	}
+
+	public function isLastMiddleware($currentClass, $allMiddlewares): bool {
+		if (!is_array($allMiddlewares)) {
+			return false;
+		}
+
+		// Lọc chỉ lấy key dạng số (0,1,2...)
+		$middlewares = [];
+		foreach ($allMiddlewares as $key => $value) {
+			if (is_int($key)) {
+				$middlewares[$key] = $value;
+			}
+		}
+
+		if (empty($middlewares)) {
+			return false;
+		}
+
+		// Lấy phần tử cuối cùng
+		$last = end($middlewares);
+
+		// dạng: [ 'ClassName', 'handle' ]
+		if (is_array($last) && isset($last[0]) && $last[0] === $currentClass) {
+			return true;
+		}
+
+		return false;
 	}
 
 }
