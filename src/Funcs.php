@@ -474,107 +474,76 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _route(array $routeMap, string $routeClass, string $routeName, $args = [], bool $buildURL = false): string {
+
+		// Normalize
 		if (preg_match('/\\\\/', $routeClass)) {
-			$routeClass = trim($routeClass, '\\');
-			$parts      = explode('\\', $routeClass);
+			$parts = explode('\\', trim($routeClass, '\\'));
 			$routeClass = end($parts);
 		}
 
-		$routeFromMap = $routeMap[$routeClass][$routeName] ?? null;
+		$map = $routeMap[$routeClass][$routeName] ?? null;
+		if (!$map) return '';
 
-		if ($routeFromMap) {
-			switch ($routeClass) {
-				case 'Apis':
-					$routeFromMap = $routeFromMap['namespace'] . '/' . $routeFromMap['version'] . '/' . $routeFromMap['full_path'];
-					break;
-				default:
-					$routeFromMap = $routeFromMap['full_path'];
-			}
+		switch ($routeClass) {
+			case 'Apis':
+				$routeUrl = $map['namespace'] . '/' . $map['version'] . '/' . $map['full_path'];
+				break;
+			default:
+				$routeUrl = $map['full_path'];
+		}
 
-			// Escape regex path.
-			$routeFromMap = $this->_regexPath($routeFromMap, false);
+		// ❗ Plain version (dùng cho xây URL)
+		$finalUrl = $routeUrl;
 
-//			if (!empty($args) && is_array($args)) {
-			// Tìm tất cả các placeholder (?P<key>pattern)
-			if (preg_match_all('/\(\?P<([^>]+)>[^)]+\)\?|\(\?P<([^>]+)>[^)]+\)/', $routeFromMap, $matches)) {
-				foreach ($matches[1] as $matchIndex => $paramName) {
-					if (isset($args[$paramName])) {
-						// Thay thế đúng phần placeholder bởi giá trị
-						$routeFromMap = preg_replace(
-							'/' . preg_quote($matches[0][$matchIndex], '/') . '/',
-							rawurlencode($args[$paramName]),
-							$routeFromMap,
-							1
-						);
-						unset($args[$paramName]); // Đã xử lý rồi thì bỏ đi
-					}
-					else {
-						$routeFromMap = preg_replace(
-							'/' . preg_quote($matches[0][$matchIndex], '/') . '/',
-							'',
-							$routeFromMap,
-							1
-						);
-					}
-				}
-			} else {
-				// Nếu không có group tên -> match lần lượt group không tên ()
-				if (preg_match_all('/\(([^?][^)]+)\)/', $routeFromMap, $unnamedGroups)) {
-					$i = 0;
-					foreach ($unnamedGroups[0] as $groupPattern) {
-						if (isset($args[$i])) {
-							$routeFromMap = preg_replace(
-								'/' . preg_quote($groupPattern, '/') . '/',
-								rawurlencode($args[$i]),
-								$routeFromMap,
-								1
-							);
-						}
-						$i++;
-					}
-					$args = array_slice($args, $i); // Bỏ các args đã thay
-				}
-			}
+		// Xử lý param dạng {key} và {key?}
+		if (preg_match_all('/(\w+)=\{(\w+)(\?)?}/', $finalUrl, $m)) {
+			foreach ($m[1] as $i => $paramKey) {
+				$paramName = $m[2][$i];
+				$fullTag   = $m[0][$i];
 
-			// Nếu còn args chưa mapping vào route thì nối query string như cũ
-			if (!empty($args) && is_array($args)) {
-				$routeFromMap = add_query_arg($args, $routeFromMap);
-				$routeFromMap = add_query_arg($args, rawurlencode($routeFromMap));
-				$routeFromMap = rawurldecode($routeFromMap);
-			}
-//			}
-
-			// 🧹 Làm sạch regex pattern thừa
-			$routeFromMap = preg_replace([
-				'/\^\//',      // bỏ ^/
-				'/\/?\$$/',    // bỏ /?$
-				'/\$$/',       // bỏ $
-			], '', $routeFromMap);
-			$routeFromMap = preg_replace('/\\\\\//', '/', $routeFromMap);
-
-			if ($buildURL || (is_bool($args) && $args)) {
-				switch ($routeClass) {
-					case 'Apis':
-						$routeFromMap = rest_url($routeFromMap);
-						break;
-					case 'Ajaxs':
-						$routeFromMap = admin_url('admin-ajax.php?action=' . $routeFromMap);
-						break;
-					case 'AdminPages':
-						$routeFromMap = $this->_sanitizeURL(admin_url('admin.php?page=' . $routeFromMap));
-						break;
-					case 'RewriteFrontPages':
-						$routeFromMap = $this->_sanitizeURL(home_url($routeFromMap));
-						break;
-					default:
+				if (array_key_exists($paramName, $args)) {
+					// Có value
+					$value = rawurlencode($args[$paramName]);
+					$finalUrl = str_replace($fullTag, $paramKey . '=' . $value, $finalUrl);
+					unset($args[$paramName]);
+				} else {
+					// Không có value → key=
+					$finalUrl = str_replace($fullTag, $paramKey . '=', $finalUrl);
 				}
 			}
 		}
 
-		// Bỏ dấu / dư đầu-cuối
-		$routeFromMap = trim($routeFromMap, '/');
+		// Xóa tag nhóm regex nếu còn sót (ví dụ id=(?P<id>...)?)
+		$finalUrl = preg_replace('/\(\?P<[^>]+>[^)]+\)\??/', '', $finalUrl);
 
-		return $routeFromMap;
+		// Nếu còn args → append query string
+		if (!empty($args) && is_array($args)) {
+			$finalUrl = add_query_arg($args, $finalUrl);
+			$finalUrl = rawurldecode($finalUrl);
+		}
+
+		// Cleanup
+		$finalUrl = trim($finalUrl, '&?');
+
+		// Build thành URL đầy đủ
+		if ($buildURL || (is_bool($args) && $args)) {
+			switch ($routeClass) {
+				case 'Apis':
+					$finalUrl = rest_url($finalUrl);
+					break;
+				case 'Ajaxs':
+					$finalUrl = admin_url('admin-ajax.php?action=' . $finalUrl);
+					break;
+				case 'AdminPages':
+					$finalUrl = admin_url('admin.php?page=' . $finalUrl);
+					break;
+				case 'RewriteFrontPages':
+					$finalUrl = home_url($finalUrl);
+					break;
+			}
+		}
+
+		return trim($finalUrl, '/');
 	}
 
 	public function _trans($string, $wordpress = false) {
@@ -747,36 +716,49 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _regexPath(string $pattern, $pregQuote = true, string $delimiter = '/'): string {
-		// 0. Nếu chứa ký tự escaped slash -> đang là regex thật -> trả về nguyên
+		// Nếu chứa ký tự escaped slash -> đang là regex thật -> trả về nguyên
 		if (strpos($pattern, '\/') !== false) {
 			return $pattern;
 		}
 
-		// Optional params {id?}
-		$pattern = preg_replace_callback('/\{(\w+)\?}/', function($m) {
-			return '(?P<' . $m[1] . '>[^\/]+)?';
+		$pattern = preg_replace_callback('/(\w+)=\{(\w+)\?}/', function($m) {
+			return $m[1] . '(?:=(?P<' . $m[2] . '>[^&]+))?';
 		}, $pattern);
 
 		// Required params {id}
-		$pattern = preg_replace('/\{(\w+)}/', '(?P<$1>[^\/]+)', $pattern);
+//		$pattern = preg_replace('/\{(\w+)}/', '(?P<$1>[^\/]+)', $pattern);
+		$pattern = preg_replace_callback('/(\w+)=\{(\w+)}/', function($m) {
+			return $m[1] . '=(?P<' . $m[2] . '>[^&]+)';
+		}, $pattern);
 
-		// Nếu có regex group thật -> trả về nguyên
-//		if (preg_match('/\((\?[:P=!<][^)]*|[^)]*)\)/', $pattern)) {
-//			return $pattern;
-//		}
+		// Optional regex group
+		$pattern = preg_replace(
+			'/(\w+)=\((\?P<[^>]+>[^)]+)\)\?/',
+			'$1(?:=($2))?',
+			$pattern
+		);
 
-		// 4. Không có regex, không param -> escape path thuần
-		return $pregQuote ? $this->pregQuoteUrlButKeepGroups($pattern, $delimiter) : $pattern;
+		// Required regex group (giữ nguyên)
+		// key=(?P<id>...)
+		$pattern = preg_replace(
+			'/(\w+)=\((\?P<[^>]+>[^)]+)\)/',
+			'$1=($2)',
+			$pattern
+		);
+
+		// Không có regex, không param -> escape path thuần
+		return $pregQuote ? $this->_pregQuoteKeepGroups($pattern, $delimiter) : $pattern;
 	}
 
-	function pregQuoteUrlButKeepGroups(string $pattern, $delimiter = '/'): string {
-		// 1. Tìm toàn bộ nhóm và thay bằng placeholder
-		$groups      = [];
+	public function _pregQuoteKeepGroups(string $pattern, $delimiter = '/'): string {
+		// 1. Tách toàn bộ group
+		$groups = [];
 		$placeholder = '___REGEX_GROUP_%d___';
-		$i           = 0;
+		$i = 0;
 
+		// Match đúng mọi group kể cả lồng nhau
 		$patternWithPlaceholders = preg_replace_callback(
-			'#\(\?P?<[^>]+>[^)]*\)\?|\(\?P?<[^>]+>[^)]*\)#',
+			'/\((?:[^()\\\\]|\\\\.|(?R))*\)\??/',
 			function($m) use (&$groups, $placeholder, &$i) {
 				$groups[$i] = $m[0];
 				return sprintf($placeholder, $i++);
@@ -784,10 +766,17 @@ class Funcs extends BaseInstances {
 			$pattern
 		);
 
-		// 2. Escape toàn bộ bằng preg_quote
+		// 2. Escape toàn bộ pattern
 		$quoted = preg_quote($patternWithPlaceholders, $delimiter);
 
-		// 3. Trả lại nhóm regex nguyên trạng
+		// 3. Khôi phục dấu "=" trước group
+		$quoted = preg_replace(
+			'/\\\\=(___REGEX_GROUP_\d+___)/',
+			'=\1',
+			$quoted
+		);
+
+		// 4. Trả lại group
 		foreach ($groups as $idx => $group) {
 			$quoted = str_replace(sprintf($placeholder, $idx), $group, $quoted);
 		}

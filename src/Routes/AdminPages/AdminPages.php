@@ -110,8 +110,7 @@ class AdminPages extends BaseRoute {
 		$fullPath    = $route->fullPath;
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares;
-echo '<pre style="background:white;z-index:9999;position:relative">'; print_r(esc_html($this->funcs->_regexPath($fullPath))); echo '</pre>';
-echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($requestPath); echo '</pre>';
+
 		if (
 			($callback instanceof \Closure)
 			|| (
