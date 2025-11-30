@@ -56,7 +56,7 @@ class Funcs extends BaseInstances {
 	/**
 	 * @return \WPSPCORE\Routes\RouteMap
 	 */
-	public function getRouteMap() {
+	public function getRouteMap(): ?Routes\RouteMap {
 		try {
 			return $this->routeMapClass::instance();
 		}
@@ -68,7 +68,7 @@ class Funcs extends BaseInstances {
 	/**
 	 * @return \WPSPCORE\Routes\RouteManager
 	 */
-	public function getRouteManager() {
+	public function getRouteManager(): ?Routes\RouteManager {
 		try {
 			return $this->routeManagerClass::instance();
 		}
@@ -85,11 +85,11 @@ class Funcs extends BaseInstances {
 		return rtrim($this->mainPath, '/\\') . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getRootNamespace() {
+	public function _getRootNamespace(): ?string {
 		return $this->rootNamespace;
 	}
 
-	public function _getPrefixEnv() {
+	public function _getPrefixEnv(): ?string {
 		return $this->prefixEnv;
 	}
 
@@ -492,8 +492,7 @@ class Funcs extends BaseInstances {
 			}
 
 			// Escape regex path.
-			$routeFromMap = $this->_regexPath($routeFromMap);
-			echo '<pre style="background:white;z-index:9999;position:relative">'; print_r(esc_html($routeFromMap)); echo '</pre>';
+			$routeFromMap = $this->_regexPath($routeFromMap, false);
 
 //			if (!empty($args) && is_array($args)) {
 			// Tìm tất cả các placeholder (?P<key>pattern)
@@ -538,7 +537,7 @@ class Funcs extends BaseInstances {
 			}
 
 			// Nếu còn args chưa mapping vào route thì nối query string như cũ
-			if (!empty($args)) {
+			if (!empty($args) && is_array($args)) {
 				$routeFromMap = add_query_arg($args, $routeFromMap);
 				$routeFromMap = add_query_arg($args, rawurlencode($routeFromMap));
 				$routeFromMap = rawurldecode($routeFromMap);
@@ -747,31 +746,53 @@ class Funcs extends BaseInstances {
 		return $this->_wantsJson();
 	}
 
-	public function _regexPath(string $pattern, string $delimiter = '/'): string {
+	public function _regexPath(string $pattern, $pregQuote = true, string $delimiter = '/'): string {
 		// 0. Nếu chứa ký tự escaped slash -> đang là regex thật -> trả về nguyên
 		if (strpos($pattern, '\/') !== false) {
 			return $pattern;
 		}
 
-		// 1. Nếu có regex group thật -> trả về nguyên
-		if (preg_match('/\((\?[:P=!<][^)]*|[^)]*)\)/', $pattern)) {
-			return $pattern;
-		}
+		// Optional params {id?}
+		$pattern = preg_replace_callback('/\{(\w+)\?}/', function($m) {
+			return '(?P<' . $m[1] . '>[^\/]+)?';
+		}, $pattern);
 
-		// 2. Optional params {id?}
-		if (preg_match('/\{\w+\?}/', $pattern)) {
-			$pattern = preg_replace_callback('/\{(\w+)\?}/', function($m) {
-				return '(?P<' . $m[1] . '>[^\/]+)?';
-			}, $pattern);
-		}
+		// Required params {id}
+		$pattern = preg_replace('/\{(\w+)}/', '(?P<$1>[^\/]+)', $pattern);
 
-		// 3. Required params {id}
-		if (preg_match('/\{\w+}/', $pattern)) {
-			$pattern = preg_replace('/\{(\w+)}/', '(?P<$1>[^\/]+)', $pattern);
-		}
+		// Nếu có regex group thật -> trả về nguyên
+//		if (preg_match('/\((\?[:P=!<][^)]*|[^)]*)\)/', $pattern)) {
+//			return $pattern;
+//		}
 
 		// 4. Không có regex, không param -> escape path thuần
-		return preg_quote($pattern, $delimiter);
+		return $pregQuote ? $this->pregQuoteUrlButKeepGroups($pattern, $delimiter) : $pattern;
+	}
+
+	function pregQuoteUrlButKeepGroups(string $pattern, $delimiter = '/'): string {
+		// 1. Tìm toàn bộ nhóm và thay bằng placeholder
+		$groups      = [];
+		$placeholder = '___REGEX_GROUP_%d___';
+		$i           = 0;
+
+		$patternWithPlaceholders = preg_replace_callback(
+			'#\(\?P?<[^>]+>[^)]*\)\?|\(\?P?<[^>]+>[^)]*\)#',
+			function($m) use (&$groups, $placeholder, &$i) {
+				$groups[$i] = $m[0];
+				return sprintf($placeholder, $i++);
+			},
+			$pattern
+		);
+
+		// 2. Escape toàn bộ bằng preg_quote
+		$quoted = preg_quote($patternWithPlaceholders, $delimiter);
+
+		// 3. Trả lại nhóm regex nguyên trạng
+		foreach ($groups as $idx => $group) {
+			$quoted = str_replace(sprintf($placeholder, $idx), $group, $quoted);
+		}
+
+		return $quoted;
 	}
 
 	public function _sanitizeURL($url) {
