@@ -7,6 +7,34 @@ use Symfony\Component\HttpFoundation\Response;
 
 trait RouteTrait {
 
+	public function isLastMiddleware($currentClass, $allMiddlewares): bool {
+		if (!is_array($allMiddlewares)) {
+			return false;
+		}
+
+		// Lọc chỉ lấy key dạng số (0,1,2...)
+		$middlewares = [];
+		foreach ($allMiddlewares as $key => $value) {
+			if (is_int($key)) {
+				$middlewares[$key] = $value;
+			}
+		}
+
+		if (empty($middlewares)) {
+			return false;
+		}
+
+		// Lấy phần tử cuối cùng
+		$last = end($middlewares);
+
+		// dạng: [ 'ClassName', 'handle' ]
+		if (is_array($last) && isset($last[0]) && $last[0] === $currentClass) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public function isPassedMiddleware($middlewares = [], $request = null, $args = []): bool {
 		// Không có middleware → pass
 		if (empty($middlewares)) {
@@ -392,34 +420,6 @@ trait RouteTrait {
 		$requestPath = $requestPath ?? trim($this->request->getRequestUri(), '/\\');
 		$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $this, $callbackFunction);
 		return $this->resolveAndCall([$this, $callbackFunction], $callParams, false);
-	}
-
-	public function isLastMiddleware($currentClass, $allMiddlewares): bool {
-		if (!is_array($allMiddlewares)) {
-			return false;
-		}
-
-		// Lọc chỉ lấy key dạng số (0,1,2...)
-		$middlewares = [];
-		foreach ($allMiddlewares as $key => $value) {
-			if (is_int($key)) {
-				$middlewares[$key] = $value;
-			}
-		}
-
-		if (empty($middlewares)) {
-			return false;
-		}
-
-		// Lấy phần tử cuối cùng
-		$last = end($middlewares);
-
-		// dạng: [ 'ClassName', 'handle' ]
-		if (is_array($last) && isset($last[0]) && $last[0] === $currentClass) {
-			return true;
-		}
-
-		return false;
 	}
 
 }

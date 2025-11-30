@@ -95,17 +95,7 @@ abstract class BaseRoute extends BaseInstances {
 
 					// Nếu là class string: Namespace\Class
 					if (is_string($item)) {
-//						$middlewares[] = [$item, 'handle'];
-
-						/**
-						 * Áp dụng chỗ này để tạo ra mảng middleware blocks.\
-						 * Group cha có middlewares: a, b, c\
-						 * Group con nằm trong group cha có middlewares: d, e, f\
-						 * Route nằm trong group con.
-						 * Thì Route sẽ trải qua block middleware: a, b, c trước rồi mới đến block middleware: d, e, f.\
-						 * Như vậy việc thực thi middlewares cho route sẽ lần lượt từ trên xuống dưới trong group lồng nhau.
-						 */
-						$middlewares[][] = [$item, 'handle'];
+						$middlewares[] = [$item, 'handle'];
 						continue;
 					}
 

@@ -4,8 +4,11 @@ namespace WPSPCORE;
 
 use Carbon\Carbon;
 use NumberFormatter;
+use WPSPCORE\Routes\RouteTrait;
 
 class Funcs extends BaseInstances {
+
+	use RouteTrait;
 
 	public $WPSPClass;
 	public $routeMapClass;
@@ -488,47 +491,59 @@ class Funcs extends BaseInstances {
 					$routeFromMap = $routeFromMap['full_path'];
 			}
 
-			if (!empty($args) && is_array($args)) {
-				// Tìm tất cả các placeholder (?P<key>pattern)
-				if (preg_match_all('/\(\?P<([^>]+)>[^)]+\)/', $routeFromMap, $matches)) {
-					foreach ($matches[1] as $matchIndex => $paramName) {
-						if (isset($args[$paramName])) {
-							// Thay thế đúng phần placeholder bởi giá trị
+			// Escape regex path.
+			$routeFromMap = $this->_regexPath($routeFromMap);
+			echo '<pre style="background:white;z-index:9999;position:relative">'; print_r(esc_html($routeFromMap)); echo '</pre>';
+
+//			if (!empty($args) && is_array($args)) {
+			// Tìm tất cả các placeholder (?P<key>pattern)
+			if (preg_match_all('/\(\?P<([^>]+)>[^)]+\)\?|\(\?P<([^>]+)>[^)]+\)/', $routeFromMap, $matches)) {
+				foreach ($matches[1] as $matchIndex => $paramName) {
+					if (isset($args[$paramName])) {
+						// Thay thế đúng phần placeholder bởi giá trị
+						$routeFromMap = preg_replace(
+							'/' . preg_quote($matches[0][$matchIndex], '/') . '/',
+							rawurlencode($args[$paramName]),
+							$routeFromMap,
+							1
+						);
+						unset($args[$paramName]); // Đã xử lý rồi thì bỏ đi
+					}
+					else {
+						$routeFromMap = preg_replace(
+							'/' . preg_quote($matches[0][$matchIndex], '/') . '/',
+							'',
+							$routeFromMap,
+							1
+						);
+					}
+				}
+			} else {
+				// Nếu không có group tên -> match lần lượt group không tên ()
+				if (preg_match_all('/\(([^?][^)]+)\)/', $routeFromMap, $unnamedGroups)) {
+					$i = 0;
+					foreach ($unnamedGroups[0] as $groupPattern) {
+						if (isset($args[$i])) {
 							$routeFromMap = preg_replace(
-								'/' . preg_quote($matches[0][$matchIndex], '/') . '/',
-								rawurlencode($args[$paramName]),
+								'/' . preg_quote($groupPattern, '/') . '/',
+								rawurlencode($args[$i]),
 								$routeFromMap,
 								1
 							);
-							unset($args[$paramName]); // Đã xử lý rồi thì bỏ đi
 						}
+						$i++;
 					}
-				} else {
-					// Nếu không có group tên -> match lần lượt group không tên ()
-					if (preg_match_all('/\(([^?][^)]+)\)/', $routeFromMap, $unnamedGroups)) {
-						$i = 0;
-						foreach ($unnamedGroups[0] as $groupPattern) {
-							if (isset($args[$i])) {
-								$routeFromMap = preg_replace(
-									'/' . preg_quote($groupPattern, '/') . '/',
-									rawurlencode($args[$i]),
-									$routeFromMap,
-									1
-								);
-							}
-							$i++;
-						}
-						$args = array_slice($args, $i); // Bỏ các args đã thay
-					}
-				}
-
-				// Nếu còn args chưa mapping vào route thì nối query string như cũ
-				if (!empty($args)) {
-					$routeFromMap = add_query_arg($args, $routeFromMap);
-					$routeFromMap = add_query_arg($args, rawurlencode($routeFromMap));
-					$routeFromMap = rawurldecode($routeFromMap);
+					$args = array_slice($args, $i); // Bỏ các args đã thay
 				}
 			}
+
+			// Nếu còn args chưa mapping vào route thì nối query string như cũ
+			if (!empty($args)) {
+				$routeFromMap = add_query_arg($args, $routeFromMap);
+				$routeFromMap = add_query_arg($args, rawurlencode($routeFromMap));
+				$routeFromMap = rawurldecode($routeFromMap);
+			}
+//			}
 
 			// 🧹 Làm sạch regex pattern thừa
 			$routeFromMap = preg_replace([
@@ -744,17 +759,15 @@ class Funcs extends BaseInstances {
 		}
 
 		// 2. Optional params {id?}
-		if (preg_match('/\{\w+\?\}/', $pattern)) {
-			$pattern = preg_replace_callback('/\{(\w+)\?\}/', function($m) {
-				return '(?:/(?P<' . $m[1] . '>[^/]+))?';
+		if (preg_match('/\{\w+\?}/', $pattern)) {
+			$pattern = preg_replace_callback('/\{(\w+)\?}/', function($m) {
+				return '(?P<' . $m[1] . '>[^\/]+)?';
 			}, $pattern);
-			return $pattern;
 		}
 
 		// 3. Required params {id}
-		if (preg_match('/\{\w+\}/', $pattern)) {
-			$pattern = preg_replace('/\{(\w+)\}/', '(?P<$1>[^/]+)', $pattern);
-			return $pattern;
+		if (preg_match('/\{\w+}/', $pattern)) {
+			$pattern = preg_replace('/\{(\w+)}/', '(?P<$1>[^\/]+)', $pattern);
 		}
 
 		// 4. Không có regex, không param -> escape path thuần
