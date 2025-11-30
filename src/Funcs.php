@@ -470,22 +470,22 @@ class Funcs extends BaseInstances {
 		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
 	}
 
-	public function _route(array $mapIdea, string $routeClass, string $routeName, $args = [], bool $buildURL = false) {
+	public function _route(array $routeMap, string $routeClass, string $routeName, $args = [], bool $buildURL = false): string {
 		if (preg_match('/\\\\/', $routeClass)) {
 			$routeClass = trim($routeClass, '\\');
 			$parts      = explode('\\', $routeClass);
 			$routeClass = end($parts);
 		}
 
-		$routeFromMap = $mapIdea[$routeClass][$routeName] ?? null;
+		$routeFromMap = $routeMap[$routeClass][$routeName] ?? null;
 
 		if ($routeFromMap) {
 			switch ($routeClass) {
 				case 'Apis':
-					$routeFromMap = $routeFromMap['namespace'] . '/' . $routeFromMap['version'] . '/' . $routeFromMap['path'];
+					$routeFromMap = $routeFromMap['namespace'] . '/' . $routeFromMap['version'] . '/' . $routeFromMap['full_path'];
 					break;
 				default:
-					$routeFromMap = $routeFromMap['path'];
+					$routeFromMap = $routeFromMap['full_path'];
 			}
 
 			if (!empty($args) && is_array($args)) {

@@ -33,7 +33,7 @@ class RouteMap extends BaseInstances {
 			$this->map[$type] = [];
 		}
 
-		$this->map[$type][] = [
+		$this->map[$type][$name] = [
 			'name'      => $name,
 			'file'      => 'routes/' . $type . '.php',
 			'line'      => (new \Exception())->getTrace()[1]['line'] ?? 0,
