@@ -1,23 +1,23 @@
 <?php
 
-namespace WPSPCORE\Event;
+namespace WPSPCORE\Events;
 
+use Illuminate\Events\Dispatcher as EventsDispatcher;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Events\Dispatcher
  * @mixin \Illuminate\Support\Facades\Event
  */
-abstract class Event extends BaseInstances {
+abstract class Events extends BaseInstances {
 
-	private $event;
+	private EventsDispatcher $events;
 
-	public function getEvent() {
-		return $this->event;
+	public function getEvents(): EventsDispatcher {
+		return $this->events;
 	}
 
-	public function setEvent(): void {
-		$this->event = $this->funcs->getApplication('events');
+	public function setEvents(): void {
+		$this->events = $this->funcs->getApplication('events');
 	}
 
 	/*
@@ -29,7 +29,7 @@ abstract class Event extends BaseInstances {
 			return static::instance()->$name(...$arguments);
 		}
 		else {
-			return static::instance()->getEvent()->$name(...$arguments);
+			return static::instance()->getEvents()->$name(...$arguments);
 		}
 	}
 
@@ -38,7 +38,7 @@ abstract class Event extends BaseInstances {
 			return static::instance()->$name(...$arguments);
 		}
 		else {
-			return static::instance()->getEvent()->$name(...$arguments);
+			return static::instance()->getEvents()->$name(...$arguments);
 		}
 	}
 
