@@ -51,6 +51,13 @@ abstract class WPSP extends BaseInstances {
 			__DIR__ . '/Console/Commands'
 		);
 
+		$extendCommands = $this->funcs->_getAllClassesInDir(
+			'WPSPCORE\Console\Commands\Extends',
+			__DIR__ . '/Console/Commands/Extends'
+		);
+
+		$commands = array_merge($commands, $extendCommands);
+
 		$this->application = Application::configure($basePath)
 			->withCommands($commands)
 			->withMiddleware(function(Middleware $middleware) {})

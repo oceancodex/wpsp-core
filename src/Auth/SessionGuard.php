@@ -22,7 +22,16 @@ class SessionGuard extends \Illuminate\Auth\SessionGuard {
 		int $timeboxDuration = 200000,
 		$funcs = null,
 	) {
-		parent::__construct($name, $provider, $session, $request, $timebox, $rehashOnLogin, $timeboxDuration);
+		parent::__construct(
+			$name,
+			$provider,
+			$session,
+			$request,
+			$timebox,
+			$rehashOnLogin,
+			$timeboxDuration
+		);
+
 		$this->funcs = $funcs;
 	}
 
