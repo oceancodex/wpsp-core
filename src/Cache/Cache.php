@@ -5,6 +5,10 @@ namespace WPSPCORE\Cache;
 use Illuminate\Cache\CacheManager;
 use WPSPCORE\BaseInstances;
 
+/**
+ * @mixin \Illuminate\Cache\CacheManager
+ * @mixin \Illuminate\Support\Facades\Cache
+ */
 abstract class Cache extends BaseInstances {
 
 	private CacheManager $cache;

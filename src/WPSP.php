@@ -25,7 +25,10 @@ abstract class WPSP extends BaseInstances {
 
 	public function setApplication(string $basePath) {
 		// Load command classes
-		$commands          = $this->funcs->_getAllClassesInDir('WPSPCORE\Console\Commands', __DIR__ . '/Console/Commands');
+		$commands = $this->funcs->_getAllClassesInDir(
+			'WPSPCORE\Console\Commands',
+			__DIR__ . '/Console/Commands'
+		);
 
 		$this->application = Application::configure($basePath)
 			->withMiddleware(function(Middleware $middleware): void {

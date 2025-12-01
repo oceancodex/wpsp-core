@@ -5,6 +5,9 @@ namespace WPSPCORE\Auth;
 use Illuminate\Auth\AuthManager;
 use WPSPCORE\BaseInstances;
 
+/**
+ * @mixin \Illuminate\Support\Facades\Auth
+ */
 abstract class Auth extends BaseInstances {
 
 	public AuthManager $auth;
