@@ -20,7 +20,7 @@ abstract class Auth extends BaseInstances {
 		$this->auth = $this->funcs->getApplication('auth');
 	}
 
-	public function getAuth() {
+	public function getAuth(): AuthManager {
 		return $this->auth;
 	}
 
