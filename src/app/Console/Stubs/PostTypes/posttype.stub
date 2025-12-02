@@ -1,6 +1,6 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WP\PostTypes;
+namespace {{ rootNamespace }}\App\WordPress\PostTypes;
 
 use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ coreNamespace }}\Base\BasePostType;

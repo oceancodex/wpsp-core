@@ -1,6 +1,6 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WP\Taxonomies;
+namespace {{ rootNamespace }}\App\WordPress\Taxonomies;
 
 use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ coreNamespace }}\Base\BaseTaxonomy;

@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WP\Templates\{{ name_slugify }};
+use {{ rootNamespace }}\App\WordPress\Templates\{{ name_slugify }};

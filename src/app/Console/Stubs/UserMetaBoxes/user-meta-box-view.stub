@@ -1,6 +1,6 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WP\UserMetaBoxes;
+namespace {{ rootNamespace }}\App\WordPress\UserMetaBoxes;
 
 use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;

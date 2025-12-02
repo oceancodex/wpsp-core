@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WP\TaxonomyColumns\{{ name_slugify }};
+use {{ rootNamespace }}\App\WordPress\TaxonomyColumns\{{ name_slugify }};

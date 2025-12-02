@@ -1,5 +1,5 @@
 <?php
-namespace {{ rootNamespace }}\App\WP\TaxonomyColumns;
+namespace {{ rootNamespace }}\App\WordPress\TaxonomyColumns;
 
 use {{ rootNamespace }}\App\Traits\InstancesTrait;
 use {{ coreNamespace }}\Base\BaseTaxonomyColumn;

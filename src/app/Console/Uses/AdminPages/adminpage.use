@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WP\AdminPages\{{ name_slugify }};
+use {{ rootNamespace }}\App\WordPress\AdminPages\{{ name_slugify }};

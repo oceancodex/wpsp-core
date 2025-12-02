@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WP\Roles\{{ name_slugify }};
+use {{ rootNamespace }}\App\WordPress\Roles\{{ name_slugify }};

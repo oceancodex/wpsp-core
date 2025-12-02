@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WP\MetaBoxes\{{ id_slugify }};
+use {{ rootNamespace }}\App\WordPress\MetaBoxes\{{ id_slugify }};
