@@ -28,14 +28,15 @@ abstract class WPSP extends BaseInstances {
 	 */
 
 	public function setApplication(string $basePath) {
-		// Load command classes
 		$commands = $this->getCustomCommands();
+		$providers = $this->getConfig('providers');
 
 		$this->application = Application::configure($basePath)
 			->withMiddleware(function(Middleware $middleware): void {
 				$middleware->append(StartSessionIfAuthenticated::class); // Start session trước mọi code (bao gồm cả view share).
 			})
 			->withExceptions(function(Exceptions $exceptions): void {})
+			->withProviders($providers)
 			->withCommands($commands)
 			->create();
 
@@ -51,10 +52,10 @@ abstract class WPSP extends BaseInstances {
 		$commands = $this->getCustomCommands();
 
 		$this->application = Application::configure($basePath)
-			->withCommands($commands)
 			->withMiddleware(function(Middleware $middleware) {})
 			->withExceptions(function(Exceptions $exceptions) {})
 			->withProviders([])
+			->withCommands($commands)
 			->create();
 
 		$this->bootstrapConsole();
@@ -89,6 +90,16 @@ abstract class WPSP extends BaseInstances {
 		$commands = array_merge($commands, $extendCommands);
 
 		return $commands;
+	}
+
+	public function getConfig($fileName = null) {
+		$config = [];
+
+		if ($fileName) {
+			$config = require_once __DIR__ . '/config/' . $fileName . '.php';
+		}
+
+		return $config;
 	}
 
 	/*
