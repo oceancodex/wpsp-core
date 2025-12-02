@@ -25,10 +25,7 @@ abstract class WPSP extends BaseInstances {
 
 	public function setApplication(string $basePath) {
 		// Load command classes
-		$commands = $this->funcs->_getAllClassesInDir(
-			'WPSPCORE\Console\Commands',
-			__DIR__ . '/Console/Commands'
-		);
+		$commands = $this->getCustomCommands();
 
 		$this->application = Application::configure($basePath)
 			->withMiddleware(function(Middleware $middleware): void {
@@ -46,17 +43,7 @@ abstract class WPSP extends BaseInstances {
 
 	public function setApplicationForConsole(string $basePath) {
 		// Load command classes
-		$commands = $this->funcs->_getAllClassesInDir(
-			'WPSPCORE\Console\Commands',
-			__DIR__ . '/Console/Commands'
-		);
-
-		$extendCommands = $this->funcs->_getAllClassesInDir(
-			'WPSPCORE\Console\Commands\Extends',
-			__DIR__ . '/Console/Commands/Extends'
-		);
-
-		$commands = array_merge($commands, $extendCommands);
+		$commands = $this->getCustomCommands();
 
 		$this->application = Application::configure($basePath)
 			->withCommands($commands)
@@ -80,6 +67,22 @@ abstract class WPSP extends BaseInstances {
 			return $this->application->make($abstract, $parameters);
 		}
 		return $this->application;
+	}
+
+	public function getCustomCommands() {
+		$commands = $this->funcs->_getAllClassesInDir(
+			'WPSPCORE\Console\Commands',
+			__DIR__ . '/Console/Commands'
+		);
+
+		$extendCommands = $this->funcs->_getAllClassesInDir(
+			'WPSPCORE\Console\Commands\Extends',
+			__DIR__ . '/Console/Commands/Extends'
+		);
+
+		$commands = array_merge($commands, $extendCommands);
+
+		return $commands;
 	}
 
 	/*
