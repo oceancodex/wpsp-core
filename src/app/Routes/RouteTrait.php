@@ -98,6 +98,7 @@ trait RouteTrait {
 			// -----------------------------
 			// 3. Hàm chạy từng middleware
 			// -----------------------------
+			/** @var \Illuminate\Foundation\Application $app */
 			$app     = $this->funcs->getApplication();
 			$request = $app->make('request');
 
@@ -133,7 +134,12 @@ trait RouteTrait {
 //							}
 						}
 
-						$res = $instance->$method($request, $next, $mw['args'] ?? []);
+//						$res = $instance->$method($request, $next, $mw['args'] ?? null);
+						$res = $app->call([$instance, $method], [
+							'request' => $request,
+							'next'    => $next,
+							'args'    => $mw['args'] ?? null,
+						]);
 					}
 //				}
 //				catch (\Throwable $e) {

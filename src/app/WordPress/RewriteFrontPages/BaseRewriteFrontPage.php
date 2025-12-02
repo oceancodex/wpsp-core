@@ -56,9 +56,9 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			// Fix "404" for custom permalinks.
 			add_action('parse_request', function($wp) use ($fullPath, $requestPath, $stringMatches) {
 				try {
-					$matched = preg_match('/' . $this->funcs->_regexPath($fullPath) . '/iu', $requestPath);
+					$matched = preg_match('/^' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath);
 					if (!$matched) {
-						$matched = preg_match('/' . $fullPath . '/iu', $requestPath);
+						$matched = preg_match('/^' . $fullPath . '$/iu', $requestPath);
 					}
 				}
 				catch (\Throwable $e) {
@@ -82,15 +82,15 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 				foreach ($stringMatchesArr as $stringMatchesArrKey => $stringMatchesArrValue) {
 					$wp->query_vars[$stringMatchesArrKey] = $stringMatchesArrValue;
 				}
-			}, 10);
+			}, 999999999);
 
 			if (!is_admin()) {
 				// Access URL that match rewrite rule.
-				add_action('wp', function() use ($path, $fullPath, $requestPath) {
+//				add_action('wp_loaded', function() use ($path, $fullPath, $requestPath) {
 					try {
-						$matched = preg_match('/' . $this->funcs->_regexPath($fullPath) . '/iu', $requestPath);
+						$matched = preg_match('/^' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath);
 						if (!$matched) {
-							$matched = preg_match('/' . $fullPath . '/iu', $requestPath);
+							$matched = preg_match('/^' . $fullPath . '$/iu', $requestPath);
 						}
 					}
 					catch (\Throwable $e) {
@@ -102,7 +102,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 					$this->maybeNoTemplate();
 					$callback = $this->prepareCallbackFunction($this->callback_function, $path, $fullPath);
 					$this->resolveAndCall($callback);
-				});
+//				});
 			}
 		}
 	}

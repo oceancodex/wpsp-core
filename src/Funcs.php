@@ -513,8 +513,26 @@ class Funcs extends BaseInstances {
 			}
 		}
 
-		// Xóa tag nhóm regex nếu còn sót (ví dụ id=(?P<id>...)?)
-		$finalUrl = preg_replace('/\(\?P<[^>]+>[^)]+\)\??/', '', $finalUrl);
+		// Xử lý group PATH dạng (?P<key>regex) và (?P<key>regex)?
+		if (preg_match_all('/\??\(\?P<([^>]+)>([^)]+)\)\??/', $finalUrl, $gm)) {
+			foreach ($gm[1] as $i => $name) {
+				$fullGroup = $gm[0][$i];
+
+				if (array_key_exists($name, $args)) {
+					$value = rawurlencode($args[$name]);
+				} else {
+					$value = ''; // Không có value → rỗng
+				}
+
+				// Thay group bằng value
+				$finalUrl = str_replace($fullGroup, $value, $finalUrl);
+
+				unset($args[$name]); // Đã dùng, xoá tránh append query
+			}
+		}
+echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($finalUrl); echo '</pre>';
+		// Xóa tag nhóm regex nếu còn sót.
+		$finalUrl = preg_replace('/\((.*?)\)/', '', $finalUrl);
 
 		// Nếu còn args → append query string
 		if (!empty($args) && is_array($args)) {
@@ -523,7 +541,7 @@ class Funcs extends BaseInstances {
 		}
 
 		// Cleanup
-		$finalUrl = trim($finalUrl, '&?');
+		$finalUrl = trim($finalUrl, '?$&');
 
 		// Build thành URL đầy đủ
 		if ($buildURL || (is_bool($args) && $args)) {
@@ -543,7 +561,14 @@ class Funcs extends BaseInstances {
 			}
 		}
 
-		return trim($finalUrl, '/');
+		$finalUrl = trim($finalUrl, '/');
+		$finalUrl = trim($finalUrl, '\\');
+		$finalUrl = preg_replace('/\\\\\//', '/', $finalUrl);
+
+		// Cleanup
+		$finalUrl = trim($finalUrl, '?$&');
+
+		return $finalUrl;
 	}
 
 	public function _trans($string, $wordpress = false) {
