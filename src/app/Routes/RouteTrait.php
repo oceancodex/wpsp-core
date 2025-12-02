@@ -291,8 +291,50 @@ trait RouteTrait {
 
 			// Nếu param có type-hint là class (non-builtin) -> để container xử lý, KHÔNG gán value vào routeParams
 			// (Container::call sẽ tự inject class instances)
+//			if ($type && !$type->isBuiltin()) {
+//				// Không set $callParams[$name] — container sẽ resolve type-hint
+//				continue;
+//			}
+
+			/**
+			 * Model binding.
+			 */
 			if ($type && !$type->isBuiltin()) {
-				// Không set $callParams[$name] — container sẽ resolve type-hint
+				$className = $type->getName();
+
+				// Nếu type là Eloquent Model => tự binding
+				if (is_subclass_of($className, \Illuminate\Database\Eloquent\Model::class)) {
+
+					// Lấy id từ path / query
+					$id = null;
+
+					// Ưu tiên named group (?P<user_id>)
+					if (array_key_exists($name, $named)) {
+						$id = $named[$name];
+					}
+					elseif (array_key_exists($name, $query)) {
+						$id = $query[$name];
+					}
+					elseif (array_key_exists($name, $post)) {
+						$id = $post[$name];
+					}
+
+					// Nếu có ID → binding
+					if (!empty($id)) {
+						$callParams[$name] = $className::query()->findOrFail($id);
+					} else {
+						// Không có id nhưng param optional → default / null
+						if ($param->isDefaultValueAvailable()) {
+							$callParams[$name] = $param->getDefaultValue();
+						} else {
+							$callParams[$name] = null;
+						}
+					}
+
+					continue; // xong param model-binding
+				}
+
+				// Còn lại để Container inject
 				continue;
 			}
 
