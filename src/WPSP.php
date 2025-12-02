@@ -2,6 +2,7 @@
 
 namespace WPSPCORE;
 
+use Illuminate\Auth\AuthManager;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Bootstrap\LoadConfiguration;
@@ -12,7 +13,10 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Request;
-use WPSPCORE\Http\Middleware\StartSessionIfAuthenticated;
+use Illuminate\Support\Timebox;
+use WPSPCORE\App\BaseInstances;
+use WPSPCORE\App\Funcs;
+use WPSPCORE\App\Http\Middleware\StartSessionIfAuthenticated;
 
 abstract class WPSP extends BaseInstances {
 
@@ -36,6 +40,7 @@ abstract class WPSP extends BaseInstances {
 			->create();
 
 		$this->bootstrap();
+		$this->extends();
 		$this->bindings();
 		$this->application->boot();
 		$this->handleRequest();
@@ -53,6 +58,7 @@ abstract class WPSP extends BaseInstances {
 			->create();
 
 		$this->bootstrapConsole();
+		$this->extendsConsole();
 		$this->bindingsConsole();
 
 		return $this->application;
@@ -69,15 +75,15 @@ abstract class WPSP extends BaseInstances {
 		return $this->application;
 	}
 
-	public function getCustomCommands() {
+	public function getCustomCommands(): array {
 		$commands = $this->funcs->_getAllClassesInDir(
 			'WPSPCORE\Console\Commands',
-			__DIR__ . '/Console/Commands'
+			__DIR__ . '/app/Console/Commands'
 		);
 
 		$extendCommands = $this->funcs->_getAllClassesInDir(
 			'WPSPCORE\Console\Commands\Extends',
-			__DIR__ . '/Console/Commands/Extends'
+			__DIR__ . '/app/Console/Commands/Extends'
 		);
 
 		$commands = array_merge($commands, $extendCommands);
@@ -108,18 +114,17 @@ abstract class WPSP extends BaseInstances {
 		(new LoadConfiguration)->bootstrap($this->application);
 	}
 
+	protected function extends() {
+		// Override SessionGuard để thay đổi remember_web_* thành wpsp_remember_web_*
+		$this->overrideRememberCookieName();
+	}
+
+	protected function extendsConsole() {}
+
 	protected function bindings(): void {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('request', Request::capture());
-		$this->application->instance('funcs',
-			$this->funcs ??
-			new Funcs(
-				$this->mainPath,
-				$this->rootNamespace,
-				$this->prefixEnv,
-				$this->extraParams
-			)
-		);
+		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 	}
 
 	protected function bindingsConsole() {
@@ -145,6 +150,37 @@ abstract class WPSP extends BaseInstances {
 		$response       = $kernel->handle($request);
 		$this->response = $response;
 		$kernel->terminate($request, $this->response);
+	}
+
+	/*
+	 *
+	 */
+
+	/**
+	 * Override SessionGuard để thay đổi remember_web_* thành wpsp_remember_web_*
+	 */
+	private function overrideRememberCookieName() {
+		$this->application->afterResolving('auth', function (AuthManager $auth) {
+			$auth->extend('session', function ($app, $name, array $config) use ($auth) {
+				$provider = $auth->createUserProvider($config['provider']);
+
+				$guard = new app\Auth\SessionGuard(
+					$name,
+					$provider,
+					$app['session.store'],
+					$app['request'],
+					$app->make(Timebox::class),
+					true,
+					200000,
+					$app['funcs'] // truyền funcs trực tiếp
+				);
+
+				$guard->setCookieJar($app['cookie']);
+				$guard->setRequest($app['request']);
+
+				return $guard;
+			});
+		});
 	}
 
 	/*

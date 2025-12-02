@@ -1,0 +1,133 @@
+<?php
+
+namespace WPSPCORE\App\Console\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+use WPSPCORE\App\Console\Traits\CommandsTrait;
+
+class MakeUserMetaBoxCommand extends Command {
+
+	use CommandsTrait;
+
+	protected $signature = 'make:user-meta-box
+        {id? : The id of the user meta box}
+        {--create-view : Create view files for this user meta box}';
+
+	protected $description = 'Create a new user meta box.               | Eg: bin/wpsp make:user-meta-box custom_user_meta_box --create-view';
+
+	protected $help = 'This command allows you to create a user meta box.';
+
+	public function handle(): void {
+		$this->funcs = $this->getLaravel()->make("funcs");
+		$mainPath    = $this->funcs->mainPath;
+
+		$id = $this->argument('id');
+
+		/* -------------------------------------------------
+		 *  ASK INTERACTIVE
+		 * ------------------------------------------------- */
+		if (!$id) {
+			$id = $this->ask('Please enter the ID of the user meta box');
+
+			if (empty($id)) {
+				$this->error('Missing ID for the user meta box. Please try again.');
+				exit;
+			}
+
+			$createView = $this->confirm('Do you want to create view files for this user meta box?', false);
+		}
+
+		$idSlugify  = Str::slug($id, '_');
+		$createView = $createView ?? $this->option('create-view');
+
+		/* -------------------------------------------------
+		 *  CHECK EXISTS
+		 * ------------------------------------------------- */
+		$classPath = $mainPath . '/app/WP/UserMetaBoxes/' . $idSlugify . '.php';
+		$viewDir   = $mainPath . '/resources/views/modules/user-meta-boxes/' . $idSlugify;
+
+		if (File::exists($classPath) || File::exists($viewDir)) {
+			$this->error('[ERROR] User meta box: "' . $id . '" already exists! Please try again.');
+			exit;
+		}
+
+		/* -------------------------------------------------
+		 *  CREATE CLASS FILE
+		 * ------------------------------------------------- */
+		if ($createView) {
+			$content = File::get(__DIR__ . '/../Stubs/UserMetaBoxes/user-meta-box-view.stub');
+		}
+		else {
+			$content = File::get(__DIR__ . '/../Stubs/UserMetaBoxes/user-meta-box.stub');
+		}
+
+		$content = str_replace(
+			['{{ className }}', '{{ id }}', '{{ id_slugify }}'],
+			[$idSlugify, $id, $idSlugify],
+			$content
+		);
+		$content = $this->replaceNamespaces($content);
+
+		File::ensureDirectoryExists(dirname($classPath));
+		File::put($classPath, $content);
+
+		/* -------------------------------------------------
+		 *  CREATE VIEW FILES
+		 * ------------------------------------------------- */
+		if ($createView) {
+			$bladeExt    = class_exists('\WPSPCORE\View\Blade') ? '.blade.php' : '.php';
+			$nonBladeSep = class_exists('\WPSPCORE\View\Blade') ? '' : '/non-blade';
+
+			File::ensureDirectoryExists($viewDir);
+
+			$views = [
+				'main'       => 'main.view',
+				'tab-1'      => 'tab-1.view',
+				'tab-2'      => 'tab-2.view',
+				'navigation' => 'navigation.view',
+			];
+
+			foreach ($views as $file => $stubFile) {
+				$view = File::get(__DIR__ . '/../Views/UserMetaBoxes' . $nonBladeSep . '/' . $stubFile);
+
+				$view = str_replace(
+					['{{ className }}', '{{ id }}', '{{ id_slugify }}'],
+					[$idSlugify, $id, $idSlugify],
+					$view
+				);
+
+				File::put("$viewDir/{$file}{$bladeExt}", $view);
+			}
+		}
+
+		/* -------------------------------------------------
+		 *  REGISTER ROUTE ENTRY (func + use)
+		 * ------------------------------------------------- */
+		$func = File::get(__DIR__ . '/../Funcs/UserMetaBoxes/user-meta-box.func');
+		$func = str_replace(
+			['{{ id }}', '{{ id_slugify }}'],
+			[$id, $idSlugify],
+			$func
+		);
+
+		$use = File::get(__DIR__ . '/../Uses/UserMetaBoxes/user-meta-box.use');
+		$use = str_replace(
+			['{{ id }}', '{{ id_slugify }}'],
+			[$id, $idSlugify],
+			$use
+		);
+		$use = $this->replaceNamespaces($use);
+
+		$this->addClassToRoute('UserMetaBoxes', 'user_meta_boxes', $func, $use);
+
+		/* -------------------------------------------------
+		 *  DONE
+		 * ------------------------------------------------- */
+		$this->info('Created new user meta box: "' . $id . '"');
+
+		exit;
+	}
+
+}

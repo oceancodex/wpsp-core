@@ -7,7 +7,7 @@
 	"license": "MIT",
 	"require": {
 		"php": "^8.4",
-		"laravel/framework": "^v12.37.0",
+		"laravel/framework": "^v12.40.2",
 		"laravel/tinker": "^2.0",
 		"yahnis-elsts/plugin-update-checker": "^v5.6"
 	},
@@ -16,16 +16,13 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"WPSPCORE\\": "src/"
+			"WPSPCORE\\": "src/",
+			"WPSPCORE\\App\\": "src/app/"
 		},
 		"files": [
 		]
 	},
-	"autoload-dev": {
-		"psr-4": {
-			"WPSPCORE\\Tests\\": "tests/"
-		}
-	},
+	"autoload-dev": {},
 	"authors": [
 		{
 			"name": "OceanCodex",
