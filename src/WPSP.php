@@ -14,8 +14,6 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Timebox;
-use WPSPCORE\App\BaseInstances;
-use WPSPCORE\App\Funcs;
 use WPSPCORE\App\Http\Middleware\StartSessionIfAuthenticated;
 
 abstract class WPSP extends BaseInstances {

@@ -3,7 +3,7 @@
 namespace WPSPCORE\App\Cache;
 
 use Illuminate\Cache\CacheManager;
-use WPSPCORE\App\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 /**
  * @mixin \Illuminate\Cache\CacheManager

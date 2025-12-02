@@ -2,9 +2,8 @@
 
 namespace WPSPCORE\App\WordPress\Taxonomies;
 
-use WPSPCORE\App\WordPress\Taxonomies\TaxonomyData;
-use WPSPCORE\App\BaseInstances;
 use WPSPCORE\App\Traits\ObjectToArrayTrait;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseTaxonomy extends BaseInstances {
 

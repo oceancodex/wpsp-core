@@ -1,8 +1,7 @@
 <?php
 
-namespace WPSPCORE\app;
+namespace WPSPCORE;
 
-use Illuminate\Http\Request;
 use WPSPCORE\App\Traits\BaseInstancesTrait;
 
 abstract class BaseInstances {

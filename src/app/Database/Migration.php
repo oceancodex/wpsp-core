@@ -4,7 +4,7 @@ namespace WPSPCORE\App\Database;
 
 use Illuminate\Contracts\Console\Kernel as ArtisanKernel;
 use Illuminate\Filesystem\Filesystem;
-use WPSPCORE\App\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 /**
  * Migration checker tương thích với Application nội bộ (đa plugin).

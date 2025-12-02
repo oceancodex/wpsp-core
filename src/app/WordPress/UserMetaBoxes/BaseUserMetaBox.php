@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\WordPress\UserMetaBoxes;
 
-use WPSPCORE\App\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseUserMetaBox extends BaseInstances {
 

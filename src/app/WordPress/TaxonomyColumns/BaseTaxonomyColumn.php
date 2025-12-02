@@ -2,8 +2,8 @@
 
 namespace WPSPCORE\App\WordPress\TaxonomyColumns;
 
-use WPSPCORE\App\BaseInstances;
 use WPSPCORE\App\Traits\ObjectToArrayTrait;
+use WPSPCORE\BaseInstances;
 
 /**
  * @method void sort($query)

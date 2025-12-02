@@ -2,8 +2,8 @@
 
 namespace WPSPCORE\App\WordPress\NavigationMenus\Locations;
 
-use WPSPCORE\App\BaseInstances;
 use WPSPCORE\App\Traits\ObjectToArrayTrait;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseNavigationLocation extends BaseInstances {
 

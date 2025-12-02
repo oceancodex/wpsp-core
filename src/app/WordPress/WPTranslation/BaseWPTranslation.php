@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\WordPress\WPTranslation;
 
-use WPSPCORE\App\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseWPTranslation extends BaseInstances {
 

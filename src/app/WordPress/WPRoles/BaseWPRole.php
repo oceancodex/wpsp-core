@@ -2,8 +2,8 @@
 
 namespace WPSPCORE\App\WordPress\WPRoles;
 
-use WPSPCORE\App\BaseInstances;
 use WPSPCORE\App\Traits\ObjectToArrayTrait;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseWPRole extends BaseInstances {
 

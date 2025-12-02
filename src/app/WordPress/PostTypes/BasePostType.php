@@ -2,9 +2,8 @@
 
 namespace WPSPCORE\App\WordPress\PostTypes;
 
-use WPSPCORE\App\WordPress\PostTypes\PostTypeData;
-use WPSPCORE\App\BaseInstances;
 use WPSPCORE\App\Traits\ObjectToArrayTrait;
+use WPSPCORE\BaseInstances;
 
 abstract class BasePostType extends BaseInstances {
 

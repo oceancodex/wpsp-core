@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\WordPress\WPRoles;
 
-use WPSPCORE\App\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 class WPRoles extends BaseInstances {
 

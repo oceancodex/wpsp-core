@@ -2,9 +2,8 @@
 
 namespace WPSPCORE\App\WordPress\NavigationMenus\Menus;
 
-use WPSPCORE\App\WordPress\NavigationMenus\Menus\NavigationMenuData;
-use WPSPCORE\App\BaseInstances;
 use WPSPCORE\App\Traits\ObjectToArrayTrait;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseNavigationMenu extends BaseInstances {
 

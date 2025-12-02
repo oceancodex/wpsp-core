@@ -3,7 +3,7 @@
 namespace WPSPCORE\App\RateLimiter;
 
 use Illuminate\Cache\CacheManager;
-use WPSPCORE\App\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 abstract class RateLimiter extends BaseInstances {
 

@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SessionGuard extends \Illuminate\Auth\SessionGuard {
 
-	/** @var \WPSPCORE\App\Funcs|null */
+	/** @var \WPSPCORE\Funcs|null */
 	public $funcs = null;
 
 	/**

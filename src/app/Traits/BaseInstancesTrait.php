@@ -3,12 +3,12 @@
 namespace WPSPCORE\App\Traits;
 
 use Illuminate\Http\Request;
-use WPSPCORE\App\Funcs;
+use WPSPCORE\Funcs;
 
 /**
  * BaseInstancesTrait.
  *
- * @property \WPSPCORE\App\Funcs|null      $funcs
+ * @property \WPSPCORE\Funcs|null          $funcs
  * @property \Illuminate\Http\Request|null $request
  */
 trait BaseInstancesTrait {
@@ -63,7 +63,7 @@ trait BaseInstancesTrait {
 	private function prepareFuncs(): void {
 		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
 			if (is_bool($this->extraParams['funcs'])) {
-				$this->funcs = new \WPSPCORE\App\Funcs(
+				$this->funcs = new \WPSPCORE\Funcs(
 					$this->mainPath,
 					$this->rootNamespace,
 					$this->prefixEnv,

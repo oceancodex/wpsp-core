@@ -1,13 +1,10 @@
 <?php
 
-namespace WPSPCORE\app;
+namespace WPSPCORE;
 
 use Carbon\Carbon;
 use NumberFormatter;
-use WPSPCORE\app;
-use WPSPCORE\App\BaseInstances;
 use WPSPCORE\App\Routes\RouteTrait;
-use const WPSPCORE\T_ML_COMMENT;
 
 class Funcs extends BaseInstances {
 

@@ -2,8 +2,7 @@
 
 namespace WPSPCORE\App\Updater;
 
-use WPSPCORE\App\BaseInstances;
-use WPSPCORE\App\Updater\PucFactory;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseUpdater extends BaseInstances {
 

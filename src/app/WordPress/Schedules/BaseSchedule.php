@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\WordPress\Schedules;
 
-use WPSPCORE\App\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseSchedule extends BaseInstances {
 

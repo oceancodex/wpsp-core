@@ -3,7 +3,7 @@
 namespace WPSPCORE\App\Events;
 
 use Illuminate\Events\Dispatcher as EventsDispatcher;
-use WPSPCORE\App\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 /**
  * @mixin \Illuminate\Support\Facades\Event

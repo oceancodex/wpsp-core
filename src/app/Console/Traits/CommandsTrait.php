@@ -3,7 +3,7 @@
 namespace WPSPCORE\App\Console\Traits;
 
 use Illuminate\Support\Facades\File;
-use WPSPCORE\App\Funcs;
+use WPSPCORE\Funcs;
 
 /**
  * @property Funcs $funcs

@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Http\Controllers;
 
-use WPSPCORE\App\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseController extends BaseInstances {
 

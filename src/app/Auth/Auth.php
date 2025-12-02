@@ -3,7 +3,7 @@
 namespace WPSPCORE\App\Auth;
 
 use Illuminate\Auth\AuthManager;
-use WPSPCORE\App\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 /**
  * @mixin \Illuminate\Support\Facades\Auth

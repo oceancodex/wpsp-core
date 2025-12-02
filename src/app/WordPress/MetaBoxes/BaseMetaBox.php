@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\WordPress\MetaBoxes;
 
-use WPSPCORE\App\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseMetaBox extends BaseInstances {
 

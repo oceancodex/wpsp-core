@@ -2,8 +2,7 @@
 
 namespace WPSPCORE\App\Routes;
 
-use WPSPCORE\App\BaseInstances;
-use WPSPCORE\App\Routes\RouteData;
+use WPSPCORE\BaseInstances;
 
 class RouteManager extends BaseInstances {
 

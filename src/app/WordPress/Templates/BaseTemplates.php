@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\WordPress\Templates;
 
-use WPSPCORE\App\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseTemplates extends BaseInstances {
 

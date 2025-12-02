@@ -466,7 +466,7 @@ trait RouteTrait {
 		return $this->getCallParams($path, $fullPath, $requestPath, $class, $method, $args);
 	}
 
-	private function normalizeCallback($callback): array {
+	public function normalizeCallback($callback): array {
 		if ($callback instanceof \Closure) {
 			return [null, $callback];
 		}

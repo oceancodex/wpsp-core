@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\WordPress\Shortcodes;
 
-use WPSPCORE\App\BaseInstances;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseShortcode extends BaseInstances {
 

@@ -2,10 +2,8 @@
 
 namespace WPSPCORE\App\Routes;
 
-use WPSPCORE\App\BaseInstances;
-use WPSPCORE\App\Routes\RouteData;
-use WPSPCORE\App\Routes\RouteTrait;
 use WPSPCORE\App\Traits\HookRunnerTrait;
+use WPSPCORE\BaseInstances;
 
 /**
  * Hỗ trợ gọi động: prefix(), name(), middleware(), group(),

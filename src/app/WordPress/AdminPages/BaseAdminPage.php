@@ -2,8 +2,8 @@
 
 namespace WPSPCORE\App\WordPress\AdminPages;
 
-use WPSPCORE\App\BaseInstances;
 use WPSPCORE\App\Routes\RouteTrait;
+use WPSPCORE\BaseInstances;
 
 abstract class BaseAdminPage extends BaseInstances {
 
