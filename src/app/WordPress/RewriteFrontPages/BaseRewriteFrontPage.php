@@ -24,6 +24,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
 		$this->overridePath($this->extraParams['path']);
+		$this->overrideFullPath($this->extraParams['full_path']);
 		$this->customProperties();
 	}
 
@@ -48,7 +49,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			}
 
 			// Rewrite rule.
-			add_rewrite_rule($fullPath, 'index.php?post_type=' . $this->rewriteFrontPagePostType . '&pagename=' . $this->rewriteFrontPageSlug . '&is_rewrite=true' . $stringMatches, 'top');
+			add_rewrite_rule('^' . $this->funcs->_regexPath($fullPath) . '\/?$', 'index.php?post_type=' . $this->rewriteFrontPagePostType . '&pagename=' . $this->rewriteFrontPageSlug . '&is_rewrite=true' . $stringMatches, 'top');
 
 			$requestPath = trim($this->request->getPathInfo(), '/\\');
 
@@ -113,6 +114,12 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	private function overridePath($path = null) {
 		if ($path && !$this->path) {
 			$this->path = $path;
+		}
+	}
+
+	private function overrideFullPath($fullPath = null) {
+		if ($fullPath && !$this->fullPath) {
+			$this->fullPath = $fullPath;
 		}
 	}
 
