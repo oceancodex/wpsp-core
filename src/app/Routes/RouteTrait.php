@@ -178,23 +178,16 @@ trait RouteTrait {
 	}
 
 	public function prepareRouteCallback($callback, $constructParams = []) {
-
-		// If callback is a closure.
 		if ($callback instanceof \Closure) {
 			return $callback;
 		}
 
-		// If callback is an array with class and method.
 		if (is_array($callback)) {
-			$class = new $callback[0](...$constructParams ?? []);
+			$class = new $callback[0](...($constructParams ?? []));
 			return [$class, $callback[1] ?? null];
 		}
 
-		// If callback is a string.
-		return function() use ($callback) {
-			return $callback;
-		};
-
+		throw new \RuntimeException("Invalid callback");
 	}
 
 	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []): array {
@@ -394,74 +387,119 @@ trait RouteTrait {
 		return $callParams;
 	}
 
-	public function resolveAndCall($callback, array $callParams = [], $call = true) {
-		// 🔹 Lấy container từ Application hoặc fallback
-		$app       = $this->funcs->getApplication();
-		$container = $app ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
-
-		if (!$container) {
-			throw new \RuntimeException('Container instance not found.');
-		}
-
-		// NEW: support Closure
-		if ($callback instanceof \Closure) {
-			return $call
-				? $container->call($callback, $callParams)
-				: function() use ($container, $callback, $callParams) {
-					return $container->call($callback, $callParams);
-				};
-		}
-
-		[$classOrInstance, $method] = $callback;
-
-		// 🔹 Resolve instance controller
-		$instance = is_object($classOrInstance)
-			? $classOrInstance
-			: $container->make($classOrInstance);
-
-		// 🔹 Tự động inject FormRequest nếu có
-		$reflection  = new \ReflectionMethod($instance, $method);
-		$baseRequest = $container->bound('request')
-			? $container->make('request')
-			: \Illuminate\Http\Request::capture();
-
-		foreach ($reflection->getParameters() as $param) {
-			$type = $param->getType();
-			if ($type && !$type->isBuiltin()) {
-				$paramClass = $type->getName();
-
-				// Inject FormRequest (nếu có)
-				if (is_subclass_of($paramClass, \Illuminate\Foundation\Http\FormRequest::class)) {
-					$formRequest = $paramClass::createFromBase($baseRequest);
-					$formRequest->setContainer($container);
-					$formRequest->setRedirector($container->make(\Illuminate\Routing\Redirector::class));
-					if (method_exists($formRequest, 'validateResolved')) {
-						$formRequest->validateResolved();
-					}
-					$container->instance($paramClass, $formRequest);
-				}
-			}
-		}
-
-		if (!$call) {
-			// 🔹 Trả về callable đã resolve hoàn chỉnh và không call.
-			return function() use ($container, $instance, $method, $callParams) {
-				return $container->call([$instance, $method], $callParams);
-			};
-		}
-
-		// 🔹 Gọi thông qua Container::call() để tự inject linh hoạt
-		return $container->call([$instance, $method], $callParams);
-	}
+//	public function resolveAndCall($callback, array $callParams = [], $call = true) {
+//		// 🔹 Lấy container từ Application hoặc fallback
+//		$app       = $this->funcs->getApplication();
+//		$container = $app ?? (\Illuminate\Foundation\Application::getInstance() ?? null);
+//
+//		if (!$container) {
+//			throw new \RuntimeException('Container instance not found.');
+//		}
+//
+//		// NEW: support Closure
+//		if ($callback instanceof \Closure) {
+//			return $call
+//				? $container->call($callback, $callParams)
+//				: function() use ($container, $callback, $callParams) {
+//					return $container->call($callback, $callParams);
+//				};
+//		}
+//
+//		[$classOrInstance, $method] = $callback;
+//
+//		// 🔹 Resolve instance controller
+//		$instance = is_object($classOrInstance)
+//			? $classOrInstance
+//			: $container->make($classOrInstance);
+//
+//		// 🔹 Tự động inject FormRequest nếu có
+//		$reflection  = new \ReflectionMethod($instance, $method);
+//		$baseRequest = $container->bound('request')
+//			? $container->make('request')
+//			: \Illuminate\Http\Request::capture();
+//
+//		foreach ($reflection->getParameters() as $param) {
+//			$type = $param->getType();
+//			if ($type && !$type->isBuiltin()) {
+//				$paramClass = $type->getName();
+//
+//				// Inject FormRequest (nếu có)
+//				if (is_subclass_of($paramClass, \Illuminate\Foundation\Http\FormRequest::class)) {
+//					$formRequest = $paramClass::createFromBase($baseRequest);
+//					$formRequest->setContainer($container);
+//					$formRequest->setRedirector($container->make(\Illuminate\Routing\Redirector::class));
+//					if (method_exists($formRequest, 'validateResolved')) {
+//						$formRequest->validateResolved();
+//					}
+//					$container->instance($paramClass, $formRequest);
+//				}
+//			}
+//		}
+//
+//		if (!$call) {
+//			// 🔹 Trả về callable đã resolve hoàn chỉnh và không call.
+//			return function() use ($container, $instance, $method, $callParams) {
+//				return $container->call([$instance, $method], $callParams);
+//			};
+//		}
+//
+//		// 🔹 Gọi thông qua Container::call() để tự inject linh hoạt
+//		return $container->call([$instance, $method], $callParams);
+//	}
 
 	public function resolveCallback($callback, array $callParams = []) {
 		return $this->resolveAndCall($callback, $callParams, false);
 	}
 
-	public function prepareCallbackFunction($callbackFunction, $path, $fullPath, $requestPath = null) {
-		$requestPath = $requestPath ?? trim($this->request->getRequestUri(), '/\\');
-		$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $this, $callbackFunction);
-		return $this->resolveAndCall([$this, $callbackFunction], $callParams, false);
+//	public function prepareCallbackFunction($callbackFunction, $path, $fullPath, $requestPath = null) {
+//		$requestPath = $requestPath ?? trim($this->request->getRequestUri(), '/\\');
+//		$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $this, $callbackFunction);
+//		return $this->resolveAndCall([$this, $callbackFunction], $callParams, false);
+//	}
+
+	/**
+	 * TODO: Cần phải xử lý lại Route callback để đảm bảo theo chuẩn Laravel. Có params injection và model biding.
+	 */
+
+	public function buildParametersForCallable($callback, $path, $fullPath, $requestPath, array $args = []): array {
+		[$class, $method] = $this->normalizeCallback($callback);
+		return $this->getCallParams($path, $fullPath, $requestPath, $class, $method, $args);
+	}
+
+	private function normalizeCallback($callback): array {
+		if ($callback instanceof \Closure) {
+			return [null, $callback];
+		}
+
+		if (is_array($callback) && is_object($callback[0]) && is_string($callback[1])) {
+			return [$callback[0], $callback[1]];
+		}
+
+		throw new \RuntimeException("Invalid callback format");
+	}
+
+	public function resolveAndCall($callback, array $callParams = []) {
+		$container = $this->funcs->getApplication();
+
+		return $container->call($callback, $callParams);
+	}
+
+	public function prepareCallbackFunction($method, $path, $fullPath): \Closure {
+		return function() use ($method, $path, $fullPath) {
+
+			$requestPath = trim($this->request->getRequestUri(), '/\\');
+
+			// build callback [instance, method]
+			$callback = [$this, $method];
+
+			// build params
+			$callParams = $this->buildParametersForCallable(
+				$callback, $path, $fullPath, $requestPath
+			);
+
+			// call
+			return $this->resolveAndCall($callback, $callParams);
+		};
 	}
 
 }
