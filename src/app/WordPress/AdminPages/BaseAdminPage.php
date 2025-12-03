@@ -22,8 +22,8 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $urls_highlight_current_menu = null;
 	public $callback_function           = null;
 
-	protected $screen_options           = false;
-	protected $screen_options_key       = null;
+	protected $screen_options     = false;
+	protected $screen_options_key = null;
 
 	public function afterConstruct() {
 		$this->callback_function  = $this->extraParams['callback_function'];
@@ -60,8 +60,9 @@ abstract class BaseAdminPage extends BaseInstances {
 	private function addMenuPage(): string {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
-			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);;
+			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
 		}
+
 		$menuPage = add_menu_page(
 			$this->page_title,
 			$this->menu_title,
@@ -94,7 +95,8 @@ abstract class BaseAdminPage extends BaseInstances {
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
 		}
-		return add_submenu_page(
+
+		$subMenuPage = add_submenu_page(
 			$this->parent_slug,
 			$this->page_title,
 			$this->menu_title,
@@ -102,22 +104,36 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->menu_slug,
 			$callback
 		);
+
+		// Render submenu page nếu path có query string.
+		if (preg_match('/[?&]/iu', $subMenuPage)) {
+			$this->renderSubMenuPage();
+		}
+
+		return $subMenuPage;
 	}
 
 	private function addAdminMenuPage() {
 		add_action('admin_menu', function() {
 			$adminPage = $this->is_submenu_page ? $this->addSubMenuPage() : $this->addMenuPage();
-			$this->afterAddAdminPage();
+
+			$this->afterAddAdminPage($adminPage);
+
+			$this->beforeLoadAdminPage($adminPage);
+
 			add_action('load-' . $adminPage, function() use ($adminPage) {
+				$this->inLoadBeforeAdminPage($adminPage);
+
 				// Enqueue scripts.
 				add_action('admin_enqueue_scripts', [$this, 'assets']);
 
 				// Screen options.
 				if ($this->screen_options) $this->screenOptions($adminPage);
 
-				// After load this admin page.
-				$this->afterLoadAdminPage($adminPage);
+				$this->inLoadAfterAdminPage($adminPage);
 			});
+
+			$this->afterLoadAdminPage($adminPage);
 		});
 
 		if ($this->remove_first_submenu) {
@@ -125,6 +141,23 @@ abstract class BaseAdminPage extends BaseInstances {
 				remove_submenu_page($this->menu_slug, $this->menu_slug);
 			}, 99999999);
 		}
+	}
+
+	private function renderSubMenuPage(): void {
+		add_action('all_admin_notices', function() {
+			$fullPath = $this->extraParams['full_path'] ?? $this->menu_slug;
+			$requestPath = trim($this->request->getRequestUri(), '/\\');
+			if (
+				is_admin()
+				&& preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/', $requestPath)
+				&& $this->callback_function
+				&& method_exists($this, $this->callback_function)
+			) {
+				$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
+				$callParams = $this->getCallParams($this->menu_slug, $this->menu_slug, $requestPath, $callback);
+				$this->resolveAndCall($callback, $callParams);
+			}
+		}, 9999999999);
 	}
 
 	private function highlightCurrentMenu() {
@@ -165,7 +198,13 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public function afterInit() {}
 
-	public function afterAddAdminPage() {}
+	public function afterAddAdminPage($adminPage) {}
+
+	public function beforeLoadAdminPage($adminPage) {}
+
+	public function inLoadBeforeAdminPage($adminPage) {}
+
+	public function inLoadAfterAdminPage($adminPage) {}
 
 	public function afterLoadAdminPage($adminPage) {}
 
