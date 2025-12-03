@@ -13,6 +13,10 @@ abstract class Cache extends BaseInstances {
 
 	private CacheManager $cache;
 
+	/*
+	 *
+	 */
+
 	public function getCache(): CacheManager {
 		return $this->cache;
 	}
@@ -25,22 +29,19 @@ abstract class Cache extends BaseInstances {
 	 *
 	 */
 
-	public function __call($name, $arguments) {
-		if (method_exists(static::instance(), $name)) {
-			return static::instance()->$name(...$arguments);
-		}
-		else {
-			return static::instance()->getCache()->$name(...$arguments);
-		}
+	public function __call($method, $arguments) {
+		return static::__callStatic($method, $arguments);
 	}
 
-	public static function __callStatic($name, $arguments) {
-		if (method_exists(static::instance(), $name)) {
-			return static::instance()->$name(...$arguments);
+	public static function __callStatic($method, $arguments) {
+		$instance = static::instance();
+
+		$underlineMethod = '_' . $method;
+		if (method_exists($instance, $underlineMethod)) {
+			return $instance->$underlineMethod(...$arguments);
 		}
-		else {
-			return static::instance()->getCache()->$name(...$arguments);
-		}
+
+		return $instance->getCache()->$method(...$arguments);
 	}
 
 }

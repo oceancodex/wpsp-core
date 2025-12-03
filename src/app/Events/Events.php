@@ -12,6 +12,10 @@ abstract class Events extends BaseInstances {
 
 	private EventsDispatcher $events;
 
+	/*
+	 *
+	 */
+
 	public function getEvents(): EventsDispatcher {
 		return $this->events;
 	}
@@ -24,22 +28,19 @@ abstract class Events extends BaseInstances {
 	 *
 	 */
 
-	public function __call($name, $arguments) {
-		if (method_exists(static::instance(), $name)) {
-			return static::instance()->$name(...$arguments);
-		}
-		else {
-			return static::instance()->getEvents()->$name(...$arguments);
-		}
+	public function __call($method, $arguments) {
+		return static::__callStatic($method, $arguments);
 	}
 
-	public static function __callStatic($name, $arguments) {
-		if (method_exists(static::instance(), $name)) {
-			return static::instance()->$name(...$arguments);
+	public static function __callStatic($method, $arguments) {
+		$instance = static::instance();
+
+		$underlineMethod = '_' . $method;
+		if (method_exists($instance, $underlineMethod)) {
+			return $instance->$underlineMethod(...$arguments);
 		}
-		else {
-			return static::instance()->getEvents()->$name(...$arguments);
-		}
+
+		return $instance->getEvents()->$method(...$arguments);
 	}
 
 }

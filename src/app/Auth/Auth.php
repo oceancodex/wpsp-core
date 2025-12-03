@@ -3,6 +3,7 @@
 namespace WPSPCORE\App\Auth;
 
 use Illuminate\Auth\AuthManager;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -28,7 +29,12 @@ abstract class Auth extends BaseInstances {
 	 *
 	 */
 
-	public function attempt($credentials, $remember = false): bool {
+	public function _login(AuthenticatableContract $user, $remember = false) {
+		$this->auth->login($user, $remember);
+		$this->saveSessionsAndCookies();
+	}
+
+	public function _attempt($credentials, $remember = false): bool {
 		$attempt = $this->auth->attempt($credentials, $remember);
 
 		if ($attempt) {
@@ -42,7 +48,7 @@ abstract class Auth extends BaseInstances {
 		return $attempt;
 	}
 
-	public function logout(): void {
+	public function _logout(): void {
 		$this->auth->logout();
 		$this->saveSessionsAndCookies();
 	}
@@ -96,12 +102,14 @@ abstract class Auth extends BaseInstances {
 	}
 
 	public static function __callStatic($method, $arguments) {
-		if (method_exists(static::instance(), $method)) {
-			return static::instance()->$method(...$arguments);
+		$instance = static::instance();
+
+		$underlineMethod = '_' . $method;
+		if (method_exists($instance, $underlineMethod)) {
+			return $instance->$underlineMethod(...$arguments);
 		}
-		else {
-			return static::instance()->getAuth()->$method(...$arguments);
-		}
+
+		return $instance->getAuth()->$method(...$arguments);
 	}
 
 }

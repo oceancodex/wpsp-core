@@ -437,7 +437,7 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _debug($message = '', $print = false, $varDump = false) {
+	public function _debug($message = '', $print = false, $varDump = false): void {
 
 		// If "var_dump" mode is OFF.
 		if ($varDump) {
@@ -513,6 +513,29 @@ class Funcs extends BaseInstances {
 			}
 		}
 
+		// Xử lý non-capture group dạng (?: ... (?P<name>regex) ...)?
+		if (preg_match_all('/\(\?:([^()]*?\(\?P<([^>]+)>[^)]+\)[^()]*?)\)\?/', $finalUrl, $nm)) {
+			foreach ($nm[2] as $i => $name) {
+				$fullGroup = $nm[0][$i]; // toàn bộ (?: ... )?
+				$inner     = $nm[1][$i]; // phần bên trong
+
+				if (array_key_exists($name, $args)) {
+					// Extract the regex inside (?P<name>regex)
+					if (preg_match('/\??\(\?P<' . $name . '>([^)]+)\)\??/', $inner, $im)) {
+						$value = rawurlencode($args[$name]);
+						// replace non capture block with actual inserted value
+						$replacement = str_replace($im[0], $value, $inner);
+						$replacement = trim($replacement, '/');
+						$finalUrl = str_replace($fullGroup, '/' . $replacement, $finalUrl);
+					}
+					unset($args[$name]);
+				} else {
+					// Không có tham số → xóa toàn bộ block
+					$finalUrl = str_replace($fullGroup, '', $finalUrl);
+				}
+			}
+		}
+
 		// Xử lý group PATH dạng (?P<key>regex) và (?P<key>regex)?
 		if (preg_match_all('/\??\(\?P<([^>]+)>([^)]+)\)\??/', $finalUrl, $gm)) {
 			foreach ($gm[1] as $i => $name) {
@@ -530,9 +553,9 @@ class Funcs extends BaseInstances {
 				unset($args[$name]); // Đã dùng, xoá tránh append query
 			}
 		}
-echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($finalUrl); echo '</pre>';
+
 		// Xóa tag nhóm regex nếu còn sót.
-		$finalUrl = preg_replace('/\((.*?)\)/', '', $finalUrl);
+//		$finalUrl = preg_replace('/\((.*?)\)/', '', $finalUrl);
 
 		// Nếu còn args → append query string
 		if (!empty($args) && is_array($args)) {
@@ -564,6 +587,9 @@ echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($f
 		$finalUrl = trim($finalUrl, '/');
 		$finalUrl = trim($finalUrl, '\\');
 		$finalUrl = preg_replace('/\\\\\//', '/', $finalUrl);
+
+		// Remove double slash (//) nhưng giữ prefix như https://
+		$finalUrl = preg_replace('#(?<!:)//+#', '/', $finalUrl);
 
 		// Cleanup
 		$finalUrl = trim($finalUrl, '?$&');
@@ -605,7 +631,7 @@ echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($f
 		}
 	}
 
-	public function _notice($message = '', $type = 'info', $echo = false, $wrap = false, $class = null, $dismiss = true) {
+	public function _notice($message = '', $type = 'info', $echo = false, $wrap = false, $class = null, $dismiss = true): void {
 		global $notice;
 		$notice = '<div class="notice ' . $class . ' notice-' . $type . ' is-dismissible"><p>' . $message . '</p></div>';
 		if ($wrap) {

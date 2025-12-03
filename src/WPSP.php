@@ -76,12 +76,12 @@ abstract class WPSP extends BaseInstances {
 
 	public function getCustomCommands(): array {
 		$commands = $this->funcs->_getAllClassesInDir(
-			'WPSPCORE\Console\Commands',
+			'WPSPCORE\App\Console\Commands',
 			__DIR__ . '/app/Console/Commands'
 		);
 
 		$extendCommands = $this->funcs->_getAllClassesInDir(
-			'WPSPCORE\Console\Commands\Extends',
+			'WPSPCORE\App\Console\Commands\Extends',
 			__DIR__ . '/app/Console/Commands/Extends'
 		);
 
@@ -94,7 +94,7 @@ abstract class WPSP extends BaseInstances {
 		$config = [];
 
 		if ($fileName) {
-			$config = require_once __DIR__ . '/config/' . $fileName . '.php';
+			$config = require __DIR__ . '/config/' . $fileName . '.php';
 		}
 
 		return $config;
@@ -119,8 +119,17 @@ abstract class WPSP extends BaseInstances {
 	}
 
 	protected function bootstrapConsole() {
+		// Environment variables.
 		(new LoadEnvironmentVariables)->bootstrap($this->application);
+
+		// Configs.
 		(new LoadConfiguration)->bootstrap($this->application);
+
+		// Facades.
+		(new RegisterFacades)->bootstrap($this->application);
+
+		// Providers.
+		(new RegisterProviders)->bootstrap($this->application);
 	}
 
 	protected function extends() {
@@ -138,15 +147,7 @@ abstract class WPSP extends BaseInstances {
 
 	protected function bindingsConsole() {
 		$this->application->instance('files', new Filesystem());
-		$this->application->instance('funcs',
-			$this->funcs ??
-			new Funcs(
-				$this->mainPath,
-				$this->rootNamespace,
-				$this->prefixEnv,
-				$this->extraParams
-			)
-		);
+		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 	}
 
 	/*
