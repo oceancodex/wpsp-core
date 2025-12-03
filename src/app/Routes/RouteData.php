@@ -4,20 +4,24 @@ namespace WPSPCORE\App\Routes;
 
 class RouteData {
 
-	public ?string      $type        = null;     // Loại route.
-	public ?string      $route       = null;     // Class của Route trong WPSP: \WPSP\App\Instances\Routes\Apis
-	public ?string      $parentRoute = null;     // Class cha của Route trong WPSPCORE: \WPSPCORE\Routes\Apis\Apis
-	public ?string      $method      = null;     // HTTP method (GET, POST, ...)
-	public ?string      $path        = null;     // Path của route
-	public ?string      $fullPath    = null;     // Full path sau khi áp dụng prefix
-	public ?string      $namespace   = null;
-	public ?string      $version     = null;
-	public              $callback    = null;     // Controller action hoặc Closure
-	public array        $args        = [];
-	public ?string      $name        = null;     // Tên route đầy đủ sau khi gọi ->name()
-	public array        $middlewares = [];       // Danh sách middleware áp dụng cho route
+	public ?string $type          = null;     // Loại route.
+	public ?string $route         = null;     // Class của Route trong WPSP: \WPSP\App\Instances\Routes\Apis
+	public ?string $parentRoute   = null;     // Class cha của Route trong WPSPCORE: \WPSPCORE\Routes\Apis\Apis
+	public ?string $method        = null;     // HTTP method (GET, POST, ...)
+	public ?string $path          = null;     // Path của route
+	public ?string $fullPath      = null;     // Full path sau khi áp dụng prefix
+	public ?string $pathRegex     = null;     // Path của route
+	public ?string $fullPathRegex = null;     // Full path sau khi áp dụng prefix
+	public ?string $namespace     = null;
+	public ?string $version       = null;
+	public         $callback      = null;     // Controller action hoặc Closure
+	public array   $args          = [];
+	public array   $attributes    = [];
+	public array   $parameters    = [];
+	public ?string $name          = null;     // Tên route đầy đủ sau khi gọi ->name()
+	public array   $middlewares   = [];       // Danh sách middleware áp dụng cho route
 
-	public              $funcs       = null;     // Funcs.
+	public $funcs                 = null;     // Funcs.
 
 	/**
 	 * Lưu stack các tên group (name prefix) theo thứ tự.
@@ -68,11 +72,27 @@ class RouteData {
 		$this->args          = $args;
 		$this->funcs         = $funcs;
 
+		$this->pathRegex     = $this->funcs->_regexPath($this->path);
+		$this->fullPathRegex = $this->funcs->_regexPath($this->fullPath);
 
 		// Gộp middleware từ group (unique để tránh lặp)
 		$this->middlewares = isset($groupAttributes['middlewares'])
 			? $this->prepareMiddlewaresFromGroup($groupAttributes['middlewares'])
 			: [];
+	}
+
+	/**
+	 * Lấy thông tin parameter theo key
+	 */
+	public function parameter($key, $default = null) {
+		return $this->parameters[$key] ?? $default;
+	}
+
+	/**
+	 * Lấy danh sách các parameters
+	 */
+	public function parameters(): array {
+		return $this->parameters;
 	}
 
 	/**
@@ -107,36 +127,36 @@ class RouteData {
 	 * Middleware từ group đã có sẵn từ constructor,
 	 * phương thức này bổ sung thêm middleware mức route.
 	 */
-	public function middleware($middlewares): RouteData {
-		$middlewares = is_array($middlewares) ? $middlewares : [$middlewares];
+	public function middleware(...$middlewares): RouteData {
+		// Hỗ trợ cả:
+		// ->middleware(A::class, B::class)
+		// ->middleware([A::class, B::class])
+		// ->middleware(['relation' => 'AND', A::class, B::class])
+		if (count($middlewares) === 1 && is_array($middlewares[0])) {
+			$middlewares = $middlewares[0];
+		}
 
-		$result = $this->middlewares ?: [];
+		// Danh sách group middleware hiện tại (nếu có)
+		$groups = $this->middlewares ?: [];
+
+		// Tạo 1 group mới cho lần gọi này
+		$group = [];
 
 		foreach ($middlewares as $key => $middleware) {
-			if ($key == 'relation') {
-				$result['relation'] = $middleware;
+			// Trường hợp đặc biệt: ['relation' => 'AND', ...]
+			if ($key === 'relation') {
+				$group['relation'] = $middleware;
 				continue;
 			}
 
 			$normalized = $this->normalizeMiddleware($middleware);
-			$result[] = $normalized;
+			$group[] = $normalized; // push vào group hiện tại
 		}
 
-		// 🔥 Reindex về 0,1,2,... và giữ nguyên relation
-		$relation = $result['relation'] ?? null;
-		$indexed = [];
-		$i = 0;
+		// Thêm group vào danh sách groups
+		$groups[] = $group;
 
-		foreach ($result as $k => $v) {
-			if ($k === 'relation') continue;
-			$indexed[$i++] = $v;
-		}
-
-		if ($relation !== null) {
-			$indexed['relation'] = $relation;
-		}
-
-		$this->middlewares = $indexed;
+		$this->middlewares = $groups;
 
 		return $this;
 	}

@@ -513,6 +513,23 @@ class Funcs extends BaseInstances {
 			}
 		}
 
+		// Xử lý placeholder dạng {key} và {key?}
+		if (preg_match_all('/\{(\w+)(\?)?}/', $finalUrl, $pm)) {
+			foreach ($pm[1] as $i => $name) {
+				$fullTag = $pm[0][$i];
+
+				if (array_key_exists($name, $args)) {
+					// Thay bằng giá trị thực
+					$value = rawurlencode($args[$name]);
+					$finalUrl = str_replace($fullTag, $value, $finalUrl);
+					unset($args[$name]);
+				} else {
+					// Không có value → bỏ luôn placeholder
+					$finalUrl = str_replace($fullTag, '', $finalUrl);
+				}
+			}
+		}
+
 		// Xử lý non-capture group dạng (?: ... (?P<name>regex) ...)?
 		if (preg_match_all('/\(\?:([^()]*?\(\?P<([^>]+)>[^)]+\)[^()]*?)\)\?/', $finalUrl, $nm)) {
 			foreach ($nm[2] as $i => $name) {
@@ -772,25 +789,34 @@ class Funcs extends BaseInstances {
 			return $pattern;
 		}
 
+		// Query params dạng: param={id?}
 		$pattern = preg_replace_callback('/(\w+)=\{(\w+)\?}/', function($m) {
 			return $m[1] . '(?:=(?P<' . $m[2] . '>[^&]+))?';
 		}, $pattern);
 
-		// Required params {id}
-//		$pattern = preg_replace('/\{(\w+)}/', '(?P<$1>[^\/]+)', $pattern);
+		// Query params dạng: param={id}
 		$pattern = preg_replace_callback('/(\w+)=\{(\w+)}/', function($m) {
 			return $m[1] . '=(?P<' . $m[2] . '>[^&]+)';
 		}, $pattern);
 
-		// Optional regex group
+		// Query params dạng: {id}
+		$pattern = preg_replace_callback('/\{(\w+)}/', function($m) {
+			return '(?P<' . $m[1] . '>[^\/]+)';
+		}, $pattern);
+
+		// Query params dạng: {id?}
+		$pattern = preg_replace_callback('/\{(\w+)\?}/', function($m) {
+			return '(?P<' . $m[1] . '>[^\/]+)?';
+		}, $pattern);
+
+		// Query params dạng: key=(?P<id>xxx)?
 		$pattern = preg_replace(
 			'/(\w+)=\((\?P<[^>]+>[^)]+)\)\?/',
 			'$1(?:=($2))?',
 			$pattern
 		);
 
-		// Required regex group (giữ nguyên)
-		// key=(?P<id>...)
+		// Query params dạng: key=(?P<id>...)
 		$pattern = preg_replace(
 			'/(\w+)=\((\?P<[^>]+>[^)]+)\)/',
 			'$1=($2)',

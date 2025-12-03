@@ -47,6 +47,10 @@ class RewriteFrontPages extends BaseRoute {
 			$callback    = $this->prepareRouteCallback($callback, $constructParams);
 			$callback[1] = 'init';
 			$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
+			$this->request->setRouteResolver(function() use ($route, $callParams) {
+				$route->parameters = $callParams;
+				return $route;
+			});
 			$this->resolveAndCall($callback, $callParams);
 		}
 	}

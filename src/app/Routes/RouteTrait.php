@@ -247,9 +247,11 @@ trait RouteTrait {
 			}
 
 			// Thêm các giá trị hệ thống
-			$callParams['path']        = $path ?? null;
-			$callParams['fullPath']    = $fullPath ?? null;
-			$callParams['requestPath'] = $requestPath ?? null;
+			$callParams['path']           = $path;
+			$callParams['path_regex']     = $this->funcs->_regexPath($path);
+			$callParams['fullPath']       = $fullPath;
+			$callParams['fullPath_regex'] = $this->funcs->_regexPath($fullPath);
+			$callParams['requestPath']    = $requestPath;
 
 			foreach ($args as $argKey => $argValue) {
 				$callParams[$argKey] = $argValue;
@@ -373,9 +375,11 @@ trait RouteTrait {
 			$callParams[$name] = $value;
 		}
 
-		$callParams['path']        = $path;
-		$callParams['fullPath']    = $fullPath;
-		$callParams['requestPath'] = $requestPath;
+		$callParams['path']           = $path;
+		$callParams['path_regex']     = $this->funcs->_regexPath($path);
+		$callParams['fullPath']       = $fullPath;
+		$callParams['fullPath_regex'] = $this->funcs->_regexPath($fullPath);
+		$callParams['requestPath']    = $requestPath;
 
 		foreach ($args as $argKey => $argValue) {
 			$callParams[$argKey] = $argValue;
@@ -486,7 +490,6 @@ trait RouteTrait {
 
 	public function resolveAndCall($callback, array $callParams = []) {
 		$container = $this->funcs->getApplication();
-
 		return $container->call($callback, $callParams);
 	}
 
