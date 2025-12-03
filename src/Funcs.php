@@ -495,7 +495,7 @@ class Funcs extends BaseInstances {
 		// ❗ Plain version (dùng cho xây URL)
 		$finalUrl = $routeUrl;
 
-		// Xử lý param dạng {key} và {key?}
+		// Xử lý param dạng param={key} và param={key?}
 		if (preg_match_all('/(\w+)=\{(\w+)(\?)?}/', $finalUrl, $m)) {
 			foreach ($m[1] as $i => $paramKey) {
 				$paramName = $m[2][$i];
