@@ -1,27 +1,28 @@
 <?php
 
-namespace WPSPCORE\App\Mail;
+namespace WPSPCORE\App\Log;
 
-use Illuminate\Mail\Mailer;
+use Illuminate\Log\LogManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\Facades\Mail
+ * @mixin \Illuminate\Support\Facades\Log
+ * @mixin \Illuminate\Log\LogManager
  */
-abstract class Mail extends BaseInstances {
+abstract class Log extends BaseInstances {
 
-	private Mailer $mail;
+	private LogManager $log;
 
 	/*
 	 *
 	 */
 
-	public function getMail(): Mailer {
-		return $this->mail;
+	public function getLog(): LogManager {
+		return $this->log;
 	}
 
-	public function setMail(): void {
-		$this->mail = $this->funcs->getApplication('mailer');
+	public function setLog(): void {
+		$this->log = $this->funcs->getApplication('log');
 	}
 
 	/*
@@ -40,7 +41,7 @@ abstract class Mail extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getMail()->$method(...$arguments);
+		return $instance->getLog()->$method(...$arguments);
 	}
 
 }

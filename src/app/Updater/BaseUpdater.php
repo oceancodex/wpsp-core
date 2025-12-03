@@ -46,16 +46,4 @@ abstract class BaseUpdater extends BaseInstances {
 		return $this;
 	}
 
-	/*
-	 *
-	 */
-
-	public function global() {
-		$globalUpdater = $this->funcs->_getAppShortName();
-		$globalUpdater = $globalUpdater . '_updater';
-		global ${$globalUpdater};
-		${$globalUpdater} = $this;
-		return $this;
-	}
-
 }

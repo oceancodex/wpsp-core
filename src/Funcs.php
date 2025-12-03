@@ -3,6 +3,7 @@
 namespace WPSPCORE;
 
 use Carbon\Carbon;
+use Illuminate\View\View;
 use NumberFormatter;
 use WPSPCORE\App\Routes\RouteTrait;
 
@@ -669,8 +670,20 @@ class Funcs extends BaseInstances {
 		];
 	}
 
-	public function _viewInject($views, $callback) {
-		return $this->_viewInstance()->composer($views, $callback);
+	public function _viewInject($views, $data) {
+		if ($data instanceof \Closure) {
+			return $this->_viewInstance()->composer($views, $data);
+		}
+		elseif (is_array($data)) {
+			return $this->_viewInstance()->composer($views, function(View $view) use ($data) {
+				foreach ($data as $key => $value) {
+					$view->with($key, $value);
+				}
+			});
+		}
+		else {
+			return false;
+		}
 	}
 
 	public function _viewInstance() {
