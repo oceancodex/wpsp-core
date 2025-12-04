@@ -13,11 +13,9 @@ use Illuminate\Http\Request;
 trait BaseInstancesTrait {
 
 	public $funcs         = null;
-
 	public $mainPath      = null;
 	public $rootNamespace = null;
 	public $prefixEnv     = null;
-
 	public $extraParams   = [];
 	public $request       = null;
 
@@ -44,21 +42,6 @@ trait BaseInstancesTrait {
 	 *
 	 */
 
-	private function prepareRequest() {
-		if (isset($this->funcs) && $funcs = $this->funcs) {
-			if (isset($funcs::$request) && $funcs::$request) {
-				$this->request = $funcs::$request;
-			}
-			else {
-				$this->request = $this->funcs->getApplication('request');
-			}
-		}
-		else {
-			$this->request = Request::capture();
-		}
-		unset($this->extraParams['request']);
-	}
-
 	private function prepareFuncs() {
 		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
 			if (is_bool($this->extraParams['funcs'])) {
@@ -76,16 +59,19 @@ trait BaseInstancesTrait {
 		unset($this->extraParams['funcs']);
 	}
 
-	/*
-	 *
-	 */
-
-	public function getRequest() {
-		return $this->request;
-	}
-
-	public function getExtraParams() {
-		return $this->extraParams;
+	private function prepareRequest() {
+		if (isset($this->funcs) && $funcs = $this->funcs) {
+			if (isset($funcs::$request) && $funcs::$request) {
+				$this->request = $funcs::$request;
+			}
+			else {
+				$this->request = $this->funcs->getApplication('request');
+			}
+		}
+		else {
+			$this->request = Request::capture();
+		}
+		unset($this->extraParams['request']);
 	}
 
 	/*

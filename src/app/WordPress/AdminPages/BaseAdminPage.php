@@ -182,7 +182,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		$itemsPerPageKey = 'set_screen_option_' . $this->screen_options_key . '_items_per_page';
 		add_filter($itemsPerPageKey, function($default, $option, $value) {
 			return $value;
-		}, 10, 3);
+		}, 999999999, 3);
 	}
 
 	/*
