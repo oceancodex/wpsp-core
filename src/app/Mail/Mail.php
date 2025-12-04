@@ -20,7 +20,7 @@ abstract class Mail extends BaseInstances {
 		return $this->mail;
 	}
 
-	public function setMail(): void {
+	public function setMail() {
 		$this->mail = $this->funcs->getApplication('mailer');
 	}
 

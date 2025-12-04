@@ -19,7 +19,7 @@ class MakeAPICommand extends Command {
 
 	protected $description = 'Create a new API end point.               | Eg: bin/wpsp make:api my-api-endpoint';
 
-	public function handle(): void {
+	public function handle() {
 		$this->funcs = $this->getLaravel()->make('funcs');
 
 		$path = $this->argument('path');

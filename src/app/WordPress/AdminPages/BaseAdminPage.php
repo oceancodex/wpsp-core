@@ -22,8 +22,8 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $urls_highlight_current_menu = null;
 	public $callback_function           = null;
 
-	protected $screen_options     = false;
-	protected $screen_options_key = null;
+	protected $screen_options           = false;
+	protected $screen_options_key       = null;
 
 	public function afterConstruct() {
 		$this->callback_function  = $this->extraParams['callback_function'];
@@ -57,7 +57,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	private function addMenuPage(): string {
+	private function addMenuPage() {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
@@ -108,7 +108,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		return $subMenuPage;
 	}
 
-	private function addAdminMenuPage(): void {
+	private function addAdminMenuPage() {
 		add_action('admin_menu', function() {
 			$adminPage = $this->is_submenu_page ? $this->addSubMenuPage() : $this->addMenuPage();
 
@@ -125,11 +125,6 @@ abstract class BaseAdminPage extends BaseInstances {
 				// Screen options.
 				if ($this->screen_options) $this->screenOptions($adminPage);
 
-				$requestPath = trim($this->request->getRequestUri(), '/\\');
-				$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
-				$callParams = $this->getCallParams($this->menu_slug, $this->menu_slug, $requestPath, $callback);
-				$this->resolveAndCall($callback, $callParams);
-
 				$this->inLoadAfterAdminPage($adminPage);
 			});
 
@@ -143,7 +138,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		}
 	}
 
-	private function renderSubMenuPage(): void {
+	private function renderSubMenuPage() {
 		add_action('all_admin_notices', function() {
 			$fullPath = $this->extraParams['full_path'] ?? $this->menu_slug;
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
@@ -160,7 +155,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		}, 9999999999);
 	}
 
-	private function highlightCurrentMenu(): void {
+	private function highlightCurrentMenu() {
 		$currentRequest = $this->request->getRequestUri();
 		if (preg_match('/' . preg_quote($this->menu_slug, '/') . '$|' . preg_quote($this->menu_slug, '/') . '&updated=true$/', $currentRequest)) {
 			add_filter('submenu_file', function($submenu_file) {
@@ -183,7 +178,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		}
 	}
 
-	private function saveScreenOptions(): void {
+	private function saveScreenOptions() {
 		$itemsPerPageKey = 'set_screen_option_' . $this->screen_options_key . '_items_per_page';
 		add_filter($itemsPerPageKey, function($default, $option, $value) {
 			return $value;

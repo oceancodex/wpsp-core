@@ -21,7 +21,7 @@ abstract class Cache extends BaseInstances {
 		return $this->cache;
 	}
 
-	public function setCache(): void {
+	public function setCache() {
 		$this->cache = $this->funcs->getApplication('cache');
 	}
 

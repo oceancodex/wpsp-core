@@ -9,13 +9,13 @@ use WPSPCORE\App\Routes\BaseRoute;
  */
 class TaxonomyColumns extends BaseRoute {
 
-	public function beforeConstruct(): void {}
+	public function beforeConstruct() {}
 
 	/**
 	 * Xử lý route đã được đăng ký thông qua Route Manager.\
 	 * RouteManager::executeAllRoutes()
 	 */
-	public function execute($route): void {
+	public function execute($route) {
 		$column      = $route->fullPath;
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares;

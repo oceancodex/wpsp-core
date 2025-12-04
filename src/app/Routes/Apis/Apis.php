@@ -22,7 +22,7 @@ class Apis extends BaseRoute {
 	 *
 	 */
 
-	public function beforeConstruct(): void {
+	public function beforeConstruct() {
 		$this->defaultNamespace = $this->funcs->_getAppShortName();
 	}
 
@@ -30,7 +30,7 @@ class Apis extends BaseRoute {
 	 * Xử lý route đã được đăng ký thông qua Route Manager.\
 	 * RouteManager::executeAllRoutes()
 	 */
-	public function execute($route): void {
+	public function execute($route) {
 		add_action('rest_api_init', function() use ($route) {
 			$this->registerRestRoute($route);
 		});
@@ -40,7 +40,7 @@ class Apis extends BaseRoute {
 	 *
 	 */
 
-	public function registerRestRoute($route): void {
+	public function registerRestRoute($route) {
 		$requestPath = trim($this->request->getRequestUri(), '/\\');
 		$method      = $route->method;
 		$path        = $route->path;

@@ -21,7 +21,7 @@ class MakeRewriteFrontPageCommand extends Command {
 
 	protected $help = 'This command allows you to create a rewrite front page.';
 
-	public function handle(): void {
+	public function handle() {
 		$this->funcs = $this->getLaravel()->make("funcs");
 		$mainPath    = $this->funcs->mainPath;
 

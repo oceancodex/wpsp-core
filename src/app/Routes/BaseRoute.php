@@ -31,7 +31,7 @@ abstract class BaseRoute extends BaseInstances {
 	 *
 	 * Các giá trị prefix: name, middlewares, namespace, version,... sẽ được lưu vào đây trước.
 	 */
-	protected array $pending = [];
+	protected $pending = [];
 
 	/**
 	 * Stack dùng để lưu các prefix name của group.\
@@ -45,7 +45,7 @@ abstract class BaseRoute extends BaseInstances {
 	 * nameStack khi chạy route "list" sẽ là:
 	 *     ['admin.', 'user.']
 	 */
-	protected array $nameStack = [];
+	protected $nameStack = [];
 
 	/*
 	 *

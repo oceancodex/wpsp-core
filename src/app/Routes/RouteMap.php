@@ -7,13 +7,13 @@ use WPSPCORE\BaseInstances;
 
 class RouteMap extends BaseInstances {
 
-	public array $map = [];
+	public $map = [];
 
 	/*
 	 *
 	 */
 
-	public function getMap(): array {
+	public function getMap() {
 		return $this->map;
 	}
 
@@ -21,7 +21,7 @@ class RouteMap extends BaseInstances {
 	 *
 	 */
 
-	public function add($route): void {
+	public function add($route) {
 		$type      = $route->type;
 		$name      = $route->name;
 		$path      = $route->path;
@@ -44,7 +44,7 @@ class RouteMap extends BaseInstances {
 		];
 	}
 
-	public function build(): void {
+	public function build() {
 		$filePath             = $this->funcs->_getMainPath('/.wpsp-routes.json');
 		$prepareMap           = [];
 		$prepareMap['scope']  = $this->funcs->_getPluginDirName();

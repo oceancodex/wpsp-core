@@ -15,16 +15,7 @@ class SessionGuard extends \Illuminate\Auth\SessionGuard {
 	/**
 	 * Create a new authentication guard.
 	 */
-	public function __construct(
-		$name,
-		UserProvider $provider,
-		Session $session,
-		?Request $request = null,
-		?Timebox $timebox = null,
-		bool $rehashOnLogin = true,
-		int $timeboxDuration = 200000,
-		$funcs = null
-	) {
+	public function __construct($name, $provider, $session, $request = null, $timebox = null, $rehashOnLogin = true, $timeboxDuration = 200000, $funcs = null) {
 		parent::__construct(
 			$name,
 			$provider,
@@ -43,7 +34,7 @@ class SessionGuard extends \Illuminate\Auth\SessionGuard {
 	 *
 	 * @return string
 	 */
-	public function getRecallerName(): string {
+	public function getRecallerName() {
 		return $this->funcs->_getAppShortName() . '_remember_' . $this->name . '_' . sha1(static::class);
 	}
 

@@ -105,7 +105,7 @@ class RouteRemapCommand extends Command {
 		return 0;
 	}
 
-	protected function maybeActivePlugin(string $plugin) {
+	protected function maybeActivePlugin($plugin) {
 		$this->funcs = $this->laravel['funcs'] ?? null;
 
 		if (!$this->funcs) return false;
@@ -146,7 +146,7 @@ class RouteRemapCommand extends Command {
 		}
 	}
 
-	protected function isPluginActiveFast(string $plugin): bool {
+	protected function isPluginActiveFast($plugin) {
 		if (!$this->funcs) return false;
 
 		try {

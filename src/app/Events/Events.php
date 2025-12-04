@@ -20,7 +20,7 @@ abstract class Events extends BaseInstances {
 		return $this->events;
 	}
 
-	public function setEvents(): void {
+	public function setEvents() {
 		$this->events = $this->funcs->getApplication('events');
 	}
 

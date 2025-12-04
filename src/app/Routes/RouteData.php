@@ -4,24 +4,23 @@ namespace WPSPCORE\App\Routes;
 
 class RouteData {
 
-	public ?string $type          = null;     // Loại route.
-	public ?string $route         = null;     // Class của Route trong WPSP: \WPSP\App\Instances\Routes\Apis
-	public ?string $parentRoute   = null;     // Class cha của Route trong WPSPCORE: \WPSPCORE\Routes\Apis\Apis
-	public ?string $method        = null;     // HTTP method (GET, POST, ...)
-	public ?string $path          = null;     // Path của route
-	public ?string $fullPath      = null;     // Full path sau khi áp dụng prefix
-	public ?string $pathRegex     = null;     // Path của route
-	public ?string $fullPathRegex = null;     // Full path sau khi áp dụng prefix
-	public ?string $namespace     = null;
-	public ?string $version       = null;
-	public         $callback      = null;     // Controller action hoặc Closure
-	public array   $args          = [];
-	public array   $attributes    = [];
-	public array   $parameters    = [];
-	public ?string $name          = null;     // Tên route đầy đủ sau khi gọi ->name()
-	public array   $middlewares   = [];       // Danh sách middleware áp dụng cho route
-
-	public $funcs                 = null;     // Funcs.
+	public $type          = null;     // Loại route.
+	public $route         = null;     // Class của Route trong WPSP: \WPSP\App\Instances\Routes\Apis
+	public $parentRoute   = null;     // Class cha của Route trong WPSPCORE: \WPSPCORE\Routes\Apis\Apis
+	public $method        = null;     // HTTP method (GET, POST, ...)
+	public $path          = null;     // Path của route
+	public $fullPath      = null;     // Full path sau khi áp dụng prefix
+	public $pathRegex     = null;     // Path của route
+	public $fullPathRegex = null;     // Full path sau khi áp dụng prefix
+	public $namespace     = null;
+	public $version       = null;
+	public $callback      = null;     // Controller action hoặc Closure
+	public $args          = [];
+	public $attributes    = [];
+	public $parameters    = [];
+	public $name          = null;     // Tên route đầy đủ sau khi gọi ->name()
+	public $middlewares   = [];       // Danh sách middleware áp dụng cho route
+	public $funcs         = null;     // Funcs.
 
 	/**
 	 * Lưu stack các tên group (name prefix) theo thứ tự.
@@ -30,7 +29,7 @@ class RouteData {
 	 *   Route::name('user.')->group(...)
 	 * thì nameStack = ['admin.', 'user.']
 	 */
-	protected array $nameStack = [];
+	protected $nameStack = [];
 
 	/**
 	 * Khởi tạo route data
@@ -40,16 +39,7 @@ class RouteData {
 	 * @param mixed  $callback        Controller + method hoặc Closure
 	 * @param array  $groupAttributes Các thuộc tính gộp từ tất cả group (prefix, name, middleware)
 	 */
-	public function __construct(
-		string $type,
-		string $route,
-		string $method,
-		string $path,
-		$callback,
-		array $args,
-		array $groupAttributes,
-		$funcs = null
-	) {
+	public function __construct($type, $route, $method, $path, $callback, $args, $groupAttributes, $funcs = null) {
 		// Loại bỏ một số properties từ $funcs để gọn gàng hơn.
 		unset($funcs->request);
 
@@ -91,7 +81,7 @@ class RouteData {
 	/**
 	 * Lấy danh sách các parameters
 	 */
-	public function parameters(): array {
+	public function parameters() {
 		return $this->parameters;
 	}
 
@@ -106,7 +96,7 @@ class RouteData {
 	 *
 	 * Thì name = "admin.index"
 	 */
-	public function name(string $name): RouteData {
+	public function name($name): RouteData {
 		// Ghép toàn bộ prefix name từ stack.
 		$prefix = implode('', $this->nameStack ?? []);
 
@@ -195,7 +185,7 @@ class RouteData {
 	 *
 	 * @param array $stack
 	 */
-	public function setGroupNameStack(array $stack): void {
+	public function setGroupNameStack($stack) {
 		$this->nameStack = $stack;
 	}
 
@@ -211,7 +201,7 @@ class RouteData {
 	 *
 	 * @return array
 	 */
-	private function prepareMiddlewaresFromGroup(array $middlewaresRaw): array {
+	private function prepareMiddlewaresFromGroup($middlewaresRaw) {
 		$relation = null;
 		$items    = [];
 

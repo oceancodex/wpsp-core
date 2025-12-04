@@ -5,8 +5,8 @@ use WPSPCORE\BaseInstances;
 
 class Handler extends BaseInstances {
 
-	public array $dontReport = [];
-	public array $dontFlash  = [
+	public $dontReport = [];
+	public $dontFlash  = [
 		'current_password',
 		'password',
 		'password_confirmation',
@@ -67,11 +67,11 @@ class Handler extends BaseInstances {
 		//
 	}
 
-	public function shouldReport(\Throwable $e): bool {
+	public function shouldReport(\Throwable $e) {
 		return !$this->shouldntReport($e);
 	}
 
-	public function shouldntReport(\Throwable $e): bool {
+	public function shouldntReport(\Throwable $e) {
 		foreach ($this->dontReport as $type) {
 			if ($e instanceof $type) {
 				return true;
@@ -81,11 +81,11 @@ class Handler extends BaseInstances {
 		return false;
 	}
 
-	public function wantsJson(): bool {
+	public function wantsJson() {
 		return $this->expectsJson();
 	}
 
-	public function expectsJson(): bool {
+	public function expectsJson() {
 		return $this->funcs->_expectsJson();
 	}
 

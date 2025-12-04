@@ -32,7 +32,7 @@ class KeyGenerateCommand extends Command {
 	 * This is mainly useful when a lot of commands extends one main command
 	 * where some things need to be initialized based on the input arguments and options.
 	 */
-	protected function initialize($input, $output): void {
+	protected function initialize($input, $output) {
 		parent::initialize($input, $output);
 		$this->funcs = $this->laravel->make('funcs');
 	}
@@ -44,7 +44,7 @@ class KeyGenerateCommand extends Command {
 	 *
 	 * @return bool
 	 */
-	protected function writeNewEnvironmentFileWith($key): bool {
+	protected function writeNewEnvironmentFileWith($key) {
 		$replaced = preg_replace(
 			$this->keyReplacementPattern(),
 			$this->funcs->_getRootNamespace() . '_APP_KEY=' . $key,
@@ -67,7 +67,7 @@ class KeyGenerateCommand extends Command {
 	 *
 	 * @return string
 	 */
-	protected function keyReplacementPattern(): string {
+	protected function keyReplacementPattern() {
 		$escaped = preg_quote('=' . $this->laravel['config']['app.key'], '/');
 
 		return '/^'.$this->funcs->_getRootNamespace().'_APP_KEY'.$escaped.'/m';

@@ -18,7 +18,7 @@ class MakeTaxonomyCommand extends Command {
 
 	protected $help = 'This command allows you to create a taxonomy...';
 
-	public function handle(): void {
+	public function handle() {
 		$this->funcs = $this->getLaravel()->make('funcs');
 		$mainPath    = $this->funcs->mainPath;
 

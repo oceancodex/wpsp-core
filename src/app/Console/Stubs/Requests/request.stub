@@ -12,7 +12,7 @@ class {{ className }} extends FormRequest {
 	 * Bạn có thể thêm logic kiểm tra phân quyền tại đây.
 	 * Ví dụ: chỉ admin mới được phép cập nhật settings.
 	 */
-	public function authorize(): bool {
+	public function authorize() {
 		return current_user_can('manage_options');
 	}
 
@@ -39,7 +39,7 @@ class {{ className }} extends FormRequest {
 	 * Mỗi key tương ứng với tên field trong request.
 	 * Tự động kiểm tra dữ liệu và trả về lỗi 422 nếu không hợp lệ.
 	 */
-	public function rules(): array {
+	public function rules() {
 		return [
 			'test'          => ['required', 'string', 'min:10'],
 			'settings.logo' => ['required', 'string', 'max:10'],
@@ -50,7 +50,7 @@ class {{ className }} extends FormRequest {
 	 * Tùy chỉnh message lỗi trả về cho từng rule.
 	 * Ứng dụng sẽ dùng các message này nếu rule tương ứng bị vi phạm.
 	 */
-	public function messages(): array {
+	public function messages() {
 		return [
 			'settings.logo.required' => 'Logo website là bắt buộc.',
 			'settings.logo.max'      => 'Logo website không được vượt quá 10 ký tự.',
@@ -60,7 +60,7 @@ class {{ className }} extends FormRequest {
 	/**
 	 * (Tùy chọn) Tùy chỉnh tên hiển thị cho các field.
 	 */
-	public function attributes(): array {
+	public function attributes() {
 		return [
 			'settings.logo' => 'Logo website (attribute: settings[logo])',
 		];
@@ -69,7 +69,7 @@ class {{ className }} extends FormRequest {
 	/**
 	 * Xử lý dữ liệu sau khi validated.
 	 */
-	public function validated($key = null, $default = null): array {
+	public function validated($key = null, $default = null) {
 		$data = parent::validated();
 
 		if (isset($data['settings']['logo'])) {

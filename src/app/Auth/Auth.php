@@ -17,7 +17,7 @@ abstract class Auth extends BaseInstances {
 	 *
 	 */
 
-	public function setAuth(): void {
+	public function setAuth() {
 		$this->auth = $this->funcs->getApplication('auth');
 	}
 
@@ -34,7 +34,7 @@ abstract class Auth extends BaseInstances {
 		$this->saveSessionsAndCookies();
 	}
 
-	public function _attempt($credentials, $remember = false): bool {
+	public function _attempt($credentials, $remember = false) {
 		$attempt = $this->auth->attempt($credentials, $remember);
 
 		if ($attempt) {
@@ -48,7 +48,7 @@ abstract class Auth extends BaseInstances {
 		return $attempt;
 	}
 
-	public function _logout(): void {
+	public function _logout() {
 		$this->auth->logout();
 		$this->saveSessionsAndCookies();
 	}
@@ -57,7 +57,7 @@ abstract class Auth extends BaseInstances {
 	 *
 	 */
 
-	protected function saveSessionsAndCookies(): void {
+	protected function saveSessionsAndCookies() {
 		// Save session.
 		$session       = $this->funcs->getApplication('session');
 		$clientSession = $_COOKIE[$this->funcs->_config('session.cookie')] ?? null;
@@ -84,7 +84,7 @@ abstract class Auth extends BaseInstances {
 		}
 	}
 
-	protected function cleanupOldSessionsForUser($userId): void {
+	protected function cleanupOldSessionsForUser($userId) {
 		$db = $this->funcs->getApplication('db'); // hoặc DB::connection()
 
 		// Xóa tất cả session cùng user_id trước đó.

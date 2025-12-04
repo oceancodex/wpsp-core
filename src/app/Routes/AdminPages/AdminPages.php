@@ -15,13 +15,13 @@ use WPSPCORE\App\Routes\BaseRoute;
  */
 class AdminPages extends BaseRoute {
 
-	public function beforeConstruct(): void {}
+	public function beforeConstruct() {}
 
 	/**
 	 * Xử lý route đã được đăng ký thông qua Route Manager.\
 	 * RouteManager::executeAllRoutes()
 	 */
-	public function execute($route): void {
+	public function execute($route) {
 		$request  = $this->request;
 		$method   = $route->method;
 		$callback = $route->callback;
@@ -40,7 +40,7 @@ class AdminPages extends BaseRoute {
 	 *
 	 */
 
-	public function executeMethod($route): void {
+	public function executeMethod($route) {
 		$request = $this->request;
 
 		$path        = $route->path;
@@ -101,7 +101,7 @@ class AdminPages extends BaseRoute {
 		}
 	}
 
-	public function executeMethodGet($route): void {
+	public function executeMethodGet($route) {
 		$request     = $this->request;
 		$requestPath = trim($request->getRequestUri(), '/\\');
 

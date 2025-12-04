@@ -6,7 +6,7 @@ use WPSPCORE\BaseInstances;
 
 class WPRoles extends BaseInstances {
 
-	public function removeRolesByCapability($capability): void {
+	public function removeRolesByCapability($capability) {
 		global $wp_roles;
 		foreach ($wp_roles->roles as $role_name => $role_data) {
 			if (isset($role_data['capabilities'][$capability]) && $role_data['capabilities'][$capability]) {
@@ -17,7 +17,7 @@ class WPRoles extends BaseInstances {
 		}
 	}
 
-	public function removeAllCustomRoles(): void {
+	public function removeAllCustomRoles() {
 		$this->removeRolesByCapability('_role_bookmark_' . $this->funcs->_getAppShortName());
 	}
 

@@ -3,26 +3,25 @@
 namespace WPSPCORE\App\Traits;
 
 use Illuminate\Http\Request;
-use WPSPCORE\Funcs;
 
 /**
  * BaseInstancesTrait.
  *
- * @property \WPSPCORE\Funcs|null          $funcs
- * @property \Illuminate\Http\Request|null $request
+ * @property \WPSPCORE\Funcs          $funcs
+ * @property \Illuminate\Http\Request $request
  */
 trait BaseInstancesTrait {
 
-	public ?Funcs   $funcs         = null;
+	public $funcs         = null;
 
-	public ?string  $mainPath      = null;
-	public ?string  $rootNamespace = null;
-	public ?string  $prefixEnv     = null;
+	public $mainPath      = null;
+	public $rootNamespace = null;
+	public $prefixEnv     = null;
 
-	public array    $extraParams   = [];
-	public ?Request $request       = null;
+	public $extraParams   = [];
+	public $request       = null;
 
-	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []): void {
+	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 		$this->instanceConstruct();
 		$this->beforeConstruct();
 		if ($mainPath)      $this->mainPath      = $mainPath;
@@ -45,7 +44,7 @@ trait BaseInstancesTrait {
 	 *
 	 */
 
-	private function prepareRequest(): void {
+	private function prepareRequest() {
 		if (isset($this->funcs) && $funcs = $this->funcs) {
 			if (isset($funcs::$request) && $funcs::$request) {
 				$this->request = $funcs::$request;
@@ -60,7 +59,7 @@ trait BaseInstancesTrait {
 		unset($this->extraParams['request']);
 	}
 
-	private function prepareFuncs(): void {
+	private function prepareFuncs() {
 		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
 			if (is_bool($this->extraParams['funcs'])) {
 				$this->funcs = new \WPSPCORE\Funcs(
@@ -81,11 +80,11 @@ trait BaseInstancesTrait {
 	 *
 	 */
 
-	public function getRequest(): ?Request {
+	public function getRequest() {
 		return $this->request;
 	}
 
-	public function getExtraParams(): array {
+	public function getExtraParams() {
 		return $this->extraParams;
 	}
 

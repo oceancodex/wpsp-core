@@ -63,7 +63,7 @@ class RouteWatchCommand extends Command {
 		}
 	}
 
-	private function scan(string $dir): array {
+	private function scan($dir) {
 		$results = [];
 
 		foreach (glob($dir . '/*.php') as $file) {

@@ -21,7 +21,7 @@ abstract class Log extends BaseInstances {
 		return $this->log;
 	}
 
-	public function setLog(): void {
+	public function setLog() {
 		$this->log = $this->funcs->getApplication('log');
 	}
 

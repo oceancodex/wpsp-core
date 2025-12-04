@@ -18,7 +18,7 @@ class MakeTaxonomyColumnCommand extends Command {
 
 	protected $help = 'This command allows you to create a custom column for taxonomy list table.';
 
-	public function handle(): void {
+	public function handle() {
 		$this->funcs = $this->getLaravel()->make('funcs');
 		$mainPath    = $this->funcs->mainPath;
 

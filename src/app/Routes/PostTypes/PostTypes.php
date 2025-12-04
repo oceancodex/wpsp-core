@@ -9,13 +9,13 @@ use WPSPCORE\App\Routes\BaseRoute;
  */
 class PostTypes extends BaseRoute {
 
-	public function beforeConstruct(): void {}
+	public function beforeConstruct() {}
 
 	/**
 	 * Xử lý route đã được đăng ký thông qua Route Manager.\
 	 * RouteManager::executeAllRoutes()
 	 */
-	public function execute($route): void {
+	public function execute($route) {
 		$requestPath = trim($this->request->getRequestUri(), '/\\');
 
 		$postType    = $route->path;

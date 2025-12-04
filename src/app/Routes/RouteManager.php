@@ -10,7 +10,7 @@ class RouteManager extends BaseInstances {
 	 * Danh sách toàn bộ route đã được tạo.
 	 * Mỗi phần tử là một đối tượng RouteData.
 	 */
-	private array $routes = [];
+	private $routes = [];
 
 	/**
 	 * Stack chứa các group attributes (prefix, name, middlewares)
@@ -21,7 +21,7 @@ class RouteManager extends BaseInstances {
 	 * - Khi thoát group(), pop attributes
 	 * - Dồn tất cả attributes của các group lại cho route con
 	 */
-	private array $groupStack = [];
+	private $groupStack = [];
 
 	/**
 	 * Push một group attribute mới vào stack.
@@ -36,7 +36,7 @@ class RouteManager extends BaseInstances {
 	 *       'middlewares' => [...],
 	 *   ]
 	 */
-	public function pushGroupAttributes(array $attrs): void {
+	public function pushGroupAttributes($attrs) {
 
 		// Chuẩn hóa giá trị để đảm bảo đủ key prefix/name/middlewares
 		$attrs = [
@@ -55,7 +55,7 @@ class RouteManager extends BaseInstances {
 	 * Pop group attribute cuối cùng khỏi stack.
 	 * Gọi khi kết thúc một group().
 	 */
-	public function popGroupAttributes(): void {
+	public function popGroupAttributes() {
 		array_pop($this->groupStack);
 	}
 
@@ -70,7 +70,7 @@ class RouteManager extends BaseInstances {
 	 *     'middlewares' => [...],
 	 * ]
 	 */
-	public function currentGroupAttributes(): array {
+	public function currentGroupAttributes() {
 
 		// Khởi tạo giá trị trống
 		$merged = [
@@ -156,14 +156,14 @@ class RouteManager extends BaseInstances {
 	 * Lưu một route vào danh sách tất cả routes.
 	 * Route được truyền vào là những đối tượng RouteData đã hoàn chỉnh.
 	 */
-	public function addRoute(RouteData $route): void {
+	public function addRoute(RouteData $route) {
 		$this->routes[] = $route;
 	}
 
 	/**
 	 * Lấy toàn bộ route đã tạo.
 	 */
-	public function all(): array {
+	public function all() {
 		return $this->routes;
 //		return array_map(function($route) {
 //			unset($route->funcs);
@@ -174,7 +174,7 @@ class RouteManager extends BaseInstances {
 	/**
 	 * Chạy tất cả các route đã tạo.
 	 */
-	public function executeAllRoutes(): void {
+	public function executeAllRoutes() {
 		foreach ($this->routes as $routeItem) {
 			$type        = $routeItem->type;
 			$route       = $routeItem->route;

@@ -16,11 +16,11 @@ final class {{ className }} extends AbstractMigration {
 
 //	protected $connection = 'mongodb';
 
-    public function getDescription(): string {
+    public function getDescription() {
         return '';
     }
 
-    public function up(Schema $schema): void {
+    public function up(Schema $schema) {
         /** Create new database table */
 //	    $table = $schema->createTable(Funcs::getDBCustomMigrationTableName('my_custom_table'));
 //	    $table->addColumn('id', 'integer', ['autoincrement' => true]);
@@ -62,7 +62,7 @@ final class {{ className }} extends AbstractMigration {
 //      ");
     }
 
-    public function down(Schema $schema): void {
+    public function down(Schema $schema) {
 //	    $table = $schema->getTable(Funcs::getDBCustomMigrationTableName('my_custom_table'));
 
 	    // Drop foreign keys

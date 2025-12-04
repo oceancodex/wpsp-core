@@ -19,7 +19,7 @@ class {{ className }} extends BaseInstances implements ListenerContract {
 
 	}
 
-	public function shouldQueue(): bool {
+	public function shouldQueue() {
 		return false;
 	}
 

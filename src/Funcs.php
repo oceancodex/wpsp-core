@@ -82,15 +82,15 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _getMainPath($path = null): string {
+	public function _getMainPath($path = null) {
 		return rtrim($this->mainPath, '/\\') . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getRootNamespace(): ?string {
+	public function _getRootNamespace() {
 		return $this->rootNamespace;
 	}
 
-	public function _getPrefixEnv(): ?string {
+	public function _getPrefixEnv() {
 		return $this->prefixEnv;
 	}
 
@@ -98,7 +98,7 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _getBearerToken($request = null): ?string {
+	public function _getBearerToken($request = null) {
 		$request = $request ?? $this->getApplication('request') ?? null;
 
 		// --- Lấy raw header ---
@@ -130,11 +130,11 @@ class Funcs extends BaseInstances {
 		return $this->_env('APP_SHORT_NAME', true);
 	}
 
-	public function _getMainBaseName(): string {
+	public function _getMainBaseName() {
 		return basename($this->_getMainPath());
 	}
 
-	public function _getSitePath($appendPath = null): string {
+	public function _getSitePath($appendPath = null) {
 		if (defined('WP_CONTENT_DIR')) {
 			$path = WP_CONTENT_DIR;
 			$path = preg_replace('/wp-content$/iu', '', $path);
@@ -150,58 +150,58 @@ class Funcs extends BaseInstances {
 		return $path;
 	}
 
-	public function _getMainFilePath(): string {
+	public function _getMainFilePath() {
 		return $this->_getMainPath() . '/main.php';
 	}
 
-	public function _getAppPath($path = null): string {
+	public function _getAppPath($path = null) {
 		return $this->_getMainPath() . '/app' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getControllerPath(): string {
+	public function _getControllerPath() {
 		return $this->_getAppPath() . '/Http/Controllers';
 	}
 
-	public function _getConfigPath(): string {
+	public function _getConfigPath() {
 		return $this->_getMainPath() . '/config';
 	}
 
-	public function _getRoutesPath(): string {
+	public function _getRoutesPath() {
 		return $this->_getMainPath() . '/routes';
 	}
 
-	public function _getResourcesPath($path = null): string {
+	public function _getResourcesPath($path = null) {
 		return $this->_getMainPath() . '/resources' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getStoragePath($path = null): string {
+	public function _getStoragePath($path = null) {
 		return $this->_getMainPath() . '/storage' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getDatabasePath(): string {
+	public function _getDatabasePath() {
 		return $this->_getMainPath() . '/database';
 	}
 
-	public function _getMigrationPath(): string {
+	public function _getMigrationPath() {
 		return $this->_getDatabasePath() . '/migrations';
 	}
 
-	public function _getMainUrl(): string {
+	public function _getMainUrl() {
 		if (!function_exists('plugin_dir_url')) {
 			require($this->_getSitePath() . '/wp-admin/includes/plugin.php');
 		}
 		return rtrim(plugin_dir_url($this->_getMainFilePath()), '/\\');
 	}
 
-	public function _getPublicUrl(): string {
+	public function _getPublicUrl() {
 		return $this->_getMainUrl() . '/public';
 	}
 
-	public function _getPublicPath($path = null): string {
+	public function _getPublicPath($path = null) {
 		return $this->_getMainPath() . '/public' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getPluginData(): array {
+	public function _getPluginData() {
 		if (!function_exists('get_plugin_data')) {
 			require($this->_getSitePath() . '/wp-admin/includes/plugin.php');
 		}
@@ -220,7 +220,7 @@ class Funcs extends BaseInstances {
 		return $this->_getPluginData()['RequiresPHP'];
 	}
 
-	public function _getAllFilesInFolder($path): array {
+	public function _getAllFilesInFolder($path) {
 		$finder = new \Symfony\Component\Finder\Finder();
 		$finder->files()->in($path);
 		foreach ($finder as $file) {
@@ -243,15 +243,15 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _getDBCustomMigrationTablePrefix(): string {
+	public function _getDBCustomMigrationTablePrefix() {
 		return $this->_getDBTablePrefix() . 'cm_';
 	}
 
-	public function _getDBTableName($name): string {
+	public function _getDBTableName($name) {
 		return $this->_getDBTablePrefix() . $name;
 	}
 
-	public function _getDBCustomMigrationTableName($name): string {
+	public function _getDBCustomMigrationTableName($name) {
 		return $this->_getDBTablePrefix() . 'cm_' . $name;
 	}
 
@@ -259,7 +259,7 @@ class Funcs extends BaseInstances {
 		return preg_replace('/^(.*?)' . $targetDir . '(.*?)$/iu', $targetDir . '$2', $path);
 	}
 
-	public function _getAllClassesInDir($namespace = __NAMESPACE__, $path = __DIR__): array {
+	public function _getAllClassesInDir($namespace = __NAMESPACE__, $path = __DIR__) {
 		$finder = new \Symfony\Component\Finder\Finder();
 		$finder->files()->in($path)->name('*.php');
 		foreach ($finder as $file) {
@@ -334,11 +334,11 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _getPluginDirName(): string {
+	public function _getPluginDirName() {
 		return $this->_getMainBaseName();
 	}
 
-	public function _getWPConfig($file = null): array {
+	public function _getWPConfig($file = null) {
 		if (!$file) {
 			$file = $this->_getSitePath() . '/wp-config.php';
 		}
@@ -438,7 +438,7 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _debug($message = '', $print = false, $varDump = false): void {
+	public function _debug($message = '', $print = false, $varDump = false) {
 
 		// If "var_dump" mode is OFF.
 		if ($varDump) {
@@ -470,11 +470,11 @@ class Funcs extends BaseInstances {
 
 	}
 
-	public function _asset($path, $secure = null): string {
+	public function _asset($path, $secure = null) {
 		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
 	}
 
-	public function _route(array $routeMap, string $routeClass, string $routeName, $args = [], bool $buildURL = false): string {
+	public function _route($routeMap, $routeClass, $routeName, $args = [], $buildURL = false) {
 
 		// Normalize
 		if (preg_match('/\\\\/', $routeClass)) {
@@ -649,7 +649,7 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _notice($message = '', $type = 'info', $echo = false, $wrap = false, $class = null, $dismiss = true): void {
+	public function _notice($message = '', $type = 'info', $echo = false, $wrap = false, $class = null, $dismiss = true) {
 		global $notice;
 		$notice = '<div class="notice ' . $class . ' notice-' . $type . ' is-dismissible"><p>' . $message . '</p></div>';
 		if ($wrap) {
@@ -662,7 +662,7 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _response($success = false, $data = [], $message = ''): array {
+	public function _response($success = false, $data = [], $message = '') {
 		return [
 			'success' => $success,
 			'data'    => $data,
@@ -702,7 +702,7 @@ class Funcs extends BaseInstances {
 		return $this->_sanitizeURL($url);
 	}
 
-	public function _nonceName($name = null): string {
+	public function _nonceName($name = null) {
 		return $this->_env('APP_SHORT_NAME', true) . ($name ? '_' . $name : '') . '_nonce';
 	}
 
@@ -737,35 +737,35 @@ class Funcs extends BaseInstances {
 		return $slug;
 	}
 
-	public function _isDebug(): bool {
+	public function _isDebug() {
 		return $this->_env('APP_DEBUG', true) == 'true';
 	}
 
-	public function _isWPDebug(): bool {
+	public function _isWPDebug() {
 		return defined('WP_DEBUG') && WP_DEBUG;
 	}
 
-	public function _isWPDebugLog(): bool {
+	public function _isWPDebugLog() {
 		return defined('WP_DEBUG_LOG') && WP_DEBUG_LOG;
 	}
 
-	public function _isWPDebugDisplay(): bool {
+	public function _isWPDebugDisplay() {
 		return defined('WP_DEBUG_DISPLAY') && WP_DEBUG_DISPLAY;
 	}
 
-	public function _isDev(): bool {
+	public function _isDev() {
 		return $this->_env('APP_ENV', true) == 'dev';
 	}
 
-	public function _isLocal(): bool {
+	public function _isLocal() {
 		return $this->_env('APP_ENV', true) == 'local';
 	}
 
-	public function _isProduction(): bool {
+	public function _isProduction() {
 		return $this->_env('APP_ENV', true) == 'production';
 	}
 
-	public function _wantsJson(): bool {
+	public function _wantsJson() {
 		// WordPress AJAX
 		if (function_exists('wp_doing_ajax') && wp_doing_ajax()) {
 			return true;
@@ -792,11 +792,11 @@ class Funcs extends BaseInstances {
 		return false;
 	}
 
-	public function _expectsJson(): bool {
+	public function _expectsJson() {
 		return $this->_wantsJson();
 	}
 
-	public function _regexPath(string $pattern, $pregQuote = true, string $delimiter = '/'): string {
+	public function _regexPath($pattern, $pregQuote = true, $delimiter = '/') {
 		// Nếu chứa ký tự escaped slash -> đang là regex thật -> trả về nguyên
 		if (strpos($pattern, '\/') !== false) {
 			return $pattern;
@@ -840,7 +840,7 @@ class Funcs extends BaseInstances {
 		return $pregQuote ? $this->_pregQuoteKeepGroups($pattern, $delimiter) : $pattern;
 	}
 
-	public function _pregQuoteKeepGroups(string $pattern, $delimiter = '/'): string {
+	public function _pregQuoteKeepGroups($pattern, $delimiter = '/') {
 		// 1. Tách toàn bộ group
 		$groups = [];
 		$placeholder = '___REGEX_GROUP_%d___';
@@ -924,7 +924,7 @@ class Funcs extends BaseInstances {
 		return preg_replace('/(\?|\&)+$/', '', $url);
 	}
 
-	public function _commentTokens(): array {
+	public function _commentTokens() {
 		$commentTokens = [T_COMMENT];
 
 		if (defined('T_DOC_COMMENT')) {
@@ -941,13 +941,13 @@ class Funcs extends BaseInstances {
 		return str_replace('\\', '/', $path);
 	}
 
-	public function _trailingslashit($path): string {
+	public function _trailingslashit($path) {
 		$path = str_replace('\\', '/', $path);
 		$path = rtrim($path, '/\\');
 		return $path . '/';
 	}
 
-	public function _untrailingslashit($path): string {
+	public function _untrailingslashit($path) {
 		$path = str_replace('\\', '/', $path);
 		return rtrim($path, '/\\');
 	}
@@ -1036,7 +1036,7 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _prefixArrayKeys($array, $prefix = null): array {
+	public function _prefixArrayKeys($array, $prefix = null) {
 		$results = [];
 		foreach ($array as $key => $value) {
 			$results[$prefix . $key] = $value;
@@ -1044,7 +1044,7 @@ class Funcs extends BaseInstances {
 		return $results;
 	}
 
-	public function _removePrefixArrayKeys($array, $prefix = null): array {
+	public function _removePrefixArrayKeys($array, $prefix = null) {
 		$results = [];
 		foreach ($array as $key => $value) {
 			$key           = preg_replace('/' . $prefix . '/iu', '', $key);
@@ -1053,11 +1053,11 @@ class Funcs extends BaseInstances {
 		return $results;
 	}
 
-	public function _folderExists($path = null): bool {
+	public function _folderExists($path = null) {
 		return is_dir($path);
 	}
 
-	public function _vendorFolderExists($package = null): bool {
+	public function _vendorFolderExists($package = null) {
 		$vendorPath = $this->_getMainPath('/vendor');
 		$package = trim($package, '/');
 		return $this->_folderExists($vendorPath . '/' . $package);

@@ -10,13 +10,13 @@ use WPSPCORE\App\Routes\RouteData;
  */
 class WPRoles extends BaseRoute {
 
-	public function beforeConstruct(): void {}
+	public function beforeConstruct() {}
 
 	/**
 	 * Xử lý route đã được đăng ký thông qua Route Manager.\
 	 * RouteManager::executeAllRoutes()
 	 */
-	public function execute($route): void {
+	public function execute($route) {
 		$request     = $this->request;
 		$requestPath = trim($request->getRequestUri(), '/\\');
 

@@ -26,15 +26,15 @@ abstract class WPSP extends BaseInstances {
 	 *
 	 */
 
-	public function setApplication(string $basePath) {
+	public function setApplication($basePath) {
 		$commands = $this->getCustomCommands();
 		$providers = $this->getConfig('providers');
 
 		$this->application = Application::configure($basePath)
-			->withMiddleware(function(Middleware $middleware): void {
+			->withMiddleware(function(Middleware $middleware) {
 				$middleware->append(StartSessionIfAuthenticated::class); // Start session trước mọi code (bao gồm cả view share).
 			})
-			->withExceptions(function(Exceptions $exceptions): void {})
+			->withExceptions(function(Exceptions $exceptions) {})
 			->withProviders($providers)
 			->withCommands($commands)
 			->create();
@@ -46,7 +46,7 @@ abstract class WPSP extends BaseInstances {
 		$this->handleRequest();
 	}
 
-	public function setApplicationForConsole(string $basePath) {
+	public function setApplicationForConsole($basePath) {
 		$commands = $this->getCustomCommands();
 		$providers = $this->getConfig('providers');
 
@@ -75,7 +75,7 @@ abstract class WPSP extends BaseInstances {
 		return $this->application;
 	}
 
-	public function getCustomCommands(): array {
+	public function getCustomCommands() {
 		$commands = $this->funcs->_getAllClassesInDir(
 			'WPSPCORE\App\Console\Commands',
 			__DIR__ . '/app/Console/Commands'
@@ -140,7 +140,7 @@ abstract class WPSP extends BaseInstances {
 
 	protected function extendsConsole() {}
 
-	protected function bindings(): void {
+	protected function bindings() {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('request', Request::capture());
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
@@ -155,7 +155,7 @@ abstract class WPSP extends BaseInstances {
 	 *
 	 */
 
-	protected function handleRequest(): void {
+	protected function handleRequest() {
 		$request        = $this->application['request'];
 		$kernel         = $this->application->make(Kernel::class);
 		$response       = $kernel->handle($request);
@@ -172,7 +172,7 @@ abstract class WPSP extends BaseInstances {
 	 */
 	private function overrideRememberCookieName() {
 		$this->application->afterResolving('auth', function (AuthManager $auth) {
-			$auth->extend('session', function ($app, $name, array $config) use ($auth) {
+			$auth->extend('session', function ($app, $name, $config) use ($auth) {
 				$provider = $auth->createUserProvider($config['provider']);
 
 				$guard = new app\Auth\SessionGuard(
@@ -198,7 +198,7 @@ abstract class WPSP extends BaseInstances {
 	 *
 	 */
 
-	protected function normalizeEnvPrefix(): void {
+	protected function normalizeEnvPrefix() {
 		$prefix = (string)$this->prefixEnv;
 		if ($prefix === '') return;
 

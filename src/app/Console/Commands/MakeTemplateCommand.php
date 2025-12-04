@@ -18,7 +18,7 @@ class MakeTemplateCommand extends Command {
 
 	protected $help = 'This command allows you to create a page template.';
 
-	public function handle(): void {
+	public function handle() {
 		$this->funcs = $this->getLaravel()->make("funcs");
 		$mainPath    = $this->funcs->mainPath;
 

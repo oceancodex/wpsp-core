@@ -22,7 +22,7 @@ trait CommandsTrait {
 		return str_replace('{{ coreNamespace }}', $this->coreNamespace, $content);
 	}
 
-	public function validateClassName($className = null): void {
+	public function validateClassName($className = null) {
 		if (empty($className) || preg_match('/[^A-Za-z0-9_]/', $className)) {
 			$this->error('[ERROR] The name: "' . $className . '" is invalid! Please try again.');
 			exit();
@@ -41,7 +41,7 @@ trait CommandsTrait {
 	 *
 	 */
 
-	public function saveRouteContent($routeName, $content): void {
+	public function saveRouteContent($routeName, $content) {
 		File::put($this->funcs->mainPath . '/routes/' . $routeName . '.php', $content);
 	}
 
@@ -49,7 +49,7 @@ trait CommandsTrait {
 	 *
 	 */
 
-	public function addClassToRoute($routeName, $findFunction, $newLineForFindFunction, $newLineUseClass): void {
+	public function addClassToRoute($routeName, $findFunction, $newLineForFindFunction, $newLineUseClass) {
 		$routeContent = $this->getRouteContent($routeName);
 		$routeContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{/iu', 'public function ' . $findFunction . "$1{\n" . $newLineForFindFunction, $routeContent);
 		if (!strpos($routeContent, $newLineUseClass)) {

@@ -9,10 +9,10 @@ abstract class BaseWPRole extends BaseInstances {
 
 	use ObjectToArrayTrait;
 
-	public ?string $role              = null;
-	public ?string $callback_function = null;
-	public ?string $display_name      = null;
-	public array   $capabilities      = [];
+	public $role              = null;
+	public $callback_function = null;
+	public $display_name      = null;
+	public $capabilities      = [];
 
 	/*
 	 *

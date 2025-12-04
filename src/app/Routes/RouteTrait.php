@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 trait RouteTrait {
 
-	public function isLastMiddleware($currentClass, $allMiddlewares): bool {
+	public function isLastMiddleware($currentClass, $allMiddlewares) {
 		if (!is_array($allMiddlewares)) {
 			return false;
 		}
@@ -36,7 +36,7 @@ trait RouteTrait {
 		return false;
 	}
 
-	public function isPassedMiddleware($middlewares = [], $request = null, $args = []): bool {
+	public function isPassedMiddleware($middlewares = [], $request = null, $args = []) {
 		// Không có middleware → pass
 		if (empty($middlewares)) {
 			return true;
@@ -215,7 +215,7 @@ trait RouteTrait {
 		};
 	}
 
-	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []): array {
+	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []) {
 		// NEW: detect closure
 		if ($callbackOrClass instanceof \Closure) {
 			$reflection = new \ReflectionFunction($callbackOrClass);
@@ -416,11 +416,11 @@ trait RouteTrait {
 		return $callParams;
 	}
 
-	public function resolveCallback($callback, array $callParams = []) {
+	public function resolveCallback($callback, $callParams = []) {
 		return $this->resolveAndCall($callback, $callParams, false);
 	}
 
-	public function resolveAndCall($callback, array $callParams = [], $call = true) {
+	public function resolveAndCall($callback, $callParams = [], $call = true) {
 		$container = $this->funcs->getApplication();
 
 		if (!$call) {
@@ -432,7 +432,7 @@ trait RouteTrait {
 		return $container->call($callback, $callParams);
 	}
 
-	public function normalizeCallback($callback): array {
+	public function normalizeCallback($callback) {
 		if ($callback instanceof \Closure) {
 			return [null, $callback];
 		}
@@ -444,7 +444,7 @@ trait RouteTrait {
 		throw new \RuntimeException("Invalid callback format");
 	}
 
-	public function buildParametersForCallable($callback, $path, $fullPath, $requestPath, array $args = []): array {
+	public function buildParametersForCallable($callback, $path, $fullPath, $requestPath, $args = []) {
 		[$class, $method] = $this->normalizeCallback($callback);
 		return $this->getCallParams($path, $fullPath, $requestPath, $class, $method, $args);
 	}
