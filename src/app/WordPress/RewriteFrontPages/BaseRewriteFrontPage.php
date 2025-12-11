@@ -37,7 +37,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 		$fullPath = $this->fullPath ?? $fullPath;
 		if ($path && $fullPath) {
 			// Prepare string matches.
-			preg_match_all('/\(.+?\)/iu', $fullPath, $groupMatches);
+			preg_match_all('/\(.+?\)/iu', $this->funcs->_regexPath($fullPath), $groupMatches);
 			$stringMatches = '';
 			if (!empty($groupMatches) && !empty($groupMatches[0])) {
 				foreach ($groupMatches[0] as $groupMatchKey => $groupMatch) {

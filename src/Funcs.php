@@ -502,7 +502,7 @@ class Funcs extends BaseInstances {
 				$paramName = $m[2][$i];
 				$fullTag   = $m[0][$i];
 
-				if (array_key_exists($paramName, $args)) {
+				if (is_array($args) && array_key_exists($paramName, $args)) {
 					// Có value
 					$value = rawurlencode($args[$paramName]);
 					$finalUrl = str_replace($fullTag, $paramKey . '=' . $value, $finalUrl);
@@ -519,7 +519,7 @@ class Funcs extends BaseInstances {
 			foreach ($pm[1] as $i => $name) {
 				$fullTag = $pm[0][$i];
 
-				if (array_key_exists($name, $args)) {
+				if (is_array($args) && array_key_exists($name, $args)) {
 					// Thay bằng giá trị thực
 					$value = rawurlencode($args[$name]);
 					$finalUrl = str_replace($fullTag, $value, $finalUrl);
@@ -537,7 +537,7 @@ class Funcs extends BaseInstances {
 				$fullGroup = $nm[0][$i]; // toàn bộ (?: ... )?
 				$inner     = $nm[1][$i]; // phần bên trong
 
-				if (array_key_exists($name, $args)) {
+				if (is_array($args) && array_key_exists($name, $args)) {
 					// Extract the regex inside (?P<name>regex)
 					if (preg_match('/\??\(\?P<' . $name . '>([^)]+)\)\??/', $inner, $im)) {
 						$value = rawurlencode($args[$name]);
@@ -559,7 +559,7 @@ class Funcs extends BaseInstances {
 			foreach ($gm[1] as $i => $name) {
 				$fullGroup = $gm[0][$i];
 
-				if (array_key_exists($name, $args)) {
+				if (is_array($args) && array_key_exists($name, $args)) {
 					$value = rawurlencode($args[$name]);
 				} else {
 					$value = ''; // Không có value → rỗng
@@ -812,29 +812,21 @@ class Funcs extends BaseInstances {
 			return $m[1] . '=(?P<' . $m[2] . '>[^&]+)';
 		}, $pattern);
 
-		// Query params dạng: {id}
-		$pattern = preg_replace_callback('/\{(\w+)}/', function($m) {
-			return '(?P<' . $m[1] . '>[^\/]+)';
-		}, $pattern);
-
 		// Query params dạng: {id?}
 		$pattern = preg_replace_callback('/\{(\w+)\?}/', function($m) {
 			return '(?P<' . $m[1] . '>[^\/]+)?';
 		}, $pattern);
 
+		// Query params dạng: {id}
+		$pattern = preg_replace_callback('/\{(\w+)}/', function($m) {
+			return '(?P<' . $m[1] . '>[^\/]+)';
+		}, $pattern);
+
 		// Query params dạng: key=(?P<id>xxx)?
-		$pattern = preg_replace(
-			'/(\w+)=\((\?P<[^>]+>[^)]+)\)\?/',
-			'$1(?:=($2))?',
-			$pattern
-		);
+		$pattern = preg_replace('/(\w+)=\((\?P<[^>]+>[^)]+)\)\?/', '$1(?:=($2))?', $pattern);
 
 		// Query params dạng: key=(?P<id>...)
-		$pattern = preg_replace(
-			'/(\w+)=\((\?P<[^>]+>[^)]+)\)/',
-			'$1=($2)',
-			$pattern
-		);
+		$pattern = preg_replace('/(\w+)=\((\?P<[^>]+>[^)]+)\)/', '$1=($2)', $pattern);
 
 		// Không có regex, không param -> escape path thuần
 		return $pregQuote ? $this->_pregQuoteKeepGroups($pattern, $delimiter) : $pattern;
