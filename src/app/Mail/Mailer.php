@@ -2,21 +2,20 @@
 
 namespace WPSPCORE\App\Mail;
 
-use Illuminate\Mail\Mailer;
 use WPSPCORE\BaseInstances;
 
 /**
  * @mixin \Illuminate\Support\Facades\Mail
  */
-abstract class Mail extends BaseInstances {
+abstract class Mailer extends BaseInstances {
 
-	private Mailer $mail;
+	private \Illuminate\Mail\Mailer $mail;
 
 	/*
 	 *
 	 */
 
-	public function getMail(): Mailer {
+	public function getMail(): \Illuminate\Mail\Mailer {
 		return $this->mail;
 	}
 

@@ -3,7 +3,6 @@
 namespace WPSPCORE\App\Routes\WPRoles;
 
 use WPSPCORE\App\Routes\BaseRoute;
-use WPSPCORE\App\Routes\RouteData;
 
 /**
  * @method $this role(string $role, callable|array $callback)

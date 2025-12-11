@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\App\WordPress\WPTranslation;
+namespace WPSPCORE\App\Translation;
 
 use WPSPCORE\BaseInstances;
 
@@ -22,18 +22,6 @@ abstract class BaseWPTranslation extends BaseInstances {
 			);
 		}
 		catch (\Throwable $e) {}
-		return $this;
-	}
-
-	/*
-	 *
-	 */
-
-	public function global() {
-		$globalTranslator = $this->funcs->_getAppShortName();
-		$globalTranslator = $globalTranslator . '_translator';
-		global ${$globalTranslator};
-		${$globalTranslator} = $this;
 		return $this;
 	}
 

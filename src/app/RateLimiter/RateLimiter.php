@@ -9,6 +9,10 @@ abstract class RateLimiter extends BaseInstances {
 
 	private \Illuminate\Cache\RateLimiter $rateLimiter;
 
+	/*
+	 *
+	 */
+
 	public function getRateLimiter(): \Illuminate\Cache\RateLimiter {
 		return $this->rateLimiter;
 	}
