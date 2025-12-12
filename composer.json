@@ -1,12 +1,12 @@
 {
 	"name": "oceancodex/wpsp-core",
-	"version": "8.4.0",
+	"version": "1.0.0",
 	"description": "WordPress Starter Plugin - Core",
 	"keywords": [
 	],
 	"license": "MIT",
 	"require": {
-		"php": "^8.4",
+		"php": "^8.2",
 		"laravel/framework": "^v12.40.2",
 		"laravel/tinker": "^2.0",
 		"yahnis-elsts/plugin-update-checker": "^v5.6"
