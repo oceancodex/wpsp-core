@@ -216,11 +216,12 @@ abstract class BaseAdminPage extends BaseInstances {
 	public function screenOptions($adminPage) {
 		$screen = get_current_screen();
 		if (!is_object($screen) || $screen->id != $adminPage) return;
-		$args = [
+
+		// Items per page
+		add_screen_option('per_page', [
 			'default' => 20,
 			'option'  => $this->screen_options_key . '_items_per_page',
-		];
-		add_screen_option('per_page', $args);
+		]);
 	}
 
 	/*
