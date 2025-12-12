@@ -17,6 +17,6 @@ trait MetaBoxesRouteTrait {
      *
      */
 
-	public function meta_boxes() {}
+	abstract public function meta_boxes();
 
 }

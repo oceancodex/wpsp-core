@@ -13,6 +13,10 @@ trait AdminPagesRouteTrait {
 		$this->hooks();
 	}
 
+	/*
+	 *
+	 */
+
 	abstract public function admin_pages();
 
 }

@@ -17,6 +17,6 @@ trait TaxonomiesRouteTrait {
      *
      */
 
-	public function taxonomies() {}
+	abstract public function taxonomies();
 
 }

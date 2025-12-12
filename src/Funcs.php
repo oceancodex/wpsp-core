@@ -21,8 +21,8 @@ class Funcs extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->WPSPClass = '\\' . $this->rootNamespace . '\WPSP';
-		$this->routeMapClass = '\\' . $this->rootNamespace . '\App\Extends\Routes\RouteMap';
-		$this->routeManagerClass = '\\' . $this->rootNamespace . '\App\Extends\Routes\RouteManager';
+		$this->routeMapClass = '\\' . $this->rootNamespace . '\App\Widen\Routes\RouteMap';
+		$this->routeManagerClass = '\\' . $this->rootNamespace . '\App\Widen\Routes\RouteManager';
 	}
 
 	/*

@@ -17,6 +17,6 @@ trait WPRolesRouteTrait {
      *
      */
 
-	public function roles() {}
+	abstract public function roles();
 
 }
