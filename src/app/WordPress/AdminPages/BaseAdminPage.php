@@ -9,26 +9,33 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	use RouteTrait;
 
-	public $menu_title                  = null;
-	public $page_title                  = null;
-	public $first_submenu_title         = null;
-	public $capability                  = null;
-	public $menu_slug                   = null;
-	public $icon_url                    = null;
-	public $position                    = null;
-	public $parent_slug                 = null;
-	public $is_submenu_page             = false;
-	public $remove_first_submenu        = false;
-	public $urls_highlight_current_menu = null;
-	public $callback_function           = null;
+	/**
+	 * WordPress admin page properties.
+	 */
+	public $menu_title                = null;
+	public $page_title                = null;
+	public $first_submenu_title       = null;
+	public $capability                = null;
+	public $menu_slug                 = null;
+	public $icon_url                  = null;
+	public $position                  = null;
+	public $parent_slug               = null;
 
-	protected $screen_options           = false;
-	protected $screen_options_key       = null;
+	public $is_submenu_page           = false;
+	public $remove_first_submenu      = false;
+	public $urls_match_current_access = [];
+	public $urls_match_highlight_menu = [];
+	public $show_screen_options       = false;
+	public $screen_options_key        = null;
+
+	public $callback_function         = null;
 
 	public function afterConstruct() {
 		$this->callback_function  = $this->extraParams['callback_function'];
-		$this->screen_options_key = $this->screen_options_key ?: $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
 		$this->overrideMenuSlug($this->extraParams['path']);
+		if (!$this->screen_options_key) {
+			$this->screen_options_key = $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
+		}
 	}
 
 	/*
@@ -48,8 +55,8 @@ abstract class BaseAdminPage extends BaseInstances {
 	public function init() {
 		$this->beforeInit();
 		$this->addAdminMenuPage();
-		$this->saveScreenOptions();
-		$this->highlightCurrentMenu();
+		$this->matchHighlightMenu();
+		$this->matchCurrentAccess();
 		$this->afterInit();
 	}
 
@@ -122,9 +129,6 @@ abstract class BaseAdminPage extends BaseInstances {
 				// Enqueue scripts.
 				add_action('admin_enqueue_scripts', [$this, 'assets']);
 
-				// Screen options.
-				if ($this->screen_options) $this->screenOptions($adminPage);
-
 				$this->inLoadAfterAdminPage($adminPage);
 			});
 
@@ -138,51 +142,38 @@ abstract class BaseAdminPage extends BaseInstances {
 		}
 	}
 
-	private function renderSubMenuPage() {
-		add_action('all_admin_notices', function() {
-			$fullPath = $this->extraParams['full_path'] ?? $this->menu_slug;
-			$requestPath = trim($this->request->getRequestUri(), '/\\');
-			if (
-				is_admin()
-				&& preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/', $requestPath)
-				&& $this->callback_function
-				&& method_exists($this, $this->callback_function)
-			) {
-				$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
-				$callParams = $this->getCallParams($this->menu_slug, $this->menu_slug, $requestPath, $callback);
-				$this->resolveAndCall($callback, $callParams);
-			}
-		}, 9999999999);
-	}
-
-	private function highlightCurrentMenu() {
+	private function matchHighlightMenu() {
 		$currentRequest = $this->request->getRequestUri();
-		if (preg_match('/' . preg_quote($this->menu_slug, '/') . '$|' . preg_quote($this->menu_slug, '/') . '&updated=true$/', $currentRequest)) {
+
+		if (preg_match('/' . preg_quote($this->menu_slug, '/') . '/', $currentRequest)
+			|| preg_match('/' . preg_quote($this->menu_slug, '/') . '&updated=true$/', $currentRequest)
+		) {
 			add_filter('submenu_file', function($submenu_file) {
 				return $this->menu_slug;
 			});
 		}
+
 		if (is_array($this->urls_highlight_current_menu)) {
 			foreach ($this->urls_highlight_current_menu as $url_highlight_current_menu) {
 				$url_highlight_current_menu = '/' . preg_quote($url_highlight_current_menu, '/') . '/iu';
 				if (preg_match($url_highlight_current_menu, $currentRequest)) {
-					add_filter('parent_file', function($parent_file) {
-						return $this->parent_slug;
-					});
-					add_filter('submenu_file', function($submenu_file) {
-						return $this->menu_slug;
-					});
+					add_filter('parent_file', function($parent_file) { return $this->parent_slug; });
+					add_filter('submenu_file', function($submenu_file) { return $this->menu_slug; });
 					break;
 				}
 			}
 		}
 	}
 
-	private function saveScreenOptions() {
-		$itemsPerPageKey = 'set_screen_option_' . $this->screen_options_key . '_items_per_page';
-		add_filter($itemsPerPageKey, function($default, $option, $value) {
-			return $value;
-		}, 999999999, 3);
+	private function matchCurrentAccess() {
+		$currentRequest = $this->request->getRequestUri();
+		foreach ($this->urls_match_current_access as $url_match_current_access) {
+			$url_match_current_access = '/' . $this->funcs->_regexPath($url_match_current_access) . '/iu';
+			if (preg_match($url_match_current_access, $currentRequest)) {
+				$this->screenOptions();
+				break;
+			}
+		}
 	}
 
 	/*
@@ -213,15 +204,30 @@ abstract class BaseAdminPage extends BaseInstances {
 		$this->localizeScripts();
 	}
 
-	public function screenOptions($adminPage) {
-		$screen = get_current_screen();
-		if (!is_object($screen) || $screen->id != $adminPage) return;
+	public function screenOptions() {
+		// Custom screen options panel.
+		add_action('current_screen', function ($screen) {
+			if ($this->show_screen_options) {
+				// Ghi đè "screen id" và "screen base".
+				// Mục đích để ẩn/hiện cột trong List Table độc lập theo "screen_options_key".
+				$screen->id   = $this->screen_options_key;
+				$screen->base = $this->screen_options_key;
 
-		// Items per page
-		add_screen_option('per_page', [
-			'default' => 20,
-			'option'  => $this->screen_options_key . '_items_per_page',
-		]);
+				// Add thêm cái này vào screen để List Table xác định có tự động tạo checkbox ẩn/hiện cột hay không.
+				$screen->show_screen_options = true;
+
+				// Items per page độc lập theo "screen_options_key".
+				add_screen_option('per_page', [
+					'default' => 20,
+					'option'  => $this->screen_options_key . '_items_per_page',
+				]);
+			}
+		}, 1);
+
+		// Save items per page option.
+		add_filter('set_screen_option_' . $this->screen_options_key . '_items_per_page', function($default, $option, $value) {
+			return $value;
+		}, 999999999, 3);
 	}
 
 	/*
