@@ -12,29 +12,29 @@ abstract class BaseAdminPage extends BaseInstances {
 	/**
 	 * WordPress admin page properties.
 	 */
-	public $menu_title                = null;
-	public $page_title                = null;
-	public $first_submenu_title       = null;
-	public $capability                = null;
-	public $menu_slug                 = null;
-	public $icon_url                  = null;
-	public $position                  = null;
-	public $parent_slug               = null;
+	public $menu_title              = null;
+	public $page_title              = null;
+	public $first_submenu_title     = null;
+	public $capability              = null;
+	public $menu_slug               = null;
+	public $icon_url                = null;
+	public $position                = null;
+	public $parent_slug             = null;
 
-	public $is_submenu_page           = false;
-	public $remove_first_submenu      = false;
-	public $urls_match_current_access = [];
-	public $urls_match_highlight_menu = [];
-	public $show_screen_options       = false;
-	public $screen_options_key        = null;
+	public $isSubmenuPage           = false;
+	public $removeFirstMenu         = false;
+	public $urlsMatchCurrentAccess  = [];
+	public $urlsMatchHighlightMenu  = [];
+	public $showScreenOptions       = false;
+	public $screenOptionsKey        = null;
 
-	public $callback_function         = null;
+	public $callback_function       = null;
 
 	public function afterConstruct() {
 		$this->callback_function  = $this->extraParams['callback_function'];
 		$this->overrideMenuSlug($this->extraParams['path']);
-		if (!$this->screen_options_key) {
-			$this->screen_options_key = $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
+		if (!$this->screenOptionsKey) {
+			$this->screenOptionsKey = $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
 		}
 	}
 
@@ -124,12 +124,12 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->beforeLoadAdminPage($adminPage);
 
 			add_action('load-' . $adminPage, function() use ($adminPage) {
-				$this->inLoadBeforeAdminPage($adminPage);
+				$this->beforeInLoadAdminPage($adminPage);
 
 				// Enqueue scripts.
 				add_action('admin_enqueue_scripts', [$this, 'assets']);
 
-				$this->inLoadAfterAdminPage($adminPage);
+				$this->afterInLoadAdminPage($adminPage);
 			});
 
 			$this->afterLoadAdminPage($adminPage);
@@ -189,9 +189,9 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public function beforeLoadAdminPage($adminPage) {}
 
-	public function inLoadBeforeAdminPage($adminPage) {}
+	public function beforeInLoadAdminPage($adminPage) {}
 
-	public function inLoadAfterAdminPage($adminPage) {}
+	public function afterInLoadAdminPage($adminPage) {}
 
 	public function afterLoadAdminPage($adminPage) {}
 
@@ -213,14 +213,14 @@ abstract class BaseAdminPage extends BaseInstances {
 			if ($this->show_screen_options) {
 				// Ghi đè "screen id" và "screen base".
 				// Mục đích để screen options hoạt động độc lập theo "screen_options_key".
-				$screen->id   = $this->screen_options_key;
-				$screen->base = $this->screen_options_key;
+				$screen->id   = $this->screenOptionsKey;
+				$screen->base = $this->screenOptionsKey;
 				$screen->show_screen_options = true;
 			}
 		}, 1);
 
 		// Save items per page option.
-		add_filter('set_screen_option_' . $this->screen_options_key . '_items_per_page', function($default, $option, $value) {
+		add_filter('set_screen_option_' . $this->screenOptionsKey . '_items_per_page', function($default, $option, $value) {
 			return $value;
 		}, 999999999, 3);
 	}
