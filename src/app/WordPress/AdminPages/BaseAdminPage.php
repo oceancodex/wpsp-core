@@ -171,6 +171,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			$url_match_current_access = '/' . $this->funcs->_regexPath($url_match_current_access) . '/iu';
 			if (preg_match($url_match_current_access, $currentRequest)) {
 				$this->screenOptions();
+				$this->matchedCurrentAccess();
 				break;
 			}
 		}
@@ -194,6 +195,8 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public function afterLoadAdminPage($adminPage) {}
 
+	public function matchedCurrentAccess() {}
+
 	/*
 	 *
 	 */
@@ -209,18 +212,10 @@ abstract class BaseAdminPage extends BaseInstances {
 		add_action('current_screen', function ($screen) {
 			if ($this->show_screen_options) {
 				// Ghi đè "screen id" và "screen base".
-				// Mục đích để ẩn/hiện cột trong List Table độc lập theo "screen_options_key".
+				// Mục đích để screen options hoạt động độc lập theo "screen_options_key".
 				$screen->id   = $this->screen_options_key;
 				$screen->base = $this->screen_options_key;
-
-				// Add thêm cái này vào screen để List Table xác định có tự động tạo checkbox ẩn/hiện cột hay không.
 				$screen->show_screen_options = true;
-
-				// Items per page độc lập theo "screen_options_key".
-				add_screen_option('per_page', [
-					'default' => 20,
-					'option'  => $this->screen_options_key . '_items_per_page',
-				]);
 			}
 		}, 1);
 

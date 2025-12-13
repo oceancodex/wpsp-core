@@ -18,13 +18,13 @@ abstract class BaseListTable extends \WP_List_Table {
 		$this->baseInstanceConstruct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
 
 		// Tự động đăng ký các checkboxes để ẩn/hiện cột cho Custom List Table trên Screen Options panel.
-		$this->autoRegisterColumns();
+		$this->autoScreenOptionColumns();
 	}
 
 	/**
 	 * Tự động đăng ký các checkboxes để ẩn/hiện cột cho Custom List Table trên Screen Options panel.
 	 */
-	public function autoRegisterColumns() {
+	public function autoScreenOptionColumns() {
 		add_action('current_screen', function (\WP_Screen $screen) {
 			$screenId = $screen->id;
 			$showScreenOptions = $screen->show_screen_options ?? false;
@@ -32,6 +32,12 @@ abstract class BaseListTable extends \WP_List_Table {
 				add_filter("manage_{$screenId}_columns", function($columns) {
 					return $this->get_columns();
 				});
+
+				// Items per page độc lập theo "screen_options_key".
+				add_screen_option('per_page', [
+					'default' => 20,
+					'option'  => $screenId . '_items_per_page',
+				]);
 			}
 		}, 20);
 	}
