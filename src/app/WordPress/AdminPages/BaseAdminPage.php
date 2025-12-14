@@ -22,7 +22,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $parent_slug         = null;
 
 	public $isSubmenuPage          = false;
-	public $removeFirstSubMenu     = false;
+	public $removeFirstSubmenu     = false;
 	public $urlsMatchCurrentAccess = [];
 	public $urlsMatchHighlightMenu = [];
 	public $showScreenOptions      = false;
@@ -135,7 +135,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->afterLoadAdminPage($adminPage);
 		});
 
-		if ($this->removeFirstSubMenu) {
+		if ($this->removeFirstSubmenu) {
 			add_action('admin_menu', function() {
 				remove_submenu_page($this->menu_slug, $this->menu_slug);
 			}, 99999999);
