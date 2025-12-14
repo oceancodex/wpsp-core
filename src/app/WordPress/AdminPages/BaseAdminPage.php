@@ -12,26 +12,26 @@ abstract class BaseAdminPage extends BaseInstances {
 	/**
 	 * WordPress admin page properties.
 	 */
-	public $menu_title              = null;
-	public $page_title              = null;
-	public $first_submenu_title     = null;
-	public $capability              = null;
-	public $menu_slug               = null;
-	public $icon_url                = null;
-	public $position                = null;
-	public $parent_slug             = null;
+	public $menu_title          = null;
+	public $page_title          = null;
+	public $first_submenu_title = null;
+	public $capability          = null;
+	public $menu_slug           = null;
+	public $icon_url            = null;
+	public $position            = null;
+	public $parent_slug         = null;
 
-	public $isSubmenuPage           = false;
-	public $removeFirstMenu         = false;
-	public $urlsMatchCurrentAccess  = [];
-	public $urlsMatchHighlightMenu  = [];
-	public $showScreenOptions       = false;
-	public $screenOptionsKey        = null;
+	public $isSubmenuPage          = false;
+	public $removeFirstSubMenu     = false;
+	public $urlsMatchCurrentAccess = [];
+	public $urlsMatchHighlightMenu = [];
+	public $showScreenOptions      = false;
+	public $screenOptionsKey       = null;
 
-	public $callback_function       = null;
+	public $callback_function = null;
 
 	public function afterConstruct() {
-		$this->callback_function  = $this->extraParams['callback_function'];
+		$this->callback_function = $this->extraParams['callback_function'];
 		$this->overrideMenuSlug($this->extraParams['path']);
 		if (!$this->screenOptionsKey) {
 			$this->screenOptionsKey = $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
@@ -117,7 +117,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	private function addAdminMenuPage() {
 		add_action('admin_menu', function() {
-			$adminPage = $this->is_submenu_page ? $this->addSubMenuPage() : $this->addMenuPage();
+			$adminPage = $this->isSubmenuPage ? $this->addSubMenuPage() : $this->addMenuPage();
 
 			$this->afterAddAdminPage($adminPage);
 
@@ -135,7 +135,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->afterLoadAdminPage($adminPage);
 		});
 
-		if ($this->remove_first_submenu) {
+		if ($this->removeFirstSubMenu) {
 			add_action('admin_menu', function() {
 				remove_submenu_page($this->menu_slug, $this->menu_slug);
 			}, 99999999);
@@ -153,12 +153,16 @@ abstract class BaseAdminPage extends BaseInstances {
 			});
 		}
 
-		if (is_array($this->urls_highlight_current_menu)) {
-			foreach ($this->urls_highlight_current_menu as $url_highlight_current_menu) {
-				$url_highlight_current_menu = '/' . preg_quote($url_highlight_current_menu, '/') . '/iu';
-				if (preg_match($url_highlight_current_menu, $currentRequest)) {
-					add_filter('parent_file', function($parent_file) { return $this->parent_slug; });
-					add_filter('submenu_file', function($submenu_file) { return $this->menu_slug; });
+		if (is_array($this->urlsMatchHighlightMenu)) {
+			foreach ($this->urlsMatchHighlightMenu as $urlMatchHighlightMenu) {
+				$urlMatchHighlightMenu = '/' . preg_quote($urlMatchHighlightMenu, '/') . '/iu';
+				if (preg_match($urlMatchHighlightMenu, $currentRequest)) {
+					add_filter('parent_file', function($parent_file) {
+						return $this->parent_slug;
+					});
+					add_filter('submenu_file', function($submenu_file) {
+						return $this->menu_slug;
+					});
 					break;
 				}
 			}
@@ -167,7 +171,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	private function matchCurrentAccess() {
 		$currentRequest = $this->request->getRequestUri();
-		foreach ($this->urls_match_current_access as $url_match_current_access) {
+		foreach ($this->urlsMatchCurrentAccess as $url_match_current_access) {
 			$url_match_current_access = '/' . $this->funcs->_regexPath($url_match_current_access) . '/iu';
 			if (preg_match($url_match_current_access, $currentRequest)) {
 				$this->screenOptions();
@@ -209,20 +213,22 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public function screenOptions() {
 		// Custom screen options panel.
-		add_action('current_screen', function ($screen) {
-			if ($this->show_screen_options) {
+		if ($this->showScreenOptions) {
+			add_action('current_screen', function($screen) {
 				// Ghi đè "screen id" và "screen base".
 				// Mục đích để screen options hoạt động độc lập theo "screen_options_key".
 				$screen->id   = $this->screenOptionsKey;
 				$screen->base = $this->screenOptionsKey;
-				$screen->show_screen_options = true;
-			}
-		}, 1);
 
-		// Save items per page option.
-		add_filter('set_screen_option_' . $this->screenOptionsKey . '_items_per_page', function($default, $option, $value) {
-			return $value;
-		}, 999999999, 3);
+				// Truyền thêm property này vào current screen để List Table có thể gọi ra.
+				$screen->show_screen_options = true;
+			}, 1);
+
+			// Save items per page option.
+			add_filter('set_screen_option_' . $this->screenOptionsKey . '_items_per_page', function($default, $option, $value) {
+				return $value;
+			}, 999999999, 3);
+		}
 	}
 
 	/*
