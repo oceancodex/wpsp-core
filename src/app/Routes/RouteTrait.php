@@ -101,7 +101,7 @@ trait RouteTrait {
 			// -----------------------------
 			/** @var \Illuminate\Foundation\Application $app */
 			$app     = $this->funcs->getApplication();
-			$request = $app->make('request');
+			$request = $request ?? $this->request ?? $app->make('request');
 
 			$runOne = function($mw) use ($app, $request) {
 
@@ -284,7 +284,8 @@ trait RouteTrait {
 		if (!$app) {
 			throw new \RuntimeException('Container instance not found when building call params.');
 		}
-		$baseRequest = $app->bound('request') ? $app->make('request') : ($this->request ?? Request::capture());
+//		$baseRequest = $app->bound('request') ? $app->make('request') : ($this->request ?? Request::capture());
+		$baseRequest = $this->request ?? ($app->bound('request') ? $app->make('request') : Request::capture());
 
 		// Named groups: keys là tên (PHP returns associative entries for named groups)
 		$named = array_filter($matches, fn($k) => !is_int($k), ARRAY_FILTER_USE_KEY);
@@ -412,6 +413,22 @@ trait RouteTrait {
 				$callParams[$k] = is_string($v) ? urldecode($v) : $v;
 			}
 		}
+
+		/**
+		 * Đưa tham số route vào request để có thể truyền vào callback.\
+		 * Ví dụ:
+		 * - /wpsp/posts/{id}
+		 *
+		 * Tronng callback có thể gọi:
+		 *
+		 * public function posts(Request \$request) {\
+		 * ㅤ\$id = $request->route('id');\
+		 * }
+		 */
+		$this->request->setRouteResolver(function() use ($args, $callParams) {
+			$args['route']->parameters = $callParams;
+			return $args['route'];
+		});
 
 		return $callParams;
 	}

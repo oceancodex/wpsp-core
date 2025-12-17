@@ -44,11 +44,11 @@ abstract class BaseRoute extends BaseInstances {
 	/**
 	 * Stack dùng để lưu các name của group lồng nhau.\
 	 * Ví dụ:\
-	 *     Route::name('admin.')->group(function() {\
-	 *         ....Route::name('user.')->group(function() {\
-	 *             ........Route::get('list')->name('index');\
-	 *         ....});\
-	 *     });
+	 * ㅤRoute::name('admin.')->group(function() {\
+	 * ㅤㅤRoute::name('user.')->group(function() {\
+	 * ㅤㅤㅤRoute::get('list')->name('index');\
+	 * ㅤㅤ});\
+	 * ㅤ});
 	 *
 	 * nameStack khi chạy route "list" sẽ là:
 	 *     ['admin.', 'user.']

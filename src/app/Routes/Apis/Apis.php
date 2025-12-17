@@ -84,7 +84,10 @@ class Apis extends BaseRoute {
 						$requestPath,
 						$callback[0],
 						$callback[1],
-						['wpRestRequest' => $wpRestRequest, 'route' => $route]
+						[
+							'wpRestRequest' => $wpRestRequest,
+							'route'         => $route,
+						]
 					);
 					return $this->resolveAndCall($callback, $callParams);
 				},
@@ -95,10 +98,17 @@ class Apis extends BaseRoute {
 //					    }
 //				    ],
 				],
-				'permission_callback' => function(\WP_REST_Request $request) use ($route, $middlewares) {
+				'permission_callback' => function(\WP_REST_Request $wpRestRequest) use ($route, $middlewares) {
 					static $permissionCallback = null;
 					if ($permissionCallback !== null) return $permissionCallback;
-					$permissionCallback = $this->isPassedMiddleware($middlewares, $request, ['route' => $route]);
+					$permissionCallback = $this->isPassedMiddleware(
+						$middlewares,
+						$this->request,
+						[
+							'wpRestRequest' => $wpRestRequest,
+							'route'         => $route,
+						]
+					);
 					return $permissionCallback;
 				},
 			],

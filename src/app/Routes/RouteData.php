@@ -24,9 +24,12 @@ class RouteData {
 
 	/**
 	 * Lưu stack các tên group (name prefix) theo thứ tự.\
-	 * Ví dụ:\
-	 * .... Route::name('admin.')->group(...)\
-	 * .... Route::name('user.')->group(...)\
+	 * Ví dụ:
+	 *
+	 * Route::name('admin.')->group(...) {\
+	 * ㅤRoute::name('user.')->group(...)\
+	 * }
+	 *
 	 * thì nameStack = ['admin.', 'user.']
 	 */
 	protected $nameStack = [];
@@ -87,12 +90,14 @@ class RouteData {
 
 	/**
 	 * Định nghĩa tên route.\
-	 * Ví dụ:\
-	 * .... Route::name('admin.')->group(...)\
-	 * Thì nameStack = ['admin.']
+	 * Ví dụ:
+	 * - Route::name('admin.')->group(...)
 	 *
-	 * Khi người dùng gọi:\
-	 * .... Route::get(...)->name('index')\
+	 * Thì nameStack = ['admin.']
+	 * ___
+	 * Khi người dùng gọi:
+	 * - Route::get(...)->name('index')
+	 *
 	 * Thì name = "admin.index"
 	 */
 	public function name($name): RouteData {
@@ -111,7 +116,7 @@ class RouteData {
 	/**
 	 * Thêm middleware trực tiếp vào route.\
 	 * Ví dụ:\
-	 *   ->middleware(Auth::class)
+	 * ->middleware(Auth::class)
 	 *
 	 * Middleware từ group đã có sẵn từ constructor,\
 	 * phương thức này bổ sung thêm middleware mức route.
@@ -152,9 +157,10 @@ class RouteData {
 
 	/**
 	 * Gán namespace cho route.\
-	 * Ví dụ:\
-	 * .... Route::namespace('wpsp')->group(...)\
-	 * .... Route::namespace('wpsp')->get(...)\
+	 * Ví dụ:
+	 * - Route::namespace('wpsp')->group(...)
+	 * - Route::namespace('wpsp')->get(...)
+	 *
 	 * → namespace = 'wpsp'
 	 */
 	public function namespace($value): RouteData {
@@ -164,9 +170,10 @@ class RouteData {
 
 	/**
 	 * Gán version cho route.\
-	 * Ví dụ:\
-	 * .... Route::version('v1')->group(...)\
-	 * .... Route::version('v1')->get(...)\
+	 * Ví dụ:
+	 * - Route::version('v1')->group(...)
+	 * - Route::version('v1')->get(...)
+	 *
 	 * → version = 'v1'
 	 */
 	public function version($value): RouteData {
