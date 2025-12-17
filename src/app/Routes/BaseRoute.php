@@ -301,7 +301,7 @@ abstract class BaseRoute extends BaseInstances {
 		}
 
 		/**
-		 * 4) Tạo đối tượng RouteData
+		 * Tạo đối tượng RouteData\
 		 * RouteData sẽ giữ method, path, callback, prefix, middlewares
 		 */
 		$routeClass = get_class($this);

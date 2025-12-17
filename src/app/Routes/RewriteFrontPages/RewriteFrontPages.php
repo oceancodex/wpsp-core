@@ -5,13 +5,13 @@ namespace WPSPCORE\App\Routes\RewriteFrontPages;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
- * @method static $this get(string $path, callable|array $callback)
- * @method static $this post(string $path, callable|array $callback)
- * @method static $this put(string $path, callable|array $callback)
- * @method static $this patch(string $path, callable|array $callback)
- * @method static $this delete(string $path, callable|array $callback)
- * @method static $this options(string $path, callable|array $callback)
- * @method static $this head(string $path, callable|array $callback)
+ * @method static $this get(string $path, callable|array $callback, array $args = [])
+ * @method static $this post(string $path, callable|array $callback, array $args = [])
+ * @method static $this put(string $path, callable|array $callback, array $args = [])
+ * @method static $this patch(string $path, callable|array $callback, array $args = [])
+ * @method static $this delete(string $path, callable|array $callback, array $args = [])
+ * @method static $this options(string $path, callable|array $callback, array $args = [])
+ * @method static $this head(string $path, callable|array $callback, array $args = [])
  */
 class RewriteFrontPages extends BaseRoute {
 

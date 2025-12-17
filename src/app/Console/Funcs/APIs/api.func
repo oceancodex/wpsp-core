@@ -1,5 +1,1 @@
-		Route::{{ method }}('{{ path }}', [ApisController::class, 'wpsp'], true, null, [
-//			'relation' => 'OR',
-//			[ApiAuthentication::class, 'handle'],
-//			[EditorCapability::class, 'handle']
-		], {{ namespace }}, {{ ver }});
+		Route::{{ method }}('{{ path }}', [ApisController::class, 'wpsp']);
