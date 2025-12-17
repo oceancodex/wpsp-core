@@ -41,7 +41,7 @@ class MakePostTypeColumnCommand extends Command {
 		$this->validateClassName($name);
 
 		// Path
-		$path = $mainPath . '/app/WP/PostTypeColumns/' . $name . '.php';
+		$path = $mainPath . '/app/WordPress/PostTypeColumns/' . $name . '.php';
 
 		// Check exists
 		if (File::exists($path)) {

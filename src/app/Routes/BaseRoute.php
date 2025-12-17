@@ -20,6 +20,14 @@ abstract class BaseRoute extends BaseInstances {
 	use RouteTrait, HookRunnerTrait;
 
 	/**
+	 * Namespace và Version mặc định cho tất cả các route (ví dụ: WPSP, v1).\
+	 * Nếu route là "Apis" thì "defaultNamespace" và "defaultVersion" sẽ được\
+	 * định nghĩa trong class "as Route" ở thư mục "Widen".
+	 */
+	public $defaultNamespace = null;
+	public $defaultVersion   = null;
+
+	/**
 	 * Instance ví dụ: \WPSP\App\Instances\Routes\Apis
 	 */
 	public static $instance = null;
@@ -34,13 +42,13 @@ abstract class BaseRoute extends BaseInstances {
 	protected $pending = [];
 
 	/**
-	 * Stack dùng để lưu các prefix name của group.\
+	 * Stack dùng để lưu các name của group lồng nhau.\
 	 * Ví dụ:\
-	 *     Route::name('admin.')->group(function() {\
-	 *         ....Route::name('user.')->group(function() {\
-	 *             ........Route::get('list')->name('index');\
-	 *         ....});\
-	 *     });
+	 * ㅤRoute::name('admin.')->group(function() {\
+	 * ㅤㅤRoute::name('user.')->group(function() {\
+	 * ㅤㅤㅤRoute::get('list')->name('index');\
+	 * ㅤㅤ});\
+	 * ㅤ});
 	 *
 	 * nameStack khi chạy route "list" sẽ là:
 	 *     ['admin.', 'user.']
@@ -214,8 +222,18 @@ abstract class BaseRoute extends BaseInstances {
 		$callback = $arguments[1] ?? null;
 		$args     = $arguments[2] ?? [];
 
-		// Lấy attributes của tất cả group đang active
-		$group = $this->funcs->getRouteManager()->currentGroupAttributes();
+		/**
+		 * Lấy ra class "as Route" trong "Widen".\
+		 * Sau đó khai báo $type là tên của class đó.
+		 */
+		$routeClass = get_class($this);
+		$type       = basename(str_replace('\\', '/', $routeClass));
+
+		/**
+		 * Lấy attributes của tất cả group đang active.\
+		 * Truyền $type vào để thực hiện một số công việc cụ thể.
+		 */
+		$group = $this->funcs->getRouteManager()->currentGroupAttributes($type);
 
 		/**
 		 * Hợp nhất prefix tạm (chỉ có tác dụng cho route này)
@@ -292,6 +310,9 @@ abstract class BaseRoute extends BaseInstances {
 		if (array_key_exists('namespace', $this->pending)) {
 			$group['namespace'] = $this->pending['namespace'];
 		}
+		else {
+			$group['namespace'] = $this->defaultNamespace ?? $this->funcs->_getRootNamespace() ?? null;
+		}
 
 		/**
 		 * Hợp nhất version tạm (override)
@@ -299,14 +320,15 @@ abstract class BaseRoute extends BaseInstances {
 		if (array_key_exists('version', $this->pending)) {
 			$group['version'] = $this->pending['version'];
 		}
+		else {
+			$group['version'] = $this->defaultVersion ?? null;
+		}
 
 		/**
-		 * 4) Tạo đối tượng RouteData
+		 * Tạo đối tượng RouteData\
 		 * RouteData sẽ giữ method, path, callback, prefix, middlewares
 		 */
-		$routeClass = get_class($this);
-		$type       = basename(str_replace('\\', '/', $routeClass));
-		$route      = new RouteData(
+		$route = new RouteData(
 			$type,
 			$routeClass,
 			$method,

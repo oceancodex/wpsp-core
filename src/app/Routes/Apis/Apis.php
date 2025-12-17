@@ -5,17 +5,17 @@ namespace WPSPCORE\App\Routes\Apis;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
- * @method static $this get(string $path, callable|array $callback)
- * @method static $this post(string $path, callable|array $callback)
- * @method static $this put(string $path, callable|array $callback)
- * @method static $this patch(string $path, callable|array $callback)
- * @method static $this delete(string $path, callable|array $callback)
- * @method static $this options(string $path, callable|array $callback)
- * @method static $this head(string $path, callable|array $callback)
+ * @method static $this get(string $path, callable|array $callback, array $args = [])
+ * @method static $this post(string $path, callable|array $callback, array $args = [])
+ * @method static $this put(string $path, callable|array $callback, array $args = [])
+ * @method static $this patch(string $path, callable|array $callback, array $args = [])
+ * @method static $this delete(string $path, callable|array $callback, array $args = [])
+ * @method static $this options(string $path, callable|array $callback, array $args = [])
+ * @method static $this head(string $path, callable|array $callback, array $args = [])
  */
 class Apis extends BaseRoute {
 
-	public $defaultNamespace = 'wpsp';
+	public $defaultNamespace = 'wpsp'; // Dòng này không có tác dụng, khai báo cho đẹp thôi, vì nó bị ghi đè trong "beforeConstruct" bên dưới.
 	public $defaultVersion   = 'v1';
 
 	/*
@@ -50,8 +50,8 @@ class Apis extends BaseRoute {
 		$namespace   = $route->namespace ?? $this->defaultNamespace;
 		$version     = $route->version ?? $this->defaultVersion;
 
-		$path     = $this->funcs->_regexPath($path);
-		$fullPath = $this->funcs->_regexPath($fullPath);
+		$pathRegex     = $this->funcs->_regexPath($path);
+		$fullPathRegex = $this->funcs->_regexPath($fullPath);
 
 		$constructParams = [
 			[
@@ -69,19 +69,25 @@ class Apis extends BaseRoute {
 
 		$callback = $this->prepareRouteCallback($callback, $constructParams);
 
+		$routeNamespace = $namespace . '/' . $version;
+//		$routeNamespace = $this->funcs->_regexPath($routeNamespace);
+
 		register_rest_route(
-			$namespace . '/' . $version,
-			$fullPath,
+			$routeNamespace,
+			$fullPathRegex,
 			[
 				'methods' => strtoupper($method),
-				'callback' => function(\WP_REST_Request $wpRestRequest) use ($callback, $path, $fullPath, $requestPath, $route) {
+				'callback' => function(\WP_REST_Request $wpRestRequest) use ($callback, $path, $pathRegex, $fullPath, $fullPathRegex, $requestPath, $route) {
 					$callParams = $this->getCallParams(
 						$path,
 						$fullPath,
 						$requestPath,
 						$callback[0],
 						$callback[1],
-						['wpRestRequest' => $wpRestRequest, 'route' => $route]
+						[
+							'wpRestRequest' => $wpRestRequest,
+							'route'         => $route,
+						]
 					);
 					return $this->resolveAndCall($callback, $callParams);
 				},
@@ -92,10 +98,17 @@ class Apis extends BaseRoute {
 //					    }
 //				    ],
 				],
-				'permission_callback' => function(\WP_REST_Request $request) use ($route, $middlewares) {
+				'permission_callback' => function(\WP_REST_Request $wpRestRequest) use ($route, $middlewares) {
 					static $permissionCallback = null;
 					if ($permissionCallback !== null) return $permissionCallback;
-					$permissionCallback = $this->isPassedMiddleware($middlewares, $request, ['route' => $route]);
+					$permissionCallback = $this->isPassedMiddleware(
+						$middlewares,
+						$this->request,
+						[
+							'wpRestRequest' => $wpRestRequest,
+							'route'         => $route,
+						]
+					);
 					return $permissionCallback;
 				},
 			],

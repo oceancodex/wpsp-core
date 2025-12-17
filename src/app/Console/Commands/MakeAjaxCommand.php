@@ -44,7 +44,7 @@ class MakeAjaxCommand extends Command {
 		$noprivValue   = $nopriv ? 'true' : 'false';
 
 		// Prepare line for find function
-		$func = File::get(__DIR__ . '/../Funcs/Ajaxs/ajax.func');
+		$func = $noprivValue == 'true' ? File::get(__DIR__ . '/../Funcs/Ajaxs/ajax-nopriv.func') : File::get(__DIR__ . '/../Funcs/Ajaxs/ajax.func');
 		$func = str_replace(
 			['{{ method }}', '{{ action }}', '{{ action_slugify }}', '{{ nopriv }}'],
 			[$method, $action, $actionSlugify, $noprivValue],

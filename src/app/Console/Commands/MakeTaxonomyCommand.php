@@ -37,7 +37,7 @@ class MakeTaxonomyCommand extends Command {
 		$nameSlugify = Str::slug($name, '_');
 
 		// Path
-		$path = $mainPath . '/app/WP/Taxonomies/' . $nameSlugify . '.php';
+		$path = $mainPath . '/app/WordPress/Taxonomies/' . $nameSlugify . '.php';
 
 		// Check exists
 		if (File::exists($path)) {

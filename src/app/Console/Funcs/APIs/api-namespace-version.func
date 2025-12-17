@@ -1,0 +1,1 @@
+		Route::{{ method }}('{{ path }}', [ApisController::class, 'wpsp'])->namespace('{{ namespace }}')->version('{{ version }}');

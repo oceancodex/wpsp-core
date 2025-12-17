@@ -1,5 +1,1 @@
-		Route::{{ method }}('{{ action }}', [AjaxsController::class, 'ajaxDemoGet'], {{ nopriv }}, true, null, [
-//			'relation' => 'OR',
-//			[AdministratorCapability::class, 'handle'],
-//			[EditorCapability::class]
-		]);
+		Route::{{ method }}('{{ action }}', [AjaxsController::class, 'ajaxDemoGet']);

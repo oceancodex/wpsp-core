@@ -37,7 +37,7 @@ class MakeNavMenuCommand extends Command {
 		$this->validateClassName($name);
 
 		// Build path
-		$path = $mainPath . '/app/WP/NavigationMenus/Menus/' . $name . '.php';
+		$path = $mainPath . '/app/WordPress/NavigationMenus/Menus/' . $name . '.php';
 
 		// Load stub
 		$content = File::get(__DIR__ . '/../Stubs/NavigationMenus/Menus/navmenu.stub');

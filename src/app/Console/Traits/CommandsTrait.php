@@ -53,7 +53,7 @@ trait CommandsTrait {
 		$routeContent = $this->getRouteContent($routeName);
 		$routeContent = preg_replace('/public function ' . $findFunction . '([\S\s]*?)\{/iu', 'public function ' . $findFunction . "$1{\n" . $newLineForFindFunction, $routeContent);
 		if (!strpos($routeContent, $newLineUseClass)) {
-			$routeContent = preg_replace('/(\n\s*)class ' . $routeName . ' extends/iu', "\n" . $newLineUseClass . '$1class ' . $routeName . ' extends', $routeContent);
+			$routeContent = preg_replace('/(\n\s*)class ' . $routeName . ' \{/iu', "\n" . $newLineUseClass . '$1class ' . $routeName . ' {', $routeContent);
 		}
 		$this->saveRouteContent($routeName, $routeContent);
 	}

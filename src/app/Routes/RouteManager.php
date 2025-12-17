@@ -13,7 +13,7 @@ class RouteManager extends BaseInstances {
 	private $routes = [];
 
 	/**
-	 * Stack chứa các group attributes (prefix, name, middlewares)
+	 * Stack chứa các group attributes (prefix, name, middlewares)\
 	 * được push/pop trong quá trình xử lý group().
 	 *
 	 * Cơ chế:
@@ -60,7 +60,7 @@ class RouteManager extends BaseInstances {
 	}
 
 	/**
-	 * Lấy toàn bộ prefix, name, middleware đã merge từ tất cả group cha.
+	 * Lấy toàn bộ prefix, name, middleware đã merge từ tất cả group cha.\
 	 * Cơ chế: group cha luôn bao group con.
 	 *
 	 * Kết quả hợp nhất có dạng:
@@ -70,14 +70,13 @@ class RouteManager extends BaseInstances {
 	 *     'middlewares' => [...],
 	 * ]
 	 */
-	public function currentGroupAttributes() {
-
+	public function currentGroupAttributes($type = null) {
 		// Khởi tạo giá trị trống
 		$merged = [
 			'prefix'      => '',
 			'name'        => '',
 			'middlewares' => [],
-			'namespace'   => $this->funcs->_getRootNamespace() ?? null,
+			'namespace'   => $type !== 'Apis' ? ($this->funcs->_getRootNamespace() ?? null) : null,
 			'version'     => null,
 		];
 
@@ -153,7 +152,7 @@ class RouteManager extends BaseInstances {
 	}
 
 	/**
-	 * Lưu một route vào danh sách tất cả routes.
+	 * Lưu một route vào danh sách tất cả routes.\
 	 * Route được truyền vào là những đối tượng RouteData đã hoàn chỉnh.
 	 */
 	public function addRoute(RouteData $route) {

@@ -5,13 +5,13 @@ namespace WPSPCORE\App\Routes\RewriteFrontPages;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
- * @method static $this get(string $path, callable|array $callback)
- * @method static $this post(string $path, callable|array $callback)
- * @method static $this put(string $path, callable|array $callback)
- * @method static $this patch(string $path, callable|array $callback)
- * @method static $this delete(string $path, callable|array $callback)
- * @method static $this options(string $path, callable|array $callback)
- * @method static $this head(string $path, callable|array $callback)
+ * @method static $this get(string $path, callable|array $callback, array $args = [])
+ * @method static $this post(string $path, callable|array $callback, array $args = [])
+ * @method static $this put(string $path, callable|array $callback, array $args = [])
+ * @method static $this patch(string $path, callable|array $callback, array $args = [])
+ * @method static $this delete(string $path, callable|array $callback, array $args = [])
+ * @method static $this options(string $path, callable|array $callback, array $args = [])
+ * @method static $this head(string $path, callable|array $callback, array $args = [])
  */
 class RewriteFrontPages extends BaseRoute {
 
@@ -47,10 +47,6 @@ class RewriteFrontPages extends BaseRoute {
 			$callback    = $this->prepareRouteCallback($callback, $constructParams);
 			$callback[1] = 'init';
 			$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
-			$this->request->setRouteResolver(function() use ($route, $callParams) {
-				$route->parameters = $callParams;
-				return $route;
-			});
 			$this->resolveAndCall($callback, $callParams);
 		}
 	}

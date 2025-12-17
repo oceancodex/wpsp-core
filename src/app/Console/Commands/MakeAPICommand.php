@@ -17,7 +17,7 @@ class MakeAPICommand extends Command {
         {--namespace= : The namespace of the API end point.}
         {--ver= : The version of the API end point.}';
 
-	protected $description = 'Create a new API end point.               | Eg: bin/wpsp make:api my-api-endpoint';
+	protected $description = 'Create a new API end point.               | Eg: bin/wpsp make:api my-api-endpoint --method=POST --namespace=wpsp --ver=v1';
 
 	public function handle() {
 		$this->funcs = $this->getLaravel()->make('funcs');
@@ -28,9 +28,9 @@ class MakeAPICommand extends Command {
 		if (!$path) {
 			$path = $this->ask('Please enter the path of the API end point');
 
-			$method    = $this->ask('Please enter the method of the API end point (blank is "get")');
+			$method    = $this->ask('Please enter the method of the API end point (blank is "GET")');
 			$namespace = $this->ask('Please enter the namespace of the API end point (blank is "' . $this->funcs->_getAppShortName() . '")');
-			$ver       = $this->ask('Please enter the ver of the API end point (blank is "v1")');
+			$version   = $this->ask('Please enter the version of the API end point (blank is "v1")');
 
 			if (empty($path)) {
 				$this->error('Missing path for the API end point. Please try again.');
@@ -40,7 +40,7 @@ class MakeAPICommand extends Command {
 		else {
 			$method    = $this->option('method');
 			$namespace = $this->option('namespace');
-			$ver       = $this->option('ver');
+			$version   = $this->option('ver');
 		}
 
 		// Normalize
@@ -48,27 +48,33 @@ class MakeAPICommand extends Command {
 		$name        = $path;
 		$nameSlugify = Str::slug($name, '_');
 
-		$method = strtolower($method ?: '');
-
+		$method    = strtolower($method ?: '');
 		$namespace = $namespace ?: null;
-		$namespace = $namespace ? "'{$namespace}'" : 'null';
-
-		$ver = $ver ?: null;
-		$ver = $ver ? "'{$ver}'" : 'null';
+		$version   = $version ?: null;
 
 		// FUNC template
-		$func = File::get(__DIR__ . '/../Funcs/APIs/api.func');
+		if ($namespace) {
+			if ($version) {
+				$func = File::get(__DIR__ . '/../Funcs/APIs/api-namespace-version.func');
+			}
+			else {
+				$func = File::get(__DIR__ . '/../Funcs/APIs/api-namespace.func');
+			}
+		}
+		else {
+			$func = File::get(__DIR__ . '/../Funcs/APIs/api.func');
+		}
 		$func = str_replace(
-			['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}', '{{ method }}', '{{ namespace }}', '{{ ver }}'],
-			[$name, $nameSlugify, $path, $pathSlugify, $method, $namespace, $ver],
+			['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
+			[$name, $nameSlugify, $path, $pathSlugify, $method, $namespace, $version],
 			$func
 		);
 
 		// USE template
 		$use = File::get(__DIR__ . '/../Uses/APIs/api.use');
 		$use = str_replace(
-			['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}', '{{ method }}', '{{ namespace }}', '{{ ver }}'],
-			[$name, $nameSlugify, $path, $pathSlugify, $method, $namespace, $ver],
+			['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
+			[$name, $nameSlugify, $path, $pathSlugify, $method, $namespace, $version],
 			$use
 		);
 
