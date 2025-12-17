@@ -266,11 +266,11 @@ trait RouteTrait {
 			}
 
 			// Thêm các giá trị hệ thống
-			$callParams['path']           = $path;
-			$callParams['path_regex']     = $this->funcs->_regexPath($path);
-			$callParams['fullPath']       = $fullPath;
-			$callParams['fullPath_regex'] = $this->funcs->_regexPath($fullPath);
-			$callParams['requestPath']    = $requestPath;
+			$callParams['path']            = $path;
+			$callParams['path_regex']      = $this->funcs->_regexPath($path);
+			$callParams['full_path']       = $fullPath;
+			$callParams['full_path_regex'] = $this->funcs->_regexPath($fullPath);
+			$callParams['requestPath']     = $requestPath;
 
 			foreach ($args as $argKey => $argValue) {
 				$callParams[$argKey] = $argValue;

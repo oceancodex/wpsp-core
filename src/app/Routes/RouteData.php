@@ -23,10 +23,10 @@ class RouteData {
 	public $funcs         = null;     // Funcs.
 
 	/**
-	 * Lưu stack các tên group (name prefix) theo thứ tự.
-	 * Ví dụ:
-	 *   Route::name('admin.')->group(...)
-	 *   Route::name('user.')->group(...)
+	 * Lưu stack các tên group (name prefix) theo thứ tự.\
+	 * Ví dụ:\
+	 * .... Route::name('admin.')->group(...)\
+	 * .... Route::name('user.')->group(...)\
 	 * thì nameStack = ['admin.', 'user.']
 	 */
 	protected $nameStack = [];
@@ -86,14 +86,13 @@ class RouteData {
 	}
 
 	/**
-	 * Định nghĩa tên route.
-	 * Ví dụ:
-	 *   Route::name('admin.')->group(...)
-	 *   → nameStack = ['admin.']
+	 * Định nghĩa tên route.\
+	 * Ví dụ:\
+	 * .... Route::name('admin.')->group(...)\
+	 * Thì nameStack = ['admin.']
 	 *
-	 * Khi người dùng gọi:
-	 *   Route::get(...)->name('index')
-	 *
+	 * Khi người dùng gọi:\
+	 * .... Route::get(...)->name('index')\
 	 * Thì name = "admin.index"
 	 */
 	public function name($name): RouteData {
@@ -110,11 +109,11 @@ class RouteData {
 	}
 
 	/**
-	 * Thêm middleware trực tiếp vào route
-	 * Ví dụ:
+	 * Thêm middleware trực tiếp vào route.\
+	 * Ví dụ:\
 	 *   ->middleware(Auth::class)
 	 *
-	 * Middleware từ group đã có sẵn từ constructor,
+	 * Middleware từ group đã có sẵn từ constructor,\
 	 * phương thức này bổ sung thêm middleware mức route.
 	 */
 	public function middleware(...$middlewares): RouteData {
@@ -152,10 +151,10 @@ class RouteData {
 	}
 
 	/**
-	 * Gán namespace cho route.
-	 * Ví dụ:
-	 * Route::namespace('wpsp')->group(...)
-	 * Route::namespace('wpsp')->get(...)
+	 * Gán namespace cho route.\
+	 * Ví dụ:\
+	 * .... Route::namespace('wpsp')->group(...)\
+	 * .... Route::namespace('wpsp')->get(...)\
 	 * → namespace = 'wpsp'
 	 */
 	public function namespace($value): RouteData {
@@ -164,10 +163,10 @@ class RouteData {
 	}
 
 	/**
-	 * Gán version cho route.
-	 * Ví dụ:
-	 * Route::version('v1')->group(...)
-	 * Route::version('v1')->get(...)
+	 * Gán version cho route.\
+	 * Ví dụ:\
+	 * .... Route::version('v1')->group(...)\
+	 * .... Route::version('v1')->get(...)\
 	 * → version = 'v1'
 	 */
 	public function version($value): RouteData {
@@ -180,7 +179,7 @@ class RouteData {
 	 */
 
 	/**
-	 * Được gọi từ AjaxsRoute để gắn stack prefix name
+	 * Được gọi từ AjaxsRoute để gắn stack prefix name\
 	 * (stack này được build từ các group cha)
 	 *
 	 * @param array $stack
