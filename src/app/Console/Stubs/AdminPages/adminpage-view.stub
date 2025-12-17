@@ -3,16 +3,7 @@
 namespace {{ rootNamespace }}\App\WordPress\AdminPages;
 
 use Illuminate\Http\Request;
-use {{ rootNamespace }}\App\WordPress\License\License;
-use {{ rootNamespace }}\App\Instances\Auth\Auth;
-use {{ rootNamespace }}\App\Instances\Cache\Cache;
-use {{ rootNamespace }}\App\Jobs\SendEmailJob;
-use {{ rootNamespace }}\App\Jobs\TestJob;
-use {{ rootNamespace }}\App\Instances\Database\Migration;
-use {{ rootNamespace }}\App\Models\SettingsModel;
-use {{ rootNamespace }}\App\Models\UsersModel;
-use {{ rootNamespace }}\App\Traits\InstancesTrait;
-use {{ rootNamespace }}\App\View\Share;
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
 use {{ coreNamespace }}\Base\BaseAdminPage;
 
@@ -23,60 +14,47 @@ class {{ className }} extends BaseAdminPage {
 	/**
 	 * WordPress admin page properties.
 	 */
-	public $menu_title                  = '{{ name }}';
-//	public $page_title                  = '{{ name }}';                 // Thẻ <title> trong HTML.
-//	public $first_submenu_title         = 'Dashboard';                  // Khi có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính. Thay đổi tên submenu tự sinh.
-	public $capability                  = 'manage_options';
-//	public $menu_slug                   = '{{ path_slugify }}';
-	public $icon_url                    = 'dashicons-admin-generic';
-//	public $position                    = 2;
-//	public $parent_slug                 = 'options-general.php';
-//	public $is_submenu_page             = false;
-//	public $remove_first_submenu        = false;
-//	public $urls_highlight_current_menu = null;
-//	public $callback_function           = null;
+	public $menu_title          = '{{ name }}';
+//	public $page_title          = '{{ name }}';     // Thẻ <title> trong HTML.
+//	public $first_submenu_title = null;             // Khi có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính. Thay đổi tên submenu tự sinh.
+	public $capability          = 'manage_options';
+//	public $menu_slug           = '{{ path_slugify }}';
+	public $icon_url            = 'dashicons-admin-generic';
+//	public $position            = 2;
+//	public $parent_slug         = 'options-general.php';
 
 	/**
 	 * Parent properties.
 	 */
-//	protected $screen_options           = null;
-//	protected $screen_options_key       = null;
+//	public $isSubmenuPage          = false;
+//	public $removeFirstSubmenu     = false;
+//	public $urlsMatchCurrentAccess = [];
+//	public $urlsMatchHighlightMenu = [];
+//	public $showScreenOptions      = false;
+//	public $screenOptionsKey       = null;
 
 	/**
 	 * Custom properties.
 	 */
-	private $currentTab                 = null;
-	private $currentPage                = null;
+	private $table       = null;
+	private $currentTab  = null;
+	private $currentPage = null;
 
 	/*
 	 *
 	 */
 
+	/**
+	 * Tùy biến những thuộc tính chuyên sâu\
+	 * hoặc khởi tạo các thuộc tính để tái sử dụng trong toàn bộ class.
+	 */
 	public function customProperties() {
-//		$this->menu_title                  = '';
-//		$this->page_title                  = '';
-//		$this->capability                  = '';
-//		$this->menu_slug                   = '';
-//		$this->icon_url                    = '';
-//		$this->position                    = '';
-//		$this->parent_slug                 = '';
-//		$this->is_submenu_page             = true;
-//	    $this->remove_first_submenu        = false;
-//		$this->urls_highlight_current_menu = [];
-//      $this->callback_function           = null;
-
-//      $this->$screen_options             = null;
-//      $this->$screen_options_key         = null;
-
 		$this->currentTab  = $this->request->get('tab');
 		$this->currentPage = $this->request->get('page');
 
 		$this->page_title = ($this->currentTab ? Funcs::trans('messages.' . $this->currentTab) : Funcs::trans('messages.{{ name }}')) . ' - ' . Funcs::config('app.name');
 
-//		$this->screen_options_key = $this->funcs->_slugParams(['page', 'tab']);
-//		if (in_array($this->currentTab, ['table', 'roles', 'permissions', 'users'])) {
-//			$this->screen_options = true;
-//		}
+//		$this->screenOptionsKey = $this->funcs->_slugParams(['page', 'tab']);
 	}
 
 	/*
@@ -92,22 +70,25 @@ class {{ className }} extends BaseAdminPage {
 
 	public function beforeInit() {}
 
-	public function afterInit() {
-		// Custom highlight current menu.
-//		if (preg_match('/' . $this->menu_slug . '$|' . $this->menu_slug . '&updated=true$/', $this->request->getRequestUri())) {
-//			add_filter('submenu_file', function($submenu_file) {
-//				return $this->menu_slug;
-//			});
-//		}
-	}
+	public function afterInit() {}
 
-	public function afterLoad($adminPage) {}
+	public function afterAddAdminPage($adminPage) {}
 
-//	public function screenOptions($adminPage) {
-//		if ($this->currentTab == 'table') {
-//			parent::screenOptions($adminPage);
-//		}
-//	}
+	public function beforeLoadAdminPage($adminPage) {}
+
+	public function beforeInLoadAdminPage($adminPage) {}
+
+	public function afterInLoadAdminPage($adminPage) {}
+
+	public function afterLoadAdminPage($adminPage) {}
+
+	public function matchedCurrentAccess() {}
+
+	/*
+	 *
+	 */
+
+//	public function screenOptions($adminPage) {}
 
 	/*
 	 *
@@ -115,11 +96,19 @@ class {{ className }} extends BaseAdminPage {
 
 	public function index(Request $request) {
 		$requestParams = $request->all();
-		$menuSlug      = $this->getMenuSlug();
+		$menuSlug      = $this->menu_slug;
         echo Funcs::view('modules.admin-pages.{{ path }}.main', compact('requestParams', 'menuSlug'));
 	}
 
-	public function update() {}
+	public function create(Request $request) {}
+
+	public function store(Request $request) {}
+
+	public function show(Request $request, $id) {}
+
+	public function edit(Request $request, $id) {}
+
+	public function update(Request $request) {}
 
 	/*
 	 *

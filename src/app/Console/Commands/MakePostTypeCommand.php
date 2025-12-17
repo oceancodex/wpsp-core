@@ -38,7 +38,7 @@ class MakePostTypeCommand extends Command {
 		$nameSlugify = Str::slug($name, '_');
 
 		// Check exists
-		$path = $mainPath . '/app/WP/PostTypes/' . $nameSlugify . '.php';
+		$path = $mainPath . '/app/WordPress/PostTypes/' . $nameSlugify . '.php';
 
 		if (File::exists($path)) {
 			$this->error('[ERROR] Post type: "' . $name . '" already exists! Please try again.');

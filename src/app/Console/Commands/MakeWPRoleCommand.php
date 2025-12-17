@@ -38,7 +38,7 @@ class MakeWPRoleCommand extends Command {
 		$nameSlugify = Str::slug($name, '_');
 
 		// Check exists
-		$path = $mainPath . '/app/WP/WPRoles/' . $nameSlugify . '.php';
+		$path = $mainPath . '/app/WordPress/WPRoles/' . $nameSlugify . '.php';
 
 		if (File::exists($path)) {
 			$this->error('[ERROR] Role: "' . $name . '" already exists! Please try again.');
