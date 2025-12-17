@@ -43,14 +43,14 @@ class MakeAPICommand extends Command {
 			$version   = $this->option('ver');
 		}
 
-		// Normalize
-		$pathSlugify = Str::slug($path);
-		$name        = $path;
-		$nameSlugify = Str::slug($name, '_');
-
+		// Define variables
+		$name      = Str::slug($path, '_');
 		$method    = strtolower($method ?: '');
 		$namespace = $namespace ?: null;
 		$version   = $version ?: null;
+
+		// Validate
+//		$this->validateClassName($name);
 
 		// FUNC template
 		if ($namespace) {
@@ -65,16 +65,16 @@ class MakeAPICommand extends Command {
 			$func = File::get(__DIR__ . '/../Funcs/APIs/api.func');
 		}
 		$func = str_replace(
-			['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
-			[$name, $nameSlugify, $path, $pathSlugify, $method, $namespace, $version],
+			['{{ name }}', '{{ path }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
+			[$name, $path, $method, $namespace, $version],
 			$func
 		);
 
 		// USE template
 		$use = File::get(__DIR__ . '/../Uses/APIs/api.use');
 		$use = str_replace(
-			['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
-			[$name, $nameSlugify, $path, $pathSlugify, $method, $namespace, $version],
+			['{{ name }}', '{{ path }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
+			[$name, $path, $method, $namespace, $version],
 			$use
 		);
 

@@ -60,16 +60,16 @@ class MakePostTypeColumnCommand extends Command {
 		// Func line
 		$func = File::get(__DIR__ . '/../Funcs/PostTypeColumns/post_type_column.func');
 		$func = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$func
 		);
 
 		// Use line
 		$use = File::get(__DIR__ . '/../Uses/PostTypeColumns/post_type_column.use');
 		$use = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

@@ -34,11 +34,11 @@ class MakePostTypeCommand extends Command {
 			}
 		}
 
-		// Normalize
-		$nameSlugify = Str::slug($name, '_');
+		// Validate
+		$this->validateClassName($name);
 
 		// Check exists
-		$path = $mainPath . '/app/WordPress/PostTypes/' . $nameSlugify . '.php';
+		$path = $mainPath . '/app/WordPress/PostTypes/' . $name . '.php';
 
 		if (File::exists($path)) {
 			$this->error('[ERROR] Post type: "' . $name . '" already exists! Please try again.');
@@ -47,9 +47,8 @@ class MakePostTypeCommand extends Command {
 
 		// Create class file
 		$content = File::get(__DIR__ . '/../Stubs/PostTypes/posttype.stub');
-		$content = str_replace('{{ className }}', $nameSlugify, $content);
+		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ name }}', $name, $content);
-		$content = str_replace('{{ name_slugify }}', $nameSlugify, $content);
 		$content = $this->replaceNamespaces($content);
 
 		File::ensureDirectoryExists(dirname($path));
@@ -57,11 +56,11 @@ class MakePostTypeCommand extends Command {
 
 		// Func line
 		$func = File::get(__DIR__ . '/../Funcs/PostTypes/posttype.func');
-		$func = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $func);
+		$func = str_replace(['{{ name }}'], [$name], $func);
 
 		// Use line
 		$use = File::get(__DIR__ . '/../Uses/PostTypes/posttype.use');
-		$use = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $use);
+		$use = str_replace(['{{ name }}'], [$name], $use);
 		$use = $this->replaceNamespaces($use);
 
 		// Register

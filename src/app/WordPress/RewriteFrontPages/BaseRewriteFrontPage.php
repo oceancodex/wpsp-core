@@ -25,7 +25,6 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 		$this->callback_function = $this->extraParams['callback_function'];
 		$this->overridePath($this->extraParams['path']);
 		$this->overrideFullPath($this->extraParams['full_path']);
-		$this->customProperties();
 	}
 
 	/*

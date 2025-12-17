@@ -1,4 +1,4 @@
-		Route::get('{{ path }}\/?$', [{{ name_slugify }}::class, 'index'], true, null, [
+		Route::get('{{ path }}\/?$', [{{ name }}::class, 'index'], true, null, [
 //			'relation' => 'OR',
 //			[AdministratorCapability::class, 'handle'],
 //			[EditorCapability::class, 'handle']

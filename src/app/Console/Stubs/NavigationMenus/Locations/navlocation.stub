@@ -2,8 +2,8 @@
 
 namespace {{ rootNamespace }}\App\WordPress\NavigationMenus\Locations;
 
-use {{ rootNamespace }}\App\Traits\InstancesTrait;
-use {{ coreNamespace }}\Base\BaseNavigationLocation;
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
+use {{ coreNamespace }}\App\WordPress\NavigationMenus\Locations\BaseNavigationLocation;
 
 class {{ className }} extends BaseNavigationLocation {
 

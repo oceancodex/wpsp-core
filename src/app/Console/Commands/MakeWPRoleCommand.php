@@ -48,8 +48,8 @@ class MakeWPRoleCommand extends Command {
 		// Create class file
 		$content = File::get(__DIR__ . '/../Stubs/WPRoles/wprole.stub');
 		$content = str_replace(
-			['{{ className }}', '{{ name }}', '{{ name_slugify }}'],
-			[$nameSlugify, $name, $nameSlugify],
+			['{{ className }}', '{{ name }}'],
+			[$nameSlugify, $name],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -60,16 +60,16 @@ class MakeWPRoleCommand extends Command {
 		// Func line
 		$func = File::get(__DIR__ . '/../Funcs/WPRoles/wprole.func');
 		$func = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$func
 		);
 
 		// Use line
 		$use = File::get(__DIR__ . '/../Uses/WPRoles/wprole.use');
 		$use = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

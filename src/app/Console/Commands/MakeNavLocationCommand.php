@@ -34,17 +34,17 @@ class MakeNavLocationCommand extends Command {
 			}
 		}
 
-		$nameSlugify = Str::slug($name, '_');
+		$name = Str::slug($name, '_');
 
 		// Validate class name
-		$this->validateClassName($nameSlugify);
+//		$this->validateClassName($name);
 
 		// Path for class file
-		$path = $mainPath . '/app/WordPress/NavigationMenus/Locations/' . $nameSlugify . '.php';
+		$path = $mainPath . '/app/WordPress/NavigationMenus/Locations/' . $name . '.php';
 
 		// Create content
 		$content = File::get(__DIR__ . '/../Stubs/NavigationMenus/Locations/navlocation.stub');
-		$content = str_replace('{{ className }}', $nameSlugify, $content);
+		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = $this->replaceNamespaces($content);
 
@@ -53,11 +53,11 @@ class MakeNavLocationCommand extends Command {
 
 		// Build func line
 		$func = File::get(__DIR__ . '/../Funcs/NavigationMenus/Locations/navlocation.func');
-		$func = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $func);
+		$func = str_replace(['{{ name }}'], [$name], $func);
 
 		// Build use line
 		$use = File::get(__DIR__ . '/../Uses/NavigationMenus/Locations/navlocation.use');
-		$use = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $use);
+		$use = str_replace(['{{ name }}'], [$name], $use);
 		$use = $this->replaceNamespaces($use);
 
 		// Add to route

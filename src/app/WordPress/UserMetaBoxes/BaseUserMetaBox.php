@@ -18,7 +18,6 @@ abstract class BaseUserMetaBox extends BaseInstances {
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
 		$this->overrideId($this->extraParams['id'] ?? null);
-		$this->customProperties();
 
 		// Update meta boxes.
 		if ($this->update) $this->updateUser();

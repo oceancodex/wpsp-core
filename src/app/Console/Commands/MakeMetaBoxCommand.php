@@ -13,9 +13,9 @@ class MakeMetaBoxCommand extends Command {
 
 	protected $signature = 'make:meta-box
         {id? : The ID of the meta box.}
-        {--create-view : Create a view file for this meta box}';
+        {--view : Create a view file for this meta box}';
 
-	protected $description = 'Create a new meta box.                    | Eg: bin/wpsp make:meta-box custom_meta_box --create-view';
+	protected $description = 'Create a new meta box.                    | Eg: bin/wpsp make:meta-box custom_meta_box --view';
 
 	protected $help = 'This command allows you to create a meta box.';
 
@@ -37,14 +37,17 @@ class MakeMetaBoxCommand extends Command {
 			$createView = $this->confirm('Do you want to create view files for this meta box?', false);
 		}
 		else {
-			$createView = $this->option('create-view');
+			$createView = $this->option('view');
 		}
 
 		// Normalize
-		$idSlugify = Str::slug($id, '_');
+		$id = Str::slug($id, '_');
+
+		// Validate class name
+//		$this->validateClassName(id);
 
 		// Check exists
-		$componentPath = $mainPath . '/app/WordPress/MetaBoxes/' . $idSlugify . '.php';
+		$componentPath = $mainPath . '/app/WordPress/MetaBoxes/' . $id . '.php';
 		$viewPath      = $mainPath . '/resources/views/modules/meta-boxes/' . $id . '.blade.php';
 
 		if (File::exists($componentPath)) {
@@ -57,7 +60,7 @@ class MakeMetaBoxCommand extends Command {
 			File::ensureDirectoryExists(dirname($viewPath));
 
 			$view = File::get(__DIR__ . '/../Views/MetaBoxes/meta-box.view');
-			$view = str_replace(['{{ id }}', '{{ id_slugify }}'], [$id, $idSlugify], $view);
+			$view = str_replace(['{{ id }}'], [$id], $view);
 
 			File::put($viewPath, $view);
 
@@ -69,8 +72,8 @@ class MakeMetaBoxCommand extends Command {
 
 		/* ---- Create class file ---- */
 		$content = str_replace(
-			['{{ className }}', '{{ id }}', '{{ id_slugify }}'],
-			[$idSlugify, $id, $idSlugify],
+			['{{ className }}', '{{ id }}'],
+			[$id, $id],
 			$content
 		);
 
@@ -81,10 +84,10 @@ class MakeMetaBoxCommand extends Command {
 
 		/* ---- Register in Funcs/Uses ---- */
 		$func = File::get(__DIR__ . '/../Funcs/MetaBoxes/meta-box.func');
-		$func = str_replace(['{{ id }}', '{{ id_slugify }}'], [$id, $idSlugify], $func);
+		$func = str_replace(['{{ id }}'], [$id], $func);
 
 		$use = File::get(__DIR__ . '/../Uses/MetaBoxes/meta-box.use');
-		$use = str_replace(['{{ id }}', '{{ id_slugify }}'], [$id, $idSlugify], $use);
+		$use = str_replace(['{{ id }}'], [$id], $use);
 		$use = $this->replaceNamespaces($use);
 
 		// Add to route

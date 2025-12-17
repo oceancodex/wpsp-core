@@ -1,7 +1,7 @@
 <?php
 namespace {{ rootNamespace }}\App\WordPress\TaxonomyColumns;
 
-use {{ rootNamespace }}\App\Traits\InstancesTrait;
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
 use {{ coreNamespace }}\Base\BaseTaxonomyColumn;
 
 class {{ className }} extends BaseTaxonomyColumn {

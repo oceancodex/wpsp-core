@@ -4,6 +4,7 @@ namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class MakeListTableCommand extends Command {
@@ -33,8 +34,11 @@ class MakeListTableCommand extends Command {
 			}
 		}
 
+		// Define variables
+		$name = Str::slug($name, '_');
+
 		// Validate class name
-		$this->validateClassName($name);
+//		$this->validateClassName($name);
 
 		// Build path
 		$path = $mainPath . '/app/WordPress/ListTables/' . $name . '.php';

@@ -62,10 +62,10 @@ class MakeTaxonomyColumnCommand extends Command {
 		 * Register route entry
 		 * ------------------------------------------------- */
 		$func = File::get(__DIR__ . '/../Funcs/TaxonomyColumns/taxonomy_column.func');
-		$func = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $func);
+		$func = str_replace(['{{ name }}'], [$name], $func);
 
 		$use = File::get(__DIR__ . '/../Uses/TaxonomyColumns/taxonomy_column.use');
-		$use = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $use);
+		$use = str_replace(['{{ name }}'], [$name], $use);
 		$use = $this->replaceNamespaces($use);
 
 		$this->addClassToRoute('TaxonomyColumns', 'taxonomy_columns', $func, $use);

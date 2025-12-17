@@ -2,8 +2,8 @@
 
 namespace {{ rootNamespace }}\App\WordPress\NavigationMenus\Menus;
 
-use {{ rootNamespace }}\App\Traits\InstancesTrait;
-use {{ coreNamespace }}\Base\BaseNavigationMenu;
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
+use {{ coreNamespace }}\App\WordPress\NavigationMenus\Menus\BaseNavigationMenu;
 
 class {{ className }} extends BaseNavigationMenu {
 

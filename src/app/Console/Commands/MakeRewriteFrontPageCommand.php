@@ -42,17 +42,14 @@ class MakeRewriteFrontPageCommand extends Command {
 		}
 
 		// Normalize variables
-		$pathSlugify = Str::slug($path, '-');
-		$name        = $path;
-		$nameSlugify = Str::slug($name, '_');
+		$name = Str::slug($path, '_');
 
 		$rewritePagePostType    = $rewritePagePostType ?? $this->option('rewrite-page-post-type') ?: 'page';
 		$rewritePageSlug        = $rewritePageSlug ?? $this->option('rewrite-page-slug') ?: 'rewrite-front-pages';
-		$rewritePageSlugSlugify = Str::slug($rewritePageSlug, '-');
 		$useTemplate            = $useTemplate ?? $this->option('use-template') ?: false;
 
 		// Check exists
-		$componentPath = $mainPath . '/app/WordPress/RewriteFrontPages/' . $nameSlugify . '.php';
+		$componentPath = $mainPath . '/app/WordPress/RewriteFrontPages/' . $name . '.php';
 		$viewPath      = $mainPath . '/resources/views/modules/rewrite-front-pages/' . $path . '.blade.php';
 
 		if (File::exists($componentPath) || File::exists($viewPath)) {
@@ -68,23 +65,17 @@ class MakeRewriteFrontPageCommand extends Command {
 			[
 				'{{ className }}',
 				'{{ name }}',
-				'{{ name_slugify }}',
 				'{{ path }}',
-				'{{ path_slugify }}',
 				'{{ rewrite_page_post_type }}',
 				'{{ rewrite_page_slug }}',
-				'{{ rewrite_page_slug_slugify }}',
 				'{{ use_template }}',
 			],
 			[
-				$nameSlugify,
 				$name,
-				$nameSlugify,
+				$name,
 				$path,
-				$pathSlugify,
 				$rewritePagePostType,
 				$rewritePageSlug,
-				$rewritePageSlugSlugify,
 				$useTemplate ? 'true' : 'false',
 			],
 			$content
@@ -106,21 +97,15 @@ class MakeRewriteFrontPageCommand extends Command {
 		$view = str_replace(
 			[
 				'{{ name }}',
-				'{{ name_slugify }}',
 				'{{ path }}',
-				'{{ path_slugify }}',
 				'{{ rewrite_page_post_type }}',
 				'{{ rewrite_page_slug }}',
-				'{{ rewrite_page_slug_slugify }}',
 			],
 			[
 				$name,
-				$nameSlugify,
 				$path,
-				$pathSlugify,
 				$rewritePagePostType,
 				$rewritePageSlug,
-				$rewritePageSlugSlugify,
 			],
 			$view
 		);
@@ -135,21 +120,15 @@ class MakeRewriteFrontPageCommand extends Command {
 		$func = str_replace(
 			[
 				'{{ name }}',
-				'{{ name_slugify }}',
 				'{{ path }}',
-				'{{ path_slugify }}',
 				'{{ rewrite_page_post_type }}',
 				'{{ rewrite_page_slug }}',
-				'{{ rewrite_page_slug_slugify }}',
 			],
 			[
 				$name,
-				$nameSlugify,
 				$path,
-				$pathSlugify,
 				$rewritePagePostType,
 				$rewritePageSlug,
-				$rewritePageSlugSlugify,
 			],
 			$func
 		);
@@ -158,21 +137,15 @@ class MakeRewriteFrontPageCommand extends Command {
 		$use = str_replace(
 			[
 				'{{ name }}',
-				'{{ name_slugify }}',
 				'{{ path }}',
-				'{{ path_slugify }}',
 				'{{ rewrite_page_post_type }}',
 				'{{ rewrite_page_slug }}',
-				'{{ rewrite_page_slug_slugify }}',
 			],
 			[
 				$name,
-				$nameSlugify,
 				$path,
-				$pathSlugify,
 				$rewritePagePostType,
 				$rewritePageSlug,
-				$rewritePageSlugSlugify,
 			],
 			$use
 		);

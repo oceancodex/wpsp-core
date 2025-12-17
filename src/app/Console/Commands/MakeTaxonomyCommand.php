@@ -50,8 +50,8 @@ class MakeTaxonomyCommand extends Command {
 		 * ------------------------------------------------- */
 		$content = File::get(__DIR__ . '/../Stubs/Taxonomies/taxonomy.stub');
 		$content = str_replace(
-			['{{ className }}', '{{ name }}', '{{ name_slugify }}'],
-			[$nameSlugify, $name, $nameSlugify],
+			['{{ className }}', '{{ name }}'],
+			[$nameSlugify, $name],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -64,15 +64,15 @@ class MakeTaxonomyCommand extends Command {
 		 * ------------------------------------------------- */
 		$func = File::get(__DIR__ . '/../Funcs/Taxonomies/taxonomy.func');
 		$func = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$func
 		);
 
 		$use = File::get(__DIR__ . '/../Uses/Taxonomies/taxonomy.use');
 		$use = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

@@ -39,15 +39,13 @@ class MakeAdminPageCommand extends Command {
 		}
 
 		// Define variables.
-		$pathSlugify = Str::slug($path);
-		$name        = $path;
-		$nameSlugify = Str::slug($name, '_');
+		$name = Str::slug($path, '_');
 
-		// Validate class name.
-		$this->validateClassName($nameSlugify);
+		// Validate
+//		$this->validateClassName($name);
 
 		// Prepare paths.
-		$adminClassPath = $mainPath . '/app/WordPress/AdminPages/' . $nameSlugify . '.php';
+		$adminClassPath = $mainPath . '/app/WordPress/AdminPages/' . $name . '.php';
 		$viewDirPath    = $mainPath . '/resources/views/modules/admin-pages/' . $path;
 
 		// Check exist.
@@ -66,8 +64,8 @@ class MakeAdminPageCommand extends Command {
 
 		// Replace placeholders.
 		$content = str_replace(
-			['{{ className }}', '{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
-			[$nameSlugify, $name, $nameSlugify, $path, $pathSlugify],
+			['{{ className }}', '{{ name }}', '{{ path }}'],
+			[$name, $name, $path],
 			$content
 		);
 
@@ -97,8 +95,8 @@ class MakeAdminPageCommand extends Command {
 				$view = File::get(__DIR__ . '/../Views/AdminPages' . $nonBladeSep . '/' . $stub);
 
 				$view = str_replace(
-					['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
-					[$name, $nameSlugify, $path, $pathSlugify],
+					['{{ name }}', '{{ path }}'],
+					[$name, $path],
 					$view
 				);
 
@@ -108,15 +106,15 @@ class MakeAdminPageCommand extends Command {
 
 		// Prepare new line for find function.
 		$func = File::get(__DIR__ . '/../Funcs/AdminPages/adminpage.func');
-		$func = str_replace(['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
-			[$name, $nameSlugify, $path, $pathSlugify],
+		$func = str_replace(['{{ name }}', '{{ path }}'],
+			[$name, $path],
 			$func);
 
 		// Prepare new line for use class.
 		$use = File::get(__DIR__ . '/../Uses/AdminPages/adminpage.use');
 		$use = str_replace(
-			['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
-			[$name, $nameSlugify, $path, $pathSlugify],
+			['{{ name }}', '{{ path }}'],
+			[$name, $path],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

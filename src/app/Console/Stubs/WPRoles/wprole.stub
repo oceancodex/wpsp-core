@@ -2,15 +2,15 @@
 
 namespace {{ rootNamespace }}\App\WordPress\Roles;
 
-use {{ rootNamespace }}\App\Traits\InstancesTrait;
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
 use {{ coreNamespace }}\Base\BaseRole;
 
 class {{ className }} extends BaseRole {
 
 	use InstancesTrait;
 
-//	public $role         = '{{ name_slugify }}';
-//	public $display_name = '{{ name_slugify }}';
+//	public $role         = '{{ name }}';
+//	public $display_name = '{{ name }}';
 //	public $capabilities = [
 //		'edit_pages',
 //		'manage_options',

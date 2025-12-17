@@ -14,7 +14,6 @@ abstract class BaseTemplates extends BaseInstances {
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
 		$this->overrideName($this->extraParams['name']);
-		$this->customProperties();
 		$this->templateInclude();
 	}
 

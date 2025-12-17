@@ -56,8 +56,8 @@ class MakeShortcodeCommand extends Command {
 		if ($createView) {
 			$view = File::get(__DIR__ . '/../Views/Shortcodes/shortcode.view');
 			$view = str_replace(
-				['{{ name }}', '{{ name_slugify }}'],
-				[$name, $nameSlugify],
+				['{{ name }}'],
+				[$name],
 				$view
 			);
 
@@ -74,8 +74,8 @@ class MakeShortcodeCommand extends Command {
 		 *  CREATE CLASS FILE
 		 * ------------------------------------------------- */
 		$stub = str_replace(
-			['{{ className }}', '{{ name }}', '{{ name_slugify }}'],
-			[$nameSlugify, $name, $nameSlugify],
+			['{{ className }}', '{{ name }}'],
+			[$nameSlugify, $name],
 			$stub
 		);
 
@@ -89,15 +89,15 @@ class MakeShortcodeCommand extends Command {
 		 * ------------------------------------------------- */
 		$func = File::get(__DIR__ . '/../Funcs/Shortcodes/shortcode.func');
 		$func = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$func
 		);
 
 		$use = File::get(__DIR__ . '/../Uses/Shortcodes/shortcode.use');
 		$use = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

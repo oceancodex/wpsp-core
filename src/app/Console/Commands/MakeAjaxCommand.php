@@ -39,23 +39,26 @@ class MakeAjaxCommand extends Command {
 		}
 
 		// Define variables
-		$method        = $method ? strtolower($method) : 'get';
-		$actionSlugify = Str::slug($action, '_');
-		$noprivValue   = $nopriv ? 'true' : 'false';
+//		$action      = Str::slug($action, '_');
+		$method      = $method ? strtolower($method) : 'get';
+		$noprivValue = $nopriv ? 'true' : 'false';
+
+		// Validate
+		$this->validateClassName($action);
 
 		// Prepare line for find function
 		$func = $noprivValue == 'true' ? File::get(__DIR__ . '/../Funcs/Ajaxs/ajax-nopriv.func') : File::get(__DIR__ . '/../Funcs/Ajaxs/ajax.func');
 		$func = str_replace(
-			['{{ method }}', '{{ action }}', '{{ action_slugify }}', '{{ nopriv }}'],
-			[$method, $action, $actionSlugify, $noprivValue],
+			['{{ method }}', '{{ action }}', '{{ nopriv }}'],
+			[$method, $action, $noprivValue],
 			$func
 		);
 
 		// Prepare line for use class
 		$use = File::get(__DIR__ . '/../Uses/Ajaxs/ajax.use');
 		$use = str_replace(
-			['{{ method }}', '{{ action }}', '{{ action_slugify }}', '{{ nopriv }}'],
-			[$method, $action, $actionSlugify, $noprivValue],
+			['{{ method }}', '{{ action }}', '{{ nopriv }}'],
+			[$method, $action, $noprivValue],
 			$use
 		);
 
