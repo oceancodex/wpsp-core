@@ -343,6 +343,10 @@ class Funcs extends BaseInstances {
 			$file = $this->_getSitePath() . '/wp-config.php';
 		}
 
+		if (!file_exists($file)) {
+			return [];
+		}
+
 		$defines = [];
 		$tokens  = token_get_all(file_get_contents($file));
 

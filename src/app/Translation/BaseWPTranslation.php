@@ -13,9 +13,9 @@ abstract class BaseWPTranslation extends BaseInstances {
 	 *
 	 */
 
-	public function prepare() {
+	public function init() {
 		try {
-			$loaded = load_plugin_textdomain(
+			load_plugin_textdomain(
 				$this->textDomain ?? $this->funcs->_getTextDomain(),
 				false,
 				$this->relPath ?? $this->funcs->_getMainBaseName() . '/resources/lang/'
