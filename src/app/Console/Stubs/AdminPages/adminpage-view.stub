@@ -5,7 +5,7 @@ namespace {{ rootNamespace }}\App\WordPress\AdminPages;
 use Illuminate\Http\Request;
 use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\Base\BaseAdminPage;
+use {{ coreNamespace }}\App\WordPress\AdminPages\BaseAdminPage;
 
 class {{ className }} extends BaseAdminPage {
 
