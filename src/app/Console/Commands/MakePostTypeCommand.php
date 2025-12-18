@@ -26,7 +26,7 @@ class MakePostTypeCommand extends Command {
 
 		// Ask interactively
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the post type');
+			$name = $this->ask('Please enter the name of the post type (Eg: event)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the post type. Please try again.');

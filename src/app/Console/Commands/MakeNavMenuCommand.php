@@ -25,7 +25,7 @@ class MakeNavMenuCommand extends Command {
 
 		// Ask interactively
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the navigation menu');
+			$name = $this->ask('Please enter the name of the navigation menu (Eg: custom_nav_location)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the navigation menu. Please try again.');

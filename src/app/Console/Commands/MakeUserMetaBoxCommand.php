@@ -29,7 +29,7 @@ class MakeUserMetaBoxCommand extends Command {
 		 *  ASK INTERACTIVE
 		 * ------------------------------------------------- */
 		if (!$id) {
-			$id = $this->ask('Please enter the ID of the user meta box');
+			$id = $this->ask('Please enter the ID of the user meta box (Eg: custom_user_meta_box)');
 
 			if (empty($id)) {
 				$this->error('Missing ID for the user meta box. Please try again.');

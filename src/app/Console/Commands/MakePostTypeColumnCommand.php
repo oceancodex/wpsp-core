@@ -26,7 +26,7 @@ class MakePostTypeColumnCommand extends Command {
 
 		// Ask interactively if not provided
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the post type column');
+			$name = $this->ask('Please enter the name of the post type column (Eg: my_custom_column)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the post type column. Please try again.');

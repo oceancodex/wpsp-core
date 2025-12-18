@@ -28,12 +28,14 @@ class MakeThemeTemplateCommand extends Command {
 		 *  Ask interactive
 		 * ------------------------------------------------- */
 		if (!$name) {
-			$name = $this->ask('Please enter the name of theme template');
+			$name = $this->ask('Please enter the name of theme template (Eg: custom_theme_template)');
 
 			if (empty($name)) {
 				$this->error('Missing name for theme template. Please try again.');
 				exit;
 			}
+
+			$postType = $this->ask('Please enter the post type for theme template (blank is "page")', 'page');
 		}
 
 		// Define variables

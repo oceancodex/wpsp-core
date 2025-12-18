@@ -27,7 +27,7 @@ class MakeShortcodeCommand extends Command {
 
 		// Interactive input
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the shortcode');
+			$name = $this->ask('Please enter the name of the shortcode (Eg: custom_shortcode)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the shortcode. Please try again.');

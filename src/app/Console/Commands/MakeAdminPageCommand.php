@@ -25,7 +25,7 @@ class MakeAdminPageCommand extends Command {
 
 		// If path is empty, ask questions.
 		if (!$path) {
-			$path = $this->ask('Please enter the path of the admin page');
+			$path = $this->ask('Please enter the path of the admin page (Eg: custom-admin-page)');
 
 			if (empty($path)) {
 				$this->error('Missing path for the admin page. Please try again.');

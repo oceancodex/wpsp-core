@@ -12,12 +12,12 @@ class MakeAPICommand extends Command {
 	use CommandsTrait;
 
 	protected $signature = 'make:api
-        {path? : The path of the API end point.}
-        {--method= : The method of the API end point.}
-        {--namespace= : The namespace of the API end point.}
-        {--ver= : The version of the API end point.}';
+        {path? : The path of the API endpoint.}
+        {--method= : The method of the API endpoint.}
+        {--namespace= : The namespace of the API endpoint.}
+        {--ver= : The version of the API endpoint.}';
 
-	protected $description = 'Create a new API end point. | Eg: bin/wpsp make:api my-api-endpoint --method=POST --namespace=wpsp --ver=v1';
+	protected $description = 'Create a new API endpoint. | Eg: bin/wpsp make:api my-api-endpoint --method=POST --namespace=wpsp --ver=v1';
 
 	public function handle() {
 		$this->funcs = $this->getLaravel()->make('funcs');
@@ -26,14 +26,14 @@ class MakeAPICommand extends Command {
 
 		// Ask interactively if missing
 		if (!$path) {
-			$path = $this->ask('Please enter the path of the API end point');
+			$path = $this->ask('Please enter the path of the API endpoint (Eg: custom-endpoint)');
 
-			$method    = $this->ask('Please enter the method of the API end point (blank is "GET")');
-			$namespace = $this->ask('Please enter the namespace of the API end point (blank is "' . $this->funcs->_getAppShortName() . '")');
-			$version   = $this->ask('Please enter the version of the API end point (blank is "v1")');
+			$method    = $this->ask('Please enter the method of the API endpoint (Eg: GET, POST or get, post... Default: GET)');
+			$namespace = $this->ask('Please enter the namespace of the API endpoint (Eg: wpsp, custom-namespace,... Default: ' . $this->funcs->_getAppShortName() . ')');
+			$version   = $this->ask('Please enter the version of the API endpoint (Eg: v1, v2,... Default: v1)');
 
 			if (empty($path)) {
-				$this->error('Missing path for the API end point. Please try again.');
+				$this->error('Missing path for the API endpoint. Please try again.');
 				exit;
 			}
 		}
@@ -84,7 +84,7 @@ class MakeAPICommand extends Command {
 		$this->addClassToRoute('Apis', 'apis', $func, $use);
 
 		// Done
-		$this->info("Created new API end point: {$path}");
+		$this->info("Created new API endpoint: {$path}");
 
 		exit;
 	}

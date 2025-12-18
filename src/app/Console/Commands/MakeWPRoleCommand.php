@@ -26,7 +26,7 @@ class MakeWPRoleCommand extends Command {
 
 		// Ask name interactively
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the role');
+			$name = $this->ask('Please enter the name of the role (Eg: custom_role)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the role. Please try again.');

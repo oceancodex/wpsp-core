@@ -14,11 +14,11 @@ class MakeRewriteFrontPageCommand extends Command {
 	protected $signature = 'make:rewrite-front-page
         {path? : The path of the rewrite front page.}
         {--method= : The method for rewrite front page.}
-        {--rewrite-page-post-type= : The post type for rewrite front page.}
-        {--rewrite-page-slug= : The page slug for rewrite front page.}
+        {--post-type= : The post type for rewrite front page.}
+        {--page-slug= : The page slug for rewrite front page.}
         {--template : Generate view using template.}';
 
-	protected $description = 'Create a new rewrite front page. | Eg: bin/wpsp make:rewrite-front-page custom-rewrite-front-page --method=GET --rewrite-page-post-type=page --rewrite-page-slug=parent/rewrite-front-pages --template';
+	protected $description = 'Create a new rewrite front page. | Eg: bin/wpsp make:rewrite-front-page custom-rewrite-front-page --method=GET --post-type=page --page-slug=parent/rewrite-front-pages --template';
 
 	protected $help = 'This command allows you to create a rewrite front page.';
 
@@ -30,15 +30,15 @@ class MakeRewriteFrontPageCommand extends Command {
 
 		// Ask interactively if missing
 		if (!$path) {
-			$path = $this->ask('Please enter the path of the rewrite front page');
+			$path = $this->ask('Please enter the path of the rewrite front page (Eg: custom-rewrite-front-page)');
 
 			if (empty($path)) {
 				$this->error('Missing path for the rewrite front page. Please try again.');
 				exit;
 			}
 
-			$rewritePagePostType = $this->ask('Please enter the post type for rewrite front page', 'page');
-			$rewritePageSlug     = $this->ask('Please enter the page name for rewrite front page', 'rewrite-front-pages');
+			$rewritePagePostType = $this->ask('Please enter the post type for rewrite front page (Eg: page,... Default: page)', 'page');
+			$rewritePageSlug     = $this->ask('Please enter the page name for rewrite front page (Eg: page-for-rewrite-rules,... Default: rewrite-front-pages)', 'rewrite-front-pages');
 			$useTemplate         = $this->confirm('Use template for this rewrite front page?', false);
 		}
 
@@ -49,8 +49,8 @@ class MakeRewriteFrontPageCommand extends Command {
 		// $name sẽ được slugify từ "path" ra.
 
 		$method                 = strtolower($this->option('method') ?: 'GET');
-		$rewritePagePostType    = $rewritePagePostType ?? $this->option('rewrite-page-post-type') ?: 'page';
-		$rewritePageSlug        = $rewritePageSlug ?? $this->option('rewrite-page-slug') ?: 'rewrite-front-pages';
+		$rewritePagePostType    = $rewritePagePostType ?? $this->option('post-type') ?: 'page';
+		$rewritePageSlug        = $rewritePageSlug ?? $this->option('page-slug') ?: 'rewrite-front-pages';
 		$useTemplate            = $useTemplate ?? $this->option('template') ?: false;
 
 		// Check exists
@@ -72,8 +72,8 @@ class MakeRewriteFrontPageCommand extends Command {
 				'{{ name }}',
 				'{{ path }}',
 				'{{ method }}',
-				'{{ rewrite_page_post_type }}',
-				'{{ rewrite_page_slug }}',
+				'{{ post_type }}',
+				'{{ page_slug }}',
 				'{{ use_template }}',
 			],
 			[
@@ -106,8 +106,8 @@ class MakeRewriteFrontPageCommand extends Command {
 				'{{ name }}',
 				'{{ path }}',
 				'{{ method }}',
-				'{{ rewrite_page_post_type }}',
-				'{{ rewrite_page_slug }}',
+				'{{ post_type }}',
+				'{{ page_slug }}',
 			],
 			[
 				$name,
@@ -131,8 +131,8 @@ class MakeRewriteFrontPageCommand extends Command {
 				'{{ name }}',
 				'{{ path }}',
 				'{{ method }}',
-				'{{ rewrite_page_post_type }}',
-				'{{ rewrite_page_slug }}',
+				'{{ post_type }}',
+				'{{ page_slug }}',
 			],
 			[
 				$name,
@@ -150,8 +150,8 @@ class MakeRewriteFrontPageCommand extends Command {
 				'{{ name }}',
 				'{{ path }}',
 				'{{ method }}',
-				'{{ rewrite_page_post_type }}',
-				'{{ rewrite_page_slug }}',
+				'{{ post_type }}',
+				'{{ page_slug }}',
 			],
 			[
 				$name,

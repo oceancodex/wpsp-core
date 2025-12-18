@@ -27,7 +27,7 @@ class MakeMetaBoxCommand extends Command {
 
 		// Interactive questions
 		if (!$id) {
-			$id = $this->ask('Please enter the ID of the meta box');
+			$id = $this->ask('Please enter the ID of the meta box (Eg: custom_meta_box)');
 
 			if (empty($id)) {
 				$this->error('Missing ID for the meta box. Please try again.');

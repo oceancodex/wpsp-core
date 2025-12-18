@@ -26,7 +26,7 @@ class MakeListTableCommand extends Command {
 
 		// Ask interactively if missing
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the list table');
+			$name = $this->ask('Please enter the name of the list table (Eg: MyListTable)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the list table. Please try again.');

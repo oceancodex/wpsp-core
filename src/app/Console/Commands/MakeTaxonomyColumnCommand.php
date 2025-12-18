@@ -14,7 +14,7 @@ class MakeTaxonomyColumnCommand extends Command {
 	protected $signature = 'make:taxonomy-column
         {name? : The name of the taxonomy column.}';
 
-	protected $description = 'Create a new taxonomy column. | Eg: bin/wpsp make:taxonomy-column my_custom_column';
+	protected $description = 'Create a new taxonomy column. | Eg: bin/wpsp make:taxonomy-column custom_tax_column';
 
 	protected $help = 'This command allows you to create a custom column for taxonomy list table.';
 
@@ -26,7 +26,7 @@ class MakeTaxonomyColumnCommand extends Command {
 
 		// Ask interactively
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the taxonomy column');
+			$name = $this->ask('Please enter the name of the taxonomy column (Eg: custom_tax_column)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the taxonomy column. Please try again.');

@@ -28,7 +28,7 @@ class MakeScheduleCommand extends Command {
 
 		// Ask interactively
 		if (!$hook) {
-			$hook = $this->ask('Please enter the hook of the schedule');
+			$hook = $this->ask('Please enter the hook of the schedule (Eg: custom_schedule_hook)');
 
 			if (empty($hook)) {
 				$this->error('Missing hook for the schedule. Please try again.');
@@ -37,7 +37,7 @@ class MakeScheduleCommand extends Command {
 		}
 
 		if (!$interval) {
-			$interval = $this->ask('Please enter the interval of the schedule (Leave empty = hourly)');
+			$interval = $this->ask('Please enter the interval of the schedule (blank is "hourly")');
 		}
 
 		$interval = empty($interval) ? 'hourly' : $interval;

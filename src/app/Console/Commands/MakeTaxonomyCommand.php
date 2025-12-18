@@ -26,7 +26,7 @@ class MakeTaxonomyCommand extends Command {
 
 		// Interactive ask
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the taxonomy');
+			$name = $this->ask('Please enter the name of the taxonomy (Eg: custom_taxonomy)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the taxonomy. Please try again.');
