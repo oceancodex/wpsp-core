@@ -1,1 +1,1 @@
-		Route::user_meta_box('{{ id }}', [{{ id_slugify }}::class, 'index']);
+		Route::user_meta_box('{{ id }}', [{{ id }}::class, 'index']);

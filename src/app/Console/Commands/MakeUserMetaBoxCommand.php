@@ -80,8 +80,8 @@ class MakeUserMetaBoxCommand extends Command {
 		 *  CREATE VIEW FILES
 		 * ------------------------------------------------- */
 		if ($createView) {
-			$bladeExt    = class_exists('\WPSPCORE\View\Blade') ? '.blade.php' : '.php';
-			$nonBladeSep = class_exists('\WPSPCORE\View\Blade') ? '' : '/non-blade';
+			$bladeExt    = class_exists('Illuminate\View\View') ? '.blade.php' : '.php';
+			$nonBladeSep = class_exists('Illuminate\View\View') ? '' : '/non-blade';
 
 			File::ensureDirectoryExists($viewDir);
 
