@@ -20,7 +20,6 @@ class {{ className }} extends BaseShortcode {
 		return Funcs::view('modules.shortcodes.{{ name }}')->render();
 	}
 
-
 	/*
 	 *
 	 */

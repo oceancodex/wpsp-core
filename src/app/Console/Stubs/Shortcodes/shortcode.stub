@@ -19,7 +19,6 @@ class {{ className }} extends BaseShortcode {
 		return do_shortcode($content);
 	}
 
-
 	/*
 	 *
 	 */
