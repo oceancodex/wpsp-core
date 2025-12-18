@@ -1,5 +1,5 @@
 <?php
-if (isset($requestParams['tab']) && $requestParams['tab'] == 'tab-2') {
+if (isset($requestParams['{{ id }}-tab']) && $requestParams['{{ id }}-tab'] == 'tab-2') {
 	$title = $funcs->_trans('Tab 2', true);
 	$view  = $funcs->_getResourcesPath('/views/modules/user-meta-boxes/{{ id }}/tab-2.php');
 }
