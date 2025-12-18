@@ -69,6 +69,10 @@ class {{ className }} extends BaseTaxonomy {
 //	public $args                       = [];
 //	public $_builtin                   = true;
 
+	/*
+	 *
+	 */
+
 	public function customProperties() {
 
 		/**

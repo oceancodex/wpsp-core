@@ -12,7 +12,8 @@ class MakeTemplateCommand extends Command {
 	use CommandsTrait;
 
 	protected $signature = 'make:template
-        {name? : The name of the template.}';
+        {name? : The name of the template.}
+        {--post-type= : The post type for theme template.}';
 
 	protected $description = 'Create a new page template. | Eg: bin/wpsp make:template custom_template';
 
@@ -35,6 +36,9 @@ class MakeTemplateCommand extends Command {
 				exit;
 			}
 		}
+
+		// Define variables
+		$postType = $postType ?? $this->option('post-type') ?: 'page';
 
 		// Validate
 		$this->validateClassName($name);
