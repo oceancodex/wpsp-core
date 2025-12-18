@@ -14,7 +14,7 @@ class MakeNavLocationCommand extends Command {
 	protected $signature = 'make:nav-location
         {name? : The name of the navigation menu location.}';
 
-	protected $description = 'Create a new navigation menu location.    | Eg: bin/wpsp make:nav-location custom_nav_location';
+	protected $description = 'Create a new navigation menu location. | Eg: bin/wpsp make:nav-location custom_nav_location';
 
 	protected $help = 'This command allows you to create a navigation menu location.';
 

@@ -14,7 +14,7 @@ class MakePostTypeCommand extends Command {
 	protected $signature = 'make:post-type
         {name? : The name of the post type.}';
 
-	protected $description = 'Create a new post type.                   | Eg: bin/wpsp make:post-type custom_post_type';
+	protected $description = 'Create a new post type. | Eg: bin/wpsp make:post-type custom_post_type';
 
 	protected $help = 'This command allows you to create a post type...';
 

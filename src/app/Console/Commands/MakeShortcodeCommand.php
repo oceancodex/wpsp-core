@@ -15,7 +15,7 @@ class MakeShortcodeCommand extends Command {
         {name? : The name of the shortcode.}
         {--view : Create view files for this shortcode}';
 
-	protected $description = 'Create a new shortcode.                   | Eg: bin/wpsp make:shortcode custom_shortcode --view';
+	protected $description = 'Create a new shortcode. | Eg: bin/wpsp make:shortcode custom_shortcode --view';
 
 	protected $help = 'This command allows you to create a shortcode.';
 

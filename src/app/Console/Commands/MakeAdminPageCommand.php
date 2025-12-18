@@ -15,7 +15,7 @@ class MakeAdminPageCommand extends Command {
         {path? : The path of the admin page}
         {--view : Create view files for this admin page}';
 
-	protected $description = 'Create a new admin page.                  | Eg: php artisan make:admin-page custom-admin-page --view';
+	protected $description = 'Create a new admin page. | Eg: php artisan make:admin-page custom-admin-page --view';
 
 	public function handle() {
 		$this->funcs = $this->getLaravel()->make('funcs');

@@ -14,7 +14,7 @@ class MakeWPRoleCommand extends Command {
 	protected $signature = 'make:wp-role
         {name? : The name of the role.}';
 
-	protected $description = 'Create a new role.                        | Eg: bin/wpsp make:wp-role custom_role';
+	protected $description = 'Create a new role. | Eg: bin/wpsp make:wp-role custom_role';
 
 	protected $help = 'This command allows you to create a role...';
 

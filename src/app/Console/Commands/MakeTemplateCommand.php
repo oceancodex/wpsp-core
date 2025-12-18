@@ -14,7 +14,7 @@ class MakeTemplateCommand extends Command {
 	protected $signature = 'make:template
         {name? : The name of the template.}';
 
-	protected $description = 'Create a new page template.               | Eg: bin/wpsp make:template custom_template';
+	protected $description = 'Create a new page template. | Eg: bin/wpsp make:template custom_template';
 
 	protected $help = 'This command allows you to create a page template.';
 

@@ -17,7 +17,7 @@ class MakeRewriteFrontPageCommand extends Command {
         {--rewrite-page-slug= : The page slug for rewrite front page.}
         {--use-template : Generate view using template.}';
 
-	protected $description = 'Create a new rewrite front page.          | Eg: bin/wpsp make:rewrite-front-page custom-rewrite-front-page --rewrite-page-post-type=page --rewrite-page-slug=parent/rewrite-front-pages --use-template';
+	protected $description = 'Create a new rewrite front page. | Eg: bin/wpsp make:rewrite-front-page custom-rewrite-front-page --rewrite-page-post-type=page --rewrite-page-slug=parent/rewrite-front-pages --use-template';
 
 	protected $help = 'This command allows you to create a rewrite front page.';
 

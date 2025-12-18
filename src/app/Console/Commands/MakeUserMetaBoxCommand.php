@@ -15,7 +15,7 @@ class MakeUserMetaBoxCommand extends Command {
         {id? : The id of the user meta box}
         {--view : Create view files for this user meta box}';
 
-	protected $description = 'Create a new user meta box.               | Eg: bin/wpsp make:user-meta-box custom_user_meta_box --view';
+	protected $description = 'Create a new user meta box. | Eg: bin/wpsp make:user-meta-box custom_user_meta_box --view';
 
 	protected $help = 'This command allows you to create a user meta box.';
 

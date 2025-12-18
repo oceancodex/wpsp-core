@@ -15,7 +15,7 @@ class MakeMetaBoxCommand extends Command {
         {id? : The ID of the meta box.}
         {--view : Create a view file for this meta box}';
 
-	protected $description = 'Create a new meta box.                    | Eg: bin/wpsp make:meta-box custom_meta_box --view';
+	protected $description = 'Create a new meta box. | Eg: bin/wpsp make:meta-box custom_meta_box --view';
 
 	protected $help = 'This command allows you to create a meta box.';
 

@@ -16,7 +16,7 @@ class MakeAjaxCommand extends Command {
         {--method : The HTTP method of the Ajax (GET, POST, PUT, DELETE)}
         {--nopriv : Allow access for non-logged users}';
 
-	protected $description = 'Create a new Ajax action.                 | Eg: php artisan make:ajax GET my_action --nopriv';
+	protected $description = 'Create a new Ajax action. | Eg: php artisan make:ajax GET my_action --nopriv';
 
 	public function handle() {
 		$this->funcs = $this->getLaravel()->make('funcs');
