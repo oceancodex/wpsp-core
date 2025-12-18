@@ -14,7 +14,7 @@ class MakeTaxonomyCommand extends Command {
 	protected $signature = 'make:taxonomy
         {name? : The name of the taxonomy.}';
 
-	protected $description = 'Create a new taxonomy. | Eg: bin/wpsp make:taxonomy custom_taxonomy';
+	protected $description = 'Create a new taxonomy. | Eg: php artisan make:taxonomy custom_taxonomy';
 
 	protected $help = 'This command allows you to create a taxonomy...';
 

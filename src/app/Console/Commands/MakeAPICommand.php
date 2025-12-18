@@ -17,7 +17,7 @@ class MakeAPICommand extends Command {
         {--namespace= : The namespace of the API endpoint.}
         {--ver= : The version of the API endpoint.}';
 
-	protected $description = 'Create a new API endpoint. | Eg: bin/wpsp make:api my-api-endpoint --method=POST --namespace=wpsp --ver=v1';
+	protected $description = 'Create a new API endpoint. | Eg: php artisan make:api my-api-endpoint --method=POST --namespace=wpsp --ver=v1';
 
 	public function handle() {
 		$this->funcs = $this->getLaravel()->make('funcs');

@@ -14,7 +14,7 @@ class MakeThemeTemplateCommand extends Command {
         {name? : The name of theme template.}
         {--post-type= : The post type for theme template.}';
 
-	protected $description = 'Create a new theme template. | Eg: bin/wpsp make:theme-template custom_theme_template --post-type=page';
+	protected $description = 'Create a new theme template. | Eg: php artisan make:theme-template custom_theme_template --post-type=page';
 
 	protected $help = 'This command allows you to create a theme template.';
 
