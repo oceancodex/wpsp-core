@@ -1,7 +1,6 @@
 <?php
 /**
- * Template Name: Custom page template: {{ name }}
- * Template Post Type: {{ post_type }}
+ * Template Name: Custom theme template: {{ name }}
  *
  * @see https://developer.wordpress.org/themes/classic-themes/templates/page-template-files/
  */

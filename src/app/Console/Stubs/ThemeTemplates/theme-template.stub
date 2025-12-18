@@ -1,12 +1,12 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\Templates;
+namespace {{ rootNamespace }}\App\WordPress\ThemeTemplates;
 
 use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\App\WordPress\Templates\BaseTemplates;
+use {{ coreNamespace }}\App\WordPress\ThemeTemplates\BaseThemeTemplates;
 
-class {{ className }} extends BaseTemplates {
+class {{ className }} extends BaseThemeTemplates {
 
 	use InstancesTrait;
 
@@ -20,7 +20,7 @@ class {{ className }} extends BaseTemplates {
 	 */
 
 	public function customProperties() {
-//		$this->path = Funcs::instance()->_getResourcesPath('/views/modules/templates/' . $this->name . '.blade.php');
+//		$this->path = Funcs::instance()->_getResourcesPath('/views/modules/theme-templates/' . $this->name . '.blade.php');
 	}
 
 }

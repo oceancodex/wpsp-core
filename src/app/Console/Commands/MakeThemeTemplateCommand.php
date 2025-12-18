@@ -4,20 +4,19 @@ namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
-class MakeTemplateCommand extends Command {
+class MakeThemeTemplateCommand extends Command {
 
 	use CommandsTrait;
 
-	protected $signature = 'make:template
-        {name? : The name of the template.}
+	protected $signature = 'make:theme-template
+        {name? : The name of theme template.}
         {--post-type= : The post type for theme template.}';
 
-	protected $description = 'Create a new page template. | Eg: bin/wpsp make:template custom_template';
+	protected $description = 'Create a new theme template. | Eg: bin/wpsp make:theme-template custom_theme_template --post-type=page';
 
-	protected $help = 'This command allows you to create a page template.';
+	protected $help = 'This command allows you to create a theme template.';
 
 	public function handle() {
 		$this->funcs = $this->getLaravel()->make("funcs");
@@ -29,10 +28,10 @@ class MakeTemplateCommand extends Command {
 		 *  Ask interactive
 		 * ------------------------------------------------- */
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the template');
+			$name = $this->ask('Please enter the name of theme template');
 
 			if (empty($name)) {
-				$this->error('Missing name for the template. Please try again.');
+				$this->error('Missing name for theme template. Please try again.');
 				exit;
 			}
 		}
@@ -46,8 +45,8 @@ class MakeTemplateCommand extends Command {
 		/* -------------------------------------------------
 		 *  Check exists
 		 * ------------------------------------------------- */
-		$classPath = $mainPath . '/app/WordPress/Templates/' . $name . '.php';
-		$viewPath  = $mainPath . '/resources/views/modules/templates/' . $name . '.php';
+		$classPath = $mainPath . '/app/WordPress/ThemeTemplates/' . $name . '.php';
+		$viewPath  = $mainPath . '/resources/views/modules/theme-templates/' . $name . '.php';
 
 		if (File::exists($classPath)) {
 			$this->error('Template: "' . $name . '" already exists! Please try again.');
@@ -57,10 +56,10 @@ class MakeTemplateCommand extends Command {
 		/* -------------------------------------------------
 		 *  CREATE CLASS FILE
 		 * ------------------------------------------------- */
-		$content = File::get(__DIR__ . '/../Stubs/Templates/template.stub');
+		$content = File::get(__DIR__ . '/../Stubs/ThemeTemplates/theme-template.stub');
 		$content = str_replace(
-			['{{ className }}', '{{ name }}'],
-			[$name, $name],
+			['{{ className }}', '{{ name }}', '{{ post_type }}'],
+			[$name, $name, $postType],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -71,10 +70,10 @@ class MakeTemplateCommand extends Command {
 		/* -------------------------------------------------
 		 *  CREATE VIEW FILE
 		 * ------------------------------------------------- */
-		$view = File::get(__DIR__ . '/../Views/Templates/template.view');
+		$view = File::get(__DIR__ . '/../Views/ThemeTemplates/theme-template.view');
 		$view = str_replace(
-			['{{ name }}'],
-			[$name],
+			['{{ name }}', '{{ post_type }}'],
+			[$name, $postType],
 			$view
 		);
 
@@ -84,27 +83,27 @@ class MakeTemplateCommand extends Command {
 		/* -------------------------------------------------
 		 *  REGISTER into ROUTE (func + use)
 		 * ------------------------------------------------- */
-		$func = File::get(__DIR__ . '/../Funcs/Templates/template.func');
+		$func = File::get(__DIR__ . '/../Funcs/ThemeTemplates/theme-template.func');
 		$func = str_replace(
-			['{{ name }}'],
-			[$name],
+			['{{ name }}', '{{ post_type }}'],
+			[$name, $postType],
 			$func
 		);
 
-		$use = File::get(__DIR__ . '/../Uses/Templates/template.use');
+		$use = File::get(__DIR__ . '/../Uses/ThemeTemplates/theme-template.use');
 		$use = str_replace(
-			['{{ name }}'],
-			[$name],
+			['{{ name }}', '{{ post_type }}'],
+			[$name, $postType],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);
 
-		$this->addClassToRoute('Templates', 'templates', $func, $use);
+		$this->addClassToRoute('ThemeTemplates', 'theme_templates', $func, $use);
 
 		/* -------------------------------------------------
 		 *  DONE
 		 * ------------------------------------------------- */
-		$this->info('Created new page template: "' . $name . '"');
+		$this->info('Created new theme template: "' . $name . '"');
 
 		exit;
 	}

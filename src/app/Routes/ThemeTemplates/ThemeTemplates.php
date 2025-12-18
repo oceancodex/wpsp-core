@@ -1,13 +1,13 @@
 <?php
 
-namespace WPSPCORE\App\Routes\Templates;
+namespace WPSPCORE\App\Routes\ThemeTemplates;
 
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
- * @method static $this template(string $name, callable|array $callback, array $args = [])
+ * @method static $this theme_template(string $name, callable|array $callback, array $args = [])
  */
-class Templates extends BaseRoute {
+class ThemeTemplates extends BaseRoute {
 
 	public function beforeConstruct() {}
 

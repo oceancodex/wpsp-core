@@ -1,10 +1,10 @@
 <?php
 
-namespace WPSPCORE\App\WordPress\Templates;
+namespace WPSPCORE\App\WordPress\ThemeTemplates;
 
 use WPSPCORE\BaseInstances;
 
-abstract class BaseTemplates extends BaseInstances {
+abstract class BaseThemeTemplates extends BaseInstances {
 
 	public $name              = null;
 	public $label             = null;
@@ -83,7 +83,7 @@ abstract class BaseTemplates extends BaseInstances {
 							if ($seletedTemplatePath) {
 								$seletedTemplatePath = preg_replace('/%%slash%%/iu', '/', $seletedTemplatePath);
 							}
-							$filePath = $seletedTemplatePath ?? $this->funcs->_getResourcesPath('/views/modules/templates/' . $seletedTemplateName);
+							$filePath = $seletedTemplatePath ?? $this->funcs->_getResourcesPath('/views/modules/theme-templates/' . $seletedTemplateName);
 							if (file_exists($filePath)) {
 								return $filePath;
 							}
