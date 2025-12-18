@@ -34,24 +34,25 @@ class MakeTaxonomyCommand extends Command {
 			}
 		}
 
-		$nameSlugify = Str::slug($name, '_');
+		// Validate
+		$this->validateClassName($name);
 
 		// Path
-		$path = $mainPath . '/app/WordPress/Taxonomies/' . $nameSlugify . '.php';
+		$path = $mainPath . '/app/WordPress/Taxonomies/' . $name . '.php';
 
 		// Check exists
 		if (File::exists($path)) {
-			$this->error('[ERROR] Taxonomy: "' . $name . '" already exists! Please try again.');
+			$this->error('Taxonomy: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
-		/* -------------------------------------------------
+		/** -------------------------------------------------
 		 *  CREATE CLASS FILE
 		 * ------------------------------------------------- */
 		$content = File::get(__DIR__ . '/../Stubs/Taxonomies/taxonomy.stub');
 		$content = str_replace(
 			['{{ className }}', '{{ name }}'],
-			[$nameSlugify, $name],
+			[$name, $name],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -59,7 +60,7 @@ class MakeTaxonomyCommand extends Command {
 		File::ensureDirectoryExists(dirname($path));
 		File::put($path, $content);
 
-		/* -------------------------------------------------
+		/** -------------------------------------------------
 		 *  ADD TO ROUTE (func + use)
 		 * ------------------------------------------------- */
 		$func = File::get(__DIR__ . '/../Funcs/Taxonomies/taxonomy.func');
@@ -79,7 +80,7 @@ class MakeTaxonomyCommand extends Command {
 
 		$this->addClassToRoute('Taxonomies', 'taxonomies', $func, $use);
 
-		/* -------------------------------------------------
+		/** -------------------------------------------------
 		 *  DONE
 		 * ------------------------------------------------- */
 		$this->info('Created new taxonomy: "' . $name . '"');

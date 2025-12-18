@@ -49,8 +49,8 @@ class MakeAPICommand extends Command {
 		$namespace = $namespace ?: null;
 		$version   = $version ?: null;
 
-		// Validate
-//		$this->validateClassName($name);
+		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
+		// $name sẽ được slugify từ "path" ra.
 
 		// FUNC template
 		if ($namespace) {

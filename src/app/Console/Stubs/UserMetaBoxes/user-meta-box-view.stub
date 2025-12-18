@@ -4,7 +4,7 @@ namespace {{ rootNamespace }}\App\WordPress\UserMetaBoxes;
 
 use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\Base\BaseUserMetaBox;
+use {{ coreNamespace }}\App\WordPress\UserMetaBoxes\BaseUserMetaBox;
 
 class {{ className }} extends BaseUserMetaBox {
 
@@ -12,7 +12,7 @@ class {{ className }} extends BaseUserMetaBox {
 
 //	public $id     = '{{ id }}';
 	public $title  = 'Custom user meta box: {{ id }}';
-//	public $update = false;
+//	public $update = false; // Nếu "true" thì phương thức "update" sẽ được thực thi khi submit trang edit user.
 
 	/*
 	 *
@@ -60,14 +60,14 @@ class {{ className }} extends BaseUserMetaBox {
 	public function styles() {
 //		wp_enqueue_style(
 //			Funcs::config('app.short_name') . '-bootstrap-grid',
-//			Funcs::instance()->_getPublicUrl() . '/plugins/bootstrap/css/bootstrap-grid.min.css',
+//			Funcs::instance()->_getPublicUrl() . '/extras/plugins/bootstrap/css/bootstrap-grid.min.css',
 //			null,
 //			Funcs::instance()->_getVersion()
 //		);
 
 //		wp_enqueue_style(
 //			Funcs::config('app.short_name') . '-bootstrap-utilities',
-//			Funcs::instance()->_getPublicUrl() . '/plugins/bootstrap/css/bootstrap-utilities.min.css',
+//			Funcs::instance()->_getPublicUrl() . '/extras/plugins/bootstrap/css/bootstrap-utilities.min.css',
 //			null,
 //			Funcs::instance()->_getVersion()
 //		);

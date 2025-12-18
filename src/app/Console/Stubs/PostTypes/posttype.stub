@@ -3,7 +3,7 @@
 namespace {{ rootNamespace }}\App\WordPress\PostTypes;
 
 use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\Base\BasePostType;
+use {{ coreNamespace }}\App\WordPress\PostTypes\BasePostType;
 
 class {{ className }} extends BasePostType {
 

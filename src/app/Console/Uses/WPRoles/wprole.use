@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\Roles\{{ name }};
+use {{ rootNamespace }}\App\WordPress\WPRoles\{{ name }};

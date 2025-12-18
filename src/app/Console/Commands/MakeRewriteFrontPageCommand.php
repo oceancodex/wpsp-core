@@ -41,8 +41,11 @@ class MakeRewriteFrontPageCommand extends Command {
 			$useTemplate         = $this->confirm('Use template for this rewrite front page?', false);
 		}
 
-		// Normalize variables
+		// Define variables
 		$name = Str::slug($path, '_');
+
+		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
+		// $name sẽ được slugify từ "path" ra.
 
 		$rewritePagePostType    = $rewritePagePostType ?? $this->option('rewrite-page-post-type') ?: 'page';
 		$rewritePageSlug        = $rewritePageSlug ?? $this->option('rewrite-page-slug') ?: 'rewrite-front-pages';
@@ -53,7 +56,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		$viewPath      = $mainPath . '/resources/views/modules/rewrite-front-pages/' . $path . '.blade.php';
 
 		if (File::exists($componentPath) || File::exists($viewPath)) {
-			$this->error('[ERROR] Rewrite front page: "' . $name . '" already exists! Please try again.');
+			$this->error('Rewrite front page: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 

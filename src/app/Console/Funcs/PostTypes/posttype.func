@@ -1,5 +1,1 @@
-		Route::post_type('{{ name }}', [{{ name }}::class, null], true, null, [
-//			'relation' => 'OR',
-//			[AdministratorCapability::class, 'handle'],
-//			[EditorCapability::class, 'handle'],
-		]);
+		Route::post_type('{{ name }}', [{{ name }}::class, null]);

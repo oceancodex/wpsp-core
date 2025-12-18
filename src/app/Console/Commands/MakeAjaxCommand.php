@@ -39,7 +39,6 @@ class MakeAjaxCommand extends Command {
 		}
 
 		// Define variables
-//		$action      = Str::slug($action, '_');
 		$method      = $method ? strtolower($method) : 'get';
 		$noprivValue = $nopriv ? 'true' : 'false';
 

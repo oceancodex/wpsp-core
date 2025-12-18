@@ -36,16 +36,17 @@ class MakeTemplateCommand extends Command {
 			}
 		}
 
-		$nameSlugify = Str::slug($name, '_');
+		// Validate
+		$this->validateClassName($name);
 
 		/* -------------------------------------------------
 		 *  Check exists
 		 * ------------------------------------------------- */
-		$classPath = $mainPath . '/app/WordPress/Templates/' . $nameSlugify . '.php';
+		$classPath = $mainPath . '/app/WordPress/Templates/' . $name . '.php';
 		$viewPath  = $mainPath . '/resources/views/modules/templates/' . $name . '.php';
 
 		if (File::exists($classPath)) {
-			$this->error('[ERROR] Template: "' . $name . '" already exists! Please try again.');
+			$this->error('Template: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
@@ -54,8 +55,8 @@ class MakeTemplateCommand extends Command {
 		 * ------------------------------------------------- */
 		$content = File::get(__DIR__ . '/../Stubs/Templates/template.stub');
 		$content = str_replace(
-			['{{ className }}', '{{ name }}', '{{ name_slugify }}'],
-			[$nameSlugify, $name, $nameSlugify],
+			['{{ className }}', '{{ name }}'],
+			[$name, $name],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -68,8 +69,8 @@ class MakeTemplateCommand extends Command {
 		 * ------------------------------------------------- */
 		$view = File::get(__DIR__ . '/../Views/Templates/template.view');
 		$view = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$view
 		);
 
@@ -81,15 +82,15 @@ class MakeTemplateCommand extends Command {
 		 * ------------------------------------------------- */
 		$func = File::get(__DIR__ . '/../Funcs/Templates/template.func');
 		$func = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$func
 		);
 
 		$use = File::get(__DIR__ . '/../Uses/Templates/template.use');
 		$use = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

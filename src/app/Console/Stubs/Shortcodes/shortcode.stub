@@ -3,8 +3,7 @@
 namespace {{ rootNamespace }}\App\WordPress\Shortcodes;
 
 use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\Base\BaseShortcode;
+use {{ coreNamespace }}\App\WordPress\Shortcodes\BaseShortcode;
 
 class {{ className }} extends BaseShortcode {
 

@@ -4,7 +4,7 @@ namespace {{ rootNamespace }}\App\WordPress\Templates;
 
 use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\Base\BaseTemplates;
+use {{ coreNamespace }}\App\WordPress\Templates\BaseTemplates;
 
 class {{ className }} extends BaseTemplates {
 

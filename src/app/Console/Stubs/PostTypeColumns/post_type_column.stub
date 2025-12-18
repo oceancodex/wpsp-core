@@ -2,7 +2,7 @@
 namespace {{ rootNamespace }}\App\WordPress\PostTypeColumns;
 
 use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\Base\BasePostTypeColumn;
+use {{ coreNamespace }}\App\WordPress\PostTypeColumns\BasePostTypeColumn;
 
 class {{ className }} extends BasePostTypeColumn {
 

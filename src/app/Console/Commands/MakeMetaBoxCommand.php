@@ -40,18 +40,15 @@ class MakeMetaBoxCommand extends Command {
 			$createView = $this->option('view');
 		}
 
-		// Normalize
-		$id = Str::slug($id, '_');
-
-		// Validate class name
-//		$this->validateClassName(id);
+		// Validate
+		$this->validateClassName($id, 'id');
 
 		// Check exists
 		$componentPath = $mainPath . '/app/WordPress/MetaBoxes/' . $id . '.php';
 		$viewPath      = $mainPath . '/resources/views/modules/meta-boxes/' . $id . '.blade.php';
 
 		if (File::exists($componentPath)) {
-			$this->error('[ERROR] Meta box "' . $id . '" already exists! Please try again.');
+			$this->error('Meta box "' . $id . '" already exists! Please try again.');
 			exit;
 		}
 

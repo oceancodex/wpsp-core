@@ -1,11 +1,11 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\Roles;
+namespace {{ rootNamespace }}\App\WordPress\WPRoles;
 
 use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\Base\BaseRole;
+use {{ coreNamespace }}\App\WordPress\WPRoles\BaseWPRole;
 
-class {{ className }} extends BaseRole {
+class {{ className }} extends BaseWPRole {
 
 	use InstancesTrait;
 
@@ -14,6 +14,7 @@ class {{ className }} extends BaseRole {
 //	public $capabilities = [
 //		'edit_pages',
 //		'manage_options',
+//		'edit_themes',
 //	];
 
 	/*

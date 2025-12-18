@@ -41,7 +41,7 @@ class MakePostTypeCommand extends Command {
 		$path = $mainPath . '/app/WordPress/PostTypes/' . $name . '.php';
 
 		if (File::exists($path)) {
-			$this->error('[ERROR] Post type: "' . $name . '" already exists! Please try again.');
+			$this->error('Post type: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 

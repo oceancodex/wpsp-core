@@ -34,10 +34,8 @@ class MakeNavLocationCommand extends Command {
 			}
 		}
 
-		$name = Str::slug($name, '_');
-
 		// Validate class name
-//		$this->validateClassName($name);
+		$this->validateClassName($name);
 
 		// Path for class file
 		$path = $mainPath . '/app/WordPress/NavigationMenus/Locations/' . $name . '.php';

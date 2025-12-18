@@ -41,8 +41,8 @@ class MakeAdminPageCommand extends Command {
 		// Define variables.
 		$name = Str::slug($path, '_');
 
-		// Validate
-//		$this->validateClassName($name);
+		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
+		// $name sẽ được slugify từ "path" ra.
 
 		// Prepare paths.
 		$adminClassPath = $mainPath . '/app/WordPress/AdminPages/' . $name . '.php';
@@ -50,7 +50,7 @@ class MakeAdminPageCommand extends Command {
 
 		// Check exist.
 		if (File::exists($adminClassPath) || File::exists($viewDirPath)) {
-			$this->error('[ERROR] Admin page "' . $path . '" already exists!');
+			$this->error('Admin page "' . $path . '" already exists!');
 			exit;
 		}
 

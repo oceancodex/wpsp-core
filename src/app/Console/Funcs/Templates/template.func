@@ -1,5 +1,1 @@
-		Route::template('{{ name }}', [{{ name }}::class, null], true, null, [
-//			'relation' => 'OR',
-//			[AdministratorCapability::class, 'handle'],
-//			[EditorCapability::class, 'handle']
-		]);
+		Route::template('{{ name }}', [{{ name }}::class, null]);

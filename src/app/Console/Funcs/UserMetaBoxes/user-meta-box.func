@@ -1,3 +1,1 @@
-		Route::user_meta_box('{{ id }}', [{{ id_slugify }}::class, 'index'], true, null, [
-			[AdministratorCapability::class, 'handle'],
-		]);
+		Route::user_meta_box('{{ id }}', [{{ id_slugify }}::class, 'index']);

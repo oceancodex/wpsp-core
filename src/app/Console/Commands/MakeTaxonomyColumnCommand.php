@@ -34,8 +34,6 @@ class MakeTaxonomyColumnCommand extends Command {
 			}
 		}
 
-		$nameSlugify = Str::slug($name, '_');
-
 		// Validate class name
 		$this->validateClassName($name);
 
@@ -44,11 +42,11 @@ class MakeTaxonomyColumnCommand extends Command {
 
 		// Check exists
 		if (File::exists($path)) {
-			$this->error('[ERROR] Taxonomy column: "' . $name . '" already exists! Please try again.');
+			$this->error('Taxonomy column: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
-		/* -------------------------------------------------
+		/** -------------------------------------------------
 		 * Create class file
 		 * ------------------------------------------------- */
 		$stub = File::get(__DIR__ . '/../Stubs/TaxonomyColumns/taxonomy_column.stub');

@@ -34,9 +34,6 @@ class MakePostTypeColumnCommand extends Command {
 			}
 		}
 
-		// Normalize
-		$nameSlugify = Str::slug($name, '_');
-
 		// Validate class name
 		$this->validateClassName($name);
 
@@ -45,7 +42,7 @@ class MakePostTypeColumnCommand extends Command {
 
 		// Check exists
 		if (File::exists($path)) {
-			$this->error('[ERROR] Post type column: "' . $name . '" already exists! Please try again.');
+			$this->error('Post type column: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 

@@ -13,9 +13,9 @@ class MakeShortcodeCommand extends Command {
 
 	protected $signature = 'make:shortcode
         {name? : The name of the shortcode.}
-        {--create-view : Create view files for this shortcode}';
+        {--view : Create view files for this shortcode}';
 
-	protected $description = 'Create a new shortcode.                   | Eg: bin/wpsp make:shortcode custom_shortcode --create-view';
+	protected $description = 'Create a new shortcode.                   | Eg: bin/wpsp make:shortcode custom_shortcode --view';
 
 	protected $help = 'This command allows you to create a shortcode.';
 
@@ -37,20 +37,23 @@ class MakeShortcodeCommand extends Command {
 			$createView = $this->confirm('Do you want to create view files for this shortcode?', false);
 		}
 
-		$nameSlugify = Str::slug($name, '_');
-		$createView  = $createView ?? $this->option('create-view');
+		// Define variables
+		$createView  = $createView ?? $this->option('view');
+
+		// Validate
+		$this->validateClassName($name);
 
 		// Paths
-		$classPath = $mainPath . '/app/WordPress/Shortcodes/' . $nameSlugify . '.php';
+		$classPath = $mainPath . '/app/WordPress/Shortcodes/' . $name . '.php';
 		$viewPath  = $mainPath . '/resources/views/modules/shortcodes/' . $name . '.blade.php';
 
 		// Check exists
 		if (File::exists($classPath)) {
-			$this->error('[ERROR] Shortcode: "' . $name . '" already exists! Please try again.');
+			$this->error('Shortcode: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
-		/* -------------------------------------------------
+		/** -------------------------------------------------
 		 *  CREATE VIEW (OPTIONAL)
 		 * ------------------------------------------------- */
 		if ($createView) {
@@ -70,12 +73,12 @@ class MakeShortcodeCommand extends Command {
 			$stub = File::get(__DIR__ . '/../Stubs/Shortcodes/shortcode.stub');
 		}
 
-		/* -------------------------------------------------
+		/** -------------------------------------------------
 		 *  CREATE CLASS FILE
 		 * ------------------------------------------------- */
 		$stub = str_replace(
 			['{{ className }}', '{{ name }}'],
-			[$nameSlugify, $name],
+			[$name, $name],
 			$stub
 		);
 
@@ -84,7 +87,7 @@ class MakeShortcodeCommand extends Command {
 		File::ensureDirectoryExists(dirname($classPath));
 		File::put($classPath, $stub);
 
-		/* -------------------------------------------------
+		/** -------------------------------------------------
 		 *  REGISTER IN route list (func + use)
 		 * ------------------------------------------------- */
 		$func = File::get(__DIR__ . '/../Funcs/Shortcodes/shortcode.func');

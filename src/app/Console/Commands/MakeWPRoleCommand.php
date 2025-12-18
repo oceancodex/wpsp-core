@@ -34,14 +34,14 @@ class MakeWPRoleCommand extends Command {
 			}
 		}
 
-		// Normalize
-		$nameSlugify = Str::slug($name, '_');
+		// Validate
+		$this->validateClassName($name);
 
 		// Check exists
-		$path = $mainPath . '/app/WordPress/WPRoles/' . $nameSlugify . '.php';
+		$path = $mainPath . '/app/WordPress/WPRoles/' . $name . '.php';
 
 		if (File::exists($path)) {
-			$this->error('[ERROR] Role: "' . $name . '" already exists! Please try again.');
+			$this->error('Role: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
@@ -49,7 +49,7 @@ class MakeWPRoleCommand extends Command {
 		$content = File::get(__DIR__ . '/../Stubs/WPRoles/wprole.stub');
 		$content = str_replace(
 			['{{ className }}', '{{ name }}'],
-			[$nameSlugify, $name],
+			[$name, $name],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);

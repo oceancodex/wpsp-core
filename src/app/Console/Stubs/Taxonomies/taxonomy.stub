@@ -3,7 +3,7 @@
 namespace {{ rootNamespace }}\App\WordPress\Taxonomies;
 
 use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\Base\BaseTaxonomy;
+use {{ coreNamespace }}\App\WordPress\Taxonomies\BaseTaxonomy;
 
 class {{ className }} extends BaseTaxonomy {
 
