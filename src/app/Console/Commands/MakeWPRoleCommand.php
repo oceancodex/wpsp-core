@@ -75,10 +75,10 @@ class MakeWPRoleCommand extends Command {
 		$use = $this->replaceNamespaces($use);
 
 		// Register class
-		$this->addClassToRoute('WPRoles', 'roles', $func, $use);
+		$this->addClassToRoute('WPRoles', 'wp_roles', $func, $use);
 
 		// Done
-		$this->info('Created new role: "' . $name . '"');
+		$this->info('Created new WP role: "' . $name . '"');
 
 		exit;
 	}

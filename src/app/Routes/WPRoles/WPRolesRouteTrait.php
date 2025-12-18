@@ -9,7 +9,7 @@ trait WPRolesRouteTrait {
 	use HookRunnerTrait;
 
 	public function register() {
-		$this->roles();
+		$this->wp_roles();
 		$this->hooks();
 	}
 
@@ -17,6 +17,6 @@ trait WPRolesRouteTrait {
      *
      */
 
-	abstract public function roles();
+	abstract public function wp_roles();
 
 }

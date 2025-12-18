@@ -1,1 +1,1 @@
-		Route::role('{{ name }}', [{{ name }}::class]);
+		Route::wp_role('{{ name }}', [{{ name }}::class]);
