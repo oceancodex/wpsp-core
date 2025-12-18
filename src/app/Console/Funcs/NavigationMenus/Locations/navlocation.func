@@ -1,1 +1,1 @@
-		Route::nav_location('{{ name }}', [{{ name }}::class, null]);
+		Route::nav_location('{{ name }}', [{{ name }}::class]);

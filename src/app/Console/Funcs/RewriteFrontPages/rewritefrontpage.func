@@ -1,5 +1,1 @@
-		Route::get('{{ path }}\/?$', [{{ name }}::class, 'index'], true, null, [
-//			'relation' => 'OR',
-//			[AdministratorCapability::class, 'handle'],
-//			[EditorCapability::class, 'handle']
-        ]);
+		Route::{{ method }}('{{ path }}\/?$', [{{ name }}::class, 'index']);

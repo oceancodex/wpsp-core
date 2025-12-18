@@ -1,1 +1,1 @@
-		Route::template('{{ name }}', [{{ name }}::class, null]);
+		Route::template('{{ name }}', [{{ name }}::class]);

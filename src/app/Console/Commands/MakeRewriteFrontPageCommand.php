@@ -13,11 +13,12 @@ class MakeRewriteFrontPageCommand extends Command {
 
 	protected $signature = 'make:rewrite-front-page
         {path? : The path of the rewrite front page.}
+        {--method= : The method for rewrite front page.}
         {--rewrite-page-post-type= : The post type for rewrite front page.}
         {--rewrite-page-slug= : The page slug for rewrite front page.}
-        {--use-template : Generate view using template.}';
+        {--template : Generate view using template.}';
 
-	protected $description = 'Create a new rewrite front page. | Eg: bin/wpsp make:rewrite-front-page custom-rewrite-front-page --rewrite-page-post-type=page --rewrite-page-slug=parent/rewrite-front-pages --use-template';
+	protected $description = 'Create a new rewrite front page. | Eg: bin/wpsp make:rewrite-front-page custom-rewrite-front-page --method=GET --rewrite-page-post-type=page --rewrite-page-slug=parent/rewrite-front-pages --template';
 
 	protected $help = 'This command allows you to create a rewrite front page.';
 
@@ -47,9 +48,10 @@ class MakeRewriteFrontPageCommand extends Command {
 		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
 		// $name sẽ được slugify từ "path" ra.
 
+		$method                 = strtolower($this->option('method') ?: 'GET');
 		$rewritePagePostType    = $rewritePagePostType ?? $this->option('rewrite-page-post-type') ?: 'page';
 		$rewritePageSlug        = $rewritePageSlug ?? $this->option('rewrite-page-slug') ?: 'rewrite-front-pages';
-		$useTemplate            = $useTemplate ?? $this->option('use-template') ?: false;
+		$useTemplate            = $useTemplate ?? $this->option('template') ?: false;
 
 		// Check exists
 		$componentPath = $mainPath . '/app/WordPress/RewriteFrontPages/' . $name . '.php';
@@ -69,6 +71,7 @@ class MakeRewriteFrontPageCommand extends Command {
 				'{{ className }}',
 				'{{ name }}',
 				'{{ path }}',
+				'{{ method }}',
 				'{{ rewrite_page_post_type }}',
 				'{{ rewrite_page_slug }}',
 				'{{ use_template }}',
@@ -77,6 +80,7 @@ class MakeRewriteFrontPageCommand extends Command {
 				$name,
 				$name,
 				$path,
+				$method,
 				$rewritePagePostType,
 				$rewritePageSlug,
 				$useTemplate ? 'true' : 'false',
@@ -101,12 +105,14 @@ class MakeRewriteFrontPageCommand extends Command {
 			[
 				'{{ name }}',
 				'{{ path }}',
+				'{{ method }}',
 				'{{ rewrite_page_post_type }}',
 				'{{ rewrite_page_slug }}',
 			],
 			[
 				$name,
 				$path,
+				$method,
 				$rewritePagePostType,
 				$rewritePageSlug,
 			],
@@ -124,12 +130,14 @@ class MakeRewriteFrontPageCommand extends Command {
 			[
 				'{{ name }}',
 				'{{ path }}',
+				'{{ method }}',
 				'{{ rewrite_page_post_type }}',
 				'{{ rewrite_page_slug }}',
 			],
 			[
 				$name,
 				$path,
+				$method,
 				$rewritePagePostType,
 				$rewritePageSlug,
 			],
@@ -141,12 +149,14 @@ class MakeRewriteFrontPageCommand extends Command {
 			[
 				'{{ name }}',
 				'{{ path }}',
+				'{{ method }}',
 				'{{ rewrite_page_post_type }}',
 				'{{ rewrite_page_slug }}',
 			],
 			[
 				$name,
 				$path,
+				$method,
 				$rewritePagePostType,
 				$rewritePageSlug,
 			],
