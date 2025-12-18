@@ -12,7 +12,7 @@ class {{ className }} extends BaseTaxonomyColumn {
 	public $column_title            = '{{ className }}';
 	public $column_add_priority     = 9999;
 	public $column_content_priority = 9999;
-	public $taxonomies              = ['category', 'wpsp_category'];
+	public $taxonomies              = ['category'];
 //	public $before_column           = [];
 //	public $after_column            = ['name'];
 //	public $position                = 2;
