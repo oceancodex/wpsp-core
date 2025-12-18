@@ -16,9 +16,22 @@ class Schedules extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
-		$hook     = $route->fullPath;
-		$callback = $route->callback;
-		$interval = $route->args['interval'] ?? 'daily';
+		$hook        = $route->fullPath;
+		$callback    = $route->callback;
+		$interval    = $route->args['interval'] ?? 'daily';
+		$requestPath = trim($this->request->getRequestUri(), '/\\');
+
+		// Đăng ký schedule nếu chưa tồn lại.
+		if (!wp_next_scheduled($hook)) {
+			wp_schedule_event(time(), $interval, $hook);
+		}
+
+		// Xóa schedule khi plugin bị hủy kích hoạt
+		register_deactivation_hook($this->funcs->_getMainFilePath(), function() use ($hook) {
+			wp_unschedule_hook($hook);
+//			$timestamp = wp_next_scheduled($hook);
+//			if ($timestamp) wp_unschedule_event($timestamp, $hook);
+		});
 
 		$constructParams = [
 			$this->funcs->_getMainPath(),
@@ -30,16 +43,11 @@ class Schedules extends BaseRoute {
 			],
 		];
 
+		// Chạy callback của Schedule khi được gọi.
+		$callback[1] = 'init';
 		$callback = $this->prepareRouteCallback($callback, $constructParams);
-		add_action($hook, $callback);
-		if (!wp_next_scheduled($hook)) {
-			wp_schedule_event(time(), $interval, $hook);
-		}
-		register_deactivation_hook($this->funcs->_getMainFilePath(), function() use ($hook) {
-			wp_unschedule_hook($hook);
-//			$timestamp = wp_next_scheduled($hook);
-//			if ($timestamp) wp_unschedule_event($timestamp, $hook);
-		});
+		$callParams = $this->getCallParams($hook, $hook, $requestPath, $callback[0], $callback[1]);
+		$this->resolveAndCall($callback, $callParams);
 	}
 
 }

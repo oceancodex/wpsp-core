@@ -211,7 +211,7 @@ trait RouteTrait {
 			);
 
 			// call
-			return $this->resolveAndCall($callback, $callParams);
+			return $this->resolveCallback($callback, $callParams);
 		};
 	}
 
