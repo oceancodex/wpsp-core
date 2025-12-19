@@ -34,10 +34,10 @@ class MakeScheduleCommand extends Command {
 				$this->error('Missing hook for the schedule. Please try again.');
 				exit;
 			}
-		}
 
-		if (!$interval) {
-			$interval = $this->ask('Please enter the interval of the schedule (blank is "hourly")');
+			if (!$interval) {
+				$interval = $this->ask('Please enter the interval of the schedule (blank is "hourly")');
+			}
 		}
 
 		$interval = empty($interval) ? 'hourly' : $interval;
