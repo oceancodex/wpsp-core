@@ -32,8 +32,9 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 */
 
 	public function init($path = null, $fullPath = null) {
-		$path = $this->path ?? $path;
+		$path     = $this->path ?? $path;
 		$fullPath = $this->fullPath ?? $fullPath;
+
 		if ($path && $fullPath) {
 			// Prepare string matches.
 			preg_match_all('/\(.+?\)/iu', $this->funcs->_regexPath($fullPath), $groupMatches);
@@ -83,25 +84,24 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 				}
 			}, 999999999);
 
+			// Access URL that match rewrite rule.
 			if (!is_admin()) {
-				// Access URL that match rewrite rule.
-//				add_action('wp_loaded', function() use ($path, $fullPath, $requestPath) {
-					try {
-						$matched = preg_match('/^' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath);
-						if (!$matched) {
-							$matched = preg_match('/^' . $fullPath . '$/iu', $requestPath);
-						}
+				try {
+					$matched = preg_match('/^' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath);
+					if (!$matched) {
+						$matched = preg_match('/^' . $fullPath . '$/iu', $requestPath);
 					}
-					catch (\Throwable $e) {
-						$matched = false;
-					}
+				}
+				catch (\Throwable $e) {
+					$matched = false;
+				}
 
-					if (!$matched) return;
+				if (!$matched) return;
 
-					$this->maybeNoTemplate();
-					$callback = $this->prepareCallbackFunction($this->callback_function, $path, $fullPath);
-					$this->resolveAndCall($callback);
-//				});
+				$this->maybeNoTemplate();
+				$callback   = $this->prepareCallbackFunction($this->callback_function, $path, $fullPath);
+				$callParams = $this->getCallParams($path, $fullPath, $requestPath, $this, $this->callback_function);
+				$this->resolveAndCall($callback, $callParams);
 			}
 		}
 	}
