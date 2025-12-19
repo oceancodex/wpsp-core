@@ -36,7 +36,7 @@ class MakeScheduleCommand extends Command {
 			}
 
 			if (!$interval) {
-				$interval = $this->ask('Please enter the interval of the schedule (blank is "hourly")');
+				$interval = $this->ask('Please enter the interval of the schedule', 'hourly');
 			}
 		}
 

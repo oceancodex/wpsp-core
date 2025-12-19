@@ -37,8 +37,8 @@ class MakeRewriteFrontPageCommand extends Command {
 				exit;
 			}
 
-			$rewritePagePostType = $this->ask('Please enter the post type for rewrite front page (Eg: page,... Default: page)', 'page');
-			$rewritePageSlug     = $this->ask('Please enter the page name for rewrite front page (Eg: page-for-rewrite-rules,... Default: rewrite-front-pages)', 'rewrite-front-pages');
+			$rewritePagePostType = $this->ask('Please enter the post type for rewrite front page (Eg: page,...)', 'page');
+			$rewritePageSlug     = $this->ask('Please enter the page name for rewrite front page (Eg: page-for-rewrite-rules,...)', 'rewrite-front-pages');
 			$useTemplate         = $this->confirm('Use template for this rewrite front page?', false);
 		}
 

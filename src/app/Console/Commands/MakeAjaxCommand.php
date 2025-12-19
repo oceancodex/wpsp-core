@@ -34,7 +34,7 @@ class MakeAjaxCommand extends Command {
 				exit;
 			}
 
-			$method = $this->ask('Please enter the HTTP method of the ajax (Eg: GET, POST or get, post... Default: GET)');
+			$method = $this->ask('Please enter the HTTP method of the ajax (Eg: GET, POST or get, post...)', 'GET');
 			$nopriv = $this->confirm('Do you want to allow access for non-logged users (nopriv)?', false);
 		}
 

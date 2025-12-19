@@ -28,9 +28,9 @@ class MakeAPICommand extends Command {
 		if (!$path) {
 			$path = $this->ask('Please enter the path of the API endpoint (Eg: custom-endpoint)');
 
-			$method    = $this->ask('Please enter the method of the API endpoint (Eg: GET, POST or get, post... Default: GET)');
-			$namespace = $this->ask('Please enter the namespace of the API endpoint (Eg: wpsp, custom-namespace,... Default: ' . $this->funcs->_getAppShortName() . ')');
-			$version   = $this->ask('Please enter the version of the API endpoint (Eg: v1, v2,... Default: v1)');
+			$method    = $this->ask('Please enter the method of the API endpoint (Eg: GET, POST or get, post,...)', 'GET');
+			$namespace = $this->ask('Please enter the namespace of the API endpoint (Eg: wpsp, custom-namespace,...', $this->funcs->_getAppShortName());
+			$version   = $this->ask('Please enter the version of the API endpoint (Eg: v1, v2,...)', 'v1');
 
 			if (empty($path)) {
 				$this->error('Missing path for the API endpoint. Please try again.');

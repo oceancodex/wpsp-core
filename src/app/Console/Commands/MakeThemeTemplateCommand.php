@@ -35,7 +35,7 @@ class MakeThemeTemplateCommand extends Command {
 				exit;
 			}
 
-			$postType = $this->ask('Please enter the post type for theme template (blank is "page")', 'page');
+			$postType = $this->ask('Please enter the post type for theme template', 'page');
 		}
 
 		// Define variables
