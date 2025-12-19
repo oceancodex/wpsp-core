@@ -2,12 +2,17 @@
 
 namespace {{ rootNamespace }}\App\WordPress\Schedules;
 
-use {{ rootNamespace }}\Funcs;
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
 use {{ coreNamespace }}\App\WordPress\Schedules\BaseSchedule;
 
 class {{ className }} extends BaseSchedule {
 
-	public function run() {
+	use InstancesTrait;
+
+//	public $hook     = '{{ hook }}';
+//	public $interval = '{{ interval }}';
+
+	public function handle() {
         // Code here...
 	}
 
