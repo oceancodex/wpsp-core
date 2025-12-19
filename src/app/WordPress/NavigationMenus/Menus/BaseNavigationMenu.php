@@ -5,6 +5,9 @@ namespace WPSPCORE\App\WordPress\NavigationMenus\Menus;
 use WPSPCORE\App\Traits\ObjectToArrayTrait;
 use WPSPCORE\BaseInstances;
 
+/**
+ * @method static static instance
+ */
 abstract class BaseNavigationMenu extends BaseInstances {
 
 	use ObjectToArrayTrait;
@@ -20,8 +23,9 @@ abstract class BaseNavigationMenu extends BaseInstances {
 	}
 
 	public static function render() {
-		static::instance()->args->echo = false;
-		$args                          = static::instance()->args->toArray();
+		$instance = static::instance();
+		$instance->args->echo = false;
+		$args = $instance->args->toArray();
 		if (wp_get_nav_menu_object($args['menu'])) {
 			return wp_nav_menu($args);
 		}

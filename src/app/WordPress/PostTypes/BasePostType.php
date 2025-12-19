@@ -10,21 +10,21 @@ abstract class BasePostType extends BaseInstances {
 	use ObjectToArrayTrait;
 
 	public $post_type         = null;
-	public $args              = null;
+	public $args              = [];
 	public $callback_function = null;
 
 	/*
 	 *
 	 */
 
-	public function afterPrepares() {
+	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
 		$this->overridePostType($this->extraParams['post_type'] ?? null);
 		$this->prepareArguments();
 	}
 
-	public function afterConstruct() {
-		$this->prepareArguments($this->args);
+	public function afterInstanceConstruct() {
+		$this->prepareArgumentsAfterCustomProperties();
 	}
 
 	/*
@@ -48,19 +48,32 @@ abstract class BasePostType extends BaseInstances {
 		}
 	}
 
-	protected function prepareArguments($args = null) {
-		$this->args = new PostTypeData($this, $args);
+	protected function prepareArguments() {
+		$this->args = new PostTypeData($this);
+
 		foreach ($this->toArray() as $key => $value) {
 			if (property_exists($this->args, $key)) {
 				$this->args->{$key} = $value;
-//				unset($this->args->{$key});
 			}
 			if (array_key_exists($key, $this->args->labels)) {
 				$this->args->labels[$key] = $value;
-				unset($this->args->{$key});
 			}
 		}
+	}
+
+	protected function prepareArgumentsAfterCustomProperties() {
+		foreach ($this->toArray() as $key => $value) {
+			if (property_exists($this->args, $key)) {
+				$this->args->{$key} = $value;
+			}
+			if (array_key_exists($key, $this->args->labels)) {
+				$this->args->labels[$key] = $value;
+			}
+		}
+
+		// Unset post_type from args.
 		unset($this->args->post_type);
+		unset($this->args->previousArgs);
 	}
 
 }

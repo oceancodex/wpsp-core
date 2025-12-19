@@ -5,16 +5,16 @@ namespace {{ rootNamespace }}\App\WordPress\PostTypes;
 use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
 use {{ coreNamespace }}\App\WordPress\PostTypes\BasePostType;
 
+/**
+ * WordPress register post type.
+ *
+ * @see https://developer.wordpress.org/reference/functions/register_post_type/
+ * @see https://developer.wordpress.org/reference/functions/get_post_type_labels/
+ * @mixin \WPSPCORE\App\WordPress\PostTypes\PostTypeData
+ */
 class {{ className }} extends BasePostType {
 
 	use InstancesTrait;
-
-	/**
-	 * WordPress register post type docs.
-	 *
-	 * @see https://developer.wordpress.org/reference/functions/register_post_type/
-	 * @see https://developer.wordpress.org/reference/functions/get_post_type_labels/
-	 */
 
 	/** Post type. */
 //	public $post_type                       = '{{ name }}'; // Override the post type.
@@ -98,23 +98,23 @@ class {{ className }} extends BasePostType {
 	 */
 
 	public function customProperties() {
-
-		/**
-		 * Modify "post_type" and "args" properties.
+		/*
+		 * Modify properties.
 		 */
 
+//		$this->name      = '{{ name }}';
 //		$this->post_type = '{{ name }}';
 //		$this->args      = [];
 
-		/**
+		/*
 		 * Modify labels.
 		 */
 
-		/** Method 1: Define an array and pass it to the "labels" property of "args" property. */
-//		$labels = [];
+		// Method 1: Define an array and pass it to the "labels" property of "args" property.
+//		$labels             = [];
 //		$this->args->labels = $labels;
 
-		/** Method 2: Define each label separately. */
+		// Method 2: Define each label separately.
 //		$this->args->labels['name']          = 'Custom name';
 //		$this->args->labels['singular_name'] = 'Custom singular name';
 

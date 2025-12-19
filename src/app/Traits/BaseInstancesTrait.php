@@ -20,7 +20,7 @@ trait BaseInstancesTrait {
 	public $request       = null;
 
 	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
-		$this->instanceConstruct();
+		$this->beforeInstanceConstruct();
 		$this->beforeConstruct();
 		if ($mainPath)      $this->mainPath      = $mainPath;
 		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
@@ -28,9 +28,9 @@ trait BaseInstancesTrait {
 		if ($extraParams)   $this->extraParams   = $extraParams;
 		$this->prepareFuncs();
 		$this->prepareRequest();
-		$this->afterPrepares();
-		$this->customProperties();
 		$this->afterConstruct();
+		$this->customProperties();
+		$this->afterInstanceConstruct();
 	}
 
 	/*
@@ -75,16 +75,16 @@ trait BaseInstancesTrait {
 		unset($this->extraParams['request']);
 	}
 
-	public function afterPrepares() {}
-
 	/*
 	 *
 	 */
 
-	public function instanceConstruct() {}
+	public function beforeInstanceConstruct() {}
 
 	public function beforeConstruct() {}
 
 	public function afterConstruct() {}
+
+	public function afterInstanceConstruct() {}
 
 }
