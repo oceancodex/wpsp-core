@@ -28,8 +28,9 @@ trait BaseInstancesTrait {
 		if ($extraParams)   $this->extraParams   = $extraParams;
 		$this->prepareFuncs();
 		$this->prepareRequest();
-		$this->afterConstruct();
+		$this->afterPrepares();
 		$this->customProperties();
+		$this->afterConstruct();
 	}
 
 	/*
@@ -42,7 +43,7 @@ trait BaseInstancesTrait {
 	 *
 	 */
 
-	private function prepareFuncs() {
+	public function prepareFuncs() {
 		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
 			if (is_bool($this->extraParams['funcs'])) {
 				$this->funcs = new \WPSPCORE\Funcs(
@@ -59,7 +60,7 @@ trait BaseInstancesTrait {
 		unset($this->extraParams['funcs']);
 	}
 
-	private function prepareRequest() {
+	public function prepareRequest() {
 		if (isset($this->funcs) && $funcs = $this->funcs) {
 			if (isset($funcs::$request) && $funcs::$request) {
 				$this->request = $funcs::$request;
@@ -73,6 +74,8 @@ trait BaseInstancesTrait {
 		}
 		unset($this->extraParams['request']);
 	}
+
+	public function afterPrepares() {}
 
 	/*
 	 *

@@ -17,10 +17,13 @@ abstract class BasePostType extends BaseInstances {
 	 *
 	 */
 
-	public function afterConstruct() {
+	public function afterPrepares() {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
 		$this->overridePostType($this->extraParams['post_type'] ?? null);
 		$this->prepareArguments();
+	}
+
+	public function afterConstruct() {
 		$this->prepareArguments($this->args);
 	}
 
@@ -52,7 +55,7 @@ abstract class BasePostType extends BaseInstances {
 				$this->args->{$key} = $value;
 //				unset($this->args->{$key});
 			}
-			if (array_key_exists($key, $this->args->labels) && !$args) {
+			if (array_key_exists($key, $this->args->labels)) {
 				$this->args->labels[$key] = $value;
 				unset($this->args->{$key});
 			}
