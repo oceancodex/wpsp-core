@@ -86,22 +86,25 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 
 			// Access URL that match rewrite rule.
 			if (!is_admin()) {
-				try {
-					$matched = preg_match('/^' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath);
-					if (!$matched) {
-						$matched = preg_match('/^' . $fullPath . '$/iu', $requestPath);
+				// Cần phải hook vào 'wp' để có thể truy cập được global $post.
+				add_action('wp', function() use ($path, $fullPath, $requestPath) {
+					try {
+						$matched = preg_match('/^' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath);
+						if (!$matched) {
+							$matched = preg_match('/^' . $fullPath . '$/iu', $requestPath);
+						}
 					}
-				}
-				catch (\Throwable $e) {
-					$matched = false;
-				}
+					catch (\Throwable $e) {
+						$matched = false;
+					}
 
-				if (!$matched) return;
+					if (!$matched) return;
 
-				$this->maybeNoTemplate();
-				$callback   = $this->prepareCallbackFunction($this->callback_function, $path, $fullPath);
-				$callParams = $this->getCallParams($path, $fullPath, $requestPath, $this, $this->callback_function);
-				$this->resolveAndCall($callback, $callParams);
+					$this->maybeNoTemplate();
+					$callback   = $this->prepareCallbackFunction($this->callback_function, $path, $fullPath);
+					$callParams = $this->getCallParams($path, $fullPath, $requestPath, $this, $this->callback_function);
+					$this->resolveAndCall($callback, $callParams);
+				});
 			}
 		}
 	}

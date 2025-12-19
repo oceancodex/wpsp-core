@@ -60,6 +60,7 @@ class {{ name }} extends BaseRewriteFrontPage {
 //		echo '<pre>'; print_r($this->request->query->all()); echo '</pre>';
 
 //		$post->post_title = $this->rewriteIdent;
+//		$post->post_content = 'Rewrite front page for path: ' . $this->path;
 
 //		add_filter('yoast_seo_development_mode', '__return_true');
 
