@@ -4,7 +4,6 @@ namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class MakeNavLocationCommand extends Command {
@@ -46,6 +45,7 @@ class MakeNavLocationCommand extends Command {
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = $this->replaceNamespaces($content);
 
+		// Save file
 		File::ensureDirectoryExists(dirname($path));
 		File::put($path, $content);
 

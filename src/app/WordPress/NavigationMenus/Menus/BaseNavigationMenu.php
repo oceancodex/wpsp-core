@@ -22,6 +22,10 @@ abstract class BaseNavigationMenu extends BaseInstances {
 		$this->prepareArguments();
 	}
 
+	/*
+	 *
+	 */
+
 	public static function render() {
 		$instance = static::instance();
 		$instance->args->echo = false;
@@ -51,6 +55,9 @@ abstract class BaseNavigationMenu extends BaseInstances {
 		else {
 			unset($this->args->items_wrap);
 		}
+
+		// Default menu name.
+		$this->args->menu = $this->args->menu ?: strtolower(basename(static::class));
 	}
 
 }

@@ -18,8 +18,8 @@ abstract class BasePostTypeColumn extends BaseInstances {
 	public $column_content_priority = 0;
 	public $post_types              = ['post'];
 	public $before_column           = [];
-	public $after_column            = ['title'];
-	public $position                = 2;
+	public $after_column            = [];
+	public $position                = null;
 	public $sortable                = false;
 	public $callback_function       = null;
 
@@ -49,7 +49,7 @@ abstract class BasePostTypeColumn extends BaseInstances {
 					$inserted = false;
 
 					// Kiểm tra nếu có before_column
-					if ($this->before_column) {
+					if (!empty($this->before_column)) {
 						$before_columns = is_array($this->before_column) ? $this->before_column : [$this->before_column];
 
 						foreach ($columns as $key => $value) {
@@ -60,8 +60,9 @@ abstract class BasePostTypeColumn extends BaseInstances {
 							$new_columns[$key] = $value;
 						}
 					}
+
 					// Nếu không có before_column, kiểm tra after_column
-					elseif ($this->after_column) {
+					elseif (!empty($this->after_column)) {
 						$after_columns = is_array($this->after_column) ? $this->after_column : [$this->after_column];
 
 						foreach ($columns as $key => $value) {
@@ -72,9 +73,10 @@ abstract class BasePostTypeColumn extends BaseInstances {
 							}
 						}
 					}
+
 					// Nếu không có after_column, sử dụng position
-					elseif ($this->position !== null) {
-						$position = (int) $this->position;
+					elseif ($this->position) {
+						$position = (int)$this->position;
 						$i = 0;
 
 						foreach ($columns as $key => $value) {
@@ -93,8 +95,9 @@ abstract class BasePostTypeColumn extends BaseInstances {
 						}
 					}
 
-					// Nếu chưa insert được (trường hợp không tìm thấy before/after column)
+					// Nếu chưa insert được (trường hợp không tìm thấy before/after/position)
 					if (!$inserted) {
+						$new_columns = $columns;
 						$new_columns[$column] = $this->column_title ?? $column;
 					}
 
@@ -129,7 +132,7 @@ abstract class BasePostTypeColumn extends BaseInstances {
 	 *
 	 */
 
-	private function overrideColumn($column = null) {
+	protected function overrideColumn($column = null) {
 		if ($column && !$this->column) {
 			$this->column = $column;
 		}
@@ -139,8 +142,12 @@ abstract class BasePostTypeColumn extends BaseInstances {
 	 *
 	 */
 
-	abstract public function index($column, $postId);
+	public function afterInit() {}
 
-	abstract public function afterInit();
+	/*
+	 *
+	 */
+
+	abstract public function index($column, $postId);
 
 }
