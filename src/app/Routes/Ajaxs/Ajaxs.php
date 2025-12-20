@@ -22,8 +22,15 @@ class Ajaxs extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
+		$action     = $route->path;
 		$fullAction = $route->fullPath;
-		$nopriv = $route->args['nopriv'] ?? false;
+		$method     = $route->method;
+		$nopriv     = $route->args['nopriv'] ?? false;
+
+		/**
+		 * Thử nghiệm đăng ký Ajax với việc kiểm tra phương thức HTTP.
+		 */
+		if ($method !== strtolower($this->request->getMethod())) return;
 
 		$hookAction = 'wp_ajax_' . $fullAction;
 		$this->executeMethod($hookAction, $route);
@@ -38,15 +45,11 @@ class Ajaxs extends BaseRoute {
 	 */
 
 	public function executeMethod($hookAction, $route) {
-		$action        = $route->path;
-		$fullAction    = $route->fullPath;
+		$action      = $route->path;
+		$fullAction  = $route->fullPath;
+		$method      = $route->method;
 		$requestPath = trim($this->request->getRequestUri(), '/\\');
 
-		/**
-		 * Đăng ký ajax action ngay mà không cần kiểm tra phương thức HTTP.
-		 *  add_action chỉ đăng ký callback khi load plugin/theme.
-		 *  Kiểm tra request method phải thực hiện bên trong callback xử lý AJAX.
-		 */
 		add_action($hookAction, function() use ($hookAction, $action, $fullAction, $requestPath, $route) {
 			$callback    = $route->callback;
 			$middlewares = $route->middlewares;
