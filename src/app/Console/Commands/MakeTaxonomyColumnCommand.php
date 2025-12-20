@@ -14,7 +14,7 @@ class MakeTaxonomyColumnCommand extends Command {
 	protected $signature = 'make:taxonomy-column
         {name? : The name of the taxonomy column.}';
 
-	protected $description = 'Create a new taxonomy column.             | Eg: bin/wpsp make:taxonomy-column my_custom_column';
+	protected $description = 'Create a new taxonomy column. | Eg: php artisan make:taxonomy-column custom_tax_column';
 
 	protected $help = 'This command allows you to create a custom column for taxonomy list table.';
 
@@ -26,15 +26,13 @@ class MakeTaxonomyColumnCommand extends Command {
 
 		// Ask interactively
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the taxonomy column');
+			$name = $this->ask('Please enter the name of the taxonomy column (Eg: custom_tax_column)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the taxonomy column. Please try again.');
 				exit;
 			}
 		}
-
-		$nameSlugify = Str::slug($name, '_');
 
 		// Validate class name
 		$this->validateClassName($name);
@@ -44,11 +42,11 @@ class MakeTaxonomyColumnCommand extends Command {
 
 		// Check exists
 		if (File::exists($path)) {
-			$this->error('[ERROR] Taxonomy column: "' . $name . '" already exists! Please try again.');
+			$this->error('Taxonomy column: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
-		/* -------------------------------------------------
+		/** -------------------------------------------------
 		 * Create class file
 		 * ------------------------------------------------- */
 		$stub = File::get(__DIR__ . '/../Stubs/TaxonomyColumns/taxonomy_column.stub');
@@ -62,10 +60,10 @@ class MakeTaxonomyColumnCommand extends Command {
 		 * Register route entry
 		 * ------------------------------------------------- */
 		$func = File::get(__DIR__ . '/../Funcs/TaxonomyColumns/taxonomy_column.func');
-		$func = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $func);
+		$func = str_replace(['{{ name }}'], [$name], $func);
 
 		$use = File::get(__DIR__ . '/../Uses/TaxonomyColumns/taxonomy_column.use');
-		$use = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $use);
+		$use = str_replace(['{{ name }}'], [$name], $use);
 		$use = $this->replaceNamespaces($use);
 
 		$this->addClassToRoute('TaxonomyColumns', 'taxonomy_columns', $func, $use);

@@ -14,7 +14,7 @@ class MakeWPRoleCommand extends Command {
 	protected $signature = 'make:wp-role
         {name? : The name of the role.}';
 
-	protected $description = 'Create a new role.                        | Eg: bin/wpsp make:wp-role custom_role';
+	protected $description = 'Create a new role. | Eg: php artisan make:wp-role custom_role';
 
 	protected $help = 'This command allows you to create a role...';
 
@@ -26,7 +26,7 @@ class MakeWPRoleCommand extends Command {
 
 		// Ask name interactively
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the role');
+			$name = $this->ask('Please enter the name of the role (Eg: custom_role)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the role. Please try again.');
@@ -34,22 +34,22 @@ class MakeWPRoleCommand extends Command {
 			}
 		}
 
-		// Normalize
-		$nameSlugify = Str::slug($name, '_');
+		// Validate
+		$this->validateClassName($name);
 
 		// Check exists
-		$path = $mainPath . '/app/WordPress/WPRoles/' . $nameSlugify . '.php';
+		$path = $mainPath . '/app/WordPress/WPRoles/' . $name . '.php';
 
 		if (File::exists($path)) {
-			$this->error('[ERROR] Role: "' . $name . '" already exists! Please try again.');
+			$this->error('Role: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
 		// Create class file
 		$content = File::get(__DIR__ . '/../Stubs/WPRoles/wprole.stub');
 		$content = str_replace(
-			['{{ className }}', '{{ name }}', '{{ name_slugify }}'],
-			[$nameSlugify, $name, $nameSlugify],
+			['{{ className }}', '{{ name }}'],
+			[$name, $name],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -60,25 +60,25 @@ class MakeWPRoleCommand extends Command {
 		// Func line
 		$func = File::get(__DIR__ . '/../Funcs/WPRoles/wprole.func');
 		$func = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$func
 		);
 
 		// Use line
 		$use = File::get(__DIR__ . '/../Uses/WPRoles/wprole.use');
 		$use = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);
 
 		// Register class
-		$this->addClassToRoute('Roles', 'roles', $func, $use);
+		$this->addClassToRoute('WPRoles', 'wp_roles', $func, $use);
 
 		// Done
-		$this->info('Created new role: "' . $name . '"');
+		$this->info('Created new WP role: "' . $name . '"');
 
 		exit;
 	}

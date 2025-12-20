@@ -12,12 +12,12 @@ class MakeAPICommand extends Command {
 	use CommandsTrait;
 
 	protected $signature = 'make:api
-        {path? : The path of the API end point.}
-        {--method= : The method of the API end point.}
-        {--namespace= : The namespace of the API end point.}
-        {--ver= : The version of the API end point.}';
+        {path? : The path of the API endpoint.}
+        {--method= : The method of the API endpoint.}
+        {--namespace= : The namespace of the API endpoint.}
+        {--ver= : The version of the API endpoint.}';
 
-	protected $description = 'Create a new API end point.               | Eg: bin/wpsp make:api my-api-endpoint --method=POST --namespace=wpsp --ver=v1';
+	protected $description = 'Create a new API endpoint. | Eg: php artisan make:api my-api-endpoint --method=POST --namespace=wpsp --ver=v1';
 
 	public function handle() {
 		$this->funcs = $this->getLaravel()->make('funcs');
@@ -26,14 +26,14 @@ class MakeAPICommand extends Command {
 
 		// Ask interactively if missing
 		if (!$path) {
-			$path = $this->ask('Please enter the path of the API end point');
+			$path = $this->ask('Please enter the path of the API endpoint (Eg: custom-endpoint)');
 
-			$method    = $this->ask('Please enter the method of the API end point (blank is "GET")');
-			$namespace = $this->ask('Please enter the namespace of the API end point (blank is "' . $this->funcs->_getAppShortName() . '")');
-			$version   = $this->ask('Please enter the version of the API end point (blank is "v1")');
+			$method    = $this->ask('Please enter the method of the API endpoint (Eg: GET, POST or get, post,...)', 'GET');
+			$namespace = $this->ask('Please enter the namespace of the API endpoint (Eg: wpsp, custom-namespace,...', $this->funcs->_getAppShortName());
+			$version   = $this->ask('Please enter the version of the API endpoint (Eg: v1, v2,...)', 'v1');
 
 			if (empty($path)) {
-				$this->error('Missing path for the API end point. Please try again.');
+				$this->error('Missing path for the API endpoint. Please try again.');
 				exit;
 			}
 		}
@@ -43,14 +43,14 @@ class MakeAPICommand extends Command {
 			$version   = $this->option('ver');
 		}
 
-		// Normalize
-		$pathSlugify = Str::slug($path);
-		$name        = $path;
-		$nameSlugify = Str::slug($name, '_');
-
+		// Define variables
+		$name      = Str::slug($path, '_');
 		$method    = strtolower($method ?: '');
 		$namespace = $namespace ?: null;
 		$version   = $version ?: null;
+
+		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
+		// $name sẽ được slugify từ "path" ra.
 
 		// FUNC template
 		if ($namespace) {
@@ -65,16 +65,16 @@ class MakeAPICommand extends Command {
 			$func = File::get(__DIR__ . '/../Funcs/APIs/api.func');
 		}
 		$func = str_replace(
-			['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
-			[$name, $nameSlugify, $path, $pathSlugify, $method, $namespace, $version],
+			['{{ name }}', '{{ path }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
+			[$name, $path, $method, $namespace, $version],
 			$func
 		);
 
 		// USE template
 		$use = File::get(__DIR__ . '/../Uses/APIs/api.use');
 		$use = str_replace(
-			['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
-			[$name, $nameSlugify, $path, $pathSlugify, $method, $namespace, $version],
+			['{{ name }}', '{{ path }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
+			[$name, $path, $method, $namespace, $version],
 			$use
 		);
 
@@ -84,7 +84,7 @@ class MakeAPICommand extends Command {
 		$this->addClassToRoute('Apis', 'apis', $func, $use);
 
 		// Done
-		$this->info("Created new API end point: {$path}");
+		$this->info("Created new API endpoint: {$path}");
 
 		exit;
 	}

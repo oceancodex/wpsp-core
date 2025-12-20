@@ -14,7 +14,7 @@ class MakePostTypeCommand extends Command {
 	protected $signature = 'make:post-type
         {name? : The name of the post type.}';
 
-	protected $description = 'Create a new post type.                   | Eg: bin/wpsp make:post-type custom_post_type';
+	protected $description = 'Create a new post type. | Eg: php artisan make:post-type custom_post_type';
 
 	protected $help = 'This command allows you to create a post type...';
 
@@ -26,7 +26,7 @@ class MakePostTypeCommand extends Command {
 
 		// Ask interactively
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the post type');
+			$name = $this->ask('Please enter the name of the post type (Eg: event)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the post type. Please try again.');
@@ -34,22 +34,21 @@ class MakePostTypeCommand extends Command {
 			}
 		}
 
-		// Normalize
-		$nameSlugify = Str::slug($name, '_');
+		// Validate
+		$this->validateClassName($name);
 
 		// Check exists
-		$path = $mainPath . '/app/WordPress/PostTypes/' . $nameSlugify . '.php';
+		$path = $mainPath . '/app/WordPress/PostTypes/' . $name . '.php';
 
 		if (File::exists($path)) {
-			$this->error('[ERROR] Post type: "' . $name . '" already exists! Please try again.');
+			$this->error('Post type: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
 		// Create class file
 		$content = File::get(__DIR__ . '/../Stubs/PostTypes/posttype.stub');
-		$content = str_replace('{{ className }}', $nameSlugify, $content);
+		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ name }}', $name, $content);
-		$content = str_replace('{{ name_slugify }}', $nameSlugify, $content);
 		$content = $this->replaceNamespaces($content);
 
 		File::ensureDirectoryExists(dirname($path));
@@ -57,11 +56,11 @@ class MakePostTypeCommand extends Command {
 
 		// Func line
 		$func = File::get(__DIR__ . '/../Funcs/PostTypes/posttype.func');
-		$func = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $func);
+		$func = str_replace(['{{ name }}'], [$name], $func);
 
 		// Use line
 		$use = File::get(__DIR__ . '/../Uses/PostTypes/posttype.use');
-		$use = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $use);
+		$use = str_replace(['{{ name }}'], [$name], $use);
 		$use = $this->replaceNamespaces($use);
 
 		// Register

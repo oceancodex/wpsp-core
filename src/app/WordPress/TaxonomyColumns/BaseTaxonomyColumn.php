@@ -18,8 +18,8 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 	public $column_content_priority = 0;
 	public $taxonomies              = ['category'];
 	public $before_column           = [];
-	public $after_column            = ['name'];
-	public $position                = 2;
+	public $after_column            = [];
+	public $position                = null;
 	public $sortable                = false;
 	public $callback_function       = null;
 
@@ -30,7 +30,6 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
 		$this->overrideColumn($this->extraParams['column'] ?? null);
-		$this->customProperties();
 	}
 
 	/*
@@ -50,7 +49,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 					$inserted = false;
 
 					// Kiểm tra nếu có before_column
-					if ($this->before_column) {
+					if (!empty($this->before_column)) {
 						$before_columns = is_array($this->before_column) ? $this->before_column : [$this->before_column];
 
 						foreach ($columns as $key => $value) {
@@ -61,8 +60,9 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 							$new_columns[$key] = $value;
 						}
 					}
+
 					// Nếu không có before_column, kiểm tra after_column
-					elseif ($this->after_column) {
+					elseif (!empty($this->after_column)) {
 						$after_columns = is_array($this->after_column) ? $this->after_column : [$this->after_column];
 
 						foreach ($columns as $key => $value) {
@@ -73,9 +73,10 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 							}
 						}
 					}
+
 					// Nếu không có after_column, sử dụng position
-					elseif ($this->position !== null) {
-						$position = (int) $this->position;
+					elseif ($this->position) {
+						$position = (int)$this->position;
 						$i = 0;
 
 						foreach ($columns as $key => $value) {
@@ -94,8 +95,9 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 						}
 					}
 
-					// Nếu chưa insert được (trường hợp không tìm thấy before/after column)
+					// Nếu chưa insert được (trường hợp không tìm thấy before/after/position)
 					if (!$inserted) {
+						$new_columns = $columns;
 						$new_columns[$column] = $this->column_title ?? $column;
 					}
 

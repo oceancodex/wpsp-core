@@ -4,6 +4,7 @@ namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class MakeListTableCommand extends Command {
@@ -13,7 +14,7 @@ class MakeListTableCommand extends Command {
 	protected $signature = 'make:list-table
         {name? : The name of the list table.}';
 
-	protected $description = 'Create a new list table.                  | Eg: bin/wpsp make:list-table MyListTable';
+	protected $description = 'Create a new list table. | Eg: php artisan make:list-table MyListTable';
 
 	protected $help = 'This command allows you to create a list table.';
 
@@ -25,7 +26,7 @@ class MakeListTableCommand extends Command {
 
 		// Ask interactively if missing
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the list table');
+			$name = $this->ask('Please enter the name of the list table (Eg: MyListTable)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the list table. Please try again.');
@@ -42,7 +43,7 @@ class MakeListTableCommand extends Command {
 		// Check exists? (FileSystem trước đây không check)
 		// Nếu muốn check trùng, uncomment:
 		// if (File::exists($path)) {
-		//     $this->error('[ERROR] List table: "' . $name . '" already exists! Please try again.');
+		//     $this->error('List table: "' . $name . '" already exists! Please try again.');
 		//     exit;
 		// }
 

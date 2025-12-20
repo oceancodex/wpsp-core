@@ -18,7 +18,7 @@ trait RewriteFrontPagesRouteTrait {
 	 */
 
 	public function __construct() {
-		$this->instanceConstruct();
+		$this->beforeInstanceConstruct();
 	}
 
 	/*

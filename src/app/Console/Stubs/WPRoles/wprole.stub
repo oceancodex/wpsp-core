@@ -1,19 +1,20 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\Roles;
+namespace {{ rootNamespace }}\App\WordPress\WPRoles;
 
-use {{ rootNamespace }}\App\Traits\InstancesTrait;
-use {{ coreNamespace }}\Base\BaseRole;
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
+use {{ coreNamespace }}\App\WordPress\WPRoles\BaseWPRole;
 
-class {{ className }} extends BaseRole {
+class {{ className }} extends BaseWPRole {
 
 	use InstancesTrait;
 
-//	public $role         = '{{ name_slugify }}';
-//	public $display_name = '{{ name_slugify }}';
+//	public $role         = '{{ name }}';
+//	public $display_name = '{{ name }}';
 //	public $capabilities = [
 //		'edit_pages',
 //		'manage_options',
+//		'edit_themes',
 //	];
 
 	/*

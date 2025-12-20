@@ -4,7 +4,6 @@ namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class MakeNavLocationCommand extends Command {
@@ -14,7 +13,7 @@ class MakeNavLocationCommand extends Command {
 	protected $signature = 'make:nav-location
         {name? : The name of the navigation menu location.}';
 
-	protected $description = 'Create a new navigation menu location.    | Eg: bin/wpsp make:nav-location custom_nav_location';
+	protected $description = 'Create a new navigation menu location. | Eg: php artisan make:nav-location custom_nav_location';
 
 	protected $help = 'This command allows you to create a navigation menu location.';
 
@@ -26,7 +25,7 @@ class MakeNavLocationCommand extends Command {
 
 		// Ask interactively
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the navigation menu location');
+			$name = $this->ask('Please enter the name of the navigation menu location (Eg: custom_nav_location)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the navigation menu location. Please try again.');
@@ -34,30 +33,29 @@ class MakeNavLocationCommand extends Command {
 			}
 		}
 
-		$nameSlugify = Str::slug($name, '_');
-
 		// Validate class name
-		$this->validateClassName($nameSlugify);
+		$this->validateClassName($name);
 
 		// Path for class file
-		$path = $mainPath . '/app/WordPress/NavigationMenus/Locations/' . $nameSlugify . '.php';
+		$path = $mainPath . '/app/WordPress/NavigationMenus/Locations/' . $name . '.php';
 
 		// Create content
 		$content = File::get(__DIR__ . '/../Stubs/NavigationMenus/Locations/navlocation.stub');
-		$content = str_replace('{{ className }}', $nameSlugify, $content);
+		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = $this->replaceNamespaces($content);
 
+		// Save file
 		File::ensureDirectoryExists(dirname($path));
 		File::put($path, $content);
 
 		// Build func line
 		$func = File::get(__DIR__ . '/../Funcs/NavigationMenus/Locations/navlocation.func');
-		$func = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $func);
+		$func = str_replace(['{{ name }}'], [$name], $func);
 
 		// Build use line
 		$use = File::get(__DIR__ . '/../Uses/NavigationMenus/Locations/navlocation.use');
-		$use = str_replace(['{{ name }}', '{{ name_slugify }}'], [$name, $nameSlugify], $use);
+		$use = str_replace(['{{ name }}'], [$name], $use);
 		$use = $this->replaceNamespaces($use);
 
 		// Add to route

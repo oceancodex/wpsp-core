@@ -16,30 +16,29 @@ class Schedules extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
-		$hook     = $route->fullPath;
-		$callback = $route->callback;
-		$interval = $route->args['interval'] ?? 'daily';
+		$path        = $route->path;
+		$fullPath    = $route->fullPath;
+		$callback    = $route->callback;
+		$interval    = $route->args['interval'] ?? 'hourly';
+		$requestPath = trim($this->request->getRequestUri(), '/\\');
 
 		$constructParams = [
 			$this->funcs->_getMainPath(),
 			$this->funcs->_getRootNamespace(),
 			$this->funcs->_getPrefixEnv(),
 			[
-				'hook'              => $hook,
+				'path'              => $path,
+				'full_path'         => $fullPath,
+				'interval'          => $interval,
 				'callback_function' => $callback[1] ?? null,
 			],
 		];
 
-		$callback = $this->prepareRouteCallback($callback, $constructParams);
-		add_action($hook, $callback);
-		if (!wp_next_scheduled($hook)) {
-			wp_schedule_event(time(), $interval, $hook);
-		}
-		register_deactivation_hook($this->funcs->_getMainFilePath(), function() use ($hook) {
-			wp_unschedule_hook($hook);
-//			$timestamp = wp_next_scheduled($hook);
-//			if ($timestamp) wp_unschedule_event($timestamp, $hook);
-		});
+		// Init schedule.
+		$callback[1] = 'init';
+		$callback    = $this->prepareRouteCallback($callback, $constructParams);
+		$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
+		$this->resolveAndCall($callback, $callParams);
 	}
 
 }

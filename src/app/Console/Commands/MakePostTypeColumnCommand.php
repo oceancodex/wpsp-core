@@ -14,7 +14,7 @@ class MakePostTypeColumnCommand extends Command {
 	protected $signature = 'make:post-type-column
         {name? : The name of the post type column.}';
 
-	protected $description = 'Create a new post type column.            | Eg: bin/wpsp make:post-type-column my_custom_column';
+	protected $description = 'Create a new post type column. | Eg: php artisan make:post-type-column my_custom_column';
 
 	protected $help = 'This command allows you to create a custom column for post type list table.';
 
@@ -26,16 +26,13 @@ class MakePostTypeColumnCommand extends Command {
 
 		// Ask interactively if not provided
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the post type column');
+			$name = $this->ask('Please enter the name of the post type column (Eg: my_custom_column)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the post type column. Please try again.');
 				exit;
 			}
 		}
-
-		// Normalize
-		$nameSlugify = Str::slug($name, '_');
 
 		// Validate class name
 		$this->validateClassName($name);
@@ -45,7 +42,7 @@ class MakePostTypeColumnCommand extends Command {
 
 		// Check exists
 		if (File::exists($path)) {
-			$this->error('[ERROR] Post type column: "' . $name . '" already exists! Please try again.');
+			$this->error('Post type column: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
@@ -60,16 +57,16 @@ class MakePostTypeColumnCommand extends Command {
 		// Func line
 		$func = File::get(__DIR__ . '/../Funcs/PostTypeColumns/post_type_column.func');
 		$func = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$func
 		);
 
 		// Use line
 		$use = File::get(__DIR__ . '/../Uses/PostTypeColumns/post_type_column.use');
 		$use = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

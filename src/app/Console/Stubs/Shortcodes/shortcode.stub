@@ -2,9 +2,8 @@
 
 namespace {{ rootNamespace }}\App\WordPress\Shortcodes;
 
-use {{ rootNamespace }}\App\Traits\InstancesTrait;
-use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\Base\BaseShortcode;
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
+use {{ coreNamespace }}\App\WordPress\Shortcodes\BaseShortcode;
 
 class {{ className }} extends BaseShortcode {
 
@@ -19,7 +18,6 @@ class {{ className }} extends BaseShortcode {
 	public function index($atts, $content, $tag) {
 		return do_shortcode($content);
 	}
-
 
 	/*
 	 *

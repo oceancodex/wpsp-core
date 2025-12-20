@@ -1,1 +1,1 @@
-		Route::get('{{ path }}', [{{ name_slugify }}::class, 'index']);
+		Route::get('{{ path }}', [{{ name }}::class, 'index']);

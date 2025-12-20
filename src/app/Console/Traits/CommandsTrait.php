@@ -22,9 +22,9 @@ trait CommandsTrait {
 		return str_replace('{{ coreNamespace }}', $this->coreNamespace, $content);
 	}
 
-	public function validateClassName($className = null) {
+	public function validateClassName($className = null, $inputName = 'name') {
 		if (empty($className) || preg_match('/[^A-Za-z0-9_]/', $className)) {
-			$this->error('[ERROR] The name: "' . $className . '" is invalid! Please try again.');
+			$this->error('The '.$inputName.': "' . $className . '" is invalid! Allow characters: A-Z, a-z, 0-9, _');
 			exit();
 		}
 	}

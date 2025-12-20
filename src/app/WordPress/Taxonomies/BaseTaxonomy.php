@@ -22,7 +22,6 @@ abstract class BaseTaxonomy extends BaseInstances {
 		$this->callback_function = $this->extraParams['callback_function'];
 		$this->overrideTaxonomy($this->extraParams['taxonomy']);
 		$this->prepareArguments();
-		$this->customProperties();
 		$this->prepareArguments($this->args);
 	}
 

@@ -1,8 +1,8 @@
 <?php
 namespace {{ rootNamespace }}\App\WordPress\PostTypeColumns;
 
-use {{ rootNamespace }}\App\Traits\InstancesTrait;
-use {{ coreNamespace }}\Base\BasePostTypeColumn;
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
+use {{ coreNamespace }}\App\WordPress\PostTypeColumns\BasePostTypeColumn;
 
 class {{ className }} extends BasePostTypeColumn {
 
@@ -14,8 +14,8 @@ class {{ className }} extends BasePostTypeColumn {
 	public $column_content_priority = 9999;
 	public $post_types              = ['post', 'wpsp_content'];
 //	public $before_column           = [];
-//	public $after_column            = ['title'];
-//	public $position                = 2;
+//	public $after_column            = [];
+//	public $position                = null;
 	public $sortable                = true;
 //	public $callback_function       = null;
 

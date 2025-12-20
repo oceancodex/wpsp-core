@@ -15,7 +15,7 @@ class MakeScheduleCommand extends Command {
         {hook? : The hook of the schedule.}
         {interval? : The interval of the schedule.}';
 
-	protected $description = 'Create a new schedule.                    | Eg: bin/wpsp make:schedule custom_schedule_hook hourly';
+	protected $description = 'Create a new schedule. | Eg: php artisan make:schedule custom_schedule_hook hourly';
 
 	protected $help = 'This command allows you to create a schedule.';
 
@@ -28,30 +28,30 @@ class MakeScheduleCommand extends Command {
 
 		// Ask interactively
 		if (!$hook) {
-			$hook = $this->ask('Please enter the hook of the schedule');
+			$hook = $this->ask('Please enter the hook of the schedule (Eg: custom_schedule_hook)');
 
 			if (empty($hook)) {
 				$this->error('Missing hook for the schedule. Please try again.');
 				exit;
 			}
-		}
 
-		if (!$interval) {
-			$interval = $this->ask('Please enter the interval of the schedule (Leave empty = hourly)');
+			if (!$interval) {
+				$interval = $this->ask('Please enter the interval of the schedule', 'hourly');
+			}
 		}
 
 		$interval = empty($interval) ? 'hourly' : $interval;
 
-		// Normalize variables
-		$hookSlugify     = Str::slug($hook, '_');
-		$intervalSlugify = Str::slug($interval, '_');
+		// Validate
+		$this->validateClassName($hook, 'hook');
+		$this->validateClassName($interval, 'interval');
 
 		// Path
-		$path = $mainPath . '/app/WordPress/Schedules/' . $hookSlugify . '.php';
+		$path = $mainPath . '/app/WordPress/Schedules/' . $hook . '.php';
 
 		// Check exists
 		if (File::exists($path)) {
-			$this->error('[ERROR] Schedule: "' . $hookSlugify . '" already exists! Please try again.');
+			$this->error('Schedule: "' . $hook . '" already exists! Please try again.');
 			exit;
 		}
 
@@ -59,8 +59,8 @@ class MakeScheduleCommand extends Command {
 		$content = File::get(__DIR__ . '/../Stubs/Schedules/schedule.stub');
 
 		$content = str_replace(
-			['{{ className }}', '{{ hook }}', '{{ hook_slugify }}', '{{ interval }}', '{{ interval_slugify }}'],
-			[$hookSlugify, $hook, $hookSlugify, $interval, $intervalSlugify],
+			['{{ className }}', '{{ hook }}', '{{ interval }}'],
+			[$hook, $hook, $interval],
 			$content
 		);
 
@@ -72,16 +72,16 @@ class MakeScheduleCommand extends Command {
 		// Func registration
 		$func = File::get(__DIR__ . '/../Funcs/Schedules/schedule.func');
 		$func = str_replace(
-			['{{ hook }}', '{{ hook_slugify }}', '{{ interval }}', '{{ interval_slugify }}'],
-			[$hook, $hookSlugify, $interval, $intervalSlugify],
+			['{{ hook }}', '{{ interval }}'],
+			[$hook, $interval],
 			$func
 		);
 
 		// Use registration
 		$use = File::get(__DIR__ . '/../Uses/Schedules/schedule.use');
 		$use = str_replace(
-			['{{ hook }}', '{{ hook_slugify }}', '{{ interval }}', '{{ interval_slugify }}'],
-			[$hook, $hookSlugify, $interval, $intervalSlugify],
+			['{{ hook }}', '{{ interval }}'],
+			[$hook, $interval],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

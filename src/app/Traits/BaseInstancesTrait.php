@@ -20,7 +20,7 @@ trait BaseInstancesTrait {
 	public $request       = null;
 
 	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
-		$this->instanceConstruct();
+		$this->beforeInstanceConstruct();
 		$this->beforeConstruct();
 		if ($mainPath)      $this->mainPath      = $mainPath;
 		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
@@ -30,6 +30,7 @@ trait BaseInstancesTrait {
 		$this->prepareRequest();
 		$this->afterConstruct();
 		$this->customProperties();
+		$this->afterInstanceConstruct();
 	}
 
 	/*
@@ -42,7 +43,7 @@ trait BaseInstancesTrait {
 	 *
 	 */
 
-	private function prepareFuncs() {
+	public function prepareFuncs() {
 		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
 			if (is_bool($this->extraParams['funcs'])) {
 				$this->funcs = new \WPSPCORE\Funcs(
@@ -59,7 +60,7 @@ trait BaseInstancesTrait {
 		unset($this->extraParams['funcs']);
 	}
 
-	private function prepareRequest() {
+	public function prepareRequest() {
 		if (isset($this->funcs) && $funcs = $this->funcs) {
 			if (isset($funcs::$request) && $funcs::$request) {
 				$this->request = $funcs::$request;
@@ -78,10 +79,12 @@ trait BaseInstancesTrait {
 	 *
 	 */
 
-	public function instanceConstruct() {}
+	public function beforeInstanceConstruct() {}
 
 	public function beforeConstruct() {}
 
 	public function afterConstruct() {}
+
+	public function afterInstanceConstruct() {}
 
 }

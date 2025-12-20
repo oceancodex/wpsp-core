@@ -13,9 +13,9 @@ class MakeUserMetaBoxCommand extends Command {
 
 	protected $signature = 'make:user-meta-box
         {id? : The id of the user meta box}
-        {--create-view : Create view files for this user meta box}';
+        {--view : Create view files for this user meta box}';
 
-	protected $description = 'Create a new user meta box.               | Eg: bin/wpsp make:user-meta-box custom_user_meta_box --create-view';
+	protected $description = 'Create a new user meta box. | Eg: php artisan make:user-meta-box custom_user_meta_box --view';
 
 	protected $help = 'This command allows you to create a user meta box.';
 
@@ -29,7 +29,7 @@ class MakeUserMetaBoxCommand extends Command {
 		 *  ASK INTERACTIVE
 		 * ------------------------------------------------- */
 		if (!$id) {
-			$id = $this->ask('Please enter the ID of the user meta box');
+			$id = $this->ask('Please enter the ID of the user meta box (Eg: custom_user_meta_box)');
 
 			if (empty($id)) {
 				$this->error('Missing ID for the user meta box. Please try again.');
@@ -39,17 +39,20 @@ class MakeUserMetaBoxCommand extends Command {
 			$createView = $this->confirm('Do you want to create view files for this user meta box?', false);
 		}
 
-		$idSlugify  = Str::slug($id, '_');
-		$createView = $createView ?? $this->option('create-view');
+		// Define variables
+		$createView = $createView ?? $this->option('view');
+
+		// Validate
+		$this->validateClassName($id, 'id');
 
 		/* -------------------------------------------------
 		 *  CHECK EXISTS
 		 * ------------------------------------------------- */
-		$classPath = $mainPath . '/app/WordPress/UserMetaBoxes/' . $idSlugify . '.php';
-		$viewDir   = $mainPath . '/resources/views/modules/user-meta-boxes/' . $idSlugify;
+		$classPath = $mainPath . '/app/WordPress/UserMetaBoxes/' . $id . '.php';
+		$viewDir   = $mainPath . '/resources/views/modules/user-meta-boxes/' . $id;
 
 		if (File::exists($classPath) || File::exists($viewDir)) {
-			$this->error('[ERROR] User meta box: "' . $id . '" already exists! Please try again.');
+			$this->error('User meta box: "' . $id . '" already exists! Please try again.');
 			exit;
 		}
 
@@ -64,8 +67,8 @@ class MakeUserMetaBoxCommand extends Command {
 		}
 
 		$content = str_replace(
-			['{{ className }}', '{{ id }}', '{{ id_slugify }}'],
-			[$idSlugify, $id, $idSlugify],
+			['{{ className }}', '{{ id }}'],
+			[$id, $id],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -77,8 +80,8 @@ class MakeUserMetaBoxCommand extends Command {
 		 *  CREATE VIEW FILES
 		 * ------------------------------------------------- */
 		if ($createView) {
-			$bladeExt    = class_exists('\WPSPCORE\View\Blade') ? '.blade.php' : '.php';
-			$nonBladeSep = class_exists('\WPSPCORE\View\Blade') ? '' : '/non-blade';
+			$bladeExt    = class_exists('Illuminate\View\View') ? '.blade.php' : '.php';
+			$nonBladeSep = class_exists('Illuminate\View\View') ? '' : '/non-blade';
 
 			File::ensureDirectoryExists($viewDir);
 
@@ -93,8 +96,8 @@ class MakeUserMetaBoxCommand extends Command {
 				$view = File::get(__DIR__ . '/../Views/UserMetaBoxes' . $nonBladeSep . '/' . $stubFile);
 
 				$view = str_replace(
-					['{{ className }}', '{{ id }}', '{{ id_slugify }}'],
-					[$idSlugify, $id, $idSlugify],
+					['{{ className }}', '{{ id }}'],
+					[$id, $id],
 					$view
 				);
 
@@ -107,15 +110,15 @@ class MakeUserMetaBoxCommand extends Command {
 		 * ------------------------------------------------- */
 		$func = File::get(__DIR__ . '/../Funcs/UserMetaBoxes/user-meta-box.func');
 		$func = str_replace(
-			['{{ id }}', '{{ id_slugify }}'],
-			[$id, $idSlugify],
+			['{{ id }}'],
+			[$id],
 			$func
 		);
 
 		$use = File::get(__DIR__ . '/../Uses/UserMetaBoxes/user-meta-box.use');
 		$use = str_replace(
-			['{{ id }}', '{{ id_slugify }}'],
-			[$id, $idSlugify],
+			['{{ id }}'],
+			[$id],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

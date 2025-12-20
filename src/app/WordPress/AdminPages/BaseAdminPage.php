@@ -67,7 +67,10 @@ abstract class BaseAdminPage extends BaseInstances {
 	private function addMenuPage() {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
+			$requestPath = trim($this->request->getRequestUri(), '/\\');
 			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
+			$callParams = $this->getCallParams($this->extraParams['path'], $this->extraParams['full_path'], $requestPath, $this, $this->callback_function);
+			$callback = $this->resolveCallback($callback, $callParams);
 		}
 
 		$menuPage = add_menu_page(
@@ -100,7 +103,10 @@ abstract class BaseAdminPage extends BaseInstances {
 	private function addSubMenuPage() {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
+			$requestPath = trim($this->request->getRequestUri(), '/\\');
 			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
+			$callParams = $this->getCallParams($this->extraParams['path'], $this->extraParams['full_path'], $requestPath, $this, $this->callback_function);
+			$callback = $this->resolveCallback($callback, $callParams);
 		}
 
 		$subMenuPage = add_submenu_page(

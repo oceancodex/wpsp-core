@@ -1,0 +1,26 @@
+<?php
+
+namespace {{ rootNamespace }}\App\WordPress\ThemeTemplates;
+
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
+use {{ rootNamespace }}\Funcs;
+use {{ coreNamespace }}\App\WordPress\ThemeTemplates\BaseThemeTemplates;
+
+class {{ className }} extends BaseThemeTemplates {
+
+	use InstancesTrait;
+
+//	public $name       = '{{ name }}';
+	public $label      = '[{{ rootNamespace }}] Template: {{ name }}';
+//	public $path       = null;
+	public $post_types = ['{{ post_type }}'];
+
+	/*
+	 *
+	 */
+
+	public function customProperties() {
+//		$this->path = Funcs::instance()->_getResourcesPath('/views/modules/theme-templates/' . $this->name . '.blade.php');
+	}
+
+}

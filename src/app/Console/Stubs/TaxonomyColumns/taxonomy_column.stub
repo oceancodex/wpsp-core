@@ -1,17 +1,18 @@
 <?php
 namespace {{ rootNamespace }}\App\WordPress\TaxonomyColumns;
 
-use {{ rootNamespace }}\App\Traits\InstancesTrait;
-use {{ coreNamespace }}\Base\BaseTaxonomyColumn;
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
+use {{ coreNamespace }}\App\WordPress\TaxonomyColumns\BaseTaxonomyColumn;
 
 class {{ className }} extends BaseTaxonomyColumn {
 
 	use InstancesTrait;
 
 //	public $column                  = null;
+	public $column_title            = '{{ className }}';
 	public $column_add_priority     = 9999;
 	public $column_content_priority = 9999;
-	public $taxonomies              = ['category', 'wpsp_category'];
+	public $taxonomies              = ['category'];
 //	public $before_column           = [];
 //	public $after_column            = ['name'];
 //	public $position                = 2;
@@ -48,14 +49,6 @@ class {{ className }} extends BaseTaxonomyColumn {
 
 			$query->query_vars['orderby'] = 'term_id';
 		}
-	}
-
-	/*
-	 *
-	 */
-
-	public function afterInit() {
-		// TODO: Implement afterInit() method.
 	}
 
 }

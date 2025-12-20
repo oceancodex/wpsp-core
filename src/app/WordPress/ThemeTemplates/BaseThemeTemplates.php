@@ -1,20 +1,20 @@
 <?php
 
-namespace WPSPCORE\App\WordPress\Templates;
+namespace WPSPCORE\App\WordPress\ThemeTemplates;
 
 use WPSPCORE\BaseInstances;
 
-abstract class BaseTemplates extends BaseInstances {
+abstract class BaseThemeTemplates extends BaseInstances {
 
 	public $name              = null;
 	public $label             = null;
 	public $path              = null;
+	public $post_types        = [];
 	public $callback_function = null;
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
 		$this->overrideName($this->extraParams['name']);
-		$this->customProperties();
 		$this->templateInclude();
 	}
 
@@ -25,17 +25,34 @@ abstract class BaseTemplates extends BaseInstances {
 	public function init($name = null) {
 		$name = $this->name ?? $name;
 		if ($name) {
-			add_filter('theme_page_templates', function($templates) use ($name) {
-				if ($this->path) {
-					$name .= '|' . preg_replace('/\/|\\\/iu', '%%slash%%', $this->path);
+			if (is_array($this->post_types)) {
+				if (!empty($this->post_types)) {
+					foreach ($this->post_types as $post_type) {
+						$this->addThemeTemplate($name, $post_type);
+					}
 				}
 				else {
-					$name .= '.php';
+					$this->addThemeTemplate($name);
 				}
-				$templates[$name] = $this->label ?? $this->funcs->_config('app.short_name') . ' - Custom template';
-				return $templates;
-			});
+			}
+			elseif (is_string($this->post_types) && $postType = $this->post_types) {
+				$this->addThemeTemplate($name, $postType);
+			}
 		}
+	}
+
+	public function addThemeTemplate($name, $postType = null) {
+		if ($postType) $postType = $postType . '_';
+		add_filter('theme_'.$postType.'templates', function($templates) use ($name) {
+			if ($this->path) {
+				$name .= '|' . preg_replace('/\/|\\\/iu', '%%slash%%', $this->path);
+			}
+			else {
+				$name .= '.php';
+			}
+			$templates[$name] = $this->label ?? $this->funcs->_config('app.short_name') . ' - Custom template';
+			return $templates;
+		});
 	}
 
 	/*
@@ -66,7 +83,7 @@ abstract class BaseTemplates extends BaseInstances {
 							if ($seletedTemplatePath) {
 								$seletedTemplatePath = preg_replace('/%%slash%%/iu', '/', $seletedTemplatePath);
 							}
-							$filePath = $seletedTemplatePath ?? $this->funcs->_getResourcesPath('/views/modules/templates/' . $seletedTemplateName);
+							$filePath = $seletedTemplatePath ?? $this->funcs->_getResourcesPath('/views/modules/theme-templates/' . $seletedTemplateName);
 							if (file_exists($filePath)) {
 								return $filePath;
 							}

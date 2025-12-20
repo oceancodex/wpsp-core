@@ -2,8 +2,8 @@
 
 namespace {{ rootNamespace }}\App\WordPress\Taxonomies;
 
-use {{ rootNamespace }}\App\Traits\InstancesTrait;
-use {{ coreNamespace }}\Base\BaseTaxonomy;
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
+use {{ coreNamespace }}\App\WordPress\Taxonomies\BaseTaxonomy;
 
 class {{ className }} extends BaseTaxonomy {
 
@@ -68,6 +68,10 @@ class {{ className }} extends BaseTaxonomy {
 //	public $sort                       = null;
 //	public $args                       = [];
 //	public $_builtin                   = true;
+
+	/*
+	 *
+	 */
 
 	public function customProperties() {
 

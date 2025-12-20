@@ -16,7 +16,7 @@ class MakeAjaxCommand extends Command {
         {--method : The HTTP method of the Ajax (GET, POST, PUT, DELETE)}
         {--nopriv : Allow access for non-logged users}';
 
-	protected $description = 'Create a new Ajax action.                 | Eg: php artisan make:ajax GET my_action --nopriv';
+	protected $description = 'Create a new Ajax action. | Eg: php artisan make:ajax GET my_action --nopriv';
 
 	public function handle() {
 		$this->funcs = $this->getLaravel()->make('funcs');
@@ -27,35 +27,36 @@ class MakeAjaxCommand extends Command {
 
 		// If no action provided → interactive mode
 		if (!$action) {
-			$action = $this->ask('Please enter the action name of the ajax');
+			$action = $this->ask('Please enter the action name of the ajax (Eg: my_action)');
 
 			if (empty($action)) {
 				$this->error('Missing action name for the ajax. Please try again.');
 				exit;
 			}
 
-			$method = $this->ask('Please enter the HTTP method of the ajax (GET, POST, PUT, DELETE)');
+			$method = $this->ask('Please enter the HTTP method of the ajax (Eg: GET, POST or get, post...)', 'GET');
 			$nopriv = $this->confirm('Do you want to allow access for non-logged users (nopriv)?', false);
 		}
 
 		// Define variables
-		$method        = $method ? strtolower($method) : 'get';
-		$actionSlugify = Str::slug($action, '_');
-		$noprivValue   = $nopriv ? 'true' : 'false';
+		$method = strtolower($method ?: 'GET');
+
+		// Validate
+		$this->validateClassName($action);
 
 		// Prepare line for find function
-		$func = $noprivValue == 'true' ? File::get(__DIR__ . '/../Funcs/Ajaxs/ajax-nopriv.func') : File::get(__DIR__ . '/../Funcs/Ajaxs/ajax.func');
+		$func = $nopriv ? File::get(__DIR__ . '/../Funcs/Ajaxs/ajax-nopriv.func') : File::get(__DIR__ . '/../Funcs/Ajaxs/ajax.func');
 		$func = str_replace(
-			['{{ method }}', '{{ action }}', '{{ action_slugify }}', '{{ nopriv }}'],
-			[$method, $action, $actionSlugify, $noprivValue],
+			['{{ method }}', '{{ action }}', '{{ nopriv }}'],
+			[$method, $action, $nopriv],
 			$func
 		);
 
 		// Prepare line for use class
 		$use = File::get(__DIR__ . '/../Uses/Ajaxs/ajax.use');
 		$use = str_replace(
-			['{{ method }}', '{{ action }}', '{{ action_slugify }}', '{{ nopriv }}'],
-			[$method, $action, $actionSlugify, $noprivValue],
+			['{{ method }}', '{{ action }}', '{{ nopriv }}'],
+			[$method, $action, $nopriv],
 			$use
 		);
 

@@ -5,12 +5,14 @@ namespace WPSPCORE\App\WordPress\NavigationMenus\Menus;
 use WPSPCORE\App\Traits\ObjectToArrayTrait;
 use WPSPCORE\BaseInstances;
 
+/**
+ * @method static static instance
+ */
 abstract class BaseNavigationMenu extends BaseInstances {
 
 	use ObjectToArrayTrait;
 
-	public        $args     = null;
-	public static $instance = null;
+	public $args = null;
 
 	/*
 	 *
@@ -18,23 +20,16 @@ abstract class BaseNavigationMenu extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->prepareArguments();
-		$this->customProperties();
 	}
 
 	/*
 	 *
 	 */
 
-	public static function instance() {
-		if (!self::$instance || !self::$instance instanceof static) {
-			self::$instance = new static();
-		}
-		return self::$instance;
-	}
-
 	public static function render() {
-		self::instance()->args->echo = false;
-		$args                        = self::instance()->args->toArray();
+		$instance = static::instance();
+		$instance->args->echo = false;
+		$args = $instance->args->toArray();
 		if (wp_get_nav_menu_object($args['menu'])) {
 			return wp_nav_menu($args);
 		}
@@ -60,12 +55,9 @@ abstract class BaseNavigationMenu extends BaseInstances {
 		else {
 			unset($this->args->items_wrap);
 		}
+
+		// Default menu name.
+		$this->args->menu = $this->args->menu ?: strtolower(basename(static::class));
 	}
-
-	/*
-	 *
-	 */
-
-	abstract public function customProperties();
 
 }

@@ -13,11 +13,12 @@ class MakeRewriteFrontPageCommand extends Command {
 
 	protected $signature = 'make:rewrite-front-page
         {path? : The path of the rewrite front page.}
-        {--rewrite-page-post-type= : The post type for rewrite front page.}
-        {--rewrite-page-slug= : The page slug for rewrite front page.}
-        {--use-template : Generate view using template.}';
+        {--method= : The method for rewrite front page.}
+        {--post-type= : The post type for rewrite front page.}
+        {--page-slug= : The page slug for rewrite front page.}
+        {--template : Generate view using template.}';
 
-	protected $description = 'Create a new rewrite front page.          | Eg: bin/wpsp make:rewrite-front-page custom-rewrite-front-page --rewrite-page-post-type=page --rewrite-page-slug=parent/rewrite-front-pages --use-template';
+	protected $description = 'Create a new rewrite front page. | Eg: php artisan make:rewrite-front-page custom-rewrite-front-page --method=GET --post-type=page --page-slug=parent/rewrite-front-pages --template';
 
 	protected $help = 'This command allows you to create a rewrite front page.';
 
@@ -29,34 +30,35 @@ class MakeRewriteFrontPageCommand extends Command {
 
 		// Ask interactively if missing
 		if (!$path) {
-			$path = $this->ask('Please enter the path of the rewrite front page');
+			$path = $this->ask('Please enter the path of the rewrite front page (Eg: custom-rewrite-front-page)');
 
 			if (empty($path)) {
 				$this->error('Missing path for the rewrite front page. Please try again.');
 				exit;
 			}
 
-			$rewritePagePostType = $this->ask('Please enter the post type for rewrite front page', 'page');
-			$rewritePageSlug     = $this->ask('Please enter the page name for rewrite front page', 'rewrite-front-pages');
+			$rewritePagePostType = $this->ask('Please enter the post type for rewrite front page (Eg: page,...)', 'page');
+			$rewritePageSlug     = $this->ask('Please enter the page name for rewrite front page (Eg: page-for-rewrite-rules,...)', 'rewrite-front-pages');
 			$useTemplate         = $this->confirm('Use template for this rewrite front page?', false);
 		}
 
-		// Normalize variables
-		$pathSlugify = Str::slug($path, '-');
-		$name        = $path;
-		$nameSlugify = Str::slug($name, '_');
+		// Define variables
+		$name = Str::slug($path, '_');
 
-		$rewritePagePostType    = $rewritePagePostType ?? $this->option('rewrite-page-post-type') ?: 'page';
-		$rewritePageSlug        = $rewritePageSlug ?? $this->option('rewrite-page-slug') ?: 'rewrite-front-pages';
-		$rewritePageSlugSlugify = Str::slug($rewritePageSlug, '-');
-		$useTemplate            = $useTemplate ?? $this->option('use-template') ?: false;
+		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
+		// $name sẽ được slugify từ "path" ra.
+
+		$method                 = strtolower($this->option('method') ?: 'GET');
+		$rewritePagePostType    = $rewritePagePostType ?? $this->option('post-type') ?: 'page';
+		$rewritePageSlug        = $rewritePageSlug ?? $this->option('page-slug') ?: 'rewrite-front-pages';
+		$useTemplate            = $useTemplate ?? $this->option('template') ?: false;
 
 		// Check exists
-		$componentPath = $mainPath . '/app/WordPress/RewriteFrontPages/' . $nameSlugify . '.php';
+		$componentPath = $mainPath . '/app/WordPress/RewriteFrontPages/' . $name . '.php';
 		$viewPath      = $mainPath . '/resources/views/modules/rewrite-front-pages/' . $path . '.blade.php';
 
 		if (File::exists($componentPath) || File::exists($viewPath)) {
-			$this->error('[ERROR] Rewrite front page: "' . $name . '" already exists! Please try again.');
+			$this->error('Rewrite front page: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
@@ -68,23 +70,19 @@ class MakeRewriteFrontPageCommand extends Command {
 			[
 				'{{ className }}',
 				'{{ name }}',
-				'{{ name_slugify }}',
 				'{{ path }}',
-				'{{ path_slugify }}',
-				'{{ rewrite_page_post_type }}',
-				'{{ rewrite_page_slug }}',
-				'{{ rewrite_page_slug_slugify }}',
+				'{{ method }}',
+				'{{ post_type }}',
+				'{{ page_slug }}',
 				'{{ use_template }}',
 			],
 			[
-				$nameSlugify,
 				$name,
-				$nameSlugify,
+				$name,
 				$path,
-				$pathSlugify,
+				$method,
 				$rewritePagePostType,
 				$rewritePageSlug,
-				$rewritePageSlugSlugify,
 				$useTemplate ? 'true' : 'false',
 			],
 			$content
@@ -106,21 +104,17 @@ class MakeRewriteFrontPageCommand extends Command {
 		$view = str_replace(
 			[
 				'{{ name }}',
-				'{{ name_slugify }}',
 				'{{ path }}',
-				'{{ path_slugify }}',
-				'{{ rewrite_page_post_type }}',
-				'{{ rewrite_page_slug }}',
-				'{{ rewrite_page_slug_slugify }}',
+				'{{ method }}',
+				'{{ post_type }}',
+				'{{ page_slug }}',
 			],
 			[
 				$name,
-				$nameSlugify,
 				$path,
-				$pathSlugify,
+				$method,
 				$rewritePagePostType,
 				$rewritePageSlug,
-				$rewritePageSlugSlugify,
 			],
 			$view
 		);
@@ -135,21 +129,17 @@ class MakeRewriteFrontPageCommand extends Command {
 		$func = str_replace(
 			[
 				'{{ name }}',
-				'{{ name_slugify }}',
 				'{{ path }}',
-				'{{ path_slugify }}',
-				'{{ rewrite_page_post_type }}',
-				'{{ rewrite_page_slug }}',
-				'{{ rewrite_page_slug_slugify }}',
+				'{{ method }}',
+				'{{ post_type }}',
+				'{{ page_slug }}',
 			],
 			[
 				$name,
-				$nameSlugify,
 				$path,
-				$pathSlugify,
+				$method,
 				$rewritePagePostType,
 				$rewritePageSlug,
-				$rewritePageSlugSlugify,
 			],
 			$func
 		);
@@ -158,21 +148,17 @@ class MakeRewriteFrontPageCommand extends Command {
 		$use = str_replace(
 			[
 				'{{ name }}',
-				'{{ name_slugify }}',
 				'{{ path }}',
-				'{{ path_slugify }}',
-				'{{ rewrite_page_post_type }}',
-				'{{ rewrite_page_slug }}',
-				'{{ rewrite_page_slug_slugify }}',
+				'{{ method }}',
+				'{{ post_type }}',
+				'{{ page_slug }}',
 			],
 			[
 				$name,
-				$nameSlugify,
 				$path,
-				$pathSlugify,
+				$method,
 				$rewritePagePostType,
 				$rewritePageSlug,
-				$rewritePageSlugSlugify,
 			],
 			$use
 		);

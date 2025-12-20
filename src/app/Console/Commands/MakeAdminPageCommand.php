@@ -15,7 +15,7 @@ class MakeAdminPageCommand extends Command {
         {path? : The path of the admin page}
         {--view : Create view files for this admin page}';
 
-	protected $description = 'Create a new admin page.                  | Eg: php artisan make:admin-page custom-admin-page --view';
+	protected $description = 'Create a new admin page. | Eg: php artisan make:admin-page custom-admin-page --view';
 
 	public function handle() {
 		$this->funcs = $this->getLaravel()->make('funcs');
@@ -25,7 +25,7 @@ class MakeAdminPageCommand extends Command {
 
 		// If path is empty, ask questions.
 		if (!$path) {
-			$path = $this->ask('Please enter the path of the admin page');
+			$path = $this->ask('Please enter the path of the admin page (Eg: custom-admin-page)');
 
 			if (empty($path)) {
 				$this->error('Missing path for the admin page. Please try again.');
@@ -39,20 +39,18 @@ class MakeAdminPageCommand extends Command {
 		}
 
 		// Define variables.
-		$pathSlugify = Str::slug($path);
-		$name        = $path;
-		$nameSlugify = Str::slug($name, '_');
+		$name = Str::slug($path, '_');
 
-		// Validate class name.
-		$this->validateClassName($nameSlugify);
+		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
+		// $name sẽ được slugify từ "path" ra.
 
 		// Prepare paths.
-		$adminClassPath = $mainPath . '/app/WordPress/AdminPages/' . $nameSlugify . '.php';
+		$adminClassPath = $mainPath . '/app/WordPress/AdminPages/' . $name . '.php';
 		$viewDirPath    = $mainPath . '/resources/views/modules/admin-pages/' . $path;
 
 		// Check exist.
 		if (File::exists($adminClassPath) || File::exists($viewDirPath)) {
-			$this->error('[ERROR] Admin page "' . $path . '" already exists!');
+			$this->error('Admin page "' . $path . '" already exists!');
 			exit;
 		}
 
@@ -66,8 +64,8 @@ class MakeAdminPageCommand extends Command {
 
 		// Replace placeholders.
 		$content = str_replace(
-			['{{ className }}', '{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
-			[$nameSlugify, $name, $nameSlugify, $path, $pathSlugify],
+			['{{ className }}', '{{ name }}', '{{ path }}'],
+			[$name, $name, $path],
 			$content
 		);
 
@@ -97,8 +95,8 @@ class MakeAdminPageCommand extends Command {
 				$view = File::get(__DIR__ . '/../Views/AdminPages' . $nonBladeSep . '/' . $stub);
 
 				$view = str_replace(
-					['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
-					[$name, $nameSlugify, $path, $pathSlugify],
+					['{{ name }}', '{{ path }}'],
+					[$name, $path],
 					$view
 				);
 
@@ -108,15 +106,15 @@ class MakeAdminPageCommand extends Command {
 
 		// Prepare new line for find function.
 		$func = File::get(__DIR__ . '/../Funcs/AdminPages/adminpage.func');
-		$func = str_replace(['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
-			[$name, $nameSlugify, $path, $pathSlugify],
+		$func = str_replace(['{{ name }}', '{{ path }}'],
+			[$name, $path],
 			$func);
 
 		// Prepare new line for use class.
 		$use = File::get(__DIR__ . '/../Uses/AdminPages/adminpage.use');
 		$use = str_replace(
-			['{{ name }}', '{{ name_slugify }}', '{{ path }}', '{{ path_slugify }}'],
-			[$name, $nameSlugify, $path, $pathSlugify],
+			['{{ name }}', '{{ path }}'],
+			[$name, $path],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

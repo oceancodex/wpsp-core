@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\NavigationMenus\Locations\{{ name_slugify }};
+use {{ rootNamespace }}\App\WordPress\NavigationMenus\Locations\{{ name }};

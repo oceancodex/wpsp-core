@@ -2,21 +2,22 @@
 
 namespace {{ rootNamespace }}\App\WordPress\RewriteFrontPages;
 
-use {{ rootNamespace }}\App\Traits\InstancesTrait;
+use Illuminate\Http\Request;
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
 use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\Base\BaseRewriteFrontPage;
-use {{ coreNamespace }}\Integration\RankmathSEO;
-use {{ coreNamespace }}\Integration\YoastSEO;
+use {{ coreNamespace }}\App\WordPress\Integration\RankmathSEO;
+use {{ coreNamespace }}\App\WordPress\Integration\YoastSEO;
+use {{ coreNamespace }}\App\WordPress\RewriteFrontPages\BaseRewriteFrontPage;
 
-class {{ name_slugify }} extends BaseRewriteFrontPage {
+class {{ name }} extends BaseRewriteFrontPage {
 
 	use InstancesTrait;
 
 //	public $path                     = null;
 	public $rewriteIdent             = '{{ path }}';
 	public $useTemplate              = {{ use_template }};
-	public $rewriteFrontPageSlug     = '{{ rewrite_page_slug }}'; // You need create a "Page" with the slug like this.
-	public $rewriteFrontPagePostType = '{{ rewrite_page_post_type }}';
+	public $rewriteFrontPageSlug     = '{{ page_slug }}'; // You need create a "Page" with the slug like this.
+	public $rewriteFrontPagePostType = '{{ post_type }}';
 
 	/**
 	 * Private properties.
@@ -59,6 +60,7 @@ class {{ name_slugify }} extends BaseRewriteFrontPage {
 //		echo '<pre>'; print_r($this->request->query->all()); echo '</pre>';
 
 //		$post->post_title = $this->rewriteIdent;
+//		$post->post_content = 'Rewrite front page for path: ' . $this->path;
 
 //		add_filter('yoast_seo_development_mode', '__return_true');
 

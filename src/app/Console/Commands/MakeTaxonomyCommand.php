@@ -14,7 +14,7 @@ class MakeTaxonomyCommand extends Command {
 	protected $signature = 'make:taxonomy
         {name? : The name of the taxonomy.}';
 
-	protected $description = 'Create a new taxonomy.                    | Eg: bin/wpsp make:taxonomy custom_taxonomy';
+	protected $description = 'Create a new taxonomy. | Eg: php artisan make:taxonomy custom_taxonomy';
 
 	protected $help = 'This command allows you to create a taxonomy...';
 
@@ -26,7 +26,7 @@ class MakeTaxonomyCommand extends Command {
 
 		// Interactive ask
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the taxonomy');
+			$name = $this->ask('Please enter the name of the taxonomy (Eg: custom_taxonomy)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the taxonomy. Please try again.');
@@ -34,24 +34,25 @@ class MakeTaxonomyCommand extends Command {
 			}
 		}
 
-		$nameSlugify = Str::slug($name, '_');
+		// Validate
+		$this->validateClassName($name);
 
 		// Path
-		$path = $mainPath . '/app/WordPress/Taxonomies/' . $nameSlugify . '.php';
+		$path = $mainPath . '/app/WordPress/Taxonomies/' . $name . '.php';
 
 		// Check exists
 		if (File::exists($path)) {
-			$this->error('[ERROR] Taxonomy: "' . $name . '" already exists! Please try again.');
+			$this->error('Taxonomy: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
-		/* -------------------------------------------------
+		/** -------------------------------------------------
 		 *  CREATE CLASS FILE
 		 * ------------------------------------------------- */
 		$content = File::get(__DIR__ . '/../Stubs/Taxonomies/taxonomy.stub');
 		$content = str_replace(
-			['{{ className }}', '{{ name }}', '{{ name_slugify }}'],
-			[$nameSlugify, $name, $nameSlugify],
+			['{{ className }}', '{{ name }}'],
+			[$name, $name],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -59,27 +60,27 @@ class MakeTaxonomyCommand extends Command {
 		File::ensureDirectoryExists(dirname($path));
 		File::put($path, $content);
 
-		/* -------------------------------------------------
+		/** -------------------------------------------------
 		 *  ADD TO ROUTE (func + use)
 		 * ------------------------------------------------- */
 		$func = File::get(__DIR__ . '/../Funcs/Taxonomies/taxonomy.func');
 		$func = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$func
 		);
 
 		$use = File::get(__DIR__ . '/../Uses/Taxonomies/taxonomy.use');
 		$use = str_replace(
-			['{{ name }}', '{{ name_slugify }}'],
-			[$name, $nameSlugify],
+			['{{ name }}'],
+			[$name],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);
 
 		$this->addClassToRoute('Taxonomies', 'taxonomies', $func, $use);
 
-		/* -------------------------------------------------
+		/** -------------------------------------------------
 		 *  DONE
 		 * ------------------------------------------------- */
 		$this->info('Created new taxonomy: "' . $name . '"');

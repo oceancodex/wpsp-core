@@ -5,7 +5,7 @@ namespace WPSPCORE\App\Routes\WPRoles;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
- * @method $this role(string $role, callable|array $callback, array $args = [])
+ * @method $this wp_role(string $role, callable|array $callback, array $args = [])
  */
 class WPRoles extends BaseRoute {
 

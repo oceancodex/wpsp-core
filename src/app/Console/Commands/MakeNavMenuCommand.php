@@ -13,7 +13,7 @@ class MakeNavMenuCommand extends Command {
 	protected $signature = 'make:nav-menu
         {name? : The name of the navigation menu.}';
 
-	protected $description = 'Create a new navigation menu.             | Eg: bin/wpsp make:nav-location custom_nav_location';
+	protected $description = 'Create a new navigation menu. | Eg: php artisan make:nav-location custom_nav';
 
 	protected $help = 'This command allows you to create a navigation menu.';
 
@@ -25,7 +25,7 @@ class MakeNavMenuCommand extends Command {
 
 		// Ask interactively
 		if (!$name) {
-			$name = $this->ask('Please enter the name of the navigation menu');
+			$name = $this->ask('Please enter the name of the navigation menu (Eg: custom_nav)');
 
 			if (empty($name)) {
 				$this->error('Missing name for the navigation menu. Please try again.');
@@ -42,6 +42,7 @@ class MakeNavMenuCommand extends Command {
 		// Load stub
 		$content = File::get(__DIR__ . '/../Stubs/NavigationMenus/Menus/navmenu.stub');
 		$content = str_replace('{{ className }}', $name, $content);
+		$content = str_replace('{{ name }}', $name, $content);
 		$content = $this->replaceNamespaces($content);
 
 		// Save file
