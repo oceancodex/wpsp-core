@@ -218,7 +218,7 @@ class Migration extends BaseInstances {
 		$dt                    = new \DateTime('now', $tz);
 		$timestamp             = '[' . $dt->format('Y-m-d H:i:s') . ']';
 		$definedDatabaseTables = $this->getDefinedDatabaseTables();
-		$definedDatabaseTables = array_merge($definedDatabaseTables, ['migrations']);
+		$definedDatabaseTables = array_merge($definedDatabaseTables, ['migrations', 'roles', 'permissions', 'model_has_permissions', 'model_has_roles', 'role_has_permissions']);
 		foreach ($definedDatabaseTables as $definedDatabaseTable) {
 			$tableDropped = $this->dropDatabaseTable($definedDatabaseTable);
 			if ($output) {
