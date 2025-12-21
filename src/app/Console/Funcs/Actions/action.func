@@ -1,0 +1,1 @@
+		Route::action('{{ action }}', [PageController::class, 'demo']);

@@ -18,12 +18,12 @@ class UserMetaBoxes extends BaseRoute {
 	public function execute($route) {
 //		$requestPath = trim($this->request->getRequestUri(), '/\\');
 
-		$path        = $route->path;
-		$fullPath    = $route->fullPath;
-		$callback    = $route->callback;
-		$middlewares = $route->middlewares;
-		$priority    = $route->args['priority'] ?? 10;
-		$argsNumber  = $route->args['args_number'] ?? 1;
+		$path         = $route->path;
+		$fullPath     = $route->fullPath;
+		$callback     = $route->callback;
+		$middlewares  = $route->middlewares;
+		$priority     = $route->args['priority'] ?? 10;
+		$acceptedArgs = $route->args['accepted_args'] ?? 1;
 
 		if ($this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
 			$constructParams = [
@@ -38,8 +38,8 @@ class UserMetaBoxes extends BaseRoute {
 			];
 
 			$callback = $this->prepareRouteCallback($callback, $constructParams);
-			add_action('show_user_profile', $callback, $priority, $argsNumber);
-			add_action('edit_user_profile', $callback, $priority, $argsNumber);
+			add_action('show_user_profile', $callback, $priority, $acceptedArgs);
+			add_action('edit_user_profile', $callback, $priority, $acceptedArgs);
 		}
 	}
 

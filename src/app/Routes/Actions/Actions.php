@@ -18,12 +18,12 @@ class Actions extends BaseRoute {
 	public function execute($route) {
 //		$requestPath = trim($this->request->getRequestUri(), '/\\');
 
-		$path        = $route->path;
-		$fullPath    = $route->fullPath;
-		$callback    = $route->callback;
-		$middlewares = $route->middlewares;
-		$priority    = $route->args['priority'] ?? 10;
-		$argsNumber  = $route->args['args_number'] ?? 1;
+		$path         = $route->path;
+		$fullPath     = $route->fullPath;
+		$callback     = $route->callback;
+		$middlewares  = $route->middlewares;
+		$priority     = $route->args['priority'] ?? 10;
+		$acceptedArgs = $route->args['accepted_args'] ?? 1;
 
 		if ($this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
 			if (is_array($callback) || is_callable($callback) || is_null($callback[1])) {
@@ -39,7 +39,7 @@ class Actions extends BaseRoute {
 				];
 
 				$callback = $this->prepareRouteCallback($callback, $constructParams);
-				add_action($fullPath, $callback, $priority, $argsNumber);
+				add_action($fullPath, $callback, $priority, $acceptedArgs);
 			}
 		}
 	}
