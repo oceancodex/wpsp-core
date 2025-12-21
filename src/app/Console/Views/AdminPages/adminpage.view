@@ -1,13 +1,13 @@
-@extends('modules.admin-pages.layout')
+@extends('admin-pages.layout')
 
 @section('before-admin-page-content')
-    @include('modules.admin-pages.{{ path }}.navigation')
+    @include('admin-pages.{{ path }}.navigation')
 @endsection
 
 @section('content')
     @if(isset($requestParams['tab']) && $requestParams['tab'] == 'tab-1')
-        @include('modules.admin-pages.{{ path }}.tab-1')
+        @include('admin-pages.{{ path }}.tab-1')
     @else
-        @include('modules.admin-pages.{{ path }}.dashboard')
+        @include('admin-pages.{{ path }}.dashboard')
     @endif
 @endsection

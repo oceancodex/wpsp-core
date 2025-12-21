@@ -17,7 +17,7 @@ class {{ className }} extends BaseShortcode {
 	 */
 
 	public function index($atts, $content, $tag) {
-		return Funcs::view('modules.shortcodes.{{ name }}')->render();
+		return Funcs::view('shortcodes.{{ name }}')->render();
 	}
 
 	/*
