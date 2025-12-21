@@ -16,6 +16,8 @@ class MakeActionCommand extends Command {
 	protected $description = 'Create a new action hook. | Eg: php artisan make:action wp_head';
 
 	public function handle() {
+		$this->funcs = $this->getLaravel()->make('funcs');
+
 		$action = $this->argument('action');
 
 		// If no action provided → interactive mode
