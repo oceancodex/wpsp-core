@@ -19,7 +19,7 @@ abstract class BaseNavigationLocation extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
-		$this->overrideLocation($this->extraParams['location']);
+		$this->overrideLocation($this->extraParams['full_path']);
 	}
 
 	/*

@@ -29,7 +29,17 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
-		$this->overrideColumn($this->extraParams['column'] ?? null);
+		$this->overrideColumn($this->extraParams['full_path'] ?? null);
+	}
+
+	/*
+	 *
+	 */
+
+	protected function overrideColumn($column = null) {
+		if ($column && !$this->column) {
+			$this->column = $column;
+		}
 	}
 
 	/*
@@ -125,16 +135,6 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 			}
 
 			$this->afterInit();
-		}
-	}
-
-	/*
-	 *
-	 */
-
-	protected function overrideColumn($column = null) {
-		if ($column && !$this->column) {
-			$this->column = $column;
 		}
 	}
 

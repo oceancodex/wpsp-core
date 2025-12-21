@@ -1,13 +1,13 @@
 <?php
 
-namespace WPSPCORE\App\Routes\PostTypes;
+namespace WPSPCORE\App\Routes\Filters;
 
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
- * @method static $this post_type(string $postType, callable|array $callback, array $args = [])
+ * @method static $this filter(string $filter, callable|array $callback, array $args = [])
  */
-class PostTypes extends BaseRoute {
+class Filters extends BaseRoute {
 
 	public function beforeConstruct() {}
 
@@ -16,12 +16,14 @@ class PostTypes extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
-		$requestPath = trim($this->request->getRequestUri(), '/\\');
+//		$requestPath = trim($this->request->getRequestUri(), '/\\');
 
 		$path        = $route->path;
 		$fullPath    = $route->fullPath;
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares;
+		$priority    = $route->args['priority'] ?? 10;
+		$argsNumber  = $route->args['args_number'] ?? 1;
 
 		if ($this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
 			if (is_array($callback) || is_callable($callback) || is_null($callback[1])) {
@@ -36,10 +38,8 @@ class PostTypes extends BaseRoute {
 					],
 				];
 
-				$callback    = $this->prepareRouteCallback($callback, $constructParams);
-				$callback[1] = 'init';
-				$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
-				$this->resolveAndCall($callback, $callParams);
+				$callback = $this->prepareRouteCallback($callback, $constructParams);
+				add_filter($fullPath, $callback, $priority, $argsNumber);
 			}
 		}
 	}

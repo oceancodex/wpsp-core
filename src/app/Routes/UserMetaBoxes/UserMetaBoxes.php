@@ -16,7 +16,10 @@ class UserMetaBoxes extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
-		$id          = $route->fullPath;
+//		$requestPath = trim($this->request->getRequestUri(), '/\\');
+
+		$path        = $route->path;
+		$fullPath    = $route->fullPath;
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares;
 		$priority    = $route->args['priority'] ?? 10;
@@ -28,7 +31,8 @@ class UserMetaBoxes extends BaseRoute {
 				$this->funcs->_getRootNamespace(),
 				$this->funcs->_getPrefixEnv(),
 				[
-					'id'                => $id,
+					'path'              => $path,
+					'full_path'         => $fullPath,
 					'callback_function' => $callback[1] ?? null,
 				],
 			];

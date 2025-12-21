@@ -19,20 +19,20 @@ class WPRoles extends BaseRoute {
 		$request     = $this->request;
 		$requestPath = trim($request->getRequestUri(), '/\\');
 
-		$middlewares = $route->middlewares;
-		$path        = $role = $route->path;
+		$path        = $route->path;
 		$fullPath    = $route->fullPath;
 		$callback    = $route->callback;
+		$middlewares = $route->middlewares;
 
-		$middlewareArgs    = ['role' => $role];
-		$passedMiddlewares = $this->isPassedMiddleware($middlewares, $request, $middlewareArgs);
+		$passedMiddlewares = $this->isPassedMiddleware($middlewares, $request, ['route' => $route]);
 		if ($passedMiddlewares) {
 			$constructParams = [
 				$this->mainPath,
 				$this->rootNamespace,
 				$this->prefixEnv,
 				[
-					'role'              => $role,
+					'path'              => $path,
+					'full_path'         => $fullPath,
 					'callback_function' => $callback[1] ?? null,
 				],
 			];

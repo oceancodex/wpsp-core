@@ -42,6 +42,7 @@ class Apis extends BaseRoute {
 
 	public function registerRestRoute($route) {
 		$requestPath = trim($this->request->getRequestUri(), '/\\');
+
 		$method      = $route->method;
 		$path        = $route->path;
 		$fullPath    = $route->fullPath;
@@ -76,8 +77,8 @@ class Apis extends BaseRoute {
 			$routeNamespace,
 			$fullPathRegex,
 			[
-				'methods' => strtoupper($method),
-				'callback' => function(\WP_REST_Request $wpRestRequest) use ($callback, $path, $pathRegex, $fullPath, $fullPathRegex, $requestPath, $route) {
+				'methods'             => strtoupper($method),
+				'callback'            => function(\WP_REST_Request $wpRestRequest) use ($callback, $path, $pathRegex, $fullPath, $fullPathRegex, $requestPath, $route) {
 					$callParams = $this->getCallParams(
 						$path,
 						$fullPath,

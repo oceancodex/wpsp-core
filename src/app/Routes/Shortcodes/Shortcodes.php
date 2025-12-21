@@ -16,7 +16,10 @@ class Shortcodes extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
-		$shortcode   = $route->fullPath;
+		$requestPath = trim($this->request->getRequestUri(), '/\\');
+
+		$path        = $route->path;
+		$fullPath    = $route->fullPath;
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares;
 
@@ -26,14 +29,15 @@ class Shortcodes extends BaseRoute {
 				$this->funcs->_getRootNamespace(),
 				$this->funcs->_getPrefixEnv(),
 				[
-					'shortcode'         => $shortcode,
+					'path'              => $path,
+					'full_path'         => $fullPath,
 					'callback_function' => $callback[1] ?? null,
 				],
 			];
 
 			$callback    = $this->prepareRouteCallback($callback, $constructParams);
 			$callback[1] = 'init';
-			$callParams  = $this->getCallParams($shortcode, $shortcode, $route->fullPath, $callback[0], $callback[1]);
+			$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
 			$this->resolveAndCall($callback, $callParams);
 		}
 	}

@@ -18,8 +18,8 @@ class PostTypeColumns extends BaseRoute {
 	public function execute($route) {
 		$requestPath = trim($this->request->getRequestUri(), '/\\');
 
-		$column      = $route->path;
-		$fullColumn  = $route->fullPath;
+		$path        = $route->path;
+		$fullPath    = $route->fullPath;
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares;
 
@@ -30,15 +30,15 @@ class PostTypeColumns extends BaseRoute {
 					$this->funcs->_getRootNamespace(),
 					$this->funcs->_getPrefixEnv(),
 					[
-						'column'            => $column,
-						'full_column'       => $fullColumn,
+						'path'              => $path,
+						'full_path'         => $fullPath,
 						'callback_function' => $callback[1] ?? null,
 					],
 				];
 
 				$callback    = $this->prepareRouteCallback($callback, $constructParams);
 				$callback[1] = 'init';
-				$callParams  = $this->getCallParams($column, $fullColumn, $requestPath, $callback[0], $callback[1]);
+				$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
 				$this->resolveAndCall($callback, $callParams);
 			}
 		}

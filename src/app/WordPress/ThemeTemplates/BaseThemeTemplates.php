@@ -14,7 +14,7 @@ abstract class BaseThemeTemplates extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
-		$this->overrideName($this->extraParams['name']);
+		$this->overrideName($this->extraParams['full_path']);
 		$this->templateInclude();
 	}
 
@@ -41,6 +41,20 @@ abstract class BaseThemeTemplates extends BaseInstances {
 		}
 	}
 
+	/*
+	 *
+	 */
+
+	protected function overrideName($name = null) {
+		if ($name && !$this->name) {
+			$this->name = $name;
+		}
+	}
+
+	/*
+	 *
+	 */
+
 	public function addThemeTemplate($name, $postType = null) {
 		if ($postType) $postType = $postType . '_';
 		add_filter('theme_'.$postType.'templates', function($templates) use ($name) {
@@ -53,16 +67,6 @@ abstract class BaseThemeTemplates extends BaseInstances {
 			$templates[$name] = $this->label ?? $this->funcs->_config('app.short_name') . ' - Custom template';
 			return $templates;
 		});
-	}
-
-	/*
-	 *
-	 */
-
-	protected function overrideName($name = null) {
-		if ($name && !$this->name) {
-			$this->name = $name;
-		}
 	}
 
 	/*

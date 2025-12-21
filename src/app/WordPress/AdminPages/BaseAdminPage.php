@@ -32,7 +32,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
-		$this->overrideMenuSlug($this->extraParams['path']);
+		$this->overrideMenuSlug($this->extraParams['full_path']);
 		if (!$this->screenOptionsKey) {
 			$this->screenOptionsKey = $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
 		}

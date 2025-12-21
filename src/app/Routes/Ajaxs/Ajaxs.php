@@ -45,14 +45,14 @@ class Ajaxs extends BaseRoute {
 	 */
 
 	public function executeMethod($hookAction, $route) {
-		$action      = $route->path;
-		$fullAction  = $route->fullPath;
-		$method      = $route->method;
 		$requestPath = trim($this->request->getRequestUri(), '/\\');
 
-		add_action($hookAction, function() use ($hookAction, $action, $fullAction, $requestPath, $route) {
-			$callback    = $route->callback;
-			$middlewares = $route->middlewares;
+		$path        = $route->path;
+		$fullPath    = $route->fullPath;
+		$callback    = $route->callback;
+		$middlewares = $route->middlewares;
+
+		add_action($hookAction, function() use ($hookAction, $route, $requestPath, $path, $fullPath, $callback, $middlewares) {
 			if (!$this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
 				wp_send_json($this->funcs->_response(false, null, 'Access denied.'), 403);
 				return;
@@ -63,14 +63,14 @@ class Ajaxs extends BaseRoute {
 				$this->funcs->_getRootNamespace(),
 				$this->funcs->_getPrefixEnv(),
 				[
-					'action'            => $action,
-					'full_action'       => $fullAction,
+					'path'              => $path,
+					'full_path'         => $fullPath,
 					'callback_function' => $callback[1] ?? null,
 				],
 			];
 
 			$callback   = $this->prepareRouteCallback($callback, $constructParams);
-			$callParams = $this->getCallParams($action, $fullAction, $requestPath, $callback[0], $callback[1]);
+			$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
 			$this->resolveAndCall($callback, $callParams);
 		});
 

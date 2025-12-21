@@ -15,7 +15,7 @@ abstract class BaseShortcode extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
-		$this->overrideShortcode($this->extraParams['shortcode']);
+		$this->overrideShortcode($this->extraParams['full_path']);
 	}
 
 	/*

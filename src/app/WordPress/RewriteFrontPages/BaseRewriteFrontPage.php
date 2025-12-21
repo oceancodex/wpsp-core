@@ -31,6 +31,22 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 *
 	 */
 
+	private function overridePath($path = null) {
+		if ($path && !$this->path) {
+			$this->path = $path;
+		}
+	}
+
+	private function overrideFullPath($fullPath = null) {
+		if ($fullPath && !$this->fullPath) {
+			$this->fullPath = $fullPath;
+		}
+	}
+
+	/*
+	 *
+	 */
+
 	public function init($path = null, $fullPath = null) {
 		$path     = $this->path ?? $path;
 		$fullPath = $this->fullPath ?? $fullPath;
@@ -106,22 +122,6 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 					$this->resolveAndCall($callback, $callParams);
 				});
 			}
-		}
-	}
-
-	/*
-	 *
-	 */
-
-	private function overridePath($path = null) {
-		if ($path && !$this->path) {
-			$this->path = $path;
-		}
-	}
-
-	private function overrideFullPath($fullPath = null) {
-		if ($fullPath && !$this->fullPath) {
-			$this->fullPath = $fullPath;
 		}
 	}
 

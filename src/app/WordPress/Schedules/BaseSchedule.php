@@ -23,6 +23,10 @@ abstract class BaseSchedule extends BaseInstances {
 		$this->overrideHook($this->extraParams['full_path'] ?? null);
 	}
 
+	/*
+	 *
+	 */
+
 	public function overrideHook($hook = null) {
 		if ($hook && !$this->hook) {
 			$this->hook = $hook;

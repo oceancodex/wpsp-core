@@ -16,11 +16,12 @@ class Schedules extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
+		$requestPath = trim($this->request->getRequestUri(), '/\\');
+
 		$path        = $route->path;
 		$fullPath    = $route->fullPath;
 		$callback    = $route->callback;
 		$interval    = $route->args['interval'] ?? 'hourly';
-		$requestPath = trim($this->request->getRequestUri(), '/\\');
 
 		$constructParams = [
 			$this->funcs->_getMainPath(),

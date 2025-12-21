@@ -186,7 +186,7 @@ class RouteManager extends BaseInstances {
 //			$name        = $routeItem->name;
 //			$middlewares = $routeItem->middlewares;
 
-			if ($method == 'action' || $method == 'filter') {
+			if ($type !== 'Actions' && $type !== 'Filters' && ($method == 'action' || $method == 'filter')) {
 				$route::instance()->hook($routeItem);
 			}
 			elseif ($method == 'remove_action' || $method == 'remove_filter') {

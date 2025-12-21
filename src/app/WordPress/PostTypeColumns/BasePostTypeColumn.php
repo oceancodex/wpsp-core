@@ -29,7 +29,7 @@ abstract class BasePostTypeColumn extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
-		$this->overrideColumn($this->extraParams['column'] ?? null);
+		$this->overrideColumn($this->extraParams['full_path'] ?? null);
 	}
 
 	/*

@@ -4,7 +4,7 @@ namespace WPSPCORE\App\WordPress\MetaBoxes;
 
 use WPSPCORE\BaseInstances;
 
-abstract class BaseMetaBox extends BaseInstances {
+abstract class BaseAction extends BaseInstances {
 
 	public $id                = null;
 	public $title             = 'Custom Meta Box';
@@ -20,7 +20,7 @@ abstract class BaseMetaBox extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
-		$this->overrideId($this->extraParams['full_path'] ?? null);
+		$this->overrideId($this->extraParams['id'] ?? null);
 	}
 
 	/*
