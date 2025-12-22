@@ -21,5 +21,5 @@
  */
 
 /* eslint-disable no-console */
-console.log('Custom block: {{ name }} from frontend!');
+console.log('Custom block "{{ name }}" - frontend script');
 /* eslint-enable no-console */

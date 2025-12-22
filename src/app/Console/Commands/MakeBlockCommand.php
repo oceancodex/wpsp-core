@@ -28,7 +28,7 @@ class MakeBlockCommand extends Command {
 		if (!$name) {
 			$name = $this->ask('Please enter the block name (Eg: custom-block)');
 
-			if (empty($action)) {
+			if (empty($name)) {
 				$this->error('Missing block name. Please try again.');
 				exit;
 			}

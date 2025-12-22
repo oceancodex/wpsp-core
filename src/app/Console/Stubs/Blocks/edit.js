@@ -33,7 +33,7 @@ export default function Edit() {
 	return (
 		<p { ...useBlockProps() }>
 			{ __(
-				'Custom block: {{ name }} from editor!',
+				'Custom block "{{ name }}" - editor content',
 				'{{ textDomain }}'
 			) }
 		</p>
