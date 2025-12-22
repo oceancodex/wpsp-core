@@ -99,6 +99,8 @@ class MakeBlockCommand extends Command {
 				$view
 			);
 
+			$view = $this->replaceNamespaces($view);
+
 			File::put($viewDirPath . "/{$viewFile}", $view);
 		}
 
