@@ -124,8 +124,14 @@ class MakeBlockCommand extends Command {
 		// Add to routes
 		$this->addClassToRoute('Blocks', 'blocks', $func, $use);
 
+		$this->warn('The block "' . $name . '" is currently being built...');
+		$this->newLine();
+
+		// Build block.
+		exec('npm run blocks-build');
+
 		// Output
-		$this->info("Created new action hook: {$name}");
+		$this->info("Created new block: {$name}");
 
 		exit;
 	}
