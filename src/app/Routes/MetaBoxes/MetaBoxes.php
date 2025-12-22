@@ -16,11 +16,14 @@ class MetaBoxes extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
-		$id          = $route->fullPath;
-		$callback    = $route->callback;
-		$middlewares = $route->middlewares;
-		$priority    = $route->args['priority'] ?? 10;
-		$argsNumber  = $route->args['args_number'] ?? 1;
+		$requestPath = trim($this->request->getRequestUri(), '/\\');
+
+		$path         = $route->path;
+		$fullPath     = $route->fullPath;
+		$callback     = $route->callback;
+		$middlewares  = $route->middlewares;
+		$priority     = $route->args['priority'] ?? 10;
+		$acceptedArgs = $route->args['accepted_args'] ?? 1;
 
 		if ($this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
 			$constructParams = [
@@ -28,13 +31,14 @@ class MetaBoxes extends BaseRoute {
 				$this->funcs->_getRootNamespace(),
 				$this->funcs->_getPrefixEnv(),
 				[
-					'id'                => $id,
+					'path'              => $path,
+					'full_path'         => $fullPath,
 					'callback_function' => $callback[1] ?? null,
 				],
 			];
 			$callback        = $this->prepareRouteCallback($callback, $constructParams);
 			$callback[1]     = 'init';
-			add_action('add_meta_boxes', $callback, $priority, $argsNumber);
+			add_action('add_meta_boxes', $callback, $priority, $acceptedArgs);
 		}
 	}
 

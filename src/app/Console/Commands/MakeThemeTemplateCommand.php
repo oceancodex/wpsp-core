@@ -48,7 +48,7 @@ class MakeThemeTemplateCommand extends Command {
 		 *  Check exists
 		 * ------------------------------------------------- */
 		$classPath = $mainPath . '/app/WordPress/ThemeTemplates/' . $name . '.php';
-		$viewPath  = $mainPath . '/resources/views/modules/theme-templates/' . $name . '.php';
+		$viewPath  = $mainPath . '/resources/views/theme-templates/' . $name . '.php';
 
 		if (File::exists($classPath)) {
 			$this->error('Template: "' . $name . '" already exists! Please try again.');
@@ -60,7 +60,7 @@ class MakeThemeTemplateCommand extends Command {
 		 * ------------------------------------------------- */
 		$content = File::get(__DIR__ . '/../Stubs/ThemeTemplates/theme-template.stub');
 		$content = str_replace(
-			['{{ className }}', '{{ name }}', '{{ post_type }}'],
+			['{{ className }}', '{{ name }}', '{{ postType }}'],
 			[$name, $name, $postType],
 			$content
 		);
@@ -74,7 +74,7 @@ class MakeThemeTemplateCommand extends Command {
 		 * ------------------------------------------------- */
 		$view = File::get(__DIR__ . '/../Views/ThemeTemplates/theme-template.view');
 		$view = str_replace(
-			['{{ name }}', '{{ post_type }}'],
+			['{{ name }}', '{{ postType }}'],
 			[$name, $postType],
 			$view
 		);
@@ -87,14 +87,14 @@ class MakeThemeTemplateCommand extends Command {
 		 * ------------------------------------------------- */
 		$func = File::get(__DIR__ . '/../Funcs/ThemeTemplates/theme-template.func');
 		$func = str_replace(
-			['{{ name }}', '{{ post_type }}'],
+			['{{ name }}', '{{ postType }}'],
 			[$name, $postType],
 			$func
 		);
 
 		$use = File::get(__DIR__ . '/../Uses/ThemeTemplates/theme-template.use');
 		$use = str_replace(
-			['{{ name }}', '{{ post_type }}'],
+			['{{ name }}', '{{ postType }}'],
 			[$name, $postType],
 			$use
 		);

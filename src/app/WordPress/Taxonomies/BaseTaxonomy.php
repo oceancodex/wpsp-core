@@ -20,9 +20,12 @@ abstract class BaseTaxonomy extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
-		$this->overrideTaxonomy($this->extraParams['taxonomy']);
+		$this->overrideTaxonomy($this->extraParams['full_path']);
 		$this->prepareArguments();
-		$this->prepareArguments($this->args);
+	}
+
+	public function afterInstanceConstruct() {
+		$this->prepareArgumentsAfterCustomProperties();
 	}
 
 	/*
@@ -46,19 +49,32 @@ abstract class BaseTaxonomy extends BaseInstances {
 		}
 	}
 
-	protected function prepareArguments($args = null) {
-		$this->args = new TaxonomyData($this, $args);
+	protected function prepareArguments() {
+		$this->args = new TaxonomyData($this);
+
 		foreach ($this->toArray() as $key => $value) {
 			if (property_exists($this->args, $key)) {
 				$this->args->{$key} = $value;
-//				unset($this->args->{$key});
 			}
-			if (array_key_exists($key, $this->args->labels) && !$args) {
+			if (array_key_exists($key, $this->args->labels)) {
 				$this->args->labels[$key] = $value;
-				unset($this->args->{$key});
 			}
 		}
-		unset($this->args->args);
+	}
+
+	protected function prepareArgumentsAfterCustomProperties() {
+		foreach ($this->toArray() as $key => $value) {
+			if (property_exists($this->args, $key)) {
+				$this->args->{$key} = $value;
+			}
+			if (array_key_exists($key, $this->args->labels)) {
+				$this->args->labels[$key] = $value;
+			}
+		}
+
+		// Unset taxonomy from args.
+		unset($this->args->taxonomy);
+		unset($this->args->previousArgs);
 	}
 
 }

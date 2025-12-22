@@ -16,11 +16,12 @@ class Schedules extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
+		$requestPath = trim($this->request->getRequestUri(), '/\\');
+
 		$path        = $route->path;
 		$fullPath    = $route->fullPath;
 		$callback    = $route->callback;
 		$interval    = $route->args['interval'] ?? 'hourly';
-		$requestPath = trim($this->request->getRequestUri(), '/\\');
 
 		$constructParams = [
 			$this->funcs->_getMainPath(),
@@ -39,6 +40,20 @@ class Schedules extends BaseRoute {
 		$callback    = $this->prepareRouteCallback($callback, $constructParams);
 		$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
 		$this->resolveAndCall($callback, $callParams);
+	}
+
+	/*
+	 *
+	 */
+
+	public static function interval($name, $interval, $display) {
+		add_filter('cron_schedules', function($schedules) use ($name, $interval, $display) {
+			$schedules[$name] = [
+				'interval' => $interval,
+				'display'  => $display
+			];
+			return $schedules;
+		});
 	}
 
 }

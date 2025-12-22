@@ -15,9 +15,9 @@ class {{ name }} extends BaseRewriteFrontPage {
 
 //	public $path                     = null;
 	public $rewriteIdent             = '{{ path }}';
-	public $useTemplate              = {{ use_template }};
-	public $rewriteFrontPageSlug     = '{{ page_slug }}'; // You need create a "Page" with the slug like this.
-	public $rewriteFrontPagePostType = '{{ post_type }}';
+	public $useTemplate              = {{ useTemplate }};
+	public $rewriteFrontPageSlug     = '{{ pageSlug }}'; // You need create a "Page" with the slug like this.
+	public $rewriteFrontPagePostType = '{{ postType }}';
 
 	/**
 	 * Private properties.

@@ -16,7 +16,10 @@ class Taxonomies extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
-		$taxonomy    = $route->fullPath;
+		$requestPath = trim($this->request->getRequestUri(), '/\\');
+
+		$path        = $route->path;
+		$fullPath    = $route->fullPath;
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares;
 		if ($this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
@@ -25,14 +28,15 @@ class Taxonomies extends BaseRoute {
 				$this->funcs->_getRootNamespace(),
 				$this->funcs->_getPrefixEnv(),
 				[
-					'taxonomy'          => $taxonomy,
+					'path'              => $path,
+					'full_path'         => $fullPath,
 					'callback_function' => $callback[1] ?? null,
 				],
 			];
 
 			$callback    = $this->prepareRouteCallback($callback, $constructParams);
 			$callback[1] = 'init';
-			$callParams  = $this->getCallParams($taxonomy, $taxonomy, $route->fullPath, $callback[0], $callback[1]);
+			$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
 			$this->resolveAndCall($callback, $callParams);
 		}
 	}

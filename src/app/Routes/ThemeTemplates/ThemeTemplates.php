@@ -16,24 +16,28 @@ class ThemeTemplates extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
-		$name        = $route->fullPath;
+		$path        = $route->path;
+		$fullPath    = $route->fullPath;
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares;
 
 		if ($this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
+			$requestPath = trim($this->request->getRequestUri(), '/\\');
+
 			$constructParams = [
 				$this->funcs->_getMainPath(),
 				$this->funcs->_getRootNamespace(),
 				$this->funcs->_getPrefixEnv(),
 				[
-					'name'              => $name,
+					'path'              => $path,
+					'full_path'         => $fullPath,
 					'callback_function' => $callback[1] ?? null,
 				],
 			];
 
 			$callback    = $this->prepareRouteCallback($callback, $constructParams);
 			$callback[1] = 'init';
-			$callParams  = $this->getCallParams($name, $name, $route->fullPath, $callback[0], $callback[1]);
+			$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
 			$this->resolveAndCall($callback, $callParams);
 		}
 	}

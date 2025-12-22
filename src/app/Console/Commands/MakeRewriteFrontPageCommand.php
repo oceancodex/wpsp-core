@@ -55,7 +55,7 @@ class MakeRewriteFrontPageCommand extends Command {
 
 		// Check exists
 		$componentPath = $mainPath . '/app/WordPress/RewriteFrontPages/' . $name . '.php';
-		$viewPath      = $mainPath . '/resources/views/modules/rewrite-front-pages/' . $path . '.blade.php';
+		$viewPath      = $mainPath . '/resources/views/rewrite-front-pages/' . $path . '.blade.php';
 
 		if (File::exists($componentPath) || File::exists($viewPath)) {
 			$this->error('Rewrite front page: "' . $name . '" already exists! Please try again.');
@@ -72,9 +72,9 @@ class MakeRewriteFrontPageCommand extends Command {
 				'{{ name }}',
 				'{{ path }}',
 				'{{ method }}',
-				'{{ post_type }}',
-				'{{ page_slug }}',
-				'{{ use_template }}',
+				'{{ postType }}',
+				'{{ pageSlug }}',
+				'{{ useTemplate }}',
 			],
 			[
 				$name,
@@ -106,8 +106,8 @@ class MakeRewriteFrontPageCommand extends Command {
 				'{{ name }}',
 				'{{ path }}',
 				'{{ method }}',
-				'{{ post_type }}',
-				'{{ page_slug }}',
+				'{{ postType }}',
+				'{{ pageSlug }}',
 			],
 			[
 				$name,
@@ -131,8 +131,8 @@ class MakeRewriteFrontPageCommand extends Command {
 				'{{ name }}',
 				'{{ path }}',
 				'{{ method }}',
-				'{{ post_type }}',
-				'{{ page_slug }}',
+				'{{ postType }}',
+				'{{ pageSlug }}',
 			],
 			[
 				$name,
@@ -150,8 +150,8 @@ class MakeRewriteFrontPageCommand extends Command {
 				'{{ name }}',
 				'{{ path }}',
 				'{{ method }}',
-				'{{ post_type }}',
-				'{{ page_slug }}',
+				'{{ postType }}',
+				'{{ pageSlug }}',
 			],
 			[
 				$name,

@@ -1,0 +1,1 @@
+use {{ rootNamespace }}\App\Http\Controllers\PagesController;

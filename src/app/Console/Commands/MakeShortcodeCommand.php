@@ -45,7 +45,7 @@ class MakeShortcodeCommand extends Command {
 
 		// Paths
 		$classPath = $mainPath . '/app/WordPress/Shortcodes/' . $name . '.php';
-		$viewPath  = $mainPath . '/resources/views/modules/shortcodes/' . $name . '.blade.php';
+		$viewPath  = $mainPath . '/resources/views/shortcodes/' . $name . '.blade.php';
 
 		// Check exists
 		if (File::exists($classPath)) {

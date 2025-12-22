@@ -20,7 +20,7 @@ abstract class BaseWPRole extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
-		$this->overrideRole($this->extraParams['role']);
+		$this->overrideRole($this->extraParams['full_path']);
 	}
 
 	/*

@@ -46,7 +46,7 @@ class MakeAdminPageCommand extends Command {
 
 		// Prepare paths.
 		$adminClassPath = $mainPath . '/app/WordPress/AdminPages/' . $name . '.php';
-		$viewDirPath    = $mainPath . '/resources/views/modules/admin-pages/' . $path;
+		$viewDirPath    = $mainPath . '/resources/views/admin-pages/' . $path;
 
 		// Check exist.
 		if (File::exists($adminClassPath) || File::exists($viewDirPath)) {

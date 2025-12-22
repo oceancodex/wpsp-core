@@ -186,7 +186,13 @@ class RouteManager extends BaseInstances {
 //			$name        = $routeItem->name;
 //			$middlewares = $routeItem->middlewares;
 
-			if ($method == 'action' || $method == 'filter') {
+			/**
+			 * Nếu route là Actions hoặc Filters thì method sẽ là "action" và "filter".\
+			 * Như thế sẽ chạy vào hook() thay vì execute() => Sai\
+			 * Vì vậy cần phải lọc điều kiện "type" để loại trừ việc Actions và Filter chạy hook().\
+			 * Actions và Filters cần phải chạy phương thức execute() tương tự các route khác.
+			 */
+			if ($type !== 'Actions' && $type !== 'Filters' && ($method == 'action' || $method == 'filter')) {
 				$route::instance()->hook($routeItem);
 			}
 			elseif ($method == 'remove_action' || $method == 'remove_filter') {

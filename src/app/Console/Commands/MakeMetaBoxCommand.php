@@ -45,7 +45,7 @@ class MakeMetaBoxCommand extends Command {
 
 		// Check exists
 		$componentPath = $mainPath . '/app/WordPress/MetaBoxes/' . $id . '.php';
-		$viewPath      = $mainPath . '/resources/views/modules/meta-boxes/' . $id . '.blade.php';
+		$viewPath      = $mainPath . '/resources/views/meta-boxes/' . $id . '.blade.php';
 
 		if (File::exists($componentPath)) {
 			$this->error('Meta box "' . $id . '" already exists! Please try again.');

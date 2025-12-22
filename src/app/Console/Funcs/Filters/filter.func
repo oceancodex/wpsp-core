@@ -1,0 +1,1 @@
+		Route::filter('{{ filter }}', [PagesController::class, 'demo']);

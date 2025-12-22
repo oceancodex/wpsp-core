@@ -18,7 +18,8 @@ class PostTypes extends BaseRoute {
 	public function execute($route) {
 		$requestPath = trim($this->request->getRequestUri(), '/\\');
 
-		$postType    = $route->path;
+		$path        = $route->path;
+		$fullPath    = $route->fullPath;
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares;
 
@@ -29,14 +30,15 @@ class PostTypes extends BaseRoute {
 					$this->funcs->_getRootNamespace(),
 					$this->funcs->_getPrefixEnv(),
 					[
-						'post_type'         => $postType,
+						'path'              => $path,
+						'full_path'         => $fullPath,
 						'callback_function' => $callback[1] ?? null,
 					],
 				];
 
 				$callback    = $this->prepareRouteCallback($callback, $constructParams);
 				$callback[1] = 'init';
-				$callParams  = $this->getCallParams($postType, $postType, $requestPath, $callback[0], $callback[1]);
+				$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
 				$this->resolveAndCall($callback, $callParams);
 			}
 		}
