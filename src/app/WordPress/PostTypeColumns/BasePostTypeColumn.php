@@ -107,7 +107,11 @@ abstract class BasePostTypeColumn extends BaseInstances {
 				/**
 				 * The column content.
 				 */
-				add_action('manage_' . $post_type . '_posts_custom_column', [$this, $this->callback_function], $this->column_content_priority, 2);
+				add_action('manage_' . $post_type . '_posts_custom_column', function($columnName, $postId) use ($column) {
+					if ($columnName === $column) {
+						call_user_func_array([$this, $this->callback_function], func_get_args());
+					}
+				}, $this->column_content_priority, 2);
 
 				/**
 				 * Sortable column.
