@@ -8,4 +8,10 @@ trait ActionsRouteTrait {
 		$this->actions();
 	}
 
+	/*
+	 *
+	 */
+
+	abstract public function actions();
+
 }

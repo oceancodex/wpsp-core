@@ -87,7 +87,7 @@ abstract class BaseThemeTemplates extends BaseInstances {
 							if ($seletedTemplatePath) {
 								$seletedTemplatePath = preg_replace('/%%slash%%/iu', '/', $seletedTemplatePath);
 							}
-							$filePath = $seletedTemplatePath ?? $this->funcs->_getResourcesPath('/views/modules/theme-templates/' . $seletedTemplateName);
+							$filePath = $seletedTemplatePath ?? $this->funcs->_getResourcesPath('/views/theme-templates/' . $seletedTemplateName);
 							if (file_exists($filePath)) {
 								return $filePath;
 							}

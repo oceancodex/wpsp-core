@@ -49,7 +49,7 @@ class MakeUserMetaBoxCommand extends Command {
 		 *  CHECK EXISTS
 		 * ------------------------------------------------- */
 		$classPath = $mainPath . '/app/WordPress/UserMetaBoxes/' . $id . '.php';
-		$viewDir   = $mainPath . '/resources/views/modules/user-meta-boxes/' . $id;
+		$viewDir   = $mainPath . '/resources/views/user-meta-boxes/' . $id;
 
 		if (File::exists($classPath) || File::exists($viewDir)) {
 			$this->error('User meta box: "' . $id . '" already exists! Please try again.');

@@ -13,14 +13,14 @@ class {{ className }} extends BaseThemeTemplates {
 //	public $name       = '{{ name }}';
 	public $label      = '[{{ rootNamespace }}] Template: {{ name }}';
 //	public $path       = null;
-	public $post_types = ['{{ post_type }}'];
+	public $post_types = ['{{ postType }}'];
 
 	/*
 	 *
 	 */
 
 	public function customProperties() {
-//		$this->path = Funcs::instance()->_getResourcesPath('/views/modules/theme-templates/' . $this->name . '.blade.php');
+//		$this->path = Funcs::instance()->_getResourcesPath('/views/theme-templates/' . $this->name . '.blade.php');
 	}
 
 }

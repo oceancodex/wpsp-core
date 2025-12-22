@@ -22,18 +22,4 @@ trait SchedulesRouteTrait {
 
 	abstract public function schedules();
 
-	/*
-	 *
-	 */
-
-	public function interval($name, $interval, $display) {
-		add_filter('cron_schedules', function($schedules) use ($name, $interval, $display) {
-			$schedules[$name] = [
-				'interval' => $interval,
-				'display'  => $display
-			];
-			return $schedules;
-		});
-	}
-
 }

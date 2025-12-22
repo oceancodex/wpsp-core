@@ -42,4 +42,18 @@ class Schedules extends BaseRoute {
 		$this->resolveAndCall($callback, $callParams);
 	}
 
+	/*
+	 *
+	 */
+
+	public static function interval($name, $interval, $display) {
+		add_filter('cron_schedules', function($schedules) use ($name, $interval, $display) {
+			$schedules[$name] = [
+				'interval' => $interval,
+				'display'  => $display
+			];
+			return $schedules;
+		});
+	}
+
 }

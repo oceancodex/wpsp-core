@@ -1,0 +1,11 @@
+<?php
+namespace {{ rootNamespace }}\App\WordPress\Blocks;
+
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
+use {{ coreNamespace }}\App\WordPress\Blocks\BaseBlock;
+
+class {{ className }} extends BaseBlock {
+
+	use InstancesTrait;
+
+}

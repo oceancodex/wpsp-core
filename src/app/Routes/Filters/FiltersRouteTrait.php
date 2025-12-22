@@ -8,4 +8,10 @@ trait FiltersRouteTrait {
 		$this->filters();
 	}
 
+	/*
+	 *
+	 */
+
+	abstract public function filters();
+
 }
