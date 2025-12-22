@@ -117,7 +117,12 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 				/**
 				 * The column content.
 				 */
-				add_filter('manage_' . $taxonomy . '_custom_column', [$this, $this->callback_function], $this->column_content_priority, 3);
+				add_filter('manage_' . $taxonomy . '_custom_column', function($content, $columnName, $termId) use ($column) {
+					if ($columnName === $column) {
+						return call_user_func_array([$this, $this->callback_function], func_get_args());
+					}
+					return $content;
+				}, $this->column_content_priority, 3);
 
 				/**
 				 * Sortable column.
