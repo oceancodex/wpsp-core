@@ -151,14 +151,22 @@ abstract class BaseAdminPage extends BaseInstances {
 	private function matchHighlightMenu() {
 		$currentRequest = $this->request->getRequestUri();
 
-		if (preg_match('/' . preg_quote($this->menu_slug, '/') . '/', $currentRequest)
-			|| preg_match('/' . preg_quote($this->menu_slug, '/') . '&updated=true$/', $currentRequest)
+		/**
+		 * Khi truy cập submenu, highlight nó.
+		 */
+		if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '/', $currentRequest)
+			|| preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '&updated=true$/', $currentRequest)
 		) {
 			add_filter('submenu_file', function($submenu_file) {
 				return $this->menu_slug;
 			});
 		}
 
+		/**
+		 * Xử lý $urlsMatchHighlightMenu.\
+		 * Nếu có một trong các url khớp với request hiện tại,\
+		 * thì highlight submenu nơi khai báo "urlsMatchHighlightMenu".
+		 */
 		if (is_array($this->urlsMatchHighlightMenu)) {
 			foreach ($this->urlsMatchHighlightMenu as $urlMatchHighlightMenu) {
 				$urlMatchHighlightMenu = '/' . preg_quote($urlMatchHighlightMenu, '/') . '/iu';
@@ -177,9 +185,26 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	private function matchCurrentAccess() {
 		$currentRequest = $this->request->getRequestUri();
-		foreach ($this->urlsMatchCurrentAccess as $url_match_current_access) {
-			$url_match_current_access = '/' . $this->funcs->_regexPath($url_match_current_access) . '/iu';
-			if (preg_match($url_match_current_access, $currentRequest)) {
+
+		/**
+		 * Khi menu_slug khớp với request hiện tại.\
+		 * Nhận định đang truy cập vào menu_slug này.\
+		 * Chạy hàm "currentScreen" để thực hiện các công việc liên quan đến trang hiện tại.
+		 */
+		if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '/iu', $currentRequest)) {
+			add_action('current_screen', function($screen) {
+				$this->currentScreen($screen);
+			});
+		}
+
+		/**
+		 * Xử lý $urlsMatchCurrentAccess.\
+		 * Nếu có một trong các url khớp với request hiện tại,\
+		 * thì chạy hàm "screenOptions" và "matchedCurrentAccess".
+		 */
+		foreach ($this->urlsMatchCurrentAccess as $urlMatchCurrentAccess) {
+			$urlMatchCurrentAccess = '/' . $this->funcs->_regexPath($urlMatchCurrentAccess) . '/iu';
+			if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
 				$this->screenOptions();
 				$this->matchedCurrentAccess();
 				break;
@@ -193,8 +218,6 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public function beforeInit() {}
 
-	public function afterInit() {}
-
 	public function afterAddAdminPage($adminPage) {}
 
 	public function beforeLoadAdminPage($adminPage) {}
@@ -205,7 +228,11 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public function afterLoadAdminPage($adminPage) {}
 
+	public function currentScreen($screen) {}
+
 	public function matchedCurrentAccess() {}
+
+	public function afterInit() {}
 
 	/*
 	 *
@@ -218,8 +245,8 @@ abstract class BaseAdminPage extends BaseInstances {
 	}
 
 	public function screenOptions() {
-		// Custom screen options panel.
 		if ($this->showScreenOptions) {
+			// Custom screen options.
 			add_action('current_screen', function($screen) {
 				// Ghi đè "screen id" và "screen base".
 				// Mục đích để screen options hoạt động độc lập theo "screen_options_key".
