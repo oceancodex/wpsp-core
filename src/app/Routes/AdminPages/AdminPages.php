@@ -188,7 +188,7 @@ class AdminPages extends BaseRoute {
 						}
 					}
 					else {
-						if (($callback[1] == 'index' || !isset($callback[1]))) $callback[1] = 'init';
+						if (isset($callback[1]) && $callback[1] == 'index' || !isset($callback[1])) $callback[1] = 'init';
 						$callback   = $this->prepareRouteCallback($callback, $constructParams);
 						$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
 						$this->resolveAndCall($callback, $callParams);
