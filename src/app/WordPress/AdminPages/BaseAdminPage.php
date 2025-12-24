@@ -163,7 +163,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		}
 
 		/**
-		 * Xử lý $urlsMatchHighlightMenu.\
+		 * Xử lý "urlsMatchHighlightMenu".\
 		 * Nếu có một trong các url khớp với request hiện tại,\
 		 * thì highlight submenu nơi khai báo "urlsMatchHighlightMenu".
 		 */
@@ -192,19 +192,16 @@ abstract class BaseAdminPage extends BaseInstances {
 		/**
 		 * Khi menu_slug khớp với request hiện tại.\
 		 * Nhận định đang truy cập vào menu_slug này.\
-		 * Chạy hàm "currentScreen" và "screenOptions".
+		 * Chạy hàm "screenOptions".
 		 */
 		if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
-			add_action('current_screen', function($screen) {
-				$this->currentScreen($screen);
-			});
 			$this->screenOptions();
 		}
 
 		/**
-		 * Xử lý $urlsMatchCurrentAccess.\
+		 * Xử lý "urlsMatchCurrentAccess".\
 		 * Nếu có một trong các url khớp với request hiện tại,\
-		 * thì chạy hàm "currentScreen", "screenOptions" và "matchedCurrentAccess".
+		 * thì chạy hàm "screenOptions" và "matchedCurrentAccess".
 		 */
 		foreach ($this->urlsMatchCurrentAccess as $urlMatchCurrentAccess) {
 			// Nếu URL không phải regex, hãy chuyển nó thành regex.
@@ -212,9 +209,6 @@ abstract class BaseAdminPage extends BaseInstances {
 				$urlMatchCurrentAccess = '/' . $this->funcs->_regexPath($urlMatchCurrentAccess) . '/iu';
 			}
 			if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
-				add_action('current_screen', function($screen) {
-					$this->currentScreen($screen);
-				});
 				$this->screenOptions();
 				$this->matchedCurrentAccess();
 				break;
@@ -262,6 +256,9 @@ abstract class BaseAdminPage extends BaseInstances {
 		if ($this->showScreenOptions) {
 			// Custom screen options.
 			add_action('current_screen', function($screen) {
+				// Xử lý "currentScreen".
+				$this->currentScreen($screen);
+
 				// Ghi đè "screen id" và "screen base".
 				// Mục đích để screen options hoạt động độc lập theo "screen_options_key".
 				$screen->id   = $this->screenOptionsKey;
