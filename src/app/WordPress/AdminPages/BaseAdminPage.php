@@ -169,7 +169,10 @@ abstract class BaseAdminPage extends BaseInstances {
 		 */
 		if (is_array($this->urlsMatchHighlightMenu)) {
 			foreach ($this->urlsMatchHighlightMenu as $urlMatchHighlightMenu) {
-				$urlMatchHighlightMenu = '/' . preg_quote($urlMatchHighlightMenu, '/') . '/iu';
+				// Nếu URL không phải regex, hãy chuyển nó thành regex.
+				if (!str_starts_with($urlMatchHighlightMenu, '/')) {
+					$urlMatchHighlightMenu = '/' . $this->funcs->_regexPath($urlMatchHighlightMenu) . '/iu';
+				}
 				if (preg_match($urlMatchHighlightMenu, $currentRequest)) {
 					add_filter('parent_file', function($parent_file) {
 						return $this->parent_slug;
@@ -189,22 +192,29 @@ abstract class BaseAdminPage extends BaseInstances {
 		/**
 		 * Khi menu_slug khớp với request hiện tại.\
 		 * Nhận định đang truy cập vào menu_slug này.\
-		 * Chạy hàm "currentScreen" để thực hiện các công việc liên quan đến trang hiện tại.
+		 * Chạy hàm "currentScreen" và "screenOptions".
 		 */
-		if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '/iu', $currentRequest)) {
+		if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
 			add_action('current_screen', function($screen) {
 				$this->currentScreen($screen);
 			});
+			$this->screenOptions();
 		}
 
 		/**
 		 * Xử lý $urlsMatchCurrentAccess.\
 		 * Nếu có một trong các url khớp với request hiện tại,\
-		 * thì chạy hàm "screenOptions" và "matchedCurrentAccess".
+		 * thì chạy hàm "currentScreen", "screenOptions" và "matchedCurrentAccess".
 		 */
 		foreach ($this->urlsMatchCurrentAccess as $urlMatchCurrentAccess) {
-			$urlMatchCurrentAccess = '/' . $this->funcs->_regexPath($urlMatchCurrentAccess) . '/iu';
+			// Nếu URL không phải regex, hãy chuyển nó thành regex.
+			if (!str_starts_with($urlMatchCurrentAccess, '/')) {
+				$urlMatchCurrentAccess = '/' . $this->funcs->_regexPath($urlMatchCurrentAccess) . '/iu';
+			}
 			if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
+				add_action('current_screen', function($screen) {
+					$this->currentScreen($screen);
+				});
 				$this->screenOptions();
 				$this->matchedCurrentAccess();
 				break;
@@ -245,6 +255,10 @@ abstract class BaseAdminPage extends BaseInstances {
 	}
 
 	public function screenOptions() {
+		/**
+		 * Nếu menu hiện tại có thể hiển thị screen options.\
+		 * Hãy hiển thị screen options khi truy cập.
+		 */
 		if ($this->showScreenOptions) {
 			// Custom screen options.
 			add_action('current_screen', function($screen) {
@@ -261,6 +275,15 @@ abstract class BaseAdminPage extends BaseInstances {
 			add_filter('set_screen_option_' . $this->screenOptionsKey . '_items_per_page', function($default, $option, $value) {
 				return $value;
 			}, 999999999, 3);
+		}
+		/**
+		 * Nếu không, ẩn hoàn toàn screen options.\
+		 * Vì nếu menu hiện tại có chứa Custom List Table, screen options sẽ tự động hiển thị.
+		 */
+		else {
+			add_filter('screen_options_show_screen', function() {
+				return false;
+			});
 		}
 	}
 
