@@ -220,32 +220,39 @@ class {{ className }} extends BaseListTable {
 			$model = \{{ rootNamespace }}\App\Models\SettingsModel::query();
 
 			/**
-			 * Cache tổng số lượng bản ghi trong 300s
-			 * Dùng để phân trang (pagination)
+			 * Cache tổng số lượng bản ghi trong 300s\
+			 * Dùng để tối ưu phân trang (pagination)
 			 */
-			$this->total_items = Cache::remember('settings.total', 300, function() use ($model) {
-				return $model->count();
-			});
+//			$this->total_items = Cache::remember('{{ className }}.total', 300, function() use ($model) {
+//				return $model->count();
+//			});
+            $this->total_items = $model->count();
 
 			$take = $this->itemsPerPage;          // số item mỗi trang
 			$skip = ($this->paged - 1) * $take;   // offset trong SQL
 
 			/**
-			 * Tạo key riêng cho mỗi trang và mỗi trạng thái order
+			 * Tạo key riêng cho mỗi trang và mỗi trạng thái order.
 			 */
-			$pageKey = "settings.page.{$this->paged}.{$this->itemsPerPage}.{$this->orderby}.{$this->order}";
+			$pageKey = "{{ className }}.page.{$this->paged}.{$this->itemsPerPage}.{$this->orderby}.{$this->order}";
 
-			$data = Cache::remember($pageKey, 180, function() use ($skip, $take, $model) {
+			/**
+			 * Cache dữ liệu cho mỗi trang.\
+			 * Dùng để tối ưu phân trang (pagination)
+			 */
+//			$data = Cache::remember($pageKey, 180, function() use ($skip, $take, $model) {
+//				return $model->orderBy($this->orderby, $this->order)
+//					->skip($skip)
+//					->take($take)
+//					->get()
+//					->toArray();
+//			});
 
-				/**
-				 * Query thực tế: ORDER + LIMIT + OFFSET
-				 */
-				return $model->orderBy($this->orderby, $this->order)
-					->skip($skip)
-					->take($take)
-					->get()
-					->toArray();
-			});
+			$data = $model->orderBy($this->orderby, $this->order)
+				->skip($skip)
+				->take($take)
+				->get()
+				->toArray();
 
 			return $data;
 		}
