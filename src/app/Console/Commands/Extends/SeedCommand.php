@@ -10,6 +10,13 @@ class SeedCommand extends Command {
 	use CommandsTrait;
 
 	/**
+	 * The console command description.
+	 *
+	 * @var string
+	 */
+	protected $description = 'Seed the database with records. [WPSP]';
+
+	/**
 	 * Initializes the command after the input has been bound and before the input
 	 * is validated.
 	 *
