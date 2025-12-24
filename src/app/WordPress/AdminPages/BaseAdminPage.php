@@ -195,6 +195,10 @@ abstract class BaseAdminPage extends BaseInstances {
 		 * Chạy hàm "currentScreen" và "screenOptions".
 		 */
 		if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
+			/**
+			 * Cần chạy hàm "currentScreen" tại đây.\
+			 * Vì đôi khi muốn khởi tạo Custom List Table mà không hiển thị screen options panel.
+			 */
 			add_action('current_screen', function($screen) {
 				$this->currentScreen($screen);
 			});
@@ -212,6 +216,10 @@ abstract class BaseAdminPage extends BaseInstances {
 				$urlMatchCurrentAccess = '/' . $this->funcs->_regexPath($urlMatchCurrentAccess) . '/iu';
 			}
 			if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
+				/**
+				 * Cần chạy hàm "currentScreen" tại đây.\
+				 * Vì đôi khi muốn khởi tạo Custom List Table mà không hiển thị screen options panel.
+				 */
 				add_action('current_screen', function($screen) {
 					$this->currentScreen($screen);
 				});
