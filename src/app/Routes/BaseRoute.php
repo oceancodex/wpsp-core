@@ -8,12 +8,12 @@ use WPSPCORE\BaseInstances;
 /**
  * Hỗ trợ gọi động: prefix(), name(), middleware(), group(),
  *
- * @method $this name(string $name)
- * @method $this group($callback)
- * @method $this prefix(string $prefix)
- * @method $this namespace(string $namespace)
- * @method $this version(string $version)
- * @method $this middleware(array|string ...$middlewares)
+ * @method static $this name(string $name)
+ * @method static $this group($callback)
+ * @method static $this prefix(string $prefix)
+ * @method static $this namespace(string $namespace)
+ * @method static $this version(string $version)
+ * @method static $this middleware(array|string ...$middlewares)
  */
 abstract class BaseRoute extends BaseInstances {
 
