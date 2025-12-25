@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\app\WordPress\Blocks;
 
+use Illuminate\Support\Facades\File;
 use WPSPCORE\BaseInstances;
 
 abstract class BaseBlock extends BaseInstances {
@@ -31,9 +32,10 @@ abstract class BaseBlock extends BaseInstances {
 	 */
 
 	public function init($blockFolder = null) {
-		register_block_type(
-			$this->funcs->_getResourcesPath('/views/blocks/build/' . $this->blockFolder)
-		);
+		$blockBuildPath = $this->funcs->_getResourcesPath('/views/blocks/build/' . $this->blockFolder);
+		if (File::exists($blockBuildPath)) {
+			register_block_type($blockBuildPath);
+		}
 	}
 
 }

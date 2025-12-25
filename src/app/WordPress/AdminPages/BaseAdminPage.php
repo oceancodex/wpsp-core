@@ -163,9 +163,14 @@ abstract class BaseAdminPage extends BaseInstances {
 						return;
 					}
 
-					foreach ($submenu[$this->parent_slug] as $index => $item) {
+					foreach ($submenu[$this->parent_slug] as $index => &$item) {
 						if ($item[2] === $this->menu_slug) {
-							$submenu[$this->parent_slug][$index][4] .= ' ' . $this->classes;
+							if (isset($item[4])) {
+								$item[4] .= ' ' . $this->classes;
+							}
+							else {
+								$item[4] = $this->classes;
+							}
 						}
 					}
 				}, 9999999999);
@@ -174,9 +179,14 @@ abstract class BaseAdminPage extends BaseInstances {
 				add_action('admin_menu', function () {
 					global $menu;
 
-					foreach ($menu as $index => $item) {
+					foreach ($menu as $index => &$item) {
 						if ($item[2] === $this->menu_slug) {
-							$menu[$index][4] .= ' ' . $this->classes;
+							if (isset($item[4])) {
+								$item[4] .= ' ' . $this->classes;
+							}
+							else {
+								$item[4] = $this->classes;
+							}
 							break;
 						}
 					}
@@ -191,9 +201,14 @@ abstract class BaseAdminPage extends BaseInstances {
 					return;
 				}
 
-				foreach ($submenu[$this->menu_slug] as $index => $item) {
+				foreach ($submenu[$this->menu_slug] as $index => &$item) {
 					if ($item[2] === $this->menu_slug) {
-						$submenu[$this->menu_slug][$index][4] .= ' ' . $this->firstSubmenuClasses;
+						if (isset($item[4])) {
+							$item[4] .= ' ' . $this->firstSubmenuClasses;
+						}
+						else {
+							$item[4] = $this->firstSubmenuClasses;
+						}
 					}
 				}
 			}, 9999999999);
