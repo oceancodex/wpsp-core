@@ -14,7 +14,6 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 	public $menu_title          = null;
 	public $page_title          = null;
-	public $first_submenu_title = null;
 	public $capability          = null;
 	public $menu_slug           = null;
 	public $icon_url            = null;
@@ -22,6 +21,8 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $parent_slug         = null;
 
 	public $classes                = null;
+	public $firstSubmenuTitle      = null;
+	public $firstSubmenuClasses    = null;
 	public $isSubmenuPage          = false;
 	public $removeFirstSubmenu     = false;
 	public $urlsMatchCurrentAccess = [];
@@ -62,38 +63,6 @@ abstract class BaseAdminPage extends BaseInstances {
 		$this->afterInit();
 	}
 
-	public function addAdminMenuPageClasses() {
-		if ($this->classes) {
-			if ($this->isSubmenuPage) {
-				add_action('admin_menu', function () {
-					global $submenu;
-
-					if (!isset($submenu[$this->parent_slug])) {
-						return;
-					}
-
-					foreach ($submenu[$this->parent_slug] as $index => $item) {
-						if ($item[2] === $this->menu_slug) {
-							$submenu[$this->parent_slug][$index][4] .= ' ' . $this->classes;
-						}
-					}
-				}, 9999999999);
-			}
-			else {
-				add_action('admin_menu', function () {
-					global $menu;
-
-					foreach ($menu as $index => $item) {
-						if ($item[2] === $this->menu_slug) {
-							$menu[$index][4] .= ' ' . $this->classes;
-							break;
-						}
-					}
-				}, 9999999999);
-			}
-		}
-	}
-
 	/*
 	 *
 	 */
@@ -119,12 +88,12 @@ abstract class BaseAdminPage extends BaseInstances {
 
 		// Khi có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính.
 		// Thay đổi tên submenu tự sinh.
-		if ($this->first_submenu_title) {
+		if ($this->firstSubmenuTitle) {
 			remove_submenu_page($this->menu_slug, $this->menu_slug); // Xóa submenu tự sinh
 			add_submenu_page(
 				$this->menu_slug,
 				$this->page_title,
-				$this->first_submenu_title,
+				$this->firstSubmenuTitle,
 				$this->capability,
 				$this->menu_slug,
 				$callback,
@@ -180,6 +149,53 @@ abstract class BaseAdminPage extends BaseInstances {
 		if ($this->removeFirstSubmenu) {
 			add_action('admin_menu', function() {
 				remove_submenu_page($this->menu_slug, $this->menu_slug);
+			}, 9999999999);
+		}
+	}
+
+	private function addAdminMenuPageClasses() {
+		if ($this->classes) {
+			if ($this->isSubmenuPage) {
+				add_action('admin_menu', function () {
+					global $submenu;
+
+					if (!isset($submenu[$this->parent_slug])) {
+						return;
+					}
+
+					foreach ($submenu[$this->parent_slug] as $index => $item) {
+						if ($item[2] === $this->menu_slug) {
+							$submenu[$this->parent_slug][$index][4] .= ' ' . $this->classes;
+						}
+					}
+				}, 9999999999);
+			}
+			else {
+				add_action('admin_menu', function () {
+					global $menu;
+
+					foreach ($menu as $index => $item) {
+						if ($item[2] === $this->menu_slug) {
+							$menu[$index][4] .= ' ' . $this->classes;
+							break;
+						}
+					}
+				}, 9999999999);
+			}
+		}
+		if ($this->firstSubmenuClasses) {
+			add_action('admin_menu', function () {
+				global $submenu;
+
+				if (!isset($submenu[$this->menu_slug])) {
+					return;
+				}
+
+				foreach ($submenu[$this->menu_slug] as $index => $item) {
+					if ($item[2] === $this->menu_slug) {
+						$submenu[$this->menu_slug][$index][4] .= ' ' . $this->firstSubmenuClasses;
+					}
+				}
 			}, 9999999999);
 		}
 	}
