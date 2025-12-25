@@ -116,7 +116,8 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->menu_title,
 			$this->capability,
 			$this->menu_slug,
-			$callback
+			$callback,
+			$this->position
 		);
 
 		return $subMenuPage;
