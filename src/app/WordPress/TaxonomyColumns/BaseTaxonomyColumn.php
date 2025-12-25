@@ -136,7 +136,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 			}
 
 			if (method_exists($this, 'sort')) {
-				add_action('pre_get_terms', [$this, 'sort'], 9999);
+				add_action('pre_get_terms', [$this, 'sort'], 9999999999);
 			}
 
 			$this->afterInit();

@@ -39,7 +39,7 @@ abstract class BaseListTable extends \WP_List_Table {
 					'option'  => $screenId . '_items_per_page',
 				]);
 			}
-		}, 99999999);
+		}, 9999999999);
 	}
 
 }

@@ -98,7 +98,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 				foreach ($stringMatchesArr as $stringMatchesArrKey => $stringMatchesArrValue) {
 					$wp->query_vars[$stringMatchesArrKey] = $stringMatchesArrValue;
 				}
-			}, 999999999);
+			}, 9999999999);
 
 			// Access URL that match rewrite rule.
 			if (!is_admin()) {
