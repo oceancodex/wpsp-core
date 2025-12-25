@@ -14,16 +14,16 @@ class KeyGenerateCommand extends Command {
 	 *
 	 * @var string
 	 */
-	protected $signature = 'key:generate
-                    {--show : Display the key instead of modifying files}
-                    {--force : Force the operation to run when in production}';
+//	protected $signature = 'key:generate
+//                    {--show : Display the key instead of modifying files}
+//                    {--force : Force the operation to run when in production}';
 
 	/**
 	 * The console command description.
 	 *
 	 * @var string
 	 */
-	protected $description = 'Set the application key';
+	protected $description = 'Set the application key. [WPSP]';
 
 	/**
 	 * Initializes the command after the input has been bound and before the input
