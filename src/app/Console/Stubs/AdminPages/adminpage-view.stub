@@ -26,11 +26,11 @@ class {{ className }} extends BaseAdminPage {
 	/**
 	 * Parent properties.
 	 */
-//	public $isSubmenuPage          = false;
-//	public $removeFirstSubmenu     = false;
+//	public $isSubmenuPage          = true;
+//	public $removeFirstSubmenu     = true;
 //	public $urlsMatchCurrentAccess = [];
 //	public $urlsMatchHighlightMenu = [];
-//	public $showScreenOptions      = false;
+//	public $showScreenOptions      = true;
 //	public $screenOptionsKey       = null;
 
 	/**
