@@ -16,7 +16,6 @@ class {{ className }} extends BaseAdminPage {
 	 */
 	public $menu_title          = '{{ name }}';
 //	public $page_title          = '{{ name }}';     // Thẻ <title> trong HTML.
-//	public $first_submenu_title = null;             // Khi có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính. Thay đổi tên submenu tự sinh.
 	public $capability          = 'manage_options';
 //	public $menu_slug           = '{{ path }}';
 	public $icon_url            = 'dashicons-admin-generic';
@@ -27,6 +26,8 @@ class {{ className }} extends BaseAdminPage {
 	 * Parent properties.
 	 */
 //	public $classes                = null;
+//	public $firstSubmenuTitle      = null; // Khi có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính. Thay đổi tên submenu tự sinh.
+//	public $firstSubmenuClasses    = null; // Khi có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính. Thêm class cho submenu tự sinh.
 //	public $isSubmenuPage          = true;
 //	public $removeFirstSubmenu     = true;
 //	public $urlsMatchCurrentAccess = [];
