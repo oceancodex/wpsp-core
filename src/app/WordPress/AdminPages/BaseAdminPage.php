@@ -21,6 +21,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $position            = null;
 	public $parent_slug         = null;
 
+	public $classes                = [];
 	public $isSubmenuPage          = false;
 	public $removeFirstSubmenu     = false;
 	public $urlsMatchCurrentAccess = [];
@@ -55,9 +56,42 @@ abstract class BaseAdminPage extends BaseInstances {
 	public function init() {
 		$this->beforeInit();
 		$this->addAdminMenuPage();
+		$this->addAdminMenuPageClasses();
 		$this->matchHighlightMenu();
 		$this->matchCurrentAccess();
 		$this->afterInit();
+	}
+
+	public function addAdminMenuPageClasses() {
+		if ($this->classes) {
+			if ($this->isSubmenuPage) {
+				add_action('admin_menu', function () {
+					global $submenu;
+
+					if (!isset($submenu[$this->parent_slug])) {
+						return;
+					}
+
+					foreach ($submenu[$this->parent_slug] as $index => $item) {
+						if ($item[2] === $this->menu_slug) {
+							$submenu[$this->parent_slug][$index][4] .= ' ' . $this->classes;
+						}
+					}
+				}, 9999999999);
+			}
+			else {
+				add_action('admin_menu', function () {
+					global $menu;
+
+					foreach ($menu as $index => $item) {
+						if ($item[2] === $this->menu_slug) {
+							$menu[$index][4] .= ' ' . $this->classes;
+							break;
+						}
+					}
+				}, 9999999999);
+			}
+		}
 	}
 
 	/*
@@ -146,7 +180,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		if ($this->removeFirstSubmenu) {
 			add_action('admin_menu', function() {
 				remove_submenu_page($this->menu_slug, $this->menu_slug);
-			}, 99999999);
+			}, 9999999999);
 		}
 	}
 
@@ -284,7 +318,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			// Save items per page option.
 			add_filter('set_screen_option_' . $this->screenOptionsKey . '_items_per_page', function($default, $option, $value) {
 				return $value;
-			}, 999999999, 3);
+			}, 9999999999, 3);
 		}
 		/**
 		 * Nếu không, ẩn hoàn toàn screen options.\

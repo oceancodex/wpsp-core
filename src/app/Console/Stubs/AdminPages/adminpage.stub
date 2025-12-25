@@ -26,6 +26,7 @@ class {{ className }} extends BaseAdminPage {
 	/**
 	 * Parent properties.
 	 */
+//	public $classes                = null;
 //	public $isSubmenuPage          = true;
 //	public $removeFirstSubmenu     = true;
 //	public $urlsMatchCurrentAccess = [];

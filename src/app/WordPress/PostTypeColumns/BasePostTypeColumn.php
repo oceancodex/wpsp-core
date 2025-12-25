@@ -125,7 +125,7 @@ abstract class BasePostTypeColumn extends BaseInstances {
 			}
 
 			if (method_exists($this, 'sort')) {
-				add_action('pre_get_posts', [$this, 'sort'], 9999);
+				add_action('pre_get_posts', [$this, 'sort'], 9999999999);
 			}
 
 			$this->afterInit();
