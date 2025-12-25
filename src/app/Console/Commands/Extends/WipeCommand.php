@@ -8,7 +8,7 @@ class WipeCommand extends \Illuminate\Database\Console\WipeCommand {
 
 	use CommandsTrait;
 
-	protected $name        = 'db:wipe';
+//	protected $name        = 'db:wipe';
 	protected $description = 'Drop all tables with a specific prefix from the database. [WPSP]';
 
 	/**
