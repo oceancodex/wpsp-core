@@ -21,7 +21,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $position            = null;
 	public $parent_slug         = null;
 
-	public $classes                = [];
+	public $classes                = null;
 	public $isSubmenuPage          = false;
 	public $removeFirstSubmenu     = false;
 	public $urlsMatchCurrentAccess = [];
