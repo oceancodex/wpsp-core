@@ -5,18 +5,18 @@ namespace WPSPCORE\App\View;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\View\View
+ * @mixin \Illuminate\View\Factory
  * @mixin \Illuminate\Support\Facades\View
  */
 abstract class View extends BaseInstances {
 
-	private \Illuminate\View\View $view;
+	private \Illuminate\View\Factory $view;
 
 	/*
 	 *
 	 */
 
-	public function getView(): \Illuminate\View\View {
+	public function getView(): \Illuminate\View\Factory {
 		return $this->view;
 	}
 
