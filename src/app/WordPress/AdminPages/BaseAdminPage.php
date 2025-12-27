@@ -221,9 +221,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		/**
 		 * Khi truy cập submenu, highlight nó.
 		 */
-		if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '/', $currentRequest)
-			|| preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '&updated=true$/', $currentRequest)
-		) {
+		if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '/', $currentRequest)) {
 			add_filter('submenu_file', function($submenu_file) {
 				return $this->menu_slug;
 			});
@@ -247,6 +245,12 @@ abstract class BaseAdminPage extends BaseInstances {
 					add_filter('submenu_file', function($submenu_file) {
 						return $this->menu_slug;
 					});
+
+					/**
+					 * TODO: Sử dụng submenu_file sẽ chỉ có thể highlight submenu tại một thời điểm.
+					 */
+					$this->classes .= ' current';
+					$this->addAdminMenuPageClasses();
 					break;
 				}
 			}
