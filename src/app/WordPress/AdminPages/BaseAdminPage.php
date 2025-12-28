@@ -153,10 +153,14 @@ abstract class BaseAdminPage extends BaseInstances {
 		}
 	}
 
-	private function addAdminMenuPageClasses() {
-		if ($this->classes) {
+	private function addAdminMenuPageClasses($additionalClasses = null) {
+		/**
+		 * Khi class của menu có khai báo $classes, xử lý nó.\
+		 * Khi có "additionalClasses", xử lý nó.
+		 */
+		if ($additionalClasses = $additionalClasses ?? $this->classes) {
 			if ($this->isSubmenuPage) {
-				add_action('admin_menu', function () {
+				add_action('admin_menu', function() use ($additionalClasses) {
 					global $submenu;
 
 					if (!isset($submenu[$this->parent_slug])) {
@@ -165,36 +169,31 @@ abstract class BaseAdminPage extends BaseInstances {
 
 					foreach ($submenu[$this->parent_slug] as $index => &$item) {
 						if ($item[2] === $this->menu_slug) {
-							if (isset($item[4])) {
-								$item[4] .= ' ' . $this->classes;
-							}
-							else {
-								$item[4] = $this->classes;
-							}
+							$item[4] = $this->applyMenuClasses($item[4] ?? '', $additionalClasses);
 						}
 					}
 				}, 9999999999);
 			}
 			else {
-				add_action('admin_menu', function () {
+				add_action('admin_menu', function() use ($additionalClasses) {
 					global $menu;
 
 					foreach ($menu as $index => &$item) {
 						if ($item[2] === $this->menu_slug) {
-							if (isset($item[4])) {
-								$item[4] .= ' ' . $this->classes;
-							}
-							else {
-								$item[4] = $this->classes;
-							}
+							$item[4] = $this->applyMenuClasses($item[4] ?? '', $additionalClasses);
 							break;
 						}
 					}
 				}, 9999999999);
 			}
 		}
+
+		/**
+		 * Khi menu ó nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính ở vị trí đầu tiên.\
+		 * Tại đây sẽ xử lý class cho submenu tự sinh.
+		 */
 		if ($this->firstSubmenuClasses) {
-			add_action('admin_menu', function () {
+			add_action('admin_menu', function() {
 				global $submenu;
 
 				if (!isset($submenu[$this->menu_slug])) {
@@ -203,12 +202,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 				foreach ($submenu[$this->menu_slug] as $index => &$item) {
 					if ($item[2] === $this->menu_slug) {
-						if (isset($item[4])) {
-							$item[4] .= ' ' . $this->firstSubmenuClasses;
-						}
-						else {
-							$item[4] = $this->firstSubmenuClasses;
-						}
+						$item[4] = $this->applyMenuClasses($item[4] ?? '', $this->firstSubmenuClasses);
 					}
 				}
 			}, 9999999999);
@@ -221,7 +215,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		/**
 		 * Khi truy cập submenu, highlight nó.
 		 */
-		if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '/', $currentRequest)) {
+		if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
 			add_filter('submenu_file', function($submenu_file) {
 				return $this->menu_slug;
 			});
@@ -247,10 +241,15 @@ abstract class BaseAdminPage extends BaseInstances {
 					});
 
 					/**
-					 * TODO: Sử dụng submenu_file sẽ chỉ có thể highlight submenu tại một thời điểm.
+					 * "parent_file" và "submenu_file" chỉ có thể highlight 1 menu duy nhất.\
+					 * Nếu muốn highlight nhiều menu, cần phải xử lý class="" của menu đó.
 					 */
-					$this->classes .= ' current';
-					$this->addAdminMenuPageClasses();
+					if ($this->isSubmenuPage) {
+						$this->addAdminMenuPageClasses('current');
+					}
+					else {
+						$this->addAdminMenuPageClasses('wp-menu-open wp-has-current-submenu');
+					}
 					break;
 				}
 			}
@@ -304,6 +303,55 @@ abstract class BaseAdminPage extends BaseInstances {
 				break;
 			}
 		}
+	}
+
+	/*
+	 *
+	 */
+
+	private function applyMenuClasses($currentClasses = null, $additionalClasses = null) {
+		$currentClasses = trim($currentClasses);
+
+		if (!$additionalClasses) {
+			return $currentClasses;
+		}
+
+		// CASE 1: string → append
+		if (is_string($additionalClasses)) {
+			return trim($currentClasses . ' ' . $additionalClasses);
+		}
+
+		// CASE 2 / 3 / 4: array
+		if (is_array($additionalClasses)) {
+
+			// CASE 3: ['find'=>..., 'replace'=>...]
+			if (isset($additionalClasses['find'], $additionalClasses['replace'])) {
+				return trim(str_replace(
+					$additionalClasses['find'],
+					$additionalClasses['replace'],
+					$currentClasses
+				));
+			}
+
+			// CASE 4: [ ['find'=>..., 'replace'=>...], ... ]
+			$isReplaceList = isset($additionalClasses[0]['replace']) && isset($additionalClasses[0]['find']) && is_array($additionalClasses[0]);
+
+			if ($isReplaceList) {
+				foreach ($additionalClasses as $rule) {
+					$currentClasses = str_replace(
+						$rule['find'],
+						$rule['replace'],
+						$currentClasses
+					);
+				}
+				return trim($currentClasses);
+			}
+
+			// CASE 2: ['class-1','class-2'] → append
+			return trim($currentClasses . ' ' . implode(' ', $additionalClasses));
+		}
+
+		return $currentClasses;
 	}
 
 	/*
