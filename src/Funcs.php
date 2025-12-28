@@ -1059,4 +1059,51 @@ class Funcs extends BaseInstances {
 		return $this->_folderExists($vendorPath . '/' . $package);
 	}
 
+	public function _onlyHasQueryParams($queryString = null, $allowedParams = null) {
+		if (!$queryString) return false;
+
+		if (is_string($allowedParams)) {
+			$allowedParams = explode(',', $allowedParams);
+		}
+
+		parse_str($queryString, $query);
+
+		// Danh sách key trong query string
+		$queryKeys = array_keys($query);
+
+		// Tìm các key KHÔNG nằm trong whitelist
+		$invalidKeys = array_diff($queryKeys, $allowedParams);
+
+		if (!empty($invalidKeys)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public function _hasQueryParams($queryString = null, $targetParams = null, $relation = 'or') {
+		if (!$queryString || !$targetParams) {
+			return false;
+		}
+
+		if (is_string($targetParams)) {
+			$targetParams = array_map('trim', explode(',', $targetParams));
+		}
+
+		parse_str($queryString, $query);
+
+		// Danh sách key trong query string
+		$queryKeys = array_keys($query);
+
+		$relation = strtolower($relation);
+
+		if ($relation === 'and') {
+			// AND: query phải chứa TẤT CẢ targetParams
+			return empty(array_diff($targetParams, $queryKeys));
+		}
+
+		// OR (mặc định): chỉ cần chứa ÍT NHẤT 1 param
+		return !empty(array_intersect($queryKeys, $targetParams));
+	}
+
 }

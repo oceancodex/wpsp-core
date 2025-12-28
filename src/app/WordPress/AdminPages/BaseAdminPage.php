@@ -57,7 +57,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	public function init() {
 		$this->beforeInit();
 		$this->addAdminMenuPage();
-		$this->addAdminMenuPageClasses();
+		$this->handleAdminMenuClasses();
 		$this->matchHighlightMenu();
 		$this->matchCurrentAccess();
 		$this->afterInit();
@@ -130,10 +130,16 @@ abstract class BaseAdminPage extends BaseInstances {
 		add_action('admin_menu', function() {
 			$adminPage = $this->isSubmenuPage ? $this->addSubMenuPage() : $this->addMenuPage();
 
+			// Hook sau khi add admin menu page hoặc submenu page.
 			$this->afterAddAdminPage($adminPage);
 
+			// Hook sau trước khi load admin page.
 			$this->beforeLoadAdminPage($adminPage);
 
+			/**
+			 * Action "load-{admin_page}" chỉ hoạt động với admin menu page được register với slug chuẩn WordPress. Ví dụ: "edit.php", "post-new.php", hoặc "my_custom_page".\
+			 * Với các dạng slug khác như: "wpsp&tab=tab-1", action này không hoạt động.
+			 */
 			add_action('load-' . $adminPage, function() use ($adminPage) {
 				$this->beforeInLoadAdminPage($adminPage);
 
@@ -146,65 +152,13 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->afterLoadAdminPage($adminPage);
 		});
 
+		/**
+		 * Khi menu có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính ở vị trí đầu tiên.\
+		 * Loại bỏ submenu tự sinh này khỏi danh sách menu items.
+		 */
 		if ($this->removeFirstSubmenu) {
 			add_action('admin_menu', function() {
 				remove_submenu_page($this->menu_slug, $this->menu_slug);
-			}, 9999999999);
-		}
-	}
-
-	private function addAdminMenuPageClasses($additionalClasses = null) {
-		/**
-		 * Khi class của menu có khai báo $classes, xử lý nó.\
-		 * Khi có "additionalClasses", xử lý nó.
-		 */
-		if ($additionalClasses = $additionalClasses ?? $this->classes) {
-			if ($this->isSubmenuPage) {
-				add_action('admin_menu', function() use ($additionalClasses) {
-					global $submenu;
-
-					if (!isset($submenu[$this->parent_slug])) {
-						return;
-					}
-
-					foreach ($submenu[$this->parent_slug] as $index => &$item) {
-						if ($item[2] === $this->menu_slug) {
-							$item[4] = $this->applyMenuClasses($item[4] ?? '', $additionalClasses);
-						}
-					}
-				}, 9999999999);
-			}
-			else {
-				add_action('admin_menu', function() use ($additionalClasses) {
-					global $menu;
-
-					foreach ($menu as $index => &$item) {
-						if ($item[2] === $this->menu_slug) {
-							$item[4] = $this->applyMenuClasses($item[4] ?? '', $additionalClasses);
-							break;
-						}
-					}
-				}, 9999999999);
-			}
-		}
-
-		/**
-		 * Khi menu ó nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính ở vị trí đầu tiên.\
-		 * Tại đây sẽ xử lý class cho submenu tự sinh.
-		 */
-		if ($this->firstSubmenuClasses) {
-			add_action('admin_menu', function() {
-				global $submenu;
-
-				if (!isset($submenu[$this->menu_slug])) {
-					return;
-				}
-
-				foreach ($submenu[$this->menu_slug] as $index => &$item) {
-					if ($item[2] === $this->menu_slug) {
-						$item[4] = $this->applyMenuClasses($item[4] ?? '', $this->firstSubmenuClasses);
-					}
-				}
 			}, 9999999999);
 		}
 	}
@@ -245,11 +199,13 @@ abstract class BaseAdminPage extends BaseInstances {
 					 * Nếu muốn highlight nhiều menu, cần phải xử lý class="" của menu đó.
 					 */
 					if ($this->isSubmenuPage) {
-						$this->addAdminMenuPageClasses('current');
+						$this->handleAdminMenuClasses('current');
 					}
 					else {
-						$this->addAdminMenuPageClasses('wp-menu-open wp-has-current-submenu');
+						$this->handleAdminMenuClasses('wp-menu-open wp-has-current-submenu');
 					}
+
+					$this->matchedHighLightMenu();
 					break;
 				}
 			}
@@ -258,29 +214,30 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	private function matchCurrentAccess() {
 		$currentRequest = $this->request->getRequestUri();
-		$calledCurrentScreen = false;
+		$matchedCurrentAccessCalled = false;
 
 		/**
-		 * Khi menu_slug khớp với request hiện tại.\
-		 * Nhận định đang truy cập vào menu_slug này.\
-		 * Chạy hàm "currentScreen" và "screenOptions".
+		 * ---
+		 * [1] Tự động khớp với request hiện tại.
+		 * ---
+		 * Khi $this->menu_slug khớp với request hiện tại => đang truy cập vào menu_slug này.\
+		 * Chạy hàm "screenOptions" và "matchedCurrentAccess".
 		 */
 		if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
-			$calledCurrentScreen = true;
-			/**
-			 * Cần chạy hàm "currentScreen" tại đây.\
-			 * Vì đôi khi muốn khởi tạo Custom List Table mà không hiển thị screen options panel.
-			 */
-			add_action('current_screen', function($screen) {
-				$this->currentScreen($screen);
-			});
+			$matchedCurrentAccessCalled = true;
 			$this->screenOptions();
+
+			// Cần phải chạy hàm này sau "screenOptions" để có thể ghi đè code trong hàm screenOptions.
+			$this->matchedCurrentAccess();
 		}
 
 		/**
+		 * ---
+		 * [2] Tùy chọn khớp với request hiện tại.
+		 * ---
 		 * Xử lý "urlsMatchCurrentAccess".\
 		 * Nếu có một trong các url khớp với request hiện tại,\
-		 * thì chạy hàm "currentScreen", "screenOptions" và "matchedCurrentAccess".
+		 * thì chạy hàm "screenOptions", "matchedCurrentAccess".
 		 */
 		foreach ($this->urlsMatchCurrentAccess as $urlMatchCurrentAccess) {
 			// Nếu URL không phải regex, hãy chuyển nó thành regex.
@@ -288,18 +245,16 @@ abstract class BaseAdminPage extends BaseInstances {
 				$urlMatchCurrentAccess = '/' . $this->funcs->_regexPath($urlMatchCurrentAccess) . '/iu';
 			}
 			if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
-				// Check xem đã gọi "currentScreen" hay chưa, nếu đã gọi thì thôi.
-				if (!$calledCurrentScreen) {
-					/**
-					 * Cần chạy hàm "currentScreen" tại đây.\
-					 * Vì đôi khi muốn khởi tạo Custom List Table mà không hiển thị screen options panel.
-					 */
-					add_action('current_screen', function($screen) {
-						$this->currentScreen($screen);
-					});
-				}
 				$this->screenOptions();
-				$this->matchedCurrentAccess();
+
+				/**
+				 * Check xem đã gọi "matchedCurrentAccess" ở [1] hay chưa, nếu đã gọi thì thôi.
+				 * Cần phải chạy hàm này sau "screenOptions" để có thể ghi đè code trong hàm "screenOptions".
+				 */
+				if (!$matchedCurrentAccessCalled) {
+					$this->matchedCurrentAccess();
+				}
+
 				break;
 			}
 		}
@@ -309,7 +264,63 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	private function applyMenuClasses($currentClasses = null, $additionalClasses = null) {
+	private function handleAdminMenuClasses($additionalClasses = null) {
+		/**
+		 * Khi có "additionalClasses", xử lý nó.\
+		 * Khi menu có khai báo $classes, xử lý nó.
+		 */
+		if ($additionalClasses = $additionalClasses ?? $this->classes) {
+			if ($this->isSubmenuPage) {
+				add_action('admin_menu', function() use ($additionalClasses) {
+					global $submenu;
+
+					if (!isset($submenu[$this->parent_slug])) {
+						return;
+					}
+
+					foreach ($submenu[$this->parent_slug] as $index => &$item) {
+						if ($item[2] === $this->menu_slug) {
+							$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $additionalClasses);
+						}
+					}
+				}, 9999999999);
+			}
+			else {
+				add_action('admin_menu', function() use ($additionalClasses) {
+					global $menu;
+
+					foreach ($menu as $index => &$item) {
+						if ($item[2] === $this->menu_slug) {
+							$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $additionalClasses);
+							break;
+						}
+					}
+				}, 9999999999);
+			}
+		}
+
+		/**
+		 * Khi menu có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính ở vị trí đầu tiên.\
+		 * Xử lý class="" cho submenu tự sinh.
+		 */
+		if ($this->firstSubmenuClasses) {
+			add_action('admin_menu', function() {
+				global $submenu;
+
+				if (!isset($submenu[$this->menu_slug])) {
+					return;
+				}
+
+				foreach ($submenu[$this->menu_slug] as $index => &$item) {
+					if ($item[2] === $this->menu_slug) {
+						$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $this->firstSubmenuClasses);
+					}
+				}
+			}, 9999999999);
+		}
+	}
+
+	private function prepareAdminMenuClasses($currentClasses = null, $additionalClasses = null) {
 		$currentClasses = trim($currentClasses);
 
 		if (!$additionalClasses) {
@@ -370,7 +381,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public function afterLoadAdminPage($adminPage) {}
 
-	public function currentScreen($screen) {}
+	public function matchedHighLightMenu() {}
 
 	public function matchedCurrentAccess() {}
 
