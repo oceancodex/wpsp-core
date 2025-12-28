@@ -699,47 +699,9 @@ class Funcs extends BaseInstances {
 	 */
 
 
-
-
-	public function _buildUrl($baseUrl = null, $args = []) {
-		$url = add_query_arg($args ?? [], $baseUrl ?? '');
-		return $this->_sanitizeURL($url);
-	}
-
-	public function _nonceName($name = null) {
-		return $this->_env('APP_SHORT_NAME', true) . ($name ? '_' . $name : '') . '_nonce';
-	}
-
-	public function _slugParams($params = [], $separator = '_') {
-		// Lấy toàn bộ query string từ URL
-		$request = $this->request ?? $this->getApplication('request');
-		$queryParams = $request->query->all();
-
-		$selectedParts = [];
-
-		// Chỉ lấy những params được khai báo
-		foreach ($params as $key) {
-			if (isset($queryParams[$key])) {
-				// Ghép key và value để phân biệt
-				$selectedParts[] = $key . '=' . $queryParams[$key];
-			}
-		}
-
-		// Ghép các phần lại thành một chuỗi
-		$slug = implode($separator, $selectedParts);
-
-		// Làm sạch chuỗi thành dạng slug
-		$slug = preg_replace('/[^0-9a-zA-Z]/iu', $separator, $slug);
-
-		// Thêm tiền tố app name (nếu có)
-		$prefix = $this->_env('APP_SHORT_NAME', true);
-		if ($prefix) {
-			$slug = $prefix . $separator . $slug;
-		}
-
-		// Gán vào biến class
-		return $slug;
-	}
+	/*
+	 * Boolean methods.
+	 */
 
 	public function _isDebug() {
 		return $this->_env('APP_DEBUG', true) == 'true';
@@ -798,6 +760,215 @@ class Funcs extends BaseInstances {
 
 	public function _expectsJson() {
 		return $this->_wantsJson();
+	}
+
+	public function _folderExists($path = null) {
+		return is_dir($path);
+	}
+
+	public function _vendorFolderExists($package = null) {
+		$vendorPath = $this->_getMainPath('/vendor');
+		$package = trim($package, '/');
+		return $this->_folderExists($vendorPath . '/' . $package);
+	}
+
+	public function _hasQueryParams($queryString = null, $targetParams = null, $relation = 'or') {
+		if (!$queryString || !$targetParams) {
+			return false;
+		}
+
+		parse_str($queryString, $query);
+
+		$relation    = strtolower($relation);
+		$ruleResults = [];
+
+		// Chuẩn hóa string → rule đơn
+		if (is_string($targetParams)) {
+			$targetParams = [$targetParams];
+		}
+
+		// Duyệt từng RULE
+		foreach ($targetParams as $ruleKey => $rule) {
+
+			$ruleRelation = 'or';
+			$params       = [];
+
+			/**
+			 * RULE dạng:
+			 * [
+			 *   'relation' => 'and|or',
+			 *   'params' => [...]
+			 * ]
+			 */
+			if (is_array($rule) && isset($rule['params'])) {
+				$ruleRelation = strtolower($rule['relation'] ?? 'or');
+				$params       = $rule['params'];
+			}
+
+			/**
+			 * RULE dạng đơn:
+			 * 'action'
+			 * ['action', 'abc']
+			 * ['action' => 'show']
+			 * 'one' => 'two'
+			 */
+			else {
+				if (is_int($ruleKey)) {
+					$params = is_array($rule) ? $rule : [$rule];
+				}
+				else {
+					$params = [$ruleKey => $rule];
+				}
+			}
+
+			// ===== MATCH PARAMS TRONG RULE =====
+			$matches = [];
+
+			foreach ($params as $key => $expectedValue) {
+
+				// ['action', 'abc']
+				if (is_int($key)) {
+					$matches[] = array_key_exists($expectedValue, $query);
+					continue;
+				}
+
+				// ['action' => 'show']
+				if (!array_key_exists($key, $query)) {
+					$matches[] = false;
+					continue;
+				}
+
+				// chỉ check key
+				if ($expectedValue === null) {
+					$matches[] = true;
+					continue;
+				}
+
+				// check value
+				$matches[] = (string)$query[$key] === (string)$expectedValue;
+			}
+
+			// Kết quả của RULE
+			$ruleResults[] = ($ruleRelation === 'and')
+				? !in_array(false, $matches, true)
+				: in_array(true, $matches, true);
+		}
+
+		// ===== KẾT HỢP CÁC RULE =====
+		if ($relation === 'and') {
+			return !in_array(false, $ruleResults, true);
+		}
+
+		// OR (default)
+		return in_array(true, $ruleResults, true);
+	}
+
+	public function _onlyHasQueryParams($queryString = null, $allowedParams = null) {
+		if (!$queryString || !$allowedParams) {
+			return false;
+		}
+
+		parse_str($queryString, $query);
+
+		// Chuẩn hóa string
+		if (is_string($allowedParams)) {
+			$allowedParams = [trim($allowedParams)];
+		}
+
+		$allowedKeys = [];
+		$valueRules  = [];
+
+		/**
+		 * Chuẩn hóa allowedParams thành:
+		 * - allowedKeys: danh sách key được phép
+		 * - valueRules:  key => [value1, value2...]
+		 */
+		foreach ($allowedParams as $k => $rule) {
+
+			// Case: ['action', 'abc']
+			if (is_int($k) && is_string($rule)) {
+				$allowedKeys[] = $rule;
+				continue;
+			}
+
+			// Case: ['action' => 'show']
+			if (is_string($k)) {
+				$allowedKeys[]    = $k;
+				$valueRules[$k][] = (string)$rule;
+				continue;
+			}
+
+			// Case: [['action'=>'show'], ['abc'=>'xyz']]
+			if (is_array($rule)) {
+				foreach ($rule as $rk => $rv) {
+					$allowedKeys[]     = $rk;
+					$valueRules[$rk][] = (string)$rv;
+				}
+			}
+		}
+
+		$allowedKeys = array_unique($allowedKeys);
+
+		// ===== 1. Check key whitelist =====
+		$invalidKeys = array_diff(array_keys($query), $allowedKeys);
+		if (!empty($invalidKeys)) {
+			return false;
+		}
+
+		// ===== 2. Check value rules =====
+		foreach ($valueRules as $key => $allowedValues) {
+			if (array_key_exists($key, $query)) {
+				if (!in_array((string)$query[$key], $allowedValues, true)) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/*
+	 *
+	 */
+
+	public function _buildUrl($baseUrl = null, $args = []) {
+		$url = add_query_arg($args ?? [], $baseUrl ?? '');
+		return $this->_sanitizeURL($url);
+	}
+
+	public function _nonceName($name = null) {
+		return $this->_env('APP_SHORT_NAME', true) . ($name ? '_' . $name : '') . '_nonce';
+	}
+
+	public function _slugParams($params = [], $separator = '_') {
+		// Lấy toàn bộ query string từ URL
+		$request = $this->request ?? $this->getApplication('request');
+		$queryParams = $request->query->all();
+
+		$selectedParts = [];
+
+		// Chỉ lấy những params được khai báo
+		foreach ($params as $key) {
+			if (isset($queryParams[$key])) {
+				// Ghép key và value để phân biệt
+				$selectedParts[] = $key . '=' . $queryParams[$key];
+			}
+		}
+
+		// Ghép các phần lại thành một chuỗi
+		$slug = implode($separator, $selectedParts);
+
+		// Làm sạch chuỗi thành dạng slug
+		$slug = preg_replace('/[^0-9a-zA-Z]/iu', $separator, $slug);
+
+		// Thêm tiền tố app name (nếu có)
+		$prefix = $this->_env('APP_SHORT_NAME', true);
+		if ($prefix) {
+			$slug = $prefix . $separator . $slug;
+		}
+
+		// Gán vào biến class
+		return $slug;
 	}
 
 	public function _regexPath($pattern, $pregQuote = true, $delimiter = '/') {
@@ -948,6 +1119,23 @@ class Funcs extends BaseInstances {
 		return rtrim($path, '/\\');
 	}
 
+	public function _numberFormat($value, $precision = 0, $endWithZeros = true, $locale = 'vi', $currencyCode = 'vnd', $style = NumberFormatter::DECIMAL, $groupingUsed = true) {
+		try {
+			if (!$value) return null;
+			$formatter = new NumberFormatter($locale, $style);
+			$formatter->setAttribute(NumberFormatter::FRACTION_DIGITS, $precision);
+			$formatter->setAttribute(NumberFormatter::GROUPING_USED, $groupingUsed);
+			if ($style == NumberFormatter::CURRENCY) {
+				$formatter->setTextAttribute(NumberFormatter::CURRENCY_CODE, $currencyCode);
+			}
+			$result = $endWithZeros ? $formatter->format($value) : rtrim($formatter->format($value), '0');
+			return preg_replace('/([.,])$/iu', '', $result);
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+	}
+
 	public function _normalizeDateTime($value) {
 		$tz      = wp_timezone();
 		$now     = new \DateTimeImmutable('now', $tz);
@@ -998,20 +1186,12 @@ class Funcs extends BaseInstances {
 		return $default;
 	}
 
-	public function _numberFormat($value, $precision = 0, $endWithZeros = true, $locale = 'vi', $currencyCode = 'vnd', $style = NumberFormatter::DECIMAL, $groupingUsed = true) {
+	public function _dateDiffForHumans($dateString, $format = 'H:i:s - d/m/Y') {
 		try {
-			if (!$value) return null;
-			$formatter = new NumberFormatter($locale, $style);
-			$formatter->setAttribute(NumberFormatter::FRACTION_DIGITS, $precision);
-			$formatter->setAttribute(NumberFormatter::GROUPING_USED, $groupingUsed);
-			if ($style == NumberFormatter::CURRENCY) {
-				$formatter->setTextAttribute(NumberFormatter::CURRENCY_CODE, $currencyCode);
-			}
-			$result = $endWithZeros ? $formatter->format($value) : rtrim($formatter->format($value), '0');
-			return preg_replace('/([.,])$/iu', '', $result);
+			return Carbon::createFromFormat($format, $dateString, wp_timezone_string())->locale(get_locale())->diffForHumans();
 		}
 		catch (\Throwable $e) {
-			return null;
+			return $this->_trans('messages.undefined');
 		}
 	}
 
@@ -1021,15 +1201,6 @@ class Funcs extends BaseInstances {
 			$value = [$key => $value];
 		}
 		return $value;
-	}
-
-	public function _dateDiffForHumans($dateString, $format = 'H:i:s - d/m/Y') {
-		try {
-			return Carbon::createFromFormat($format, $dateString, wp_timezone_string())->locale(get_locale())->diffForHumans();
-		}
-		catch (\Throwable $e) {
-			return $this->_trans('messages.undefined');
-		}
 	}
 
 	public function _prefixArrayKeys($array, $prefix = null) {
@@ -1047,63 +1218,6 @@ class Funcs extends BaseInstances {
 			$results[$key] = $value;
 		}
 		return $results;
-	}
-
-	public function _folderExists($path = null) {
-		return is_dir($path);
-	}
-
-	public function _vendorFolderExists($package = null) {
-		$vendorPath = $this->_getMainPath('/vendor');
-		$package = trim($package, '/');
-		return $this->_folderExists($vendorPath . '/' . $package);
-	}
-
-	public function _onlyHasQueryParams($queryString = null, $allowedParams = null) {
-		if (!$queryString) return false;
-
-		if (is_string($allowedParams)) {
-			$allowedParams = explode(',', $allowedParams);
-		}
-
-		parse_str($queryString, $query);
-
-		// Danh sách key trong query string
-		$queryKeys = array_keys($query);
-
-		// Tìm các key KHÔNG nằm trong whitelist
-		$invalidKeys = array_diff($queryKeys, $allowedParams);
-
-		if (!empty($invalidKeys)) {
-			return false;
-		}
-
-		return true;
-	}
-
-	public function _hasQueryParams($queryString = null, $targetParams = null, $relation = 'or') {
-		if (!$queryString || !$targetParams) {
-			return false;
-		}
-
-		if (is_string($targetParams)) {
-			$targetParams = array_map('trim', explode(',', $targetParams));
-		}
-
-		parse_str($queryString, $query);
-
-		// Danh sách key trong query string
-		$queryKeys = array_keys($query);
-
-		$relation = strtolower($relation);
-
-		if ($relation === 'and') {
-			// AND: query phải chứa TẤT CẢ targetParams
-			return empty(array_diff($targetParams, $queryKeys));
-		}
-
-		// OR (mặc định): chỉ cần chứa ÍT NHẤT 1 param
-		return !empty(array_intersect($queryKeys, $targetParams));
 	}
 
 }
