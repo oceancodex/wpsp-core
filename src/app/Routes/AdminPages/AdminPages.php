@@ -85,7 +85,6 @@ class AdminPages extends BaseRoute {
 				$callback        = $this->prepareRouteCallback($callback, $constructParams);
 				$callParams      = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
 				$this->resolveAndCall($callback, $callParams);
-//				isset($callback[0]) && isset($callback[1]) ? $callback[0]->{$callback[1]}(...$callParams) : $callback;
 			}
 			else {
 				wp_die(

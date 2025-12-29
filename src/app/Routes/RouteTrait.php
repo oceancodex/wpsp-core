@@ -184,6 +184,12 @@ trait RouteTrait {
 		return true;
 	}
 
+	/**
+	 * Chuẩn bị callback hoàn chỉnh cho route.\
+	 * Nếu callback là Closure, trả về callback đó.\
+	 * Nếu callback là mảng, tạo mới instance và trả về mảng [instance, method].\
+	 * Nếu không hợp lệ, ném exception.
+	 */
 	public function prepareRouteCallback($callback, $constructParams = []) {
 		if ($callback instanceof \Closure) {
 			return $callback;
@@ -197,6 +203,15 @@ trait RouteTrait {
 		throw new \RuntimeException("Invalid callback");
 	}
 
+	/**
+	 * Chuẩn bị callback cho các function đặc biệt, ví dụ: add_menu_page()\
+	 * Sử dụng hàm này khi cần gọi "Callback Dependencies Injection" trong các class callback của Route.\
+	 * Ví dụ:\
+	 * ㅤRoute::get('/my-page', [MyClass::class, 'myMethod']);\
+	 * Lúc này myMethod được gọi với DI tự động.\
+	 * Nhưng trong myMethod chúng ta lại muốn gọi tiếp method khác, ví dụ: $this->secondMethod()
+	 * Nếu không sử dụng hàm này, thì secondMethod() sẽ không được "Dependencies Injection".
+	 */
 	public function prepareCallbackFunction($method, $path, $fullPath): \Closure {
 		return function() use ($method, $path, $fullPath) {
 
@@ -215,6 +230,23 @@ trait RouteTrait {
 		};
 	}
 
+	/**
+	 * Build params for callable (route callback).\
+	 * Hàm này rất phức tạp, xử lý rất nhiều trường hợp params của method.\
+	 * Bao gồm:
+	 * - Detect callback type
+	 * - Reflection callback signature
+	 * - Regex route matching
+	 * - Ajax route compatibility
+	 * - Fallback param build khi route không match
+	 * - Request resolving
+	 * - Regex capture parsing
+	 * - Request source aggregation
+	 * - Primitive param binding
+	 * - Eloquent model binding
+	 * - Metadata injection
+	 * - Request → route parameter bridging
+	 */
 	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []) {
 		// NEW: detect closure
 		if ($callbackOrClass instanceof \Closure) {
@@ -433,10 +465,19 @@ trait RouteTrait {
 		return $callParams;
 	}
 
+	/**
+	 * Beauty method của resolveAndCall với call = false.\
+	 * Mục đích để trả về Closure chứa callback đã được resolve Dependency Injection.
+	 */
 	public function resolveCallback($callback, $callParams = []) {
 		return $this->resolveAndCall($callback, $callParams, false);
 	}
 
+	/**
+	 * Call callback với Dependency Injection.\
+	 * Bắt buộc phải có "callParams" để resolve Dependency Injection.\
+	 * "callParams" có thể được chuẩn bị bằng method getCallParams().
+	 */
 	public function resolveAndCall($callback, $callParams = [], $call = true) {
 		$container = $this->funcs->getApplication();
 
@@ -449,6 +490,13 @@ trait RouteTrait {
 		return $container->call($callback, $callParams);
 	}
 
+	/*
+	 *
+	 */
+
+	/**
+	 * Chuẩn hóa callback để trả về [class, method].
+	 */
 	public function normalizeCallback($callback) {
 		if ($callback instanceof \Closure) {
 			return [null, $callback];
@@ -461,6 +509,9 @@ trait RouteTrait {
 		throw new \RuntimeException("Invalid callback format");
 	}
 
+	/**
+	 * Build params for callable (route callback).
+	 */
 	public function buildParametersForCallable($callback, $path, $fullPath, $requestPath, $args = []) {
 		[$class, $method] = $this->normalizeCallback($callback);
 		return $this->getCallParams($path, $fullPath, $requestPath, $class, $method, $args);
