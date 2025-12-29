@@ -12,13 +12,13 @@ abstract class BaseAdminPage extends BaseInstances {
 	/**
 	 * WordPress admin page properties.
 	 */
-	public $menu_title          = null;
-	public $page_title          = null;
-	public $capability          = null;
-	public $menu_slug           = null;
-	public $icon_url            = null;
-	public $position            = null;
-	public $parent_slug         = null;
+	public $menu_title             = null;
+	public $page_title             = null;
+	public $capability             = null;
+	public $menu_slug              = null;
+	public $icon_url               = null;
+	public $position               = null;
+	public $parent_slug            = null;
 
 	public $classes                = null;
 	public $firstSubmenuTitle      = null;
@@ -167,20 +167,14 @@ abstract class BaseAdminPage extends BaseInstances {
 		$currentRequest = $this->request->getRequestUri();
 
 		/**
-		 * Khi truy cập submenu, highlight nó.
-		 */
-		if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
-			add_filter('submenu_file', function($submenu_file) {
-				return $this->menu_slug;
-			});
-		}
-
-		/**
+		 * ---
+		 * Tùy chọn khớp với request hiện tại.
+		 * ---
 		 * Xử lý "urlsMatchHighlightMenu".\
 		 * Nếu có một trong các url khớp với request hiện tại,\
 		 * thì highlight submenu nơi khai báo "urlsMatchHighlightMenu".
 		 */
-		if (is_array($this->urlsMatchHighlightMenu)) {
+		if (!empty($this->urlsMatchHighlightMenu) && is_array($this->urlsMatchHighlightMenu)) {
 			foreach ($this->urlsMatchHighlightMenu as $urlMatchHighlightMenu) {
 				// Nếu URL không phải regex, hãy chuyển nó thành regex.
 				if (!str_starts_with($urlMatchHighlightMenu, '/')) {
@@ -210,11 +204,46 @@ abstract class BaseAdminPage extends BaseInstances {
 				}
 			}
 		}
+
+		/**
+		 * ---
+		 * Tự động khớp với request hiện tại.
+		 * ---
+		 * Khi truy cập submenu, highlight nó.
+		 */
+		else {
+			if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
+				add_filter('submenu_file', function($submenu_file) {
+					return $this->menu_slug;
+				});
+			}
+		}
 	}
 
 	private function matchCurrentAccess() {
 		$currentRequest = $this->request->getRequestUri();
-		$matchedCurrentAccessCalled = false;
+
+		/**
+		 * ---
+		 * Tùy chọn khớp với request hiện tại.
+		 * ---
+		 * Xử lý "urlsMatchCurrentAccess".\
+		 * Nếu có một trong các url khớp với request hiện tại,\
+		 * thì chạy hàm "screenOptions", "matchedCurrentAccess".
+		 */
+		if (!empty($this->urlsMatchCurrentAccess) && is_array($this->urlsMatchCurrentAccess)) {
+			foreach ($this->urlsMatchCurrentAccess as $urlMatchCurrentAccess) {
+				// Nếu URL không phải regex, hãy chuyển nó thành regex.
+				if (!str_starts_with($urlMatchCurrentAccess, '/')) {
+					$urlMatchCurrentAccess = '/' . $this->funcs->_regexPath($urlMatchCurrentAccess) . '/iu';
+				}
+				if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
+					$this->matchedCurrentAccess();
+					$this->screenOptions();
+					break;
+				}
+			}
+		}
 
 		/**
 		 * ---
@@ -223,39 +252,10 @@ abstract class BaseAdminPage extends BaseInstances {
 		 * Khi $this->menu_slug khớp với request hiện tại => đang truy cập vào menu_slug này.\
 		 * Chạy hàm "screenOptions" và "matchedCurrentAccess".
 		 */
-		if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
-			$matchedCurrentAccessCalled = true;
-			$this->screenOptions();
-
-			// Cần phải chạy hàm này sau "screenOptions" để có thể ghi đè code trong hàm screenOptions.
-			$this->matchedCurrentAccess();
-		}
-
-		/**
-		 * ---
-		 * [2] Tùy chọn khớp với request hiện tại.
-		 * ---
-		 * Xử lý "urlsMatchCurrentAccess".\
-		 * Nếu có một trong các url khớp với request hiện tại,\
-		 * thì chạy hàm "screenOptions", "matchedCurrentAccess".
-		 */
-		foreach ($this->urlsMatchCurrentAccess as $urlMatchCurrentAccess) {
-			// Nếu URL không phải regex, hãy chuyển nó thành regex.
-			if (!str_starts_with($urlMatchCurrentAccess, '/')) {
-				$urlMatchCurrentAccess = '/' . $this->funcs->_regexPath($urlMatchCurrentAccess) . '/iu';
-			}
-			if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
+		else {
+			if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
+				$this->matchedCurrentAccess();
 				$this->screenOptions();
-
-				/**
-				 * Check xem đã gọi "matchedCurrentAccess" ở [1] hay chưa, nếu đã gọi thì thôi.
-				 * Cần phải chạy hàm này sau "screenOptions" để có thể ghi đè code trong hàm "screenOptions".
-				 */
-				if (!$matchedCurrentAccessCalled) {
-					$this->matchedCurrentAccess();
-				}
-
-				break;
 			}
 		}
 	}

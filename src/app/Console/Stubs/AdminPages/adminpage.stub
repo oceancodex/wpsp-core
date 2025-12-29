@@ -15,7 +15,7 @@ class {{ className }} extends BaseAdminPage {
 	 * WordPress admin page properties.
 	 */
 	public $menu_title             = '{{ name }}';
-//	public $page_title             = '{{ name }}';     // Thẻ <title> trong HTML.
+//	public $page_title             = '{{ name }}'; // Thẻ <title>, chỉ hoạt động khi menu_slug theo chuẩn WordPress.
 	public $capability             = 'manage_options';
 //	public $menu_slug              = '{{ path }}';
 	public $icon_url               = 'dashicons-admin-generic';
@@ -26,10 +26,10 @@ class {{ className }} extends BaseAdminPage {
 	 * Parent properties.
 	 */
 //	public $classes                = null;
-//	public $firstSubmenuTitle      = null; // Khi có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính. Thay đổi tên submenu tự sinh.
-//	public $firstSubmenuClasses    = null; // Khi có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính. Thêm class cho submenu tự sinh.
+//	public $firstSubmenuTitle      = null; // WordPress sẽ tự sinh submenu cho trang chính. Thay đổi tên submenu tự sinh.
+//	public $firstSubmenuClasses    = null; // WordPress sẽ tự sinh submenu cho trang chính. Thêm class cho submenu tự sinh.
 //	public $isSubmenuPage          = true;
-//	public $removeFirstSubmenu     = true;
+//	public $removeFirstSubmenu     = true; // WordPress sẽ tự sinh submenu cho trang chính. Xóa submenu tự sinh.
 //	public $urlsMatchCurrentAccess = [];
 //	public $urlsMatchHighlightMenu = [];
 //	public $showScreenOptions      = true;
@@ -145,18 +145,18 @@ class {{ className }} extends BaseAdminPage {
 	 */
 
 	public function styles() {
-		wp_enqueue_style(
-			Funcs::config('app.short_name') . '-bootstrap-grid',
-			Funcs::instance()->_getPublicUrl() . '/widen/plugins/bootstrap/css/bootstrap-grid.min.css',
-			null,
-			Funcs::instance()->_getVersion()
-		);
-		wp_enqueue_style(
-			Funcs::config('app.short_name') . '-bootstrap-utilities',
-			Funcs::instance()->_getPublicUrl() . '/widen/plugins/bootstrap/css/bootstrap-utilities.min.css',
-			null,
-			Funcs::instance()->_getVersion()
-		);
+//		wp_enqueue_style(
+//			Funcs::config('app.short_name') . '-bootstrap-grid',
+//			Funcs::instance()->_getPublicUrl() . '/widen/plugins/bootstrap/css/bootstrap-grid.min.css',
+//			null,
+//			Funcs::instance()->_getVersion()
+//		);
+//		wp_enqueue_style(
+//			Funcs::config('app.short_name') . '-bootstrap-utilities',
+//			Funcs::instance()->_getPublicUrl() . '/widen/plugins/bootstrap/css/bootstrap-utilities.min.css',
+//			null,
+//			Funcs::instance()->_getVersion()
+//		);
 	}
 
 	public function scripts() {
