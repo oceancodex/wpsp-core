@@ -117,9 +117,10 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 					if (!$matched) return;
 
 					$this->maybeNoTemplate();
-					$callback   = $this->prepareCallbackFunction($this->callback_function, $path, $fullPath);
-					$callParams = $this->getCallParams($path, $fullPath, $requestPath, $this, $this->callback_function);
-					$this->resolveAndCall($callback, $callParams);
+					$callback = $this->prepareCallbackFunction($this->callback_function, $path, $fullPath);
+					$this->resolveAndCall($callback);
+//					$callParams = $this->getCallParams($path, $fullPath, $requestPath, $this, $this->callback_function);
+//					$this->resolveAndCall($callback, $callParams);
 				});
 			}
 		}
