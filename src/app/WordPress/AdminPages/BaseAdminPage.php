@@ -7,7 +7,7 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseAdminPage extends BaseInstances {
 
-	use RouteTrait;
+	use RouteTrait, AdminPageTrait;
 
 	/**
 	 * WordPress admin page properties.
@@ -239,6 +239,7 @@ abstract class BaseAdminPage extends BaseInstances {
 				}
 				if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
 					$this->matchedCurrentAccess();
+					$this->overridePageTitle();
 					$this->screenOptions();
 					break;
 				}
@@ -255,6 +256,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		else {
 			if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
 				$this->matchedCurrentAccess();
+				$this->overridePageTitle();
 				$this->screenOptions();
 			}
 		}
