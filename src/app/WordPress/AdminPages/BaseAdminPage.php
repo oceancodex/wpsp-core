@@ -238,6 +238,7 @@ abstract class BaseAdminPage extends BaseInstances {
 					$urlMatchCurrentAccess = '/' . $this->funcs->_regexPath($urlMatchCurrentAccess) . '/iu';
 				}
 				if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
+					$this->assets();
 					$this->matchedCurrentAccess();
 					$this->overridePageTitle();
 					$this->screenOptions();
@@ -255,6 +256,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		 */
 		else {
 			if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
+				$this->assets();
 				$this->matchedCurrentAccess();
 				$this->overridePageTitle();
 				$this->screenOptions();
