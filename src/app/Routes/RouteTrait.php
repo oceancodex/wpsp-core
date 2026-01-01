@@ -458,8 +458,13 @@ trait RouteTrait {
 		 * }
 		 */
 		$this->request->setRouteResolver(function() use ($args, $callParams) {
-			$args['route']->parameters = $callParams;
-			return $args['route'];
+			if (isset($args['route'])) {
+				$args['route']->parameters = $callParams;
+				return $args['route'];
+			}
+			else {
+				return null;
+			}
 		});
 
 		return $callParams;
