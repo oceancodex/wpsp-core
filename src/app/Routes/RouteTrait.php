@@ -212,18 +212,20 @@ trait RouteTrait {
 	 * Nhưng trong myMethod chúng ta lại muốn gọi tiếp method khác, ví dụ: $this->secondMethod()
 	 * Nếu không sử dụng hàm này, thì secondMethod() sẽ không được "Dependencies Injection".
 	 */
-	public function prepareCallbackFunction($method, $path, $fullPath): \Closure {
-		return function() use ($method, $path, $fullPath) {
+	public function prepareCallbackFunction($method, $path, $fullPath, $args = []): \Closure {
+		return function() use ($method, $path, $fullPath, $args) {
 
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
 
 			// build callback [instance, method]
 			$callback = [$this, $method];
 
+			if (!isset($args['route'])) {
+				$args['route'] = $this->extraParams['route'] ?? null;
+			}
+
 			// build params
-			$callParams = $this->buildParametersForCallable(
-				$callback, $path, $fullPath, $requestPath
-			);
+			$callParams = $this->buildParametersForCallable($callback, $path, $fullPath, $requestPath, $args);
 
 			// call
 			return $this->resolveAndCall($callback, $callParams);
@@ -445,7 +447,7 @@ trait RouteTrait {
 				$callParams[$k] = is_string($v) ? urldecode($v) : $v;
 			}
 		}
-echo '<pre style="background:white;z-index:9999;position:relative">'; print_r(static::class); echo '</pre>';
+
 		/**
 		 * Đưa tham số route vào request để có thể truyền vào callback.\
 		 * Ví dụ:
