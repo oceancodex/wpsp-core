@@ -39,7 +39,7 @@ class WPRoles extends BaseRoute {
 
 			$callback = $this->prepareRouteCallback($callback, $constructParams);
 			$callback[1] = 'init';
-			$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
+			$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 			$this->resolveAndCall($callback, $callParams);
 		}
 	}

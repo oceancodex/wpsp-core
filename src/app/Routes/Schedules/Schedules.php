@@ -38,7 +38,7 @@ class Schedules extends BaseRoute {
 		// Init schedule.
 		$callback[1] = 'init';
 		$callback    = $this->prepareRouteCallback($callback, $constructParams);
-		$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
+		$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 		$this->resolveAndCall($callback, $callParams);
 	}
 

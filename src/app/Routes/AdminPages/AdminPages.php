@@ -83,7 +83,7 @@ class AdminPages extends BaseRoute {
 					],
 				];
 				$callback        = $this->prepareRouteCallback($callback, $constructParams);
-				$callParams      = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
+				$callParams      = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 				$this->resolveAndCall($callback, $callParams);
 			}
 			else {
@@ -182,14 +182,14 @@ class AdminPages extends BaseRoute {
 					if (isset($callback[1]) && is_string($callback[1]) && $callback[1] !== 'index') {
 						if (preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
 							$callback   = $this->prepareRouteCallback($callback, $constructParams);
-							$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
+							$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 							$this->resolveAndCall($callback, $callParams);
 						}
 					}
 					else {
 						if (isset($callback[1]) && $callback[1] == 'index' || !isset($callback[1])) $callback[1] = 'init';
 						$callback   = $this->prepareRouteCallback($callback, $constructParams);
-						$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1]);
+						$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 						$this->resolveAndCall($callback, $callParams);
 					}
 				}
