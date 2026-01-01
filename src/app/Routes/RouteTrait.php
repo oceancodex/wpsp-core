@@ -445,7 +445,7 @@ trait RouteTrait {
 				$callParams[$k] = is_string($v) ? urldecode($v) : $v;
 			}
 		}
-
+echo '<pre style="background:white;z-index:9999;position:relative">'; print_r(static::class); echo '</pre>';
 		/**
 		 * Đưa tham số route vào request để có thể truyền vào callback.\
 		 * Ví dụ:
