@@ -158,16 +158,16 @@ class Funcs extends BaseInstances {
 		return $this->_getMainPath() . '/app' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getControllerPath() {
-		return $this->_getAppPath() . '/Http/Controllers';
+	public function _getControllerPath($path = null) {
+		return $this->_getAppPath() . '/Http/Controllers' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getConfigPath() {
-		return $this->_getMainPath() . '/config';
+	public function _getConfigPath($path = null) {
+		return $this->_getMainPath() . '/config' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getRoutesPath() {
-		return $this->_getMainPath() . '/routes';
+	public function _getRoutesPath($path = null) {
+		return $this->_getMainPath() . '/routes' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
 	public function _getResourcesPath($path = null) {
@@ -178,12 +178,12 @@ class Funcs extends BaseInstances {
 		return $this->_getMainPath() . '/storage' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getDatabasePath() {
-		return $this->_getMainPath() . '/database';
+	public function _getDatabasePath($path = null) {
+		return $this->_getMainPath() . '/database' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
-	public function _getMigrationPath() {
-		return $this->_getDatabasePath() . '/migrations';
+	public function _getMigrationPath($path = null) {
+		return $this->_getDatabasePath() . '/migrations' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
 	public function _getMainUrl() {
@@ -193,8 +193,8 @@ class Funcs extends BaseInstances {
 		return rtrim(plugin_dir_url($this->_getMainFilePath()), '/\\');
 	}
 
-	public function _getPublicUrl() {
-		return $this->_getMainUrl() . '/public';
+	public function _getPublicUrl($path = null) {
+		return $this->_getMainUrl() . '/public' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
 	public function _getPublicPath($path = null) {
