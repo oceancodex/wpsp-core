@@ -30,7 +30,8 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $showScreenOptions      = false;
 	public $screenOptionsKey       = null;
 
-	public $callback_function = null;
+	public $callback_function      = null;
+	public $adminPageMetaBoxes     = [];
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
