@@ -15,7 +15,7 @@ use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Timebox;
 use WPSPCORE\App\Http\Middleware\StartSessionIfAuthenticated;
-use WPSPCORE\App\View\Directives\adminpagemetabox;
+use WPSPCORE\App\View\Directives\adminpagemetaboxes;
 
 abstract class WPSP extends BaseInstances {
 
@@ -158,7 +158,7 @@ abstract class WPSP extends BaseInstances {
 		$bladeCompiler = $this->application->make('blade.compiler');
 
 		$directiveClasses = [
-			adminpagemetabox::class
+			adminpagemetaboxes::class
 		];
 
 		foreach ($directiveClasses as $directiveClass) {
