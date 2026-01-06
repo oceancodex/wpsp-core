@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\App\Routes\AdminPages;
+namespace WPSPCORE\App\Routes\AdminPageMetaboxes;
 
 use WPSPCORE\App\Traits\HookRunnerTrait;
 
