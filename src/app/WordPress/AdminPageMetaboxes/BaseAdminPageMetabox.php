@@ -9,6 +9,10 @@ abstract class BaseAdminPageMetabox extends BaseInstances {
 
 	use RouteTrait;
 
-	public function afterConstruct() {}
+	public $adminMetaboxes = [];
+
+	public function afterConstruct() {
+
+	}
 
 }
