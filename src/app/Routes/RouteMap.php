@@ -17,6 +17,10 @@ class RouteMap extends BaseInstances {
 		return $this->map;
 	}
 
+	public function getRoute($routeClass, $routeName) {
+		return $this->map[$routeClass][$routeName] ?? null;
+	}
+
 	/*
 	 *
 	 */

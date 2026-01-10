@@ -28,14 +28,4 @@ trait AdminPageTrait {
 		}
 	}
 
-	/**
-	 * Thêm meta box vào admin page.\
-	 * Sau đó render meta box trong blade bằng:
-	 * @adminpagemetabox(string $id, string $admin_page_menu_class, array $admin_page_metabox_args)
-	 * @endadminpagemetabox
-	 */
-	public function addAdminPageMetaBox($id, $content) {
-		$this->adminPageMetaBoxes[$id] = $content;
-	}
-
 }

@@ -12,26 +12,28 @@ abstract class BaseAdminPage extends BaseInstances {
 	/**
 	 * WordPress admin page properties.
 	 */
-	public $menu_title             = null;
-	public $page_title             = null;
-	public $capability             = null;
-	public $menu_slug              = null;
-	public $icon_url               = null;
-	public $position               = null;
-	public $parent_slug            = null;
+	public $menu_title                 = null;
+	public $page_title                 = null;
+	public $capability                 = null;
+	public $menu_slug                  = null;
+	public $icon_url                   = null;
+	public $position                   = null;
+	public $parent_slug                = null;
 
-	public $classes                = null;
-	public $firstSubmenuTitle      = null;
-	public $firstSubmenuClasses    = null;
-	public $isSubmenuPage          = false;
-	public $removeFirstSubmenu     = false;
-	public $urlsMatchCurrentAccess = [];
-	public $urlsMatchHighlightMenu = [];
-	public $showScreenOptions      = false;
-	public $screenOptionsKey       = null;
+	public $classes                    = null;
+	public $firstSubmenuTitle          = null;
+	public $firstSubmenuClasses        = null;
+	public $isSubmenuPage              = false;
+	public $removeFirstSubmenu         = false;
+	public $urlsMatchCurrentAccess     = [];
+	public $urlsMatchHighlightMenu     = [];
+	public $showScreenOptions          = false;
+	public $screenOptionsKey           = null;
+	public $adminPageMetaboxesSortable = false;
+	public $adminPageMetaboxesPageNow  = null;
 
-	public $callback_function      = null;
-	public $adminPageMetaBoxes     = [];
+	public $callback_function          = null;
+	public $calledAssets               = false;
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
@@ -72,7 +74,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
-			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
+			$callback    = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
 //			$callParams = $this->getCallParams($this->extraParams['path'], $this->extraParams['full_path'], $requestPath, $this, $this->callback_function);
 //			$callback = $this->resolveCallback($callback, $callParams);
 		}
@@ -109,7 +111,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
-			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
+			$callback    = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
 //			$callParams = $this->getCallParams($this->extraParams['path'], $this->extraParams['full_path'], $requestPath, $this, $this->callback_function);
 //			$callback = $this->resolveCallback($callback, $callParams);
 		}
@@ -144,8 +146,8 @@ abstract class BaseAdminPage extends BaseInstances {
 			add_action('load-' . $adminPage, function() use ($adminPage) {
 				$this->beforeInLoadAdminPage($adminPage);
 
-				// Enqueue scripts.
-				add_action('admin_enqueue_scripts', [$this, 'assets']);
+				// Enqueue assets.
+				$this->assets();
 
 				$this->afterInLoadAdminPage($adminPage);
 			});
@@ -240,6 +242,7 @@ abstract class BaseAdminPage extends BaseInstances {
 				}
 				if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
 					$this->assets();
+					if ($this->adminPageMetaboxesSortable) $this->overridePageNowForOrderAdminMetaBoxes();
 					$this->matchedCurrentAccess();
 					$this->overridePageTitle();
 					$this->screenOptions();
@@ -258,6 +261,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		else {
 			if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
 				$this->assets();
+				if ($this->adminPageMetaboxesSortable) $this->overridePageNowForOrderAdminMetaBoxes();
 				$this->matchedCurrentAccess();
 				$this->overridePageTitle();
 				$this->screenOptions();
@@ -397,9 +401,15 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	public function assets() {
-		$this->styles();
-		$this->scripts();
-		$this->localizeScripts();
+		if ($this->calledAssets) return;
+
+		add_action('admin_enqueue_scripts', function() {
+			$this->styles();
+			$this->scripts();
+			$this->localizeScripts();
+		});
+
+		$this->calledAssets = true;
 	}
 
 	public function screenOptions() {
@@ -432,6 +442,14 @@ abstract class BaseAdminPage extends BaseInstances {
 			add_filter('screen_options_show_screen', function() {
 				return false;
 			});
+		}
+	}
+
+	public function overridePageNowForOrderAdminMetaBoxes() {
+		if ($this->adminPageMetaboxesPageNow || $this->screenOptionsKey) {
+			add_action('admin_head', function() {
+				echo '<script> var pagenow = "' . ($this->adminPageMetaboxesPageNow ?? $this->screenOptionsKey) . '"; </script>';
+			}, 999999999);
 		}
 	}
 
