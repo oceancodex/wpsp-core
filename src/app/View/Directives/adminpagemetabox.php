@@ -27,6 +27,7 @@ class adminpagemetabox extends BaseDirective {
 			if ($adminPageMenuArgs) {
 				$adminPageMenuArgs = trim($adminPageMenuArgs);
 				$adminPageMenuArgs = $this->arrayStringToArray($adminPageMenuArgs);
+//				$adminPageMenuArgs = json_encode($adminPageMenuArgs);
 			}
 
 			$expression = json_encode([
@@ -57,7 +58,6 @@ class adminpagemetabox extends BaseDirective {
 	 */
 
 	public static function render($jsonConfigs = null) {
-
 		if ($jsonConfigs) {
 			$jsonConfigs = json_decode($jsonConfigs, true);
 

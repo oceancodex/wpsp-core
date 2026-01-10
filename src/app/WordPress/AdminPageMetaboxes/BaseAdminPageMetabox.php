@@ -12,7 +12,7 @@ abstract class BaseAdminPageMetabox extends BaseInstances {
 	public $adminMetaboxes = [];
 
 	public function afterConstruct() {
-
+		$this->adminMetaboxes = $this->adminMetaboxes();
 	}
 
 }
