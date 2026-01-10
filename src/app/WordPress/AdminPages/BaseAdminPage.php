@@ -29,6 +29,8 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $urlsMatchHighlightMenu     = [];
 	public $showScreenOptions          = false;
 	public $screenOptionsKey           = null;
+
+	public $adminPageMetaboxes         = [];
 	public $adminPageMetaboxesSortable = false;
 	public $adminPageMetaboxesPageNow  = null;
 
@@ -372,6 +374,10 @@ abstract class BaseAdminPage extends BaseInstances {
 		}
 
 		return $currentClasses;
+	}
+
+	public function adminPageMetaboxes() {
+		return [];
 	}
 
 	/*

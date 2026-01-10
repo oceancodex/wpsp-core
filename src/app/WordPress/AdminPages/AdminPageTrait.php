@@ -1,7 +1,9 @@
 <?php
+
 namespace WPSPCORE\App\WordPress\AdminPages;
 
 trait AdminPageTrait {
+
 	public $override_page_title = null;
 
 	/**
