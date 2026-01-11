@@ -4,8 +4,9 @@ namespace WPSPCORE\app\WordPress\AdminPages;
 
 trait AdminPageScreenOptionsTrait {
 
-	public $showScreenOptions = false;
-	public $screenOptionsKey  = null;
+	public $showScreenOptions    = false;
+	public $screenOptionsKey     = null;
+	public $screenOptionsPageNow = null;
 
 	/*
 	 *
@@ -14,7 +15,7 @@ trait AdminPageScreenOptionsTrait {
 	/**
 	 * Xử lý screen options.
 	 */
-	public function screenOptions() {
+	public function showScreenOptions() {
 		/**
 		 * Nếu menu hiện tại có thể hiển thị screen options.\
 		 * Hãy hiển thị screen options khi truy cập.
@@ -56,4 +57,24 @@ trait AdminPageScreenOptionsTrait {
 			});
 		}
 	}
+
+	/**
+	 * Ghi đè "pagenow" trong JavaScript để gửi Ajax sắp xếp metaboxes.
+	 */
+	public function overrideScreenOptionsPageNow() {
+		if ($this->screenOptionsPageNow || $this->screenOptionsKey) {
+			add_action('admin_head', function() {
+				echo '<script> var pagenow = "' . ($this->screenOptionsPageNow ?? $this->screenOptionsKey) . '"; </script>';
+			}, 999999999);
+		}
+	}
+
+	/**
+	 * Lấy screen layout columns.
+	 */
+	public function screenColumns() {
+		$screenColumns = get_user_option('screen_layout_' . ($this->screenOptionsPageNow ?? $this->screenOptionsKey)) ?: 2;
+		return $screenColumns;
+	}
+
 }

@@ -4,13 +4,13 @@ namespace WPSPCORE\App\WordPress\AdminPages;
 
 trait AdminPageTrait {
 
-	public $override_page_title = null;
+	public $page_title_override = null;
 
 	/**
 	 * Ghi đè page_title.
 	 */
 	public function overridePageTitle($overrideTitle = null) {
-		$overrideTitle = $overrideTitle ?? $this->override_page_title ?? $this->page_title;
+		$overrideTitle = $overrideTitle ?? $this->page_title_override ?? $this->page_title;
 		if ($overrideTitle) {
 			add_filter('admin_title', function($admin_title, $title) use ($overrideTitle) {
 				return $overrideTitle;

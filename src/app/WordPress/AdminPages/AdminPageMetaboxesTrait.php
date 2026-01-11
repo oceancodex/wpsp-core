@@ -4,64 +4,81 @@ namespace WPSPCORE\App\WordPress\AdminPages;
 
 trait AdminPageMetaboxesTrait {
 
-	public $adminPageMetaboxes         = [];
-	public $adminPageMetaboxesSortable = false;
-	public $adminPageMetaboxesPageNow  = null;
+	public $adminPageMetaboxes  = [];
 
 	/**
 	 * Lấy danh sách admin page metaboxes theo thứ tự đã lưu trong user meta.
 	 */
 	public function adminPageMetaboxes() {
-		$pageNow                  = $this->adminPageMetaboxesPageNow ?? $this->screenOptionsKey ?? null;
+		$pageNow                  = $this->screenOptionsPageNow ?? $this->screenOptionsKey ?? null;
 		$metaboxes                = $this->adminPageMetaboxes ?? [];
 		$sortedAdminPageMetaboxes = ['side' => [], 'normal' => [], 'advanced' => [], 'closed' => [], 'hidden' => []];
 
 		if ($pageNow && $metaboxes) {
 			/**
 			 * [1] Chuẩn bị danh sách metaboxes lấy từ admin page.\
-			 * Danh sách này có dạng [0 => 'submitdiv', 1 => 'inputsdiv', ...]\
+			 * Danh sách này có dạng ['submitdiv' => ['title' => '', 'view' => ''], ...]\
 			 * Mục đích để lấy ra các metaboxes khác nhau giữa metaboxes lấy từ user và metaboxs được khai báo trong admin page.
 			 */
-			$metaboxesListBoxes = [];
+			$metaboxesList = [];
 			foreach ($metaboxes as $position => $metaboxItems) {
-				foreach ($metaboxItems as $metaboxItemKey => $metaboxItemValue) {
-					$metaboxesListBoxes[$metaboxItemKey] = $metaboxItemValue;
+				foreach ($metaboxItems as $metaboxItemKey => $metaboxItem) {
+					$metaboxesList[$metaboxItemKey] = $metaboxItem;
 				}
 			}
 
-			$orderMetaboxes  = get_user_option('meta-box-order_' . $pageNow) ?: [];
+			$sortedMetaboxes = get_user_option('meta-box-order_' . $pageNow) ?: [];
 			$closedMetaboxes = get_user_option('closedpostboxes_' . $pageNow) ?: [];
 			$hiddenMetaboxes = get_user_option('metaboxhidden_' . $pageNow) ?: [];
+//			$screenColumns   = get_user_option('screen_layout_' . $pageNow) ?: 2;
 
-			if (!empty($orderMetaboxes)) {
+			if (!empty($sortedMetaboxes)) {
 				/**
 				 * [2] Chuẩn bị danh sách metaboxes lấy từ user meta.\
 				 * Danh sách này có dạng [0 => 'submitdiv', 1 => 'inputsdiv', ...]\
 				 * Mục đích để lấy ra các metaboxes khác nhau giữa metaboxes lấy từ user và metaboxs được khai báo trong admin page.
 				 */
-				$orderMetaboxesListBoxes = [];
-				foreach ($orderMetaboxes as $position => $metaboxIds) {
-					$metaboxIds = explode(',', $metaboxIds);
+				$sortedMetaboxesList = [];
+				foreach ($sortedMetaboxes as $position => $metaboxStrIds) {
+					$metaboxIds = explode(',', $metaboxStrIds);
 					foreach ($metaboxIds as $metaboxId) {
 						if ($metaboxId) {
 							// Lưu danh sách metaboxes theo thứ tự.
-							if (isset($metaboxesListBoxes[$metaboxId])) {
-								$sortedAdminPageMetaboxes[$position][$metaboxId] = $metaboxesListBoxes[$metaboxId];
+							if (isset($metaboxesList[$metaboxId])) {
+								$sortedAdminPageMetaboxes[$position][$metaboxId] = $metaboxesList[$metaboxId];
 							}
 
 							// Thêm các item vào danh sách [1]
-							$orderMetaboxesListBoxes[] = $metaboxId;
+							$sortedMetaboxesList[] = $metaboxId;
 						}
 					}
 				}
+				$sortedMetaboxesList = array_unique($sortedMetaboxesList);
+
+				/**
+				 * Tạo metaboxes ảo để hiển thị checkboxes trên screen options panel.
+				 */
+				add_action('current_screen', function($screen) use ($pageNow, $metaboxesList) {
+					foreach ($metaboxesList as $metaboxId => $metabox) {
+						add_meta_box(
+							$metaboxId,
+							$metabox['title'] ?? null,
+							fn() => null,
+							$pageNow,
+							'normal'
+						);
+					}
+				});
 
 				/**
 				 * [3] Lấy các metaboxes khác nhau giữa metaboxes lấy từ user và metaboxs được khai báo trong admin page.
 				 * Sau đó đưa vào danh sách sorted admin meta boxes.
 				 */
-				$leftoverMetaboxes = array_values(array_diff(array_keys($metaboxesListBoxes), $orderMetaboxesListBoxes));
-				foreach ($leftoverMetaboxes as $metaboxId) {
-					$sortedAdminPageMetaboxes['normal'][$metaboxId] = $metaboxes[$metaboxId];
+				$leftoverMetaboxes = array_values(array_diff(array_keys($metaboxesList), $sortedMetaboxesList));
+				foreach ($leftoverMetaboxes as $leftoverMetaboxId) {
+					if (isset($metaboxesList[$leftoverMetaboxId])) {
+						$sortedAdminPageMetaboxes['normal'][$leftoverMetaboxId] = $metaboxesList[$leftoverMetaboxId];
+					}
 				}
 			}
 			else {
@@ -84,17 +101,6 @@ trait AdminPageMetaboxesTrait {
 		}
 
 		return $sortedAdminPageMetaboxes;
-	}
-
-	/**
-	 * Ghi đè "pagenow" trong JavaScript để gửi Ajax sắp xếp metaboxes.
-	 */
-	public function overridePageNowForOrderAdminMetaBoxes() {
-		if ($this->adminPageMetaboxesPageNow || $this->screenOptionsKey) {
-			add_action('admin_head', function() {
-				echo '<script> var pagenow = "' . ($this->adminPageMetaboxesPageNow ?? $this->screenOptionsKey) . '"; </script>';
-			}, 999999999);
-		}
 	}
 
 }

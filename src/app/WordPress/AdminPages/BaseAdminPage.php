@@ -31,6 +31,10 @@ abstract class BaseAdminPage extends BaseInstances {
 	public  $callback_function     = null;
 	private $calledAssets          = false;
 
+	/*
+	 *
+	 */
+
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
 		$this->overrideMenuSlug($this->extraParams['full_path']);
@@ -162,6 +166,10 @@ abstract class BaseAdminPage extends BaseInstances {
 		}
 	}
 
+	/*
+	 *
+	 */
+
 	private function matchHighlightMenu() {
 		$currentRequest = $this->request->getRequestUri();
 
@@ -238,10 +246,10 @@ abstract class BaseAdminPage extends BaseInstances {
 				}
 				if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
 					$this->assets();
-					if ($this->adminPageMetaboxesSortable) $this->overridePageNowForOrderAdminMetaBoxes();
+					if ($this->adminPageMetaboxes) $this->overrideScreenOptionsPageNow();
 					$this->matchedCurrentAccess();
 					$this->overridePageTitle();
-					$this->screenOptions();
+					$this->showScreenOptions();
 					break;
 				}
 			}
@@ -249,7 +257,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 		/**
 		 * ---
-		 * [1] Tự động khớp với request hiện tại.
+		 * Tự động khớp với request hiện tại.
 		 * ---
 		 * Khi $this->menu_slug khớp với request hiện tại => đang truy cập vào menu_slug này.\
 		 * Chạy hàm "screenOptions" và "matchedCurrentAccess".
@@ -257,10 +265,10 @@ abstract class BaseAdminPage extends BaseInstances {
 		else {
 			if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
 				$this->assets();
-				if ($this->adminPageMetaboxesSortable) $this->overridePageNowForOrderAdminMetaBoxes();
+				if ($this->adminPageMetaboxes) $this->overrideScreenOptionsPageNow();
 				$this->matchedCurrentAccess();
 				$this->overridePageTitle();
-				$this->screenOptions();
+				$this->showScreenOptions();
 			}
 		}
 	}
