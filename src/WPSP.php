@@ -43,7 +43,7 @@ abstract class WPSP extends BaseInstances {
 		$this->extends();
 		$this->bindings();
 
-		$this->registerBladeDirectives();
+//		$this->registerBladeDirectives();
 
 		$this->application->boot();
 		$this->handleRequest();

@@ -7,7 +7,7 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseAdminPage extends BaseInstances {
 
-	use RouteTrait, AdminPageTrait;
+	use RouteTrait, AdminPageTrait, AdminPageMetaboxesTrait;
 
 	/**
 	 * WordPress admin page properties.
@@ -29,10 +29,6 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $urlsMatchHighlightMenu     = [];
 	public $showScreenOptions          = false;
 	public $screenOptionsKey           = null;
-
-	public $adminPageMetaboxes         = [];
-	public $adminPageMetaboxesSortable = false;
-	public $adminPageMetaboxesPageNow  = null;
 
 	public $callback_function          = null;
 	public $calledAssets               = false;
@@ -376,10 +372,6 @@ abstract class BaseAdminPage extends BaseInstances {
 		return $currentClasses;
 	}
 
-	public function adminPageMetaboxes() {
-		return [];
-	}
-
 	/*
 	 *
 	 */
@@ -424,6 +416,11 @@ abstract class BaseAdminPage extends BaseInstances {
 		 * Hãy hiển thị screen options khi truy cập.
 		 */
 		if ($this->showScreenOptions) {
+			// Show screen options.
+			add_filter('screen_options_show_screen', function() {
+				return true;
+			});
+
 			// Custom screen options.
 			add_action('current_screen', function($screen) {
 				// Ghi đè "screen id" và "screen base".
