@@ -7,7 +7,7 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseAdminPage extends BaseInstances {
 
-	use RouteTrait, AdminPageTrait;
+	use RouteTrait, AdminPageTrait, AdminPageScreenOptionsTrait, AdminPageMetaBoxesTrait;
 
 	/**
 	 * WordPress admin page properties.
@@ -27,10 +27,13 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $removeFirstSubmenu     = false;
 	public $urlsMatchCurrentAccess = [];
 	public $urlsMatchHighlightMenu = [];
-	public $showScreenOptions      = false;
-	public $screenOptionsKey       = null;
 
-	public $callback_function = null;
+	public  $callback_function     = null;
+	private $calledAssets          = false;
+
+	/*
+	 *
+	 */
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
@@ -71,7 +74,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
-			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
+			$callback    = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
 //			$callParams = $this->getCallParams($this->extraParams['path'], $this->extraParams['full_path'], $requestPath, $this, $this->callback_function);
 //			$callback = $this->resolveCallback($callback, $callParams);
 		}
@@ -108,7 +111,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		$callback = null;
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
 			$requestPath = trim($this->request->getRequestUri(), '/\\');
-			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
+			$callback    = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
 //			$callParams = $this->getCallParams($this->extraParams['path'], $this->extraParams['full_path'], $requestPath, $this, $this->callback_function);
 //			$callback = $this->resolveCallback($callback, $callParams);
 		}
@@ -143,8 +146,8 @@ abstract class BaseAdminPage extends BaseInstances {
 			add_action('load-' . $adminPage, function() use ($adminPage) {
 				$this->beforeInLoadAdminPage($adminPage);
 
-				// Enqueue scripts.
-				add_action('admin_enqueue_scripts', [$this, 'assets']);
+				// Enqueue assets.
+				$this->assets();
 
 				$this->afterInLoadAdminPage($adminPage);
 			});
@@ -162,6 +165,10 @@ abstract class BaseAdminPage extends BaseInstances {
 			}, 9999999999);
 		}
 	}
+
+	/*
+	 *
+	 */
 
 	private function matchHighlightMenu() {
 		$currentRequest = $this->request->getRequestUri();
@@ -239,9 +246,10 @@ abstract class BaseAdminPage extends BaseInstances {
 				}
 				if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
 					$this->assets();
+					if ($this->screenOptionsPageNow) $this->overrideScreenOptionsPageNow();
 					$this->matchedCurrentAccess();
 					$this->overridePageTitle();
-					$this->screenOptions();
+					$this->showScreenOptions();
 					break;
 				}
 			}
@@ -249,7 +257,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 		/**
 		 * ---
-		 * [1] Tự động khớp với request hiện tại.
+		 * Tự động khớp với request hiện tại.
 		 * ---
 		 * Khi $this->menu_slug khớp với request hiện tại => đang truy cập vào menu_slug này.\
 		 * Chạy hàm "screenOptions" và "matchedCurrentAccess".
@@ -257,116 +265,12 @@ abstract class BaseAdminPage extends BaseInstances {
 		else {
 			if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
 				$this->assets();
+				if ($this->screenOptionsPageNow) $this->overrideScreenOptionsPageNow();
 				$this->matchedCurrentAccess();
 				$this->overridePageTitle();
-				$this->screenOptions();
+				$this->showScreenOptions();
 			}
 		}
-	}
-
-	/*
-	 *
-	 */
-
-	private function handleAdminMenuClasses($additionalClasses = null) {
-		/**
-		 * Khi có "additionalClasses", xử lý nó.\
-		 * Khi menu có khai báo $classes, xử lý nó.
-		 */
-		if ($additionalClasses = $additionalClasses ?? $this->classes) {
-			if ($this->isSubmenuPage) {
-				add_action('admin_menu', function() use ($additionalClasses) {
-					global $submenu;
-
-					if (!isset($submenu[$this->parent_slug])) {
-						return;
-					}
-
-					foreach ($submenu[$this->parent_slug] as $index => &$item) {
-						if ($item[2] === $this->menu_slug) {
-							$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $additionalClasses);
-						}
-					}
-				}, 9999999999);
-			}
-			else {
-				add_action('admin_menu', function() use ($additionalClasses) {
-					global $menu;
-
-					foreach ($menu as $index => &$item) {
-						if ($item[2] === $this->menu_slug) {
-							$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $additionalClasses);
-							break;
-						}
-					}
-				}, 9999999999);
-			}
-		}
-
-		/**
-		 * Khi menu có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính ở vị trí đầu tiên.\
-		 * Xử lý class="" cho submenu tự sinh.
-		 */
-		if ($this->firstSubmenuClasses) {
-			add_action('admin_menu', function() {
-				global $submenu;
-
-				if (!isset($submenu[$this->menu_slug])) {
-					return;
-				}
-
-				foreach ($submenu[$this->menu_slug] as $index => &$item) {
-					if ($item[2] === $this->menu_slug) {
-						$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $this->firstSubmenuClasses);
-					}
-				}
-			}, 9999999999);
-		}
-	}
-
-	private function prepareAdminMenuClasses($currentClasses = null, $additionalClasses = null) {
-		$currentClasses = trim($currentClasses);
-
-		if (!$additionalClasses) {
-			return $currentClasses;
-		}
-
-		// CASE 1: string → append
-		if (is_string($additionalClasses)) {
-			return trim($currentClasses . ' ' . $additionalClasses);
-		}
-
-		// CASE 2 / 3 / 4: array
-		if (is_array($additionalClasses)) {
-
-			// CASE 3: ['find'=>..., 'replace'=>...]
-			if (isset($additionalClasses['find'], $additionalClasses['replace'])) {
-				return trim(str_replace(
-					$additionalClasses['find'],
-					$additionalClasses['replace'],
-					$currentClasses
-				));
-			}
-
-			// CASE 4: [ ['find'=>..., 'replace'=>...], ... ]
-			$isReplaceList = isset($additionalClasses[0]['replace']) && isset($additionalClasses[0]['find']) && is_array($additionalClasses[0]);
-
-			if ($isReplaceList) {
-				foreach ($additionalClasses as $rule) {
-					$currentClasses = str_replace(
-						$rule['find'],
-						$rule['replace'],
-						$currentClasses
-					);
-				}
-				return trim($currentClasses);
-			}
-
-			// CASE 2: ['class-1','class-2'] → append
-			return trim($currentClasses . ' ' . implode(' ', $additionalClasses));
-		}
-
-		return $currentClasses;
 	}
 
 	/*
@@ -396,47 +300,21 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	public function assets() {
-		$this->styles();
-		$this->scripts();
-		$this->localizeScripts();
+		if ($this->calledAssets) return;
+
+		add_action('admin_enqueue_scripts', function() {
+			/**
+			 * Enqueue "dashboard" scripts để có thể sắp xếp gửi Ajax khi sắp xếp metaboxes và screen options trong admin page.
+			 */
+			wp_enqueue_script('dashboard');
+
+			$this->styles();
+			$this->scripts();
+			$this->localizeScripts();
+		});
+
+		$this->calledAssets = true;
 	}
-
-	public function screenOptions() {
-		/**
-		 * Nếu menu hiện tại có thể hiển thị screen options.\
-		 * Hãy hiển thị screen options khi truy cập.
-		 */
-		if ($this->showScreenOptions) {
-			// Custom screen options.
-			add_action('current_screen', function($screen) {
-				// Ghi đè "screen id" và "screen base".
-				// Mục đích để screen options hoạt động độc lập theo "screen_options_key".
-				$screen->id   = $this->screenOptionsKey;
-				$screen->base = $this->screenOptionsKey;
-
-				// Truyền thêm property này vào current screen để List Table có thể gọi ra.
-				$screen->show_screen_options = true;
-			}, 1);
-
-			// Save items per page option.
-			add_filter('set_screen_option_' . $this->screenOptionsKey . '_items_per_page', function($default, $option, $value) {
-				return $value;
-			}, 9999999999, 3);
-		}
-		/**
-		 * Nếu không, ẩn hoàn toàn screen options.\
-		 * Vì nếu menu hiện tại có chứa Custom List Table, screen options sẽ tự động hiển thị.
-		 */
-		else {
-			add_filter('screen_options_show_screen', function() {
-				return false;
-			});
-		}
-	}
-
-	/*
-	 *
-	 */
 
 	public function styles() {}
 

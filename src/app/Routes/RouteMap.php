@@ -17,6 +17,10 @@ class RouteMap extends BaseInstances {
 		return $this->map;
 	}
 
+	public function getRoute($routeClass, $routeName) {
+		return $this->map[$routeClass][$routeName] ?? null;
+	}
+
 	/*
 	 *
 	 */
@@ -34,13 +38,14 @@ class RouteMap extends BaseInstances {
 		}
 
 		$this->map[$type][$name] = [
-			'name'      => $name,
-			'file'      => 'routes/' . $type . '.php',
-			'line'      => (new \Exception())->getTrace()[1]['line'] ?? 0,
-			'namespace' => $namespace,
-			'version'   => $version,
-			'path'      => $path,
-			'full_path' => $fullPath,
+			'name'       => $name,
+			'file'       => 'routes/' . $type . '.php',
+			'line'       => (new \Exception())->getTrace()[1]['line'] ?? 0,
+			'namespace'  => $namespace,
+			'version'    => $version,
+			'path'       => $path,
+			'full_path'  => $fullPath,
+			'route_data' => $route,
 		];
 	}
 

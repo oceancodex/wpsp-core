@@ -15,6 +15,7 @@ use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Timebox;
 use WPSPCORE\App\Http\Middleware\StartSessionIfAuthenticated;
+use WPSPCORE\App\View\Directives\adminpagemetaboxes;
 
 abstract class WPSP extends BaseInstances {
 
@@ -41,6 +42,9 @@ abstract class WPSP extends BaseInstances {
 		$this->bootstrap();
 		$this->extends();
 		$this->bindings();
+
+//		$this->registerBladeDirectives();
+
 		$this->application->boot();
 		$this->handleRequest();
 	}
@@ -148,6 +152,23 @@ abstract class WPSP extends BaseInstances {
 	protected function bindingsConsole() {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
+	}
+
+	protected function registerBladeDirectives() {
+		$bladeCompiler = $this->application->make('blade.compiler');
+
+		$directiveClasses = [
+			adminpagemetaboxes::class
+		];
+
+		foreach ($directiveClasses as $directiveClass) {
+			(new $directiveClass(
+				$this->mainPath,
+				$this->rootNamespace,
+				$this->prefixEnv,
+				array_merge($this->extraParams, ['funcs' => $this->funcs])
+			))->register($bladeCompiler);
+		}
 	}
 
 	/*
