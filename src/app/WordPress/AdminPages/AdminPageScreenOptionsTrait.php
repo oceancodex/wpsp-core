@@ -31,16 +31,23 @@ trait AdminPageScreenOptionsTrait {
 				add_screen_option('layout_columns', ['max' => 2, 'default' => 2]);
 			}, 9999999999);
 
-			// Custom screen options.
+			// Ghi đè "screen id" và "screen base".
+			// Mục đích để screen options hoạt động độc lập theo "screenOptionsKey".
 			add_action('current_screen', function($screen) {
-				// Ghi đè "screen id" và "screen base".
-				// Mục đích để screen options hoạt động độc lập theo "screen_options_key".
-				$screen->id   = $this->screenOptionsKey;
-				$screen->base = $this->screenOptionsKey;
+				if (!$this->screenOptionsPageNow && $this->screenOptionsKey) {
+					$screen->id   = $this->screenOptionsKey;
+					$screen->base = $this->screenOptionsKey;
+				}
 
 				// Truyền thêm property này vào current screen để List Table có thể gọi ra.
 				$screen->show_screen_options = true;
-			}, 1);
+			}, 2);
+
+			if (!$this->screenOptionsPageNow && $this->screenOptionsKey) {
+				add_action('admin_head', function() {
+					echo '<script> var pagenow = "' . $this->screenOptionsKey . '"; </script>';
+				}, 999999999);
+			}
 
 			// Save items per page option.
 			add_filter('set_screen_option_' . $this->screenOptionsKey . '_items_per_page', function($default, $option, $value) {
@@ -62,10 +69,17 @@ trait AdminPageScreenOptionsTrait {
 	 * Ghi đè "pagenow" trong JavaScript để gửi Ajax sắp xếp metaboxes.
 	 */
 	public function overrideScreenOptionsPageNow() {
-		if ($this->screenOptionsPageNow || $this->screenOptionsKey) {
+		if ($this->screenOptionsPageNow) {
 			add_action('admin_head', function() {
-				echo '<script> var pagenow = "' . ($this->screenOptionsPageNow ?? $this->screenOptionsKey) . '"; </script>';
+				echo '<script> var pagenow = "' . $this->screenOptionsPageNow . '"; </script>';
 			}, 999999999);
+
+			// Ghi đè "screen id" và "screen base".
+			// Mục đích để screen options hoạt động độc lập theo "screenOptionsPageNow".
+			add_action('current_screen', function($screen) {
+				$screen->id   = $this->screenOptionsPageNow;
+				$screen->base = $this->screenOptionsPageNow;
+			}, 1);
 		}
 	}
 

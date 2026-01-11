@@ -7,7 +7,7 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseAdminPage extends BaseInstances {
 
-	use RouteTrait, AdminPageTrait, AdminPageScreenOptionsTrait, AdminPageMetaboxesTrait;
+	use RouteTrait, AdminPageTrait, AdminPageScreenOptionsTrait, AdminPageMetaBoxesTrait;
 
 	/**
 	 * WordPress admin page properties.
@@ -246,7 +246,7 @@ abstract class BaseAdminPage extends BaseInstances {
 				}
 				if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
 					$this->assets();
-					if ($this->adminPageMetaboxes) $this->overrideScreenOptionsPageNow();
+					if ($this->screenOptionsPageNow) $this->overrideScreenOptionsPageNow();
 					$this->matchedCurrentAccess();
 					$this->overridePageTitle();
 					$this->showScreenOptions();
@@ -265,7 +265,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		else {
 			if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
 				$this->assets();
-				if ($this->adminPageMetaboxes) $this->overrideScreenOptionsPageNow();
+				if ($this->screenOptionsPageNow) $this->overrideScreenOptionsPageNow();
 				$this->matchedCurrentAccess();
 				$this->overridePageTitle();
 				$this->showScreenOptions();

@@ -17,20 +17,20 @@ class adminpagemetaboxes extends BaseDirective {
 			$expression = explode(',', $expression);
 
 //			$adminPageMenuClass      = $expression[0] ?? null;
-			$adminPageMetaboxName    = $expression[0] ?? null;
-			$adminPageMetaboxPageNow = $expression[1] ?? null;
+			$adminPageMetaBoxName    = $expression[0] ?? null;
+			$adminPageMetaBoxPageNow = $expression[1] ?? null;
 			$adminPageMenuArgs       = $expression[2] ?? null;
 
 //			if ($adminPageMenuClass) {
 //				$adminPageMenuClass = preg_replace('/^(\s*?)\'|^(\s*?)\"|\'(\s*?)$|\"(\s*?)$/', '', $adminPageMenuClass);
 //			}
 
-			if ($adminPageMetaboxName) {
-				$adminPageMetaboxName = preg_replace('/^(\s*?)\'|^(\s*?)\"|\'(\s*?)$|\"(\s*?)$/', '', $adminPageMetaboxName);
+			if ($adminPageMetaBoxName) {
+				$adminPageMetaBoxName = preg_replace('/^(\s*?)\'|^(\s*?)\"|\'(\s*?)$|\"(\s*?)$/', '', $adminPageMetaBoxName);
 			}
 
-			if ($adminPageMetaboxPageNow) {
-				$adminPageMetaboxPageNow = preg_replace('/^(\s*?)\'|^(\s*?)\"|\'(\s*?)$|\"(\s*?)$/', '', $adminPageMetaboxPageNow);
+			if ($adminPageMetaBoxPageNow) {
+				$adminPageMetaBoxPageNow = preg_replace('/^(\s*?)\'|^(\s*?)\"|\'(\s*?)$|\"(\s*?)$/', '', $adminPageMetaBoxPageNow);
 			}
 
 			if ($adminPageMenuArgs) {
@@ -41,8 +41,8 @@ class adminpagemetaboxes extends BaseDirective {
 
 			$expression = json_encode([
 //				'admin_page_menu_class'      => $adminPageMenuClass,
-				'admin_page_metabox_name'    => $adminPageMetaboxName,
-				'admin_page_metabox_pagenow' => $adminPageMetaboxPageNow,
+				'admin_page_metabox_name'    => $adminPageMetaBoxName,
+				'admin_page_metabox_pagenow' => $adminPageMetaBoxPageNow,
 				'admin_page_metabox_args'    => $adminPageMenuArgs,
 			]);
 
@@ -59,8 +59,8 @@ class adminpagemetaboxes extends BaseDirective {
 		$rootNamespace = $this->rootNamespace;
 		$prefixEnv = $this->prefixEnv;
 		return "<?php
-					\$__adminMetaboxJsonConfigs = '$expression';
-					echo \\WPSPCORE\\App\\View\\Directives\\adminpagemetaboxes::render(\$__adminMetaboxJsonConfigs, '$rootNamespace');
+					\$__adminMetaBoxJsonConfigs = '$expression';
+					echo \\WPSPCORE\\App\\View\\Directives\\adminpagemetaboxes::render(\$__adminMetaBoxJsonConfigs, '$rootNamespace');
 					?>";
 	}
 
@@ -73,26 +73,26 @@ class adminpagemetaboxes extends BaseDirective {
 			$jsonConfigs = json_decode($jsonConfigs, true);
 
 //			$adminPageMenuClass      = $jsonConfigs['admin_page_menu_class'] ?? null;
-			$adminPageMetaboxName    = $jsonConfigs['admin_page_metabox_name'] ?? null;
-			$adminPageMetaboxPageNow = $jsonConfigs['admin_page_metabox_pagenow'] ?? null;
+			$adminPageMetaBoxName    = $jsonConfigs['admin_page_metabox_name'] ?? null;
+			$adminPageMetaBoxPageNow = $jsonConfigs['admin_page_metabox_pagenow'] ?? null;
 
-			if ($adminPageMetaboxName) {
+			if ($adminPageMetaBoxName) {
 				$adminPageMenuArgs = $jsonConfigs['admin_page_metabox_args'] ?? null;
 
 				/** @var \WPSPCORE\Funcs|\WPSP\Funcs $funcs */
 				$funcs = '\\' . $rootNamespace . '\\Funcs';
 				$routeMap = $funcs::instance()->getRouteMap();
-				$route = $routeMap->getRoute('AdminPageMetaboxes', $adminPageMetaboxName);
+				$route = $routeMap->getRoute('AdminPageMetaBoxes', $adminPageMetaBoxName);
 
 				if ($route) {
-					$adminPageMetaboxCallbackClass = $route['route_data']->callback[0] ?? null;
+					$adminPageMetaBoxCallbackClass = $route['route_data']->callback[0] ?? null;
 
-					if ($adminPageMetaboxCallbackClass) {
-						$adminPageMetaboxCallbackClass = '\\' . $adminPageMetaboxCallbackClass;
-						$adminPageMetaboxes = (new $adminPageMetaboxCallbackClass())->adminPageMetaboxes();
+					if ($adminPageMetaBoxCallbackClass) {
+						$adminPageMetaBoxCallbackClass = '\\' . $adminPageMetaBoxCallbackClass;
+						$adminPageMetaBoxes = (new $adminPageMetaBoxCallbackClass())->adminPageMetaBoxes();
 					}
 
-					echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($adminPageMetaboxName); echo '</pre>';
+					echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($adminPageMetaBoxName); echo '</pre>';
 					echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($adminPageMenuArgs); echo '</pre>';
 				}
 			}
