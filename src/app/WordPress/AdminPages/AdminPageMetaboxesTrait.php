@@ -14,7 +14,7 @@ trait AdminPageMetaboxesTrait {
 	public function adminPageMetaboxes() {
 		$pageNow                  = $this->adminPageMetaboxesPageNow ?? $this->screenOptionsKey ?? null;
 		$metaboxes                = $this->adminPageMetaboxes ?? [];
-		$sortedAdminPageMetaboxes = ['side' => [], 'normal' => [], 'advanced' => [], 'closed' => []];
+		$sortedAdminPageMetaboxes = ['side' => [], 'normal' => [], 'advanced' => [], 'closed' => [], 'hidden' => []];
 
 		if ($pageNow && $metaboxes) {
 			/**
@@ -31,6 +31,7 @@ trait AdminPageMetaboxesTrait {
 
 			$orderMetaboxes  = get_user_option('meta-box-order_' . $pageNow) ?: [];
 			$closedMetaboxes = get_user_option('closedpostboxes_' . $pageNow) ?: [];
+			$hiddenMetaboxes = get_user_option('metaboxhidden_' . $pageNow) ?: [];
 
 			if (!empty($orderMetaboxes)) {
 				/**
@@ -73,9 +74,27 @@ trait AdminPageMetaboxesTrait {
 			foreach ($closedMetaboxes as $closedMetabox) {
 				$sortedAdminPageMetaboxes['closed'][$closedMetabox] = 1;
 			}
+
+			/**
+			 * [5] Ẩn các metaboxes đã đưa vào danh sách hidden.
+			 */
+			foreach ($hiddenMetaboxes as $hiddenMetabox) {
+				$sortedAdminPageMetaboxes['hidden'][$hiddenMetabox] = 1;
+			}
 		}
 
 		return $sortedAdminPageMetaboxes;
+	}
+
+	/**
+	 * Ghi đè "pagenow" trong JavaScript để gửi Ajax sắp xếp metaboxes.
+	 */
+	public function overridePageNowForOrderAdminMetaBoxes() {
+		if ($this->adminPageMetaboxesPageNow || $this->screenOptionsKey) {
+			add_action('admin_head', function() {
+				echo '<script> var pagenow = "' . ($this->adminPageMetaboxesPageNow ?? $this->screenOptionsKey) . '"; </script>';
+			}, 999999999);
+		}
 	}
 
 }
