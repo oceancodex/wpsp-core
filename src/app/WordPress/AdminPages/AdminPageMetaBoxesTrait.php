@@ -9,12 +9,19 @@ trait AdminPageMetaBoxesTrait {
 	/**
 	 * Lấy danh sách admin page metaboxes theo thứ tự đã lưu trong user meta.
 	 */
-	public function adminPageMetaBoxes() {
+	public function getSortedAdminPageMetaBoxes() {
 		$pageNow                  = $this->screenOptionsPageNow ?? $this->screenOptionsKey ?? null;
 		$metaboxes                = $this->adminPageMetaBoxes ?? [];
 		$sortedAdminPageMetaBoxes = ['side' => [], 'normal' => [], 'advanced' => [], 'closed' => [], 'hidden' => []];
 
 		if ($pageNow && $metaboxes) {
+			$metaboxesDefault = [];
+			foreach ($metaboxes as $position => $metaboxItems) {
+				if ($position === 'side' || $position === 'advanced' || $position === 'normal') {
+					$metaboxesDefault[$position] = implode(',', array_keys($metaboxItems));
+				}
+			}
+
 			/**
 			 * [1] Chuẩn bị danh sách metaboxes lấy từ admin page.\
 			 * Danh sách này có dạng ['submitdiv' => ['title' => '', 'view' => ''], ...]\
@@ -22,14 +29,16 @@ trait AdminPageMetaBoxesTrait {
 			 */
 			$metaboxesList = [];
 			foreach ($metaboxes as $position => $metaboxItems) {
-				foreach ($metaboxItems as $metaboxItemKey => $metaboxItem) {
-					$metaboxesList[$metaboxItemKey] = $metaboxItem;
+				if ($position === 'side' || $position === 'advanced' || $position === 'normal') {
+					foreach ($metaboxItems as $metaboxItemKey => $metaboxItem) {
+						$metaboxesList[$metaboxItemKey] = $metaboxItem;
+					}
 				}
 			}
 
-			$sortedMetaBoxes = get_user_option('meta-box-order_' . $pageNow) ?: [];
-			$closedMetaBoxes = get_user_option('closedpostboxes_' . $pageNow) ?: [];
-			$hiddenMetaBoxes = get_user_option('metaboxhidden_' . $pageNow) ?: [];
+			$sortedMetaBoxes = get_user_option('meta-box-order_' . $pageNow) ?: $metaboxesDefault;
+			$closedMetaBoxes = get_user_option('closedpostboxes_' . $pageNow);
+			$hiddenMetaBoxes = get_user_option('metaboxhidden_' . $pageNow);
 //			$screenColumns   = get_user_option('screen_layout_' . $pageNow) ?: 2;
 
 			if (!empty($sortedMetaBoxes)) {
@@ -88,15 +97,28 @@ trait AdminPageMetaBoxesTrait {
 			/**
 			 * [4] Đóng các metaboxes đã đưa vào danh sách closed.
 			 */
-			foreach ($closedMetaBoxes as $closedMetaBox) {
-				$sortedAdminPageMetaBoxes['closed'][$closedMetaBox] = 1;
+			if (isset($closedMetaBoxes) && is_array($closedMetaBoxes)) {
+				$sortedAdminPageMetaBoxes['closed'] = [];
+				foreach ($closedMetaBoxes as $closedMetaBox) {
+					$sortedAdminPageMetaBoxes['closed'][$closedMetaBox] = 1;
+				}
+			}
+			else {
+				$sortedAdminPageMetaBoxes['closed'] = $metaboxes['closed'] ?? [];
 			}
 
 			/**
 			 * [5] Ẩn các metaboxes đã đưa vào danh sách hidden.
 			 */
-			foreach ($hiddenMetaBoxes as $hiddenMetaBox) {
-				$sortedAdminPageMetaBoxes['hidden'][$hiddenMetaBox] = 1;
+			if (isset($hiddenMetaBoxes) && is_array($hiddenMetaBoxes)) {
+				$sortedAdminPageMetaBoxes['hidden'] = [];
+				foreach ($hiddenMetaBoxes as $hiddenMetaBox) {
+					$sortedAdminPageMetaBoxes['hidden'][$hiddenMetaBox] = 1;
+				}
+			}
+			else {
+				$sortedAdminPageMetaBoxes['hidden'] = $metaboxes['hidden'] ?? [];
+				update_user_meta(get_current_user_id(), 'metaboxhidden_' . $pageNow, array_keys($metaboxes['hidden']));
 			}
 		}
 
