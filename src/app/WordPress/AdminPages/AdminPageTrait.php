@@ -31,6 +31,16 @@ trait AdminPageTrait {
 	}
 
 	/**
+	 * Chuẩn bị phương thức trong admin page class đã được DI.
+	 */
+	public function prepareAdminPageMethod($method) {
+		if (method_exists($this, $method)) {
+			return $this->prepareCallbackFunction($method, $this->menu_slug, $this->menu_slug);
+		}
+		return null;
+	}
+
+	/**
 	 * Xử lý admin menu classes.
 	 */
 	private function handleAdminMenuClasses($additionalClasses = null) {

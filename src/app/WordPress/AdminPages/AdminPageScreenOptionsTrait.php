@@ -86,7 +86,7 @@ trait AdminPageScreenOptionsTrait {
 	/**
 	 * Lấy screen layout columns.
 	 */
-	public function screenColumns() {
+	public function getScreenColumns() {
 		$screenColumns = get_user_option('screen_layout_' . ($this->screenOptionsPageNow ?? $this->screenOptionsKey)) ?: 2;
 		return $screenColumns;
 	}
