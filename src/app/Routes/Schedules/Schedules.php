@@ -37,7 +37,7 @@ class Schedules extends BaseRoute {
 
 		/**
 		 * Khi callback có method là "index", thì sẽ thay đổi method thành "init".\
-		 * Mục đích sẽ gọi method "init" trong Base để khởi tạo Taxonomy column.
+		 * Mục đích sẽ gọi method "init" trong Base để khởi tạo Schedule.
 		 */
 		$callback[1] = 'init';
 
