@@ -189,7 +189,7 @@ class AdminPages extends BaseRoute {
 					else {
 						/**
 						 * Khi callback có method là "index", thì sẽ thay đổi method thành "init".\
-						 * Mục đích sẽ gọi method "init" trong Base để khởi tạo admin menu page.
+						 * Mục đích sẽ gọi method "init" trong Base để khởi tạo Admin menu page.
 						 */
 						if (isset($callback[1]) && $callback[1] == 'index' || !isset($callback[1])) $callback[1] = 'init';
 
