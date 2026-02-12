@@ -58,7 +58,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		$viewPath      = $mainPath . '/resources/views/rewrite-front-pages/' . $path . '.blade.php';
 
 		if (File::exists($componentPath) || File::exists($viewPath)) {
-			$this->error('Rewrite front page: "' . $name . '" already exists! Please try again.');
+			$this->error('Rewrite front page: "' . $path . '" already exists! Please try again.');
 			exit;
 		}
 

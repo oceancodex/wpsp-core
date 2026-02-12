@@ -20,39 +20,59 @@ class MakeMetaBoxCommand extends Command {
 	protected $help = 'This command allows you to create a meta box.';
 
 	public function handle() {
+
+		/**
+		 * ---
+		 * I. Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make('funcs');
 		$mainPath    = $this->funcs->mainPath;
 
+		/**
+		 * ---
+		 * II. Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$id = $this->argument('id');
 
-		// Interactive questions
+		// Nếu không khai báo ID, hãy hỏi.
 		if (!$id) {
 			$id = $this->ask('Please enter the ID of the meta box (Eg: custom_meta_box)');
 
+			// Nếu không có câu trả lời cho ID, hãy thoát.
 			if (empty($id)) {
 				$this->error('Missing ID for the meta box. Please try again.');
 				exit;
 			}
 
+			// Nếu có câu trả lời cho ID, hãy tiếp tục hỏi.
 			$createView = $this->confirm('Do you want to create view files for this meta box?', false);
 		}
 		else {
 			$createView = $this->option('view');
 		}
 
-		// Validate
-		$this->validateClassName($id, 'id');
+		// Kiểm tra chuỗi hợp lệ.
+		$this->validateSlug($id, 'id');
 
-		// Check exists
-		$componentPath = $mainPath . '/app/WordPress/MetaBoxes/' . $id . '.php';
+		// Chuẩn bị thêm các biến để sử dụng.
+		$name = Str::slug($id, '_');
+
+		// Kiểm tra tồn tại.
+		$componentPath = $mainPath . '/app/WordPress/MetaBoxes/' . $name . '.php';
 		$viewPath      = $mainPath . '/resources/views/meta-boxes/' . $id . '.blade.php';
 
 		if (File::exists($componentPath)) {
-			$this->error('Meta box "' . $id . '" already exists! Please try again.');
+			$this->error('Meta box: "' . $id . '" already exists! Please try again.');
 			exit;
 		}
 
-		/* ---- Create view ---- */
+		/**
+		 * ---
+		 * III. Tạo file Class.
+		 * ---
+		 */
 		if ($createView) {
 			File::ensureDirectoryExists(dirname($viewPath));
 
@@ -67,7 +87,6 @@ class MakeMetaBoxCommand extends Command {
 			$content = File::get(__DIR__ . '/../Stubs/MetaBoxes/meta-box.stub');
 		}
 
-		/* ---- Create class file ---- */
 		$content = str_replace(
 			['{{ className }}', '{{ id }}'],
 			[$id, $id],

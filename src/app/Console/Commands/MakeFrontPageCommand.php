@@ -13,9 +13,10 @@ class MakeFrontPageCommand extends Command {
 
 	protected $signature = 'make:front-page
         {path? : The path of the front page.}
-        {--method= : The method for front page.}';
+        {--method= : The method for front page.}
+        {--view : Create a view file for this meta box}';
 
-	protected $description = 'Create a new front page. | Eg: php artisan make:front-page custom-front-page --method=GET';
+	protected $description = 'Create a new front page. | Eg: php artisan make:front-page my-front-page --method=GET';
 
 	protected $help = 'This command allows you to create a front page.';
 
@@ -27,7 +28,7 @@ class MakeFrontPageCommand extends Command {
 
 		// Ask interactively if missing
 		if (!$path) {
-			$path = $this->ask('Please enter the path of the front page (Eg: custom-front-page)');
+			$path = $this->ask('Please enter the path of the front page (Eg: my-front-page)');
 
 			if (empty($path)) {
 				$this->error('Missing path for the front page. Please try again.');
@@ -35,9 +36,11 @@ class MakeFrontPageCommand extends Command {
 			}
 
 			$method = $this->ask('Please enter the HTTP method for the front page', 'GET');
+			$createView = $this->confirm('Do you want to create view files for this meta box?', false);
 		}
 		else {
 			$method = $this->option('method');
+			$createView = $this->option('view');
 		}
 
 		// Define variables
@@ -59,25 +62,19 @@ class MakeFrontPageCommand extends Command {
 		/* -------------------------
 		 *  Create class file
 		 * ------------------------- */
-		$content = File::get(__DIR__ . '/../Stubs/RewriteFrontPages/rewritefrontpage.stub');
+		$content = File::get(__DIR__ . '/../Stubs/FrontPages/frontpage.stub');
 		$content = str_replace(
 			[
 				'{{ className }}',
 				'{{ name }}',
 				'{{ path }}',
 				'{{ method }}',
-				'{{ postType }}',
-				'{{ pageSlug }}',
-				'{{ useTemplate }}',
 			],
 			[
 				$name,
 				$name,
 				$path,
 				$method,
-				$rewritePagePostType,
-				$rewritePageSlug,
-				$useTemplate ? 'true' : 'false',
 			],
 			$content
 		);
