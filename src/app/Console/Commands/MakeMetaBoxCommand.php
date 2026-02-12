@@ -20,10 +20,9 @@ class MakeMetaBoxCommand extends Command {
 	protected $help = 'This command allows you to create a meta box.';
 
 	public function handle() {
-
 		/**
 		 * ---
-		 * I. Funcs.
+		 * Funcs.
 		 * ---
 		 */
 		$this->funcs = $this->getLaravel()->make('funcs');
@@ -31,22 +30,22 @@ class MakeMetaBoxCommand extends Command {
 
 		/**
 		 * ---
-		 * II. Khai báo, hỏi và kiểm tra.
+		 * Khai báo, hỏi và kiểm tra.
 		 * ---
 		 */
 		$id = $this->argument('id');
 
-		// Nếu không khai báo ID, hãy hỏi.
+		// Nếu không khai báo, hãy hỏi.
 		if (!$id) {
 			$id = $this->ask('Please enter the ID of the meta box (Eg: custom_meta_box)');
 
-			// Nếu không có câu trả lời cho ID, hãy thoát.
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($id)) {
 				$this->error('Missing ID for the meta box. Please try again.');
 				exit;
 			}
 
-			// Nếu có câu trả lời cho ID, hãy tiếp tục hỏi.
+			// Nếu có câu trả lời, hãy tiếp tục hỏi.
 			$createView = $this->confirm('Do you want to create view files for this meta box?', false);
 		}
 		else {
@@ -70,7 +69,7 @@ class MakeMetaBoxCommand extends Command {
 
 		/**
 		 * ---
-		 * III. Tạo file Class.
+		 * Class.
 		 * ---
 		 */
 		if ($createView) {
@@ -92,24 +91,36 @@ class MakeMetaBoxCommand extends Command {
 			[$id, $id],
 			$content
 		);
-
 		$content = $this->replaceNamespaces($content);
 
 		File::ensureDirectoryExists(dirname($componentPath));
 		File::put($componentPath, $content);
 
-		/* ---- Register in Funcs/Uses ---- */
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = File::get(__DIR__ . '/../Funcs/MetaBoxes/meta-box.func');
 		$func = str_replace(['{{ id }}'], [$id], $func);
 
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/MetaBoxes/meta-box.use');
 		$use = str_replace(['{{ id }}'], [$id], $use);
 		$use = $this->replaceNamespaces($use);
 
-		// Add to route
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('MetaBoxes', 'meta_boxes', $func, $use);
 
-		/* ---- Done ---- */
+		// Done.
 		$this->info('Created new meta box: "' . $id . '"');
 
 		exit;

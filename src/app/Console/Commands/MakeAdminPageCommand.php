@@ -18,43 +18,61 @@ class MakeAdminPageCommand extends Command {
 	protected $description = 'Create a new admin page. | Eg: php artisan make:admin-page custom-admin-page --view';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make('funcs');
 		$mainPath    = $this->funcs->mainPath;
 
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$path = $this->argument('path');
 
-		// If path is empty, ask questions.
+		// Nếu không khai báo, hãy hỏi.
 		if (!$path) {
 			$path = $this->ask('Please enter the path of the admin page (Eg: custom-admin-page)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($path)) {
 				$this->error('Missing path for the admin page. Please try again.');
 				exit;
 			}
 
+			// Nếu có câu trả lời, hãy tiếp tục hỏi.
 			$createView = $this->confirm('Do you want to create view files for this admin page?', false);
 		}
 		else {
 			$createView = $this->option('view');
 		}
 
-		// Define variables.
+		// Kiểm tra chuỗi hợp lệ.
+		$this->validateSlug($path, 'path');
+
+		// Chuẩn bị thêm các biến để sử dụng.
 		$name = Str::slug($path, '_');
 
 		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
 		// $name sẽ được slugify từ "path" ra.
 
-		// Prepare paths.
+		// Kiểm tra tồn tại.
 		$adminClassPath = $mainPath . '/app/WordPress/AdminPages/' . $name . '.php';
 		$viewDirPath    = $mainPath . '/resources/views/admin-pages/' . $path;
 
-		// Check exist.
 		if (File::exists($adminClassPath) || File::exists($viewDirPath)) {
-			$this->error('Admin page "' . $path . '" already exists!');
+			$this->error('Admin page: "' . $path . '" already exists! Please try again.');
 			exit;
 		}
 
-		// Load stub.
+		/**
+		 * ---
+		 * Class.
+		 * ---
+		 */
 		if ($createView) {
 			$content = File::get(__DIR__ . '/../Stubs/AdminPages/adminpage-view.stub');
 		}
@@ -62,22 +80,21 @@ class MakeAdminPageCommand extends Command {
 			$content = File::get(__DIR__ . '/../Stubs/AdminPages/adminpage.stub');
 		}
 
-		// Replace placeholders.
 		$content = str_replace(
 			['{{ className }}', '{{ name }}', '{{ path }}'],
 			[$name, $name, $path],
 			$content
 		);
-
 		$content = $this->replaceNamespaces($content);
 
-		// Ensure directory exists.
 		File::ensureDirectoryExists(dirname($adminClassPath));
-
-		// Create class file.
 		File::put($adminClassPath, $content);
 
-		// Create view files.
+		/**
+		 * ---
+		 * Views.
+		 * ---
+		 */
 		if ($createView) {
 			$bladeExt    = class_exists('Illuminate\View\View') ? '.blade.php' : '.php';
 			$nonBladeSep = class_exists('Illuminate\View\View') ? '' : '/non-blade';
@@ -104,13 +121,21 @@ class MakeAdminPageCommand extends Command {
 			}
 		}
 
-		// Prepare new line for find function.
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = File::get(__DIR__ . '/../Funcs/AdminPages/adminpage.func');
 		$func = str_replace(['{{ name }}', '{{ path }}'],
 			[$name, $path],
 			$func);
 
-		// Prepare new line for use class.
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/AdminPages/adminpage.use');
 		$use = str_replace(
 			['{{ name }}', '{{ path }}'],
@@ -119,9 +144,14 @@ class MakeAdminPageCommand extends Command {
 		);
 		$use = $this->replaceNamespaces($use);
 
-		// Add class to route.
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('AdminPages', 'admin_pages', $func, $use);
 
+		// Done.
 		$this->info("Created new admin page: {$path}");
 
 		exit;

@@ -16,24 +16,39 @@ class MakeFilterCommand extends Command {
 	protected $description = 'Create a new filter hook. | Eg: php artisan make:filter the_content';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make('funcs');
 
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$filter = $this->argument('filter');
 
-		// If no filter provided → interactive mode
+		// Nếu không khai báo, hãy hỏi.
 		if (!$filter) {
 			$filter = $this->ask('Please enter the filter hook (Eg: the_content)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($filter)) {
 				$this->error('Missing filter hook. Please try again.');
 				exit;
 			}
 		}
 
-		// Validate
-		$this->validateClassName($filter);
+		// Kiểm tra chuỗi hợp lệ.
+		$this->validateSlug($filter, 'filter');
 
-		// Prepare line for find function
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = File::get(__DIR__ . '/../Funcs/Filters/filter.func');
 		$func = str_replace(
 			['{{ filter }}'],
@@ -41,14 +56,22 @@ class MakeFilterCommand extends Command {
 			$func
 		);
 
-		// Prepare line for use class
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/Filters/filter.use');
 		$use = $this->replaceNamespaces($use);
 
-		// Add to routes
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('Filters', 'filters', $func, $use);
 
-		// Output
+		// Done.
 		$this->info("Created new filter hook: {$filter}");
 
 		exit;

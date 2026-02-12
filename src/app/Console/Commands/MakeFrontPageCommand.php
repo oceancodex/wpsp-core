@@ -14,27 +14,39 @@ class MakeFrontPageCommand extends Command {
 	protected $signature = 'make:front-page
         {path? : The path of the front page.}
         {--method= : The method for front page.}
-        {--view : Create a view file for this meta box}';
+        {--view : Create a view file for this front page}';
 
 	protected $description = 'Create a new front page. | Eg: php artisan make:front-page my-front-page --method=GET';
 
 	protected $help = 'This command allows you to create a front page.';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make("funcs");
 		$mainPath    = $this->funcs->mainPath;
 
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$path = $this->argument('path');
 
-		// Ask interactively if missing
+		// Nếu không khai báo, hãy hỏi.
 		if (!$path) {
 			$path = $this->ask('Please enter the path of the front page (Eg: my-front-page)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($path)) {
 				$this->error('Missing path for the front page. Please try again.');
 				exit;
 			}
 
+			// Nếu có câu trả lời, hãy hỏi tiếp.
 			$method = $this->ask('Please enter the HTTP method for the front page', 'GET');
 			$createView = $this->confirm('Do you want to create view files for this meta box?', false);
 		}
@@ -43,14 +55,14 @@ class MakeFrontPageCommand extends Command {
 			$createView = $this->option('view');
 		}
 
-		// Define variables
+		// Kiểm tra chuỗi hợp lệ.
+		$this->validateSlug($path, 'path');
+
+		// Chuẩn bị thêm các biến để sử dụng.
 		$name = Str::slug($path, '_');
 		$method = strtolower($method ?: 'GET');
 
-		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
-		// $name sẽ được slugify từ "path" ra.
-
-		// Check exists
+		// Kiểm tra tồn tại.
 		$componentPath = $mainPath . '/app/WordPress/FrontPages/' . $name . '.php';
 		$viewPath      = $mainPath . '/resources/views/front-pages/' . $path . '.blade.php';
 
@@ -59,26 +71,17 @@ class MakeFrontPageCommand extends Command {
 			exit;
 		}
 
-		/* -------------------------
-		 *  Create class file
-		 * ------------------------- */
+		/**
+		 * ---
+		 * Class.
+		 * ---
+		 */
 		$content = File::get(__DIR__ . '/../Stubs/FrontPages/frontpage.stub');
 		$content = str_replace(
-			[
-				'{{ className }}',
-				'{{ name }}',
-				'{{ path }}',
-				'{{ method }}',
-			],
-			[
-				$name,
-				$name,
-				$path,
-				$method,
-			],
+			['{{ name }}', '{{ path }}', '{{ method }}'],
+			[$name, $path, $method],
 			$content
 		);
-
 		$content = $this->replaceNamespaces($content);
 
 		File::ensureDirectoryExists(dirname($componentPath));
