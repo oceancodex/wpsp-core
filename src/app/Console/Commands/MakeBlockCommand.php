@@ -48,8 +48,7 @@ class MakeBlockCommand extends Command {
 		$this->validateSlug($name, 'name');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className = str_replace('-', '_', $name);
-		$className = Str::slug($className, '_');
+		$className = Str::slug(str_replace('-', '_', $name), '_');
 
 		// Kiểm tra tồn tại.
 		$adminClassPath = $mainPath . '/app/WordPress/Blocks/' . $className . '.php';

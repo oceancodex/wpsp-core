@@ -47,7 +47,7 @@ class MakeAjaxCommand extends Command {
 		$this->validateSlug($action, 'action');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$name   = Str::slug($action, '_');
+		$name   = Str::slug(str_replace('-', '_', $action), '_');
 		$method = strtolower($method ?? $this->option('method') ?: 'GET');
 		$nopriv = $nopriv ?? $this->option('nopriv') ?: false;
 

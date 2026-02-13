@@ -54,7 +54,7 @@ class MakeAPICommand extends Command {
 		$this->validateSlug($path, 'path');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$name      = Str::slug($path, '_');
+		$name      = Str::slug(str_replace('-', '_', $path), '_');
 		$method    = strtolower($method ?? $this->option('method') ?: 'GET');
 		$namespace = $namespace ?? $this->option('namespace') ?: null;
 		$version   = $version ?? $this->option('ver') ?: null;
