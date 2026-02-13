@@ -9,7 +9,7 @@ use {{ coreNamespace }}\App\WordPress\Integration\RankmathSEO;
 use {{ coreNamespace }}\App\WordPress\Integration\YoastSEO;
 use {{ coreNamespace }}\App\WordPress\RewriteFrontPages\BaseRewriteFrontPage;
 
-class {{ name }} extends BaseRewriteFrontPage {
+class {{ className }} extends BaseRewriteFrontPage {
 
 	use InstancesTrait;
 

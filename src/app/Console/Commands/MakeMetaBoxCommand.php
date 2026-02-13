@@ -53,7 +53,7 @@ class MakeMetaBoxCommand extends Command {
 		$this->validateSlug($id, 'id');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$name       = Str::slug($id, '_');
+		$name       = Str::slug(str_replace('-', '_', $id), '_');
 		$createView = $createView ?? $this->option('view') ?: false;
 
 		// Kiểm tra tồn tại.

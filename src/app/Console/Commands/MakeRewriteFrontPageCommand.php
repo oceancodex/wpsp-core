@@ -59,7 +59,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		$this->validateSlug($path, 'path');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$name                = Str::slug($path, '_');
+		$name                = Str::slug(str_replace('-', '_', $path), '_');
 		$method              = strtolower($method ?? $this->option('method') ?: 'GET');
 		$rewritePagePostType = $rewritePagePostType ?? $this->option('post-type') ?: 'page';
 		$rewritePageSlug     = $rewritePageSlug ?? $this->option('page-slug') ?: 'rewrite-front-pages';
@@ -102,8 +102,8 @@ class MakeRewriteFrontPageCommand extends Command {
 
 		$view = File::get($viewStubPath);
 		$view = str_replace(
-			['{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}'],
-			[$name, $path, $method, $rewritePagePostType, $rewritePageSlug],
+			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}'],
+			[$name, $name, $path, $method, $rewritePagePostType, $rewritePageSlug],
 			$view
 		);
 
@@ -117,8 +117,8 @@ class MakeRewriteFrontPageCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/RewriteFrontPages/rewritefrontpage.func');
 		$func = str_replace(
-			['{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}'],
-			[$name, $path, $method, $rewritePagePostType, $rewritePageSlug],
+			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}'],
+			[$name, $name, $path, $method, $rewritePagePostType, $rewritePageSlug],
 			$func
 		);
 
@@ -129,8 +129,8 @@ class MakeRewriteFrontPageCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/RewriteFrontPages/rewritefrontpage.use');
 		$use = str_replace(
-			['{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}'],
-			[$name, $path, $method, $rewritePagePostType, $rewritePageSlug],
+			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}'],
+			[$name, $name, $path, $method, $rewritePagePostType, $rewritePageSlug],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

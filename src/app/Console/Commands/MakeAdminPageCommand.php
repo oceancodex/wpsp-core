@@ -51,7 +51,7 @@ class MakeAdminPageCommand extends Command {
 		$this->validateSlug($path, 'path');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$name       = Str::slug($path, '_');
+		$name       = Str::slug(str_replace('-', '_', $path), '_');
 		$createView = $createView ?? $this->option('view') ?: false;
 
 		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
