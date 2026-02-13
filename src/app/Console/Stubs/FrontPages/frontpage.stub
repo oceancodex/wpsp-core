@@ -23,7 +23,11 @@ class {{ className }} extends BaseFrontPage {
 	 */
 
 	public function index(Request $request, $endpoint = null) {
-		echo $endpoint;
+		global $post;
+		echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($post); echo '</pre>';
+		print_r($request->all());
+		die();
+//		echo $endpoint;
 	}
 
 	public function update(Request $request) {
