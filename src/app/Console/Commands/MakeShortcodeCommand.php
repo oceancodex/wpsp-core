@@ -39,33 +39,36 @@ class MakeShortcodeCommand extends Command {
 		if (!$name) {
 			$name = $this->ask('Please enter the name of the shortcode (Eg: custom_shortcode)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($name)) {
 				$this->error('Missing name for the shortcode. Please try again.');
 				exit;
 			}
 
+			// Nếu có câu trả lời, hãy tiếp tục hỏi.
 			$createView = $this->confirm('Do you want to create view files for this shortcode?', false);
 		}
 
-		// Define variables
-		$createView  = $createView ?? $this->option('view');
-
-		// Validate
+		// Kiểm tra chuỗi hợp lệ.
 		$this->validateClassName($name);
 
-		// Paths
+		// Chuẩn bị thêm các biến để sử dụng.
+		$createView  = $createView ?? $this->option('view');
+
+		// Kiểm tra tồn tại.
 		$classPath = $mainPath . '/app/WordPress/Shortcodes/' . $name . '.php';
 		$viewPath  = $mainPath . '/resources/views/shortcodes/' . $name . '.blade.php';
 
-		// Check exists
 		if (File::exists($classPath)) {
 			$this->error('Shortcode: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
-		/** -------------------------------------------------
-		 *  CREATE VIEW (OPTIONAL)
-		 * ------------------------------------------------- */
+		/**
+		 * ---
+		 * Class & Views.
+		 * ---
+		 */
 		if ($createView) {
 			$view = File::get(__DIR__ . '/../Views/Shortcodes/shortcode.view');
 			$view = str_replace(
@@ -83,9 +86,6 @@ class MakeShortcodeCommand extends Command {
 			$stub = File::get(__DIR__ . '/../Stubs/Shortcodes/shortcode.stub');
 		}
 
-		/** -------------------------------------------------
-		 *  CREATE CLASS FILE
-		 * ------------------------------------------------- */
 		$stub = str_replace(
 			['{{ className }}', '{{ name }}'],
 			[$name, $name],
@@ -97,9 +97,11 @@ class MakeShortcodeCommand extends Command {
 		File::ensureDirectoryExists(dirname($classPath));
 		File::put($classPath, $stub);
 
-		/** -------------------------------------------------
-		 *  REGISTER IN route list (func + use)
-		 * ------------------------------------------------- */
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = File::get(__DIR__ . '/../Funcs/Shortcodes/shortcode.func');
 		$func = str_replace(
 			['{{ name }}'],
@@ -107,6 +109,11 @@ class MakeShortcodeCommand extends Command {
 			$func
 		);
 
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/Shortcodes/shortcode.use');
 		$use = str_replace(
 			['{{ name }}'],
@@ -115,11 +122,15 @@ class MakeShortcodeCommand extends Command {
 		);
 		$use = $this->replaceNamespaces($use);
 
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('Shortcodes', 'shortcodes', $func, $use);
 
-		/* -------------------------------------------------
-		 *  DONE
-		 * ------------------------------------------------- */
+
+		// Done.
 		$this->info('Created new shortcode: "' . $name . '"');
 
 		exit;

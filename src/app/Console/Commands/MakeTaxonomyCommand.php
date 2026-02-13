@@ -19,36 +19,48 @@ class MakeTaxonomyCommand extends Command {
 	protected $help = 'This command allows you to create a taxonomy...';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make('funcs');
 		$mainPath    = $this->funcs->mainPath;
 
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$name = $this->argument('name');
 
-		// Interactive ask
+		// Nếu không khai báo, hãy hỏi.
 		if (!$name) {
 			$name = $this->ask('Please enter the name of the taxonomy (Eg: custom_taxonomy)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($name)) {
 				$this->error('Missing name for the taxonomy. Please try again.');
 				exit;
 			}
 		}
 
-		// Validate
+		// Kiểm tra chuỗi hợp lệ.
 		$this->validateClassName($name);
 
-		// Path
+		// Kiểm tra tồn tại.
 		$path = $mainPath . '/app/WordPress/Taxonomies/' . $name . '.php';
 
-		// Check exists
 		if (File::exists($path)) {
 			$this->error('Taxonomy: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
-		/** -------------------------------------------------
-		 *  CREATE CLASS FILE
-		 * ------------------------------------------------- */
+		/**
+		 * ---
+		 * Class.
+		 * ---
+		 */
 		$content = File::get(__DIR__ . '/../Stubs/Taxonomies/taxonomy.stub');
 		$content = str_replace(
 			['{{ className }}', '{{ name }}'],
@@ -60,9 +72,11 @@ class MakeTaxonomyCommand extends Command {
 		File::ensureDirectoryExists(dirname($path));
 		File::put($path, $content);
 
-		/** -------------------------------------------------
-		 *  ADD TO ROUTE (func + use)
-		 * ------------------------------------------------- */
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = File::get(__DIR__ . '/../Funcs/Taxonomies/taxonomy.func');
 		$func = str_replace(
 			['{{ name }}'],
@@ -70,6 +84,11 @@ class MakeTaxonomyCommand extends Command {
 			$func
 		);
 
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/Taxonomies/taxonomy.use');
 		$use = str_replace(
 			['{{ name }}'],
@@ -78,11 +97,14 @@ class MakeTaxonomyCommand extends Command {
 		);
 		$use = $this->replaceNamespaces($use);
 
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('Taxonomies', 'taxonomies', $func, $use);
 
-		/** -------------------------------------------------
-		 *  DONE
-		 * ------------------------------------------------- */
+		// Done.
 		$this->info('Created new taxonomy: "' . $name . '"');
 
 		exit;

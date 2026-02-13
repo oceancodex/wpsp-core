@@ -81,8 +81,8 @@ class MakeFrontPageCommand extends Command {
 
 			$view = File::get(__DIR__ . '/../Views/FrontPages/frontpage.view');
 			$view = str_replace(
-				['{{ name }}', '{{ path }}', '{{ method }}'],
-				[$name, $path, $method],
+				['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}'],
+				[$name, $name, $path, $method],
 				$view
 			);
 
@@ -111,8 +111,8 @@ class MakeFrontPageCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/FrontPages/frontpage.func');
 		$func = str_replace(
-			['{{ name }}', '{{ path }}', '{{ method }}'],
-			[$name, $path, $method],
+			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}'],
+			[$name, $name, $path, $method],
 			$func
 		);
 
@@ -123,8 +123,8 @@ class MakeFrontPageCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/FrontPages/frontpage.use');
 		$use = str_replace(
-			['{{ name }}', '{{ path }}', '{{ method }}'],
-			[$name, $path, $method],
+			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}'],
+			[$name, $name, $path, $method],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);
