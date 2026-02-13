@@ -23,7 +23,7 @@ class {{ className }} extends BaseFrontPage {
 	 */
 
 	public function index(Request $request, $endpoint = null) {
-		echo Funcs::view('front-pages.font_page_demo_view');
+		echo Funcs::view('front-pages.{{ path }}');
 		die();
 //		echo $endpoint;
 	}

@@ -48,7 +48,7 @@ class MakeFrontPageCommand extends Command {
 
 			// Nếu có câu trả lời, hãy hỏi tiếp.
 			$method = $this->ask('Please enter the HTTP method for the front page', 'GET');
-			$createView = $this->confirm('Do you want to create view files for this meta box?', false);
+			$createView = $this->confirm('Do you want to create view files for this front page?', false);
 		}
 		else {
 			$method = $this->option('method');
