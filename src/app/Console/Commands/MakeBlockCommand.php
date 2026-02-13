@@ -56,7 +56,7 @@ class MakeBlockCommand extends Command {
 		$viewDirPath    = $mainPath . '/resources/views/blocks/src/' . $name;
 
 		if (File::exists($adminClassPath) || File::exists($viewDirPath)) {
-			$this->error('The block "' . $name . '" already exists!');
+			$this->error('The block "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 

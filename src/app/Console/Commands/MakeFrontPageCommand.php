@@ -76,10 +76,27 @@ class MakeFrontPageCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$content = File::get(__DIR__ . '/../Stubs/FrontPages/frontpage.stub');
+		if ($createView) {
+			File::ensureDirectoryExists(dirname($viewPath));
+
+			$view = File::get(__DIR__ . '/../Views/FrontPages/frontpage.view');
+			$view = str_replace(
+				['{{ name }}', '{{ path }}', '{{ method }}'],
+				[$name, $path, $method],
+				$view
+			);
+
+			File::put($viewPath, $view);
+
+			$content = File::get(__DIR__ . '/../Stubs/FrontPages/frontpage-view.stub');
+		}
+		else {
+			$content = File::get(__DIR__ . '/../Stubs/FrontPages/frontpage.stub');
+		}
+
 		$content = str_replace(
-			['{{ name }}', '{{ path }}', '{{ method }}'],
-			[$name, $path, $method],
+			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}'],
+			[$name, $name, $path, $method],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -87,81 +104,39 @@ class MakeFrontPageCommand extends Command {
 		File::ensureDirectoryExists(dirname($componentPath));
 		File::put($componentPath, $content);
 
-		/* -------------------------
-		 *  Create view file
-		 * ------------------------- */
-		$viewStubPath = $useTemplate
-			? __DIR__ . '/../Views/RewriteFrontPages/rewritefrontpage.view'
-			: __DIR__ . '/../Views/RewriteFrontPages/rewritefrontpage-no-template.view';
-
-		$view = File::get($viewStubPath);
-		$view = str_replace(
-			[
-				'{{ name }}',
-				'{{ path }}',
-				'{{ method }}',
-				'{{ postType }}',
-				'{{ pageSlug }}',
-			],
-			[
-				$name,
-				$path,
-				$method,
-				$rewritePagePostType,
-				$rewritePageSlug,
-			],
-			$view
-		);
-
-		File::ensureDirectoryExists(dirname($viewPath));
-		File::put($viewPath, $view);
-
-		/* -------------------------
-		 *  Func + Use registration
-		 * ------------------------- */
-		$func = File::get(__DIR__ . '/../Funcs/RewriteFrontPages/rewritefrontpage.func');
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
+		$func = File::get(__DIR__ . '/../Funcs/FrontPages/frontpage.func');
 		$func = str_replace(
-			[
-				'{{ name }}',
-				'{{ path }}',
-				'{{ method }}',
-				'{{ postType }}',
-				'{{ pageSlug }}',
-			],
-			[
-				$name,
-				$path,
-				$method,
-				$rewritePagePostType,
-				$rewritePageSlug,
-			],
+			['{{ name }}', '{{ path }}', '{{ method }}'],
+			[$name, $path, $method],
 			$func
 		);
 
-		$use = File::get(__DIR__ . '/../Uses/RewriteFrontPages/rewritefrontpage.use');
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
+		$use = File::get(__DIR__ . '/../Uses/FrontPages/frontpage.use');
 		$use = str_replace(
-			[
-				'{{ name }}',
-				'{{ path }}',
-				'{{ method }}',
-				'{{ postType }}',
-				'{{ pageSlug }}',
-			],
-			[
-				$name,
-				$path,
-				$method,
-				$rewritePagePostType,
-				$rewritePageSlug,
-			],
+			['{{ name }}', '{{ path }}', '{{ method }}'],
+			[$name, $path, $method],
 			$use
 		);
-
 		$use = $this->replaceNamespaces($use);
 
-		// Register class
-		$this->addClassToRoute('RewriteFrontPages', 'rewrite_front_pages', $func, $use);
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
+		$this->addClassToRoute('FrontPages', 'front_pages', $func, $use);
 
+		// Done.
 		$this->info('Created new front page: "' . $path . '"');
 
 		exit;

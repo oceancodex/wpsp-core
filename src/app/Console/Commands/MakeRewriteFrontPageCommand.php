@@ -23,37 +23,49 @@ class MakeRewriteFrontPageCommand extends Command {
 	protected $help = 'This command allows you to create a rewrite front page.';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make("funcs");
 		$mainPath    = $this->funcs->mainPath;
 
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$path = $this->argument('path');
 
-		// Ask interactively if missing
+		// Nếu không khai báo, hãy hỏi.
 		if (!$path) {
 			$path = $this->ask('Please enter the path of the rewrite front page (Eg: custom-rewrite-front-page)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($path)) {
 				$this->error('Missing path for the rewrite front page. Please try again.');
 				exit;
 			}
 
+			// Nếu có câu trả lời, hãy tiếp tục hỏi.
+			$method              = $this->ask('Please enter the method for rewrite front page (Eg: GET, POST or get, post,...)', 'GET');
 			$rewritePagePostType = $this->ask('Please enter the post type for rewrite front page (Eg: page,...)', 'page');
 			$rewritePageSlug     = $this->ask('Please enter the page name for rewrite front page (Eg: page-for-rewrite-rules,...)', 'rewrite-front-pages');
 			$useTemplate         = $this->confirm('Use template for this rewrite front page?', false);
 		}
 
-		// Define variables
-		$name = Str::slug($path, '_');
+		// Kiểm tra chuỗi hợp lệ.
+		$this->validateSlug($path, 'path');
 
-		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
-		// $name sẽ được slugify từ "path" ra.
+		// Chuẩn bị thêm các biến để sử dụng.
+		$name                = Str::slug($path, '_');
+		$method              = strtolower($method ?? $this->option('method') ?: 'GET');
+		$rewritePagePostType = $rewritePagePostType ?? $this->option('post-type') ?: 'page';
+		$rewritePageSlug     = $rewritePageSlug ?? $this->option('page-slug') ?: 'rewrite-front-pages';
+		$useTemplate         = $useTemplate ?? $this->option('template') ?: false;
 
-		$method                 = strtolower($this->option('method') ?: 'GET');
-		$rewritePagePostType    = $rewritePagePostType ?? $this->option('post-type') ?: 'page';
-		$rewritePageSlug        = $rewritePageSlug ?? $this->option('page-slug') ?: 'rewrite-front-pages';
-		$useTemplate            = $useTemplate ?? $this->option('template') ?: false;
-
-		// Check exists
+		// Kiểm tra tồn tại.
 		$componentPath = $mainPath . '/app/WordPress/RewriteFrontPages/' . $name . '.php';
 		$viewPath      = $mainPath . '/resources/views/rewrite-front-pages/' . $path . '.blade.php';
 
@@ -62,29 +74,15 @@ class MakeRewriteFrontPageCommand extends Command {
 			exit;
 		}
 
-		/* -------------------------
-		 *  Create class file
-		 * ------------------------- */
+		/**
+		 * ---
+		 * Class.
+		 * ---
+		 */
 		$content = File::get(__DIR__ . '/../Stubs/RewriteFrontPages/rewritefrontpage.stub');
 		$content = str_replace(
-			[
-				'{{ className }}',
-				'{{ name }}',
-				'{{ path }}',
-				'{{ method }}',
-				'{{ postType }}',
-				'{{ pageSlug }}',
-				'{{ useTemplate }}',
-			],
-			[
-				$name,
-				$name,
-				$path,
-				$method,
-				$rewritePagePostType,
-				$rewritePageSlug,
-				$useTemplate ? 'true' : 'false',
-			],
+			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}', '{{ useTemplate }}'],
+			[$name, $name, $path, $method, $rewritePagePostType, $rewritePageSlug, $useTemplate ? 'true' : 'false'],
 			$content
 		);
 
@@ -93,81 +91,58 @@ class MakeRewriteFrontPageCommand extends Command {
 		File::ensureDirectoryExists(dirname($componentPath));
 		File::put($componentPath, $content);
 
-		/* -------------------------
-		 *  Create view file
-		 * ------------------------- */
+		/**
+		 * ---
+		 * Views.
+		 * ---
+		 */
 		$viewStubPath = $useTemplate
 			? __DIR__ . '/../Views/RewriteFrontPages/rewritefrontpage.view'
 			: __DIR__ . '/../Views/RewriteFrontPages/rewritefrontpage-no-template.view';
 
 		$view = File::get($viewStubPath);
 		$view = str_replace(
-			[
-				'{{ name }}',
-				'{{ path }}',
-				'{{ method }}',
-				'{{ postType }}',
-				'{{ pageSlug }}',
-			],
-			[
-				$name,
-				$path,
-				$method,
-				$rewritePagePostType,
-				$rewritePageSlug,
-			],
+			['{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}'],
+			[$name, $path, $method, $rewritePagePostType, $rewritePageSlug],
 			$view
 		);
 
 		File::ensureDirectoryExists(dirname($viewPath));
 		File::put($viewPath, $view);
 
-		/* -------------------------
-		 *  Func + Use registration
-		 * ------------------------- */
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = File::get(__DIR__ . '/../Funcs/RewriteFrontPages/rewritefrontpage.func');
 		$func = str_replace(
-			[
-				'{{ name }}',
-				'{{ path }}',
-				'{{ method }}',
-				'{{ postType }}',
-				'{{ pageSlug }}',
-			],
-			[
-				$name,
-				$path,
-				$method,
-				$rewritePagePostType,
-				$rewritePageSlug,
-			],
+			['{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}'],
+			[$name, $path, $method, $rewritePagePostType, $rewritePageSlug],
 			$func
 		);
 
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/RewriteFrontPages/rewritefrontpage.use');
 		$use = str_replace(
-			[
-				'{{ name }}',
-				'{{ path }}',
-				'{{ method }}',
-				'{{ postType }}',
-				'{{ pageSlug }}',
-			],
-			[
-				$name,
-				$path,
-				$method,
-				$rewritePagePostType,
-				$rewritePageSlug,
-			],
+			['{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}'],
+			[$name, $path, $method, $rewritePagePostType, $rewritePageSlug],
 			$use
 		);
-
 		$use = $this->replaceNamespaces($use);
 
-		// Register class
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('RewriteFrontPages', 'rewrite_front_pages', $func, $use);
 
+		// Done.
 		$this->info('Created new rewrite front page: "' . $path . '"');
 
 		exit;

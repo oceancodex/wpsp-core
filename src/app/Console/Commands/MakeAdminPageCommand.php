@@ -46,15 +46,13 @@ class MakeAdminPageCommand extends Command {
 			// Nếu có câu trả lời, hãy tiếp tục hỏi.
 			$createView = $this->confirm('Do you want to create view files for this admin page?', false);
 		}
-		else {
-			$createView = $this->option('view');
-		}
 
 		// Kiểm tra chuỗi hợp lệ.
 		$this->validateSlug($path, 'path');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$name = Str::slug($path, '_');
+		$name       = Str::slug($path, '_');
+		$createView = $createView ?? $this->option('view') ?: false;
 
 		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
 		// $name sẽ được slugify từ "path" ra.

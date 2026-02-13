@@ -49,20 +49,15 @@ class MakeAPICommand extends Command {
 			$namespace = $this->ask('Please enter the namespace of the API endpoint (Eg: wpsp, custom-namespace,...', $this->funcs->_getAppShortName());
 			$version   = $this->ask('Please enter the version of the API endpoint (Eg: v1, v2,...)', 'v1');
 		}
-		else {
-			$method    = $this->option('method');
-			$namespace = $this->option('namespace');
-			$version   = $this->option('ver');
-		}
 
 		// Kiểm tra chuỗi hợp lệ.
 		$this->validateSlug($path, 'path');
 
 		// Chuẩn bị thêm các biến để sử dụng.
 		$name      = Str::slug($path, '_');
-		$method    = strtolower($method ?: 'GET');
-		$namespace = $namespace ?: null;
-		$version   = $version ?: null;
+		$method    = strtolower($method ?? $this->option('method') ?: 'GET');
+		$namespace = $namespace ?? $this->option('namespace') ?: null;
+		$version   = $version ?? $this->option('ver') ?: null;
 
 		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
 		// $name sẽ được slugify từ "path" ra.

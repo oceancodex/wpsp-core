@@ -48,15 +48,13 @@ class MakeMetaBoxCommand extends Command {
 			// Nếu có câu trả lời, hãy tiếp tục hỏi.
 			$createView = $this->confirm('Do you want to create view files for this meta box?', false);
 		}
-		else {
-			$createView = $this->option('view');
-		}
 
 		// Kiểm tra chuỗi hợp lệ.
 		$this->validateSlug($id, 'id');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$name = Str::slug($id, '_');
+		$name       = Str::slug($id, '_');
+		$createView = $createView ?? $this->option('view') ?: false;
 
 		// Kiểm tra tồn tại.
 		$componentPath = $mainPath . '/app/WordPress/MetaBoxes/' . $name . '.php';

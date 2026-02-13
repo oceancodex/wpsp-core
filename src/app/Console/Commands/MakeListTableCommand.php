@@ -19,46 +19,56 @@ class MakeListTableCommand extends Command {
 	protected $help = 'This command allows you to create a list table.';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make('funcs');
 		$mainPath    = $this->funcs->mainPath;
 
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$name = $this->argument('name');
 
-		// Ask interactively if missing
+		// Nếu không khai báo, hãy hỏi.
 		if (!$name) {
 			$name = $this->ask('Please enter the name of the list table (Eg: MyListTable)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($name)) {
 				$this->error('Missing name for the list table. Please try again.');
 				exit;
 			}
 		}
 
-		// Validate class name
+		// Kiểm tra chuỗi hợp lệ.
 		$this->validateClassName($name);
 
-		// Build path
+		// Kiểm tra tồn tại.
 		$path = $mainPath . '/app/WordPress/ListTables/' . $name . '.php';
 
-		// Check exists? (FileSystem trước đây không check)
-		// Nếu muốn check trùng, uncomment:
-		// if (File::exists($path)) {
-		//     $this->error('List table: "' . $name . '" already exists! Please try again.');
-		//     exit;
-		// }
+		if (File::exists($path)) {
+			$this->error('List table: "' . $name . '" already exists! Please try again.');
+			exit;
+		}
 
-		// Load stub
+		/**
+		 * ---
+		 * Class.
+		 * ---
+		 */
 		$content = File::get(__DIR__ . '/../Stubs/ListTables/listtable.stub');
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = $this->replaceNamespaces($content);
 
-		// Ensure directory exists
 		File::ensureDirectoryExists(dirname($path));
-
-		// Create file
 		File::put($path, $content);
 
-		// Output
+		// Done.
 		$this->info('Created new list table: "' . $name . '"');
 
 		exit;

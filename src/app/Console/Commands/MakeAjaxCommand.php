@@ -42,17 +42,14 @@ class MakeAjaxCommand extends Command {
 			$method = $this->ask('Please enter the HTTP method of the ajax (Eg: GET, POST or get, post...)', 'GET');
 			$nopriv = $this->confirm('Do you want to allow access for non-logged users (nopriv)?', false);
 		}
-		else {
-			$method = $this->option('method');
-			$nopriv = $this->option('nopriv');
-		}
 
 		// Kiểm tra chuỗi hợp lệ.
 		$this->validateSlug($action, 'action');
 
 		// Chuẩn bị thêm các biến để sử dụng.
 		$name   = Str::slug($action, '_');
-		$method = strtolower($method ?: 'GET');
+		$method = strtolower($method ?? $this->option('method') ?: 'GET');
+		$nopriv = $nopriv ?? $this->option('nopriv') ?: false;
 
 		/**
 		 * ---

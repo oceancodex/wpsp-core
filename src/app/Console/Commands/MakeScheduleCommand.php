@@ -20,56 +20,71 @@ class MakeScheduleCommand extends Command {
 	protected $help = 'This command allows you to create a schedule.';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make("funcs");
 		$mainPath    = $this->funcs->mainPath;
 
-		$hook     = $this->argument('hook');
-		$interval = $this->argument('interval');
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
+		$hook = $this->argument('hook');
 
-		// Ask interactively
+		// Nếu không khai báo, hãy hỏi.
 		if (!$hook) {
 			$hook = $this->ask('Please enter the hook of the schedule (Eg: custom_schedule_hook)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($hook)) {
 				$this->error('Missing hook for the schedule. Please try again.');
 				exit;
 			}
 
-			if (!$interval) {
-				$interval = $this->ask('Please enter the interval of the schedule', 'hourly');
-			}
+			// Nếu có câu trả lời, hãy tiếp tục hỏi.
+			$interval = $this->ask('Please enter the interval of the schedule', 'hourly');
 		}
 
-		$interval = empty($interval) ? 'hourly' : $interval;
+		// Chuẩn bị thêm các biến để sử dụng.
+		$interval = $interval ?? $this->argument('interval') ?: 'hourly';
 
-		// Validate
+		// Kiểm tra chuỗi hợp lệ.
 		$this->validateClassName($hook, 'hook');
 		$this->validateClassName($interval, 'interval');
 
-		// Path
+		// Kiểm tra tồn tại.
 		$path = $mainPath . '/app/WordPress/Schedules/' . $hook . '.php';
 
-		// Check exists
 		if (File::exists($path)) {
 			$this->error('Schedule: "' . $hook . '" already exists! Please try again.');
 			exit;
 		}
 
-		// Load stub
+		/**
+		 * ---
+		 * Class.
+		 * ---
+		 */
 		$content = File::get(__DIR__ . '/../Stubs/Schedules/schedule.stub');
-
 		$content = str_replace(
 			['{{ className }}', '{{ hook }}', '{{ interval }}'],
 			[$hook, $hook, $interval],
 			$content
 		);
-
 		$content = $this->replaceNamespaces($content);
 
 		File::ensureDirectoryExists(dirname($path));
 		File::put($path, $content);
 
-		// Func registration
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = File::get(__DIR__ . '/../Funcs/Schedules/schedule.func');
 		$func = str_replace(
 			['{{ hook }}', '{{ interval }}'],
@@ -77,7 +92,11 @@ class MakeScheduleCommand extends Command {
 			$func
 		);
 
-		// Use registration
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/Schedules/schedule.use');
 		$use = str_replace(
 			['{{ hook }}', '{{ interval }}'],
@@ -86,10 +105,14 @@ class MakeScheduleCommand extends Command {
 		);
 		$use = $this->replaceNamespaces($use);
 
-		// Add to route
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('Schedules', 'schedules', $func, $use);
 
-		// Done
+		// Done.
 		$this->info('Created new schedule: "' . $hook . '"');
 
 		exit;
