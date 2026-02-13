@@ -19,53 +19,71 @@ class MakeAjaxCommand extends Command {
 	protected $description = 'Create a new Ajax action. | Eg: php artisan make:ajax GET my_action --nopriv';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make('funcs');
 
 		$action = $this->argument('action');
-		$method = $this->option('method');
-		$nopriv = $this->option('nopriv');
 
-		// If no action provided → interactive mode
+		// Nếu không khai báo, hãy hỏi.
 		if (!$action) {
 			$action = $this->ask('Please enter the action name of the ajax (Eg: my_action)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($action)) {
 				$this->error('Missing action name for the ajax. Please try again.');
 				exit;
 			}
 
+			// Nếu có câu trả lời, hãy tiếp tục hỏi.
 			$method = $this->ask('Please enter the HTTP method of the ajax (Eg: GET, POST or get, post...)', 'GET');
 			$nopriv = $this->confirm('Do you want to allow access for non-logged users (nopriv)?', false);
 		}
 
-		// Define variables
-		$method = strtolower($method ?: 'GET');
+		// Kiểm tra chuỗi hợp lệ.
+		$this->validateSlug($action, 'action');
 
-		// Validate
-		$this->validateClassName($action);
+		// Chuẩn bị thêm các biến để sử dụng.
+		$name   = Str::slug($action, '_');
+		$method = strtolower($method ?? $this->option('method') ?: 'GET');
+		$nopriv = $nopriv ?? $this->option('nopriv') ?: false;
 
-		// Prepare line for find function
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = $nopriv ? File::get(__DIR__ . '/../Funcs/Ajaxs/ajax-nopriv.func') : File::get(__DIR__ . '/../Funcs/Ajaxs/ajax.func');
 		$func = str_replace(
-			['{{ method }}', '{{ action }}', '{{ nopriv }}'],
-			[$method, $action, $nopriv],
+			['{{ method }}', '{{ action }}', '{{ name }}', '{{ nopriv }}'],
+			[$method, $action, $name, $nopriv],
 			$func
 		);
 
-		// Prepare line for use class
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/Ajaxs/ajax.use');
 		$use = str_replace(
-			['{{ method }}', '{{ action }}', '{{ nopriv }}'],
-			[$method, $action, $nopriv],
+			['{{ method }}', '{{ action }}', '{{ name }}', '{{ nopriv }}'],
+			[$method, $action, $name, $nopriv],
 			$use
 		);
-
 		$use = $this->replaceNamespaces($use);
 
-		// Add to routes
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('Ajaxs', 'ajaxs', $func, $use);
 
-		// Output
+		// Done.
 		$this->info("Created new Ajax action: {$action}");
 
 		exit;

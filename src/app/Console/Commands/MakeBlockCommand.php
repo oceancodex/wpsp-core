@@ -17,46 +17,54 @@ class MakeBlockCommand extends Command {
 	protected $description = 'Create a new block. | Eg: php artisan make:block custom-block';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make('funcs');
 		$mainPath    = $this->funcs->mainPath;
 		$textDomain  = $this->funcs->_getTextDomain();
 
-		// Define variables
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$name = $this->argument('name');
 
-		// Interactive mode
+		// Nếu không khai báo, hãy hỏi.
 		if (!$name) {
 			$name = $this->ask('Please enter the block name (Eg: custom-block)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($name)) {
 				$this->error('Missing block name. Please try again.');
 				exit;
 			}
 		}
 
-		// Normalize variables
+		// Kiểm tra chuỗi hợp lệ.
+		$this->validateSlug($name, 'name');
+
+		// Chuẩn bị thêm các biến để sử dụng.
 		$className = str_replace('-', '_', $name);
 		$className = Str::slug($className, '_');
 
-		// Validate
-		$this->validateClassName($className);
-
-		// Prepare paths.
+		// Kiểm tra tồn tại.
 		$adminClassPath = $mainPath . '/app/WordPress/Blocks/' . $className . '.php';
 		$viewDirPath    = $mainPath . '/resources/views/blocks/src/' . $name;
 
-		// Check exist.
 		if (File::exists($adminClassPath) || File::exists($viewDirPath)) {
-			$this->error('The block "' . $name . '" already exists!');
+			$this->error('The block "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
 		/**
 		 * ---
-		 * Create class file
+		 * Class.
 		 * ---
 		 */
-
 		$content = File::get(__DIR__ . '/../Stubs/Blocks/block.stub');
 		$content = str_replace(
 			['{{ name }}', '{{ className }}'],
@@ -65,18 +73,14 @@ class MakeBlockCommand extends Command {
 		);
 		$content = $this->replaceNamespaces($content);
 
-		// Ensure directory exists.
 		File::ensureDirectoryExists(dirname($adminClassPath));
-
-		// Create class file.
 		File::put($adminClassPath, $content);
 
 		/**
 		 * ---
-		 * Create view files
+		 * Views.
 		 * ---
 		 */
-
 		File::ensureDirectoryExists($viewDirPath);
 
 		$viewFiles = [
@@ -104,7 +108,11 @@ class MakeBlockCommand extends Command {
 			File::put($viewDirPath . "/{$viewFile}", $view);
 		}
 
-		// Prepare line for find function
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = File::get(__DIR__ . '/../Funcs/Blocks/block.func');
 		$func = str_replace(
 			['{{ name }}', '{{ className }}'],
@@ -112,7 +120,11 @@ class MakeBlockCommand extends Command {
 			$func
 		);
 
-		// Prepare line for use class
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/Blocks/block.use');
 		$use = str_replace(
 			['{{ name }}', '{{ className }}'],
@@ -121,16 +133,24 @@ class MakeBlockCommand extends Command {
 		);
 		$use = $this->replaceNamespaces($use);
 
-		// Add to routes
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('Blocks', 'blocks', $func, $use);
 
 		$this->warn('The block "' . $name . '" is currently being built...');
 		$this->newLine();
 
-		// Build block.
+		/**
+		 * ---
+		 * Build.
+		 * ---
+		 */
 		exec('npm run blocks-build');
 
-		// Output
+		// Done.
 		$this->info("Created new block: {$name}");
 
 		exit;

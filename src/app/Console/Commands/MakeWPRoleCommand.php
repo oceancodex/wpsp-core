@@ -19,25 +19,36 @@ class MakeWPRoleCommand extends Command {
 	protected $help = 'This command allows you to create a role...';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make("funcs");
 		$mainPath    = $this->funcs->mainPath;
 
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$name = $this->argument('name');
 
-		// Ask name interactively
+		// Nếu không khai báo, hãy hỏi.
 		if (!$name) {
 			$name = $this->ask('Please enter the name of the role (Eg: custom_role)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($name)) {
 				$this->error('Missing name for the role. Please try again.');
 				exit;
 			}
 		}
 
-		// Validate
+		// Kiểm tra chuỗi hợp lệ.
 		$this->validateClassName($name);
 
-		// Check exists
+		// Kiểm tra tồn tại.
 		$path = $mainPath . '/app/WordPress/WPRoles/' . $name . '.php';
 
 		if (File::exists($path)) {
@@ -45,7 +56,11 @@ class MakeWPRoleCommand extends Command {
 			exit;
 		}
 
-		// Create class file
+		/**
+		 * ---
+		 * Class.
+		 * ---
+		 */
 		$content = File::get(__DIR__ . '/../Stubs/WPRoles/wprole.stub');
 		$content = str_replace(
 			['{{ className }}', '{{ name }}'],
@@ -57,27 +72,39 @@ class MakeWPRoleCommand extends Command {
 		File::ensureDirectoryExists(dirname($path));
 		File::put($path, $content);
 
-		// Func line
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = File::get(__DIR__ . '/../Funcs/WPRoles/wprole.func');
 		$func = str_replace(
-			['{{ name }}'],
-			[$name],
+			['{{ className }}', '{{ name }}'],
+			[$name, $name],
 			$func
 		);
 
-		// Use line
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/WPRoles/wprole.use');
 		$use = str_replace(
-			['{{ name }}'],
-			[$name],
+			['{{ className }}', '{{ name }}'],
+			[$name, $name],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);
 
-		// Register class
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('WPRoles', 'wp_roles', $func, $use);
 
-		// Done
+		// Done.
 		$this->info('Created new WP role: "' . $name . '"');
 
 		exit;

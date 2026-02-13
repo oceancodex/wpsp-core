@@ -18,50 +18,76 @@ class MakeNavLocationCommand extends Command {
 	protected $help = 'This command allows you to create a navigation menu location.';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make('funcs');
 		$mainPath    = $this->funcs->mainPath;
 
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$name = $this->argument('name');
 
-		// Ask interactively
+		// Nếu không khai báo, hãy hỏi.
 		if (!$name) {
 			$name = $this->ask('Please enter the name of the navigation menu location (Eg: custom_nav_location)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($name)) {
 				$this->error('Missing name for the navigation menu location. Please try again.');
 				exit;
 			}
 		}
 
-		// Validate class name
+		// Kiểm tra chuỗi hợp lệ.
 		$this->validateClassName($name);
 
-		// Path for class file
+		// Chuẩn bị thêm các biến để sử dụng.
 		$path = $mainPath . '/app/WordPress/NavigationMenus/Locations/' . $name . '.php';
 
-		// Create content
+		/**
+		 * ---
+		 * Class.
+		 * ---
+		 */
 		$content = File::get(__DIR__ . '/../Stubs/NavigationMenus/Locations/navlocation.stub');
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = $this->replaceNamespaces($content);
 
-		// Save file
 		File::ensureDirectoryExists(dirname($path));
 		File::put($path, $content);
 
-		// Build func line
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = File::get(__DIR__ . '/../Funcs/NavigationMenus/Locations/navlocation.func');
 		$func = str_replace(['{{ name }}'], [$name], $func);
 
-		// Build use line
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/NavigationMenus/Locations/navlocation.use');
 		$use = str_replace(['{{ name }}'], [$name], $use);
 		$use = $this->replaceNamespaces($use);
 
-		// Add to route
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('NavLocations', 'nav_locations', $func, $use);
 
-		// Output
+		// Done.
 		$this->info('Created new navigation menu location: "' . $name . '"');
 
 		exit;

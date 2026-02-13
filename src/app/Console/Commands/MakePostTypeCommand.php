@@ -19,25 +19,36 @@ class MakePostTypeCommand extends Command {
 	protected $help = 'This command allows you to create a post type...';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make('funcs');
 		$mainPath    = $this->funcs->mainPath;
 
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$name = $this->argument('name');
 
-		// Ask interactively
+		// Nếu không khai báo, hãy hỏi.
 		if (!$name) {
 			$name = $this->ask('Please enter the name of the post type (Eg: event)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($name)) {
 				$this->error('Missing name for the post type. Please try again.');
 				exit;
 			}
 		}
 
-		// Validate
+		// Kiểm tra chuỗi hợp lệ.
 		$this->validateClassName($name);
 
-		// Check exists
+		// Kiểm tra tồn tại.
 		$path = $mainPath . '/app/WordPress/PostTypes/' . $name . '.php';
 
 		if (File::exists($path)) {
@@ -45,7 +56,11 @@ class MakePostTypeCommand extends Command {
 			exit;
 		}
 
-		// Create class file
+		/**
+		 * ---
+		 * Class.
+		 * ---
+		 */
 		$content = File::get(__DIR__ . '/../Stubs/PostTypes/posttype.stub');
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ name }}', $name, $content);
@@ -54,19 +69,31 @@ class MakePostTypeCommand extends Command {
 		File::ensureDirectoryExists(dirname($path));
 		File::put($path, $content);
 
-		// Func line
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = File::get(__DIR__ . '/../Funcs/PostTypes/posttype.func');
 		$func = str_replace(['{{ name }}'], [$name], $func);
 
-		// Use line
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/PostTypes/posttype.use');
 		$use = str_replace(['{{ name }}'], [$name], $use);
 		$use = $this->replaceNamespaces($use);
 
-		// Register
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('PostTypes', 'post_types', $func, $use);
 
-		// Done
+		// Done.
 		$this->info('Created new post type: "' . $name . '"');
 
 		exit;

@@ -20,34 +20,42 @@ class MakeUserMetaBoxCommand extends Command {
 	protected $help = 'This command allows you to create a user meta box.';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make("funcs");
 		$mainPath    = $this->funcs->mainPath;
 
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$id = $this->argument('id');
 
-		/* -------------------------------------------------
-		 *  ASK INTERACTIVE
-		 * ------------------------------------------------- */
+		// Nếu không khai báo, hãy hỏi.
 		if (!$id) {
 			$id = $this->ask('Please enter the ID of the user meta box (Eg: custom_user_meta_box)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($id)) {
 				$this->error('Missing ID for the user meta box. Please try again.');
 				exit;
 			}
 
+			// Nếu có câu trả lời, hãy tiếp tục hỏi.
 			$createView = $this->confirm('Do you want to create view files for this user meta box?', false);
 		}
 
-		// Define variables
-		$createView = $createView ?? $this->option('view');
-
-		// Validate
+		// Kiểm tra chuỗi hợp lệ.
 		$this->validateClassName($id, 'id');
 
-		/* -------------------------------------------------
-		 *  CHECK EXISTS
-		 * ------------------------------------------------- */
+		// Chuẩn bị thêm các biến để sử dụng.
+		$createView = $createView ?? $this->option('view');
+
+		// Kiểm tra tồn tại.
 		$classPath = $mainPath . '/app/WordPress/UserMetaBoxes/' . $id . '.php';
 		$viewDir   = $mainPath . '/resources/views/user-meta-boxes/' . $id;
 
@@ -56,9 +64,11 @@ class MakeUserMetaBoxCommand extends Command {
 			exit;
 		}
 
-		/* -------------------------------------------------
-		 *  CREATE CLASS FILE
-		 * ------------------------------------------------- */
+		/**
+		 * ---
+		 * Class.
+		 * ---
+		 */
 		if ($createView) {
 			$content = File::get(__DIR__ . '/../Stubs/UserMetaBoxes/user-meta-box-view.stub');
 		}
@@ -76,9 +86,11 @@ class MakeUserMetaBoxCommand extends Command {
 		File::ensureDirectoryExists(dirname($classPath));
 		File::put($classPath, $content);
 
-		/* -------------------------------------------------
-		 *  CREATE VIEW FILES
-		 * ------------------------------------------------- */
+		/**
+		 * ---
+		 * Views.
+		 * ---
+		 */
 		if ($createView) {
 			$bladeExt    = class_exists('Illuminate\View\View') ? '.blade.php' : '.php';
 			$nonBladeSep = class_exists('Illuminate\View\View') ? '' : '/non-blade';
@@ -105,9 +117,11 @@ class MakeUserMetaBoxCommand extends Command {
 			}
 		}
 
-		/* -------------------------------------------------
-		 *  REGISTER ROUTE ENTRY (func + use)
-		 * ------------------------------------------------- */
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = File::get(__DIR__ . '/../Funcs/UserMetaBoxes/user-meta-box.func');
 		$func = str_replace(
 			['{{ id }}'],
@@ -115,6 +129,11 @@ class MakeUserMetaBoxCommand extends Command {
 			$func
 		);
 
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/UserMetaBoxes/user-meta-box.use');
 		$use = str_replace(
 			['{{ id }}'],
@@ -123,11 +142,14 @@ class MakeUserMetaBoxCommand extends Command {
 		);
 		$use = $this->replaceNamespaces($use);
 
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('UserMetaBoxes', 'user_meta_boxes', $func, $use);
 
-		/* -------------------------------------------------
-		 *  DONE
-		 * ------------------------------------------------- */
+		// Done.
 		$this->info('Created new user meta box: "' . $id . '"');
 
 		exit;

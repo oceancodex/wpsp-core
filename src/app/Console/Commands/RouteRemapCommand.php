@@ -30,17 +30,30 @@ class RouteRemapCommand extends Command {
 	 * Thực thi command.
 	 */
 	public function handle(): int {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$app         = $this->laravel;
 		$this->funcs = $app['funcs'] ?? null;
 
+		// Nếu không có "Funcs", hãy thoát.
 		if (!$this->funcs) {
 			$this->error('Unable to resolve application funcs. Application not booted?');
 			return 0;
 		}
 
+		/**
+		 * Bỏ qua việc active plugin hay không.
+		 */
 		$ignoreActivePlugin = $this->option('ignore-active-plugin') ?? false;
 
+		/**
+		 * Nếu bỏ qua việc active plugin, bắt đầu logic remap.
+		 */
 		if ($ignoreActivePlugin) {
+			// Chuẩn bị các thông tin kết nối database.
 			$wpConfig = $this->funcs->_getWPConfig();
 			$host     = $wpConfig['DB_HOST'] ?? $this->funcs->_env('DB_HOST', true) ?? null;
 			$user     = $wpConfig['DB_USER'] ?? $this->funcs->_env('WPSP_DB_USERNAME', true) ?? null;
@@ -91,7 +104,7 @@ class RouteRemapCommand extends Command {
 			return 1;
 		}
 
-		// Nếu không có flag ignore-active-plugin, thử active plugin trước
+		// Nếu không có flag ignore-active-plugin, thử active plugin trước.
 		$pluginActivated = $this->maybeActivePlugin($this->funcs->_getMainBaseName() . '/main.php');
 
 		if ($pluginActivated === true) {
@@ -104,6 +117,10 @@ class RouteRemapCommand extends Command {
 
 		return 0;
 	}
+
+	/*
+	 *
+	 */
 
 	protected function maybeActivePlugin($plugin) {
 		$this->funcs = $this->laravel['funcs'] ?? null;

@@ -18,38 +18,52 @@ class MakeNavMenuCommand extends Command {
 	protected $help = 'This command allows you to create a navigation menu.';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make('funcs');
 		$mainPath    = $this->funcs->mainPath;
 
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$name = $this->argument('name');
 
-		// Ask interactively
+		// Nếu không khai báo, hãy hỏi.
 		if (!$name) {
 			$name = $this->ask('Please enter the name of the navigation menu (Eg: custom_nav)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($name)) {
 				$this->error('Missing name for the navigation menu. Please try again.');
 				exit;
 			}
 		}
 
-		// Validate
+		// Kiểm tra chuỗi hợp lệ.
 		$this->validateClassName($name);
 
-		// Build path
+		// Chuẩn bị thêm các biến để sử dụng.
 		$path = $mainPath . '/app/WordPress/NavigationMenus/Menus/' . $name . '.php';
 
-		// Load stub
+		/**
+		 * ---
+		 * Class.
+		 * ---
+		 */
 		$content = File::get(__DIR__ . '/../Stubs/NavigationMenus/Menus/navmenu.stub');
 		$content = str_replace('{{ className }}', $name, $content);
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = $this->replaceNamespaces($content);
 
-		// Save file
 		File::ensureDirectoryExists(dirname($path));
 		File::put($path, $content);
 
-		// Output
+		// Done.
 		$this->info('Created new navigation menu: "' . $name . '"');
 
 		exit;

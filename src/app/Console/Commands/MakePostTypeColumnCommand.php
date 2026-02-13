@@ -19,34 +19,48 @@ class MakePostTypeColumnCommand extends Command {
 	protected $help = 'This command allows you to create a custom column for post type list table.';
 
 	public function handle() {
+		/**
+		 * ---
+		 * Funcs.
+		 * ---
+		 */
 		$this->funcs = $this->getLaravel()->make('funcs');
 		$mainPath    = $this->funcs->mainPath;
 
+		/**
+		 * ---
+		 * Khai báo, hỏi và kiểm tra.
+		 * ---
+		 */
 		$name = $this->argument('name');
 
-		// Ask interactively if not provided
+		// Nếu không khai báo, hãy hỏi.
 		if (!$name) {
 			$name = $this->ask('Please enter the name of the post type column (Eg: my_custom_column)');
 
+			// Nếu không có câu trả lời, hãy thoát.
 			if (empty($name)) {
 				$this->error('Missing name for the post type column. Please try again.');
 				exit;
 			}
 		}
 
-		// Validate class name
+		// Kiểm tra chuỗi hợp lệ.
 		$this->validateClassName($name);
 
-		// Path
+		// Kiểm tra tồn tại.
 		$path = $mainPath . '/app/WordPress/PostTypeColumns/' . $name . '.php';
 
-		// Check exists
 		if (File::exists($path)) {
 			$this->error('Post type column: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
 
-		// Create class file
+		/**
+		 * ---
+		 * Class.
+		 * ---
+		 */
 		$stub = File::get(__DIR__ . '/../Stubs/PostTypeColumns/post_type_column.stub');
 		$stub = str_replace('{{ className }}', $name, $stub);
 		$stub = $this->replaceNamespaces($stub);
@@ -54,7 +68,11 @@ class MakePostTypeColumnCommand extends Command {
 		File::ensureDirectoryExists(dirname($path));
 		File::put($path, $stub);
 
-		// Func line
+		/**
+		 * ---
+		 * Function.
+		 * ---
+		 */
 		$func = File::get(__DIR__ . '/../Funcs/PostTypeColumns/post_type_column.func');
 		$func = str_replace(
 			['{{ name }}'],
@@ -62,7 +80,11 @@ class MakePostTypeColumnCommand extends Command {
 			$func
 		);
 
-		// Use line
+		/**
+		 * ---
+		 * Use.
+		 * ---
+		 */
 		$use = File::get(__DIR__ . '/../Uses/PostTypeColumns/post_type_column.use');
 		$use = str_replace(
 			['{{ name }}'],
@@ -71,10 +93,14 @@ class MakePostTypeColumnCommand extends Command {
 		);
 		$use = $this->replaceNamespaces($use);
 
-		// Register
+		/**
+		 * ---
+		 * Thêm class vào route.
+		 * ---
+		 */
 		$this->addClassToRoute('PostTypeColumns', 'post_type_columns', $func, $use);
 
-		// Done
+		// Done.
 		$this->info('Created new post type column: "' . $name . '"');
 
 		exit;
