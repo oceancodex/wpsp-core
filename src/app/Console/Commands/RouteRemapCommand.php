@@ -96,7 +96,8 @@ class RouteRemapCommand extends Command {
 			$ide = strtolower($this->option('ide') ?? '');
 			if ($ide === 'phpstorm') {
 				$this->info('[IDE] Auto reload triggered for PHPStorm');
-				$psScript = $this->funcs->_getMainPath('/bin/phpstorm-auto-reload.ps1');
+//				$psScript = $this->funcs->_getMainPath('/bin/phpstorm-reload.ps1');
+				$psScript = __DIR__ . '/Powershell/phpstorm-auto-reload.ps1';
 				exec('pwsh ' . escapeshellarg($psScript));
 			}
 
@@ -108,11 +109,15 @@ class RouteRemapCommand extends Command {
 		$pluginActivated = $this->maybeActivePlugin($this->funcs->_getMainBaseName() . '/main.php');
 
 		if ($pluginActivated === true) {
-			passthru('php artisan route:remap --ignore-active-plugin 2>&1');
+			passthru(
+				'php artisan route:remap --ignore-active-plugin'
+				. ($this->option('ide') ? ' --ide=' . escapeshellarg(strtolower($this->option('ide') ?? '')) : '')
+				. ' 2>&1'
+			);
 		}
 		elseif ($pluginActivated === 'activated') {
 			// Gọi lại chính nó nhưng bỏ qua plugin check
-			return $this->call('route:remap', ['--ignore-active-plugin' => true]);
+			return $this->call('route:remap', ['--ignore-active-plugin' => true, '--ide' => strtolower($this->option('ide') ?? '')]);
 		}
 
 		return 0;
