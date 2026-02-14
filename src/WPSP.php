@@ -187,7 +187,7 @@ abstract class WPSP extends BaseInstances {
 
 	protected function afterHandleRequest() {
 		// Share flash data to view.
-		add_action('init', function() {
+		add_action('template_redirect', function() {
 //			$this->application->make('view')->share('errors', session('errors'));
 			$this->application->booted(function ($app) {
 				$session = $app['session.store'];
