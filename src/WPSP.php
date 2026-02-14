@@ -46,7 +46,9 @@ abstract class WPSP extends BaseInstances {
 //		$this->registerBladeDirectives();
 
 		$this->application->boot();
+
 		$this->handleRequest();
+		$this->afterHandleRequest();
 	}
 
 	public function setApplicationForConsole($basePath) {
@@ -181,6 +183,21 @@ abstract class WPSP extends BaseInstances {
 		$response       = $kernel->handle($request);
 		$this->response = $response;
 		$kernel->terminate($request, $this->response);
+	}
+
+	protected function afterHandleRequest() {
+		// Share flash data to view.
+		add_action('init', function() {
+//			$this->application->make('view')->share('errors', session('errors'));
+			$this->application->booted(function ($app) {
+				$session = $app['session.store'];
+				$view    = $app['view'];
+
+				foreach ($session->get('_flash.new', []) as $key) {
+					$view->share($key, $session->get($key));
+				}
+			});
+		});
 	}
 
 	/*
