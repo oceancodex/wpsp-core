@@ -51,18 +51,19 @@ class RouteWatchCommand extends Command {
 
 				$this->line('<fg=yellow>Change detected. Remapping...</>');
 
-//				exec(
-//					'php ' . escapeshellarg($mainPath . '/artisan')
-//					. ' route:remap'
-//					. $ideStr
-//				);
+				passthru(
+					'php ' . escapeshellarg($mainPath . '/artisan')
+					. ' route:remap'
+					. $ideStr
+					. ' 2>&1'
+				);
 
-				$this->call('route:remap', [
-					'--ide' => $ide,
-				]);
+//				$this->call('route:remap', [
+//					'--ide' => $ide,
+//				]);
 
 //				$this->info('Remap routes successfully!');
-//				$this->info('Watching...');
+				$this->info('Watching...');
 			}
 		}
 	}

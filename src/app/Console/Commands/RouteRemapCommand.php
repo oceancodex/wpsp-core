@@ -95,7 +95,7 @@ class RouteRemapCommand extends Command {
 			// IDE auto-reload
 			$ide = strtolower($this->option('ide') ?? '');
 			if ($ide === 'phpstorm') {
-				$this->info('[IDE] Auto reload triggered for PHPStorm');
+				$this->info('IDE: Auto reload triggered for PHPStorm');
 //				$psScript = $this->funcs->_getMainPath('/bin/phpstorm-reload.ps1');
 				$psScript = __DIR__ . '/Powershell/phpstorm-auto-reload.ps1';
 				exec('pwsh ' . escapeshellarg($psScript));
