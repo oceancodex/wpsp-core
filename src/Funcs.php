@@ -479,7 +479,6 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _route($routeMap, $routeClass, $routeName, $args = [], $buildURL = false) {
-
 		// Normalize
 		if (preg_match('/\\\\/', $routeClass)) {
 			$parts = explode('\\', trim($routeClass, '\\'));
@@ -600,6 +599,7 @@ class Funcs extends BaseInstances {
 				case 'AdminPages':
 					$finalUrl = admin_url('admin.php?page=' . $finalUrl);
 					break;
+				case 'FrontPages':
 				case 'RewriteFrontPages':
 					$finalUrl = home_url($finalUrl);
 					break;
