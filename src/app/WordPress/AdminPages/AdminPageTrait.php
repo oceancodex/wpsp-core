@@ -23,9 +23,9 @@ trait AdminPageTrait {
 	 * Trước hết cần prepare method để DI.\
 	 * Sau đó gọi phương thức với DI.
 	 */
-	public function callAdminPageMethod($method) {
+	public function callAdminPageMethod($method, $args = []) {
 		if (method_exists($this, $method)) {
-			$callback = $this->prepareCallbackFunction($method, $this->menu_slug, $this->menu_slug);
+			$callback = $this->prepareCallbackFunction($method, $this->menu_slug, $this->menu_slug, $args);
 			$this->resolveAndCall($callback);
 		}
 	}

@@ -373,6 +373,9 @@ trait RouteTrait {
 					elseif (array_key_exists($name, $post)) {
 						$id = $post[$name];
 					}
+					elseif (array_key_exists($name, $args)) {
+						$id = $args[$name];
+					}
 
 					// Nếu có ID → binding
 					if (!empty($id)) {
@@ -436,7 +439,7 @@ trait RouteTrait {
 		$callParams['request_path']    = $requestPath;
 
 		foreach ($args as $argKey => $argValue) {
-			$callParams[$argKey] = $argValue;
+			if (!isset($callParams[$argKey])) $callParams[$argKey] = $argValue;
 		}
 
 		// Ngoài các params lấy từ signature (primitive params),
