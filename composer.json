@@ -7,8 +7,8 @@
 	"license": "MIT",
 	"require": {
 		"php": "^8.2",
-		"laravel/framework": "^v12.40.2",
-		"laravel/tinker": "^2.0",
+		"laravel/framework": "^v12.56",
+		"laravel/tinker": "^v2.11",
 		"yahnis-elsts/plugin-update-checker": "^v5.6"
 	},
 	"config": {
