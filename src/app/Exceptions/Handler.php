@@ -157,7 +157,7 @@ class Handler extends BaseInstances {
 					$status  = method_exists($response, 'getStatusCode') ? $response->getStatusCode() : 500;
 
 					if (trim((string)$content) !== '') {
-						http_response_code($status);
+						@http_response_code($status);
 						echo $content;
 						exit;
 					}
