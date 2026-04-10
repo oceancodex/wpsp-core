@@ -30,7 +30,8 @@ abstract class BaseListTable extends \WP_List_Table {
 			$showScreenOptions = $screen->show_screen_options ?? false;
 			if ($showScreenOptions) {
 				add_filter("manage_{$screenId}_columns", function($columns) {
-					return $this->get_columns();
+					$columns = array_merge($columns, $this->get_columns());
+					return $columns;
 				});
 
 				// Items per page độc lập theo "screen_options_key".
