@@ -48,12 +48,12 @@ class MakeScheduleCommand extends Command {
 
 			// Nếu có câu trả lời, hãy tiếp tục hỏi.
 			$type     = $this->ask('Please enter the type of the schedule (Eg: wpsp, wordpress)', 'wordpress');
-			$interval = $this->ask('Please enter the interval of the schedule', 'hourly');
+			$interval = $this->ask('Please enter the interval of the schedule (everyMinute, hourly, daily, weekly, monthly, yearly,...)', 'everyMinute');
 		}
 
 		// Chuẩn bị thêm các biến để sử dụng.
 		$type     = $type ?? $this->option('type') ?: 'wordpress';
-		$interval = $type == 'wpsp' ? 'hourly' : ($interval ?? $this->argument('interval') ?: 'hourly');
+		$interval = $interval ?? $this->argument('interval') ?: 'everyMinute';
 
 		// Kiểm tra chuỗi hợp lệ.
 		$this->validateClassName($hook, 'hook');
