@@ -1,1 +1,1 @@
-        Schedule::name('{{ hook }}')->call([{{ hook }}::class, 'handle')->{{ interval }}();
+        Schedule::name('{{ hook }}')->call(function() { Funcs::app({{ hook }}::class)->handle(); })->{{ interval }}();
