@@ -59,7 +59,6 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 
 			if (!empty($groupMatches) && !empty($groupMatches[0])) {
 				foreach ($groupMatches[0] as $groupMatchKey => $groupMatch) {
-//					add_rewrite_tag('%'.$this->funcs->_config('app.short_name') . '_rewrite_group_' . ($groupMatchKey + 1).'%', '([^&]+)', $this->funcs->_config('app.short_name') . '_rewrite_group_' . ($groupMatchKey + 1) . '=');
 					$stringMatches .= '&' . $this->funcs->_config('app.short_name') . '_rewrite_group_' . ($groupMatchKey + 1) . '=$matches[' . ($groupMatchKey + 1) . ']';
 				}
 			}
@@ -94,10 +93,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 				}
 
 				if (!$matched) return;
-
-				$stringMatches = ltrim($stringMatches, '&');
-				parse_str($stringMatches, $stringMatchesArr);
-
+				
 				unset($wp->query_vars['attachment']);
 				unset($wp->query_vars['page']);
 				unset($wp->query_vars['name']);
@@ -107,8 +103,23 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 				$wp->query_vars['pagename']   = $this->rewriteFrontPageSlug;
 				$wp->query_vars['post_type']  = $this->rewriteFrontPagePostType;
 
-				foreach ($stringMatchesArr as $stringMatchesArrKey => $stringMatchesArrValue) {
-					$wp->query_vars[$stringMatchesArrKey] = $stringMatchesArrValue;
+//				$stringMatches = ltrim($stringMatches, '&');
+//				parse_str($stringMatches, $stringMatchesArr);
+//
+//				foreach ($stringMatchesArr as $stringMatchesArrKey => $stringMatchesArrValue) {
+//					$wp->query_vars[$stringMatchesArrKey] = $stringMatchesArrValue;
+//				}
+
+				$matches = [];
+
+				if (preg_match('/^' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath, $matches)) {
+					foreach ($matches as $k => $v) {
+						if ($k === 0) continue;
+
+						$wp->query_vars[
+						$this->funcs->_config('app.short_name') . '_rewrite_group_' . $k
+						] = $v;
+					}
 				}
 			}, 9999999999);
 
