@@ -54,23 +54,34 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 		if ($path && $fullPath) {
 			// Prepare string matches.
 			preg_match_all('/\(.+?\)/iu', $this->funcs->_regexPath($fullPath), $groupMatches);
+
 			$stringMatches = '';
+
 			if (!empty($groupMatches) && !empty($groupMatches[0])) {
 				foreach ($groupMatches[0] as $groupMatchKey => $groupMatch) {
 					$stringMatches .= '&' . $this->funcs->_config('app.short_name') . '_rewrite_group_' . ($groupMatchKey + 1) . '=$matches[' . ($groupMatchKey + 1) . ']';
 				}
 			}
+
 			if ($this->rewriteIdent) {
 				$stringMatches .= '&' . $this->funcs->_config('app.short_name') . '_rewrite_ident=' . $this->rewriteIdent;
 			}
 
+			// Prepare regex path.
+			$regexPath   = $this->funcs->_regexPath($fullPath);
+			$regexPrefix = '^';
+			$regexSuffix = '$';
+
+			$regexPath = !str_starts_with($regexPath, $regexPrefix) ? $regexPrefix . $regexPath : $regexPath;
+			$regexPath = !str_ends_with($regexPath, $regexSuffix) ? $regexPath . $regexSuffix : $regexPath;
+
 			// Rewrite rule.
-			add_rewrite_rule('^' . $this->funcs->_regexPath($fullPath) . '\/?$', 'index.php?post_type=' . $this->rewriteFrontPagePostType . '&pagename=' . $this->rewriteFrontPageSlug . '&is_rewrite=true' . $stringMatches, 'top');
+			add_rewrite_rule($regexPath, 'index.php?post_type=' . $this->rewriteFrontPagePostType . '&pagename=' . $this->rewriteFrontPageSlug . '&is_rewrite=true' . $stringMatches, 'top');
 
 			$requestPath = trim($this->request->getPathInfo(), '/\\');
 
 			// Fix "404" for custom permalinks.
-			add_action('parse_request', function($wp) use ($fullPath, $requestPath, $stringMatches) {
+			add_action('parse_request', function($wp) use ($fullPath, $requestPath, $regexPath, $stringMatches) {
 				try {
 					$matched = preg_match('/^' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath);
 					if (!$matched) {
@@ -83,9 +94,6 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 
 				if (!$matched) return;
 
-				$stringMatches = ltrim($stringMatches, '&');
-				parse_str($stringMatches, $stringMatchesArr);
-
 				unset($wp->query_vars['attachment']);
 				unset($wp->query_vars['page']);
 				unset($wp->query_vars['name']);
@@ -95,8 +103,15 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 				$wp->query_vars['pagename']   = $this->rewriteFrontPageSlug;
 				$wp->query_vars['post_type']  = $this->rewriteFrontPagePostType;
 
-				foreach ($stringMatchesArr as $stringMatchesArrKey => $stringMatchesArrValue) {
-					$wp->query_vars[$stringMatchesArrKey] = $stringMatchesArrValue;
+				$matches = [];
+				if (preg_match('/'.$regexPath.'/iu', $requestPath, $matches)) {
+					foreach ($matches as $k => $v) {
+						if ($k === 0) continue;
+
+						$wp->query_vars[
+						$this->funcs->_config('app.short_name') . '_rewrite_group_' . $k
+						] = $v;
+					}
 				}
 			}, 9999999999);
 
