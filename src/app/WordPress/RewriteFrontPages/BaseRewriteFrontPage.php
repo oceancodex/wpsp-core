@@ -54,18 +54,29 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 		if ($path && $fullPath) {
 			// Prepare string matches.
 			preg_match_all('/\(.+?\)/iu', $this->funcs->_regexPath($fullPath), $groupMatches);
+
 			$stringMatches = '';
+
 			if (!empty($groupMatches) && !empty($groupMatches[0])) {
 				foreach ($groupMatches[0] as $groupMatchKey => $groupMatch) {
 					$stringMatches .= '&' . $this->funcs->_config('app.short_name') . '_rewrite_group_' . ($groupMatchKey + 1) . '=$matches[' . ($groupMatchKey + 1) . ']';
 				}
 			}
+
 			if ($this->rewriteIdent) {
 				$stringMatches .= '&' . $this->funcs->_config('app.short_name') . '_rewrite_ident=' . $this->rewriteIdent;
 			}
 
+			// Prepare regex path.
+			$regexPath = $this->funcs->_regexPath($fullPath);
+			$regexPrefix = '^';
+			$regexSuffix = '$';
+
+			$regexPath = !str_starts_with($regexPath, $regexPrefix) ? $regexPrefix . $regexPath : $regexPath;
+			$regexPath = !str_ends_with($regexPath, $regexSuffix) ? $regexPath . $regexSuffix : $regexPath;
+
 			// Rewrite rule.
-			add_rewrite_rule('^' . $this->funcs->_regexPath($fullPath) . '\/?$', 'index.php?post_type=' . $this->rewriteFrontPagePostType . '&pagename=' . $this->rewriteFrontPageSlug . '&is_rewrite=true' . $stringMatches, 'top');
+			add_rewrite_rule($regexPath, 'index.php?post_type=' . $this->rewriteFrontPagePostType . '&pagename=' . $this->rewriteFrontPageSlug . '&is_rewrite=true' . $stringMatches, 'top');
 
 			$requestPath = trim($this->request->getPathInfo(), '/\\');
 
