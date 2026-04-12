@@ -81,7 +81,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			$requestPath = trim($this->request->getPathInfo(), '/\\');
 
 			// Fix "404" for custom permalinks.
-			add_action('parse_request', function($wp) use ($fullPath, $requestPath, $stringMatches) {
+			add_action('parse_request', function($wp) use ($fullPath, $requestPath, $regexPath, $stringMatches) {
 				try {
 					$matched = preg_match('/^' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath);
 					if (!$matched) {
@@ -93,7 +93,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 				}
 
 				if (!$matched) return;
-				
+
 				unset($wp->query_vars['attachment']);
 				unset($wp->query_vars['page']);
 				unset($wp->query_vars['name']);
@@ -103,16 +103,8 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 				$wp->query_vars['pagename']   = $this->rewriteFrontPageSlug;
 				$wp->query_vars['post_type']  = $this->rewriteFrontPagePostType;
 
-//				$stringMatches = ltrim($stringMatches, '&');
-//				parse_str($stringMatches, $stringMatchesArr);
-//
-//				foreach ($stringMatchesArr as $stringMatchesArrKey => $stringMatchesArrValue) {
-//					$wp->query_vars[$stringMatchesArrKey] = $stringMatchesArrValue;
-//				}
-
 				$matches = [];
-
-				if (preg_match('/^' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath, $matches)) {
+				if (preg_match('/'.$regexPath.'/iu', $requestPath, $matches)) {
 					foreach ($matches as $k => $v) {
 						if ($k === 0) continue;
 
