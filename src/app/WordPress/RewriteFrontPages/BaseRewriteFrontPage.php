@@ -59,6 +59,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 
 			if (!empty($groupMatches) && !empty($groupMatches[0])) {
 				foreach ($groupMatches[0] as $groupMatchKey => $groupMatch) {
+//					add_rewrite_tag('%'.$this->funcs->_config('app.short_name') . '_rewrite_group_' . ($groupMatchKey + 1).'%', '([^&]+)', $this->funcs->_config('app.short_name') . '_rewrite_group_' . ($groupMatchKey + 1) . '=');
 					$stringMatches .= '&' . $this->funcs->_config('app.short_name') . '_rewrite_group_' . ($groupMatchKey + 1) . '=$matches[' . ($groupMatchKey + 1) . ']';
 				}
 			}
@@ -68,7 +69,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			}
 
 			// Prepare regex path.
-			$regexPath = $this->funcs->_regexPath($fullPath);
+			$regexPath   = $this->funcs->_regexPath($fullPath);
 			$regexPrefix = '^';
 			$regexSuffix = '$';
 
