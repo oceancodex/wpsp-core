@@ -25,7 +25,7 @@ class SeederMakeCommand extends Command {
 	 * This is mainly useful when a lot of commands extends one main command
 	 * where some things need to be initialized based on the input arguments and options.
 	 */
-	protected function initialize(InputInterface $input, OutputInterface $output) {
+	protected function initialize(InputInterface $input, OutputInterface $output): void {
 		parent::initialize($input, $output);
 		$this->funcs = $this->laravel->make('funcs');
 	}

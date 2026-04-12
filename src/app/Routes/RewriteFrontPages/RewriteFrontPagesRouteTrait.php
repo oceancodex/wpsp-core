@@ -39,9 +39,10 @@ trait RewriteFrontPagesRouteTrait {
 		add_filter('query_vars', function($query_vars) {
 			$query_vars[] = 'is_rewrite';
 			$query_vars[] = $this->funcs->_config('app.short_name') . '_rewrite_ident';
-			for ($i = 1; $i <= 20; $i++) {
+			for ($i = 1; $i <= 50; $i++) {
 				$query_vars[] = $this->funcs->_config('app.short_name') . '_rewrite_group_' . $i;
 			}
+			$query_vars = array_unique($query_vars);
 			return $query_vars;
 		}, 10, 1);
 
