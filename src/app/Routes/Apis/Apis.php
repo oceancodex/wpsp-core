@@ -41,7 +41,7 @@ class Apis extends BaseRoute {
 	 */
 
 	public function registerRestRoute($route) {
-		$requestPath = trim($this->request->getRequestUri(), '/\\');
+		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
 		$method      = $route->method;
 		$path        = $route->path;

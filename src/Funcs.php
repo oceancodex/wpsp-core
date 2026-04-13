@@ -546,7 +546,7 @@ class Funcs extends BaseInstances {
 						$value = rawurlencode($args[$name]);
 						// replace non capture block with actual inserted value
 						$replacement = str_replace($im[0], $value, $inner);
-						$replacement = trim($replacement, '/');
+						$replacement = ltrim($replacement, '/\\');
 						$finalUrl = str_replace($fullGroup, '/' . $replacement, $finalUrl);
 					}
 					unset($args[$name]);
@@ -606,8 +606,7 @@ class Funcs extends BaseInstances {
 			}
 		}
 
-		$finalUrl = trim($finalUrl, '/');
-		$finalUrl = trim($finalUrl, '\\');
+		$finalUrl = trim($finalUrl, '/\\');
 		$finalUrl = preg_replace('/\\\\\//', '/', $finalUrl);
 
 		// Remove double slash (//) nhưng giữ prefix như https://
@@ -768,7 +767,7 @@ class Funcs extends BaseInstances {
 
 	public function _vendorFolderExists($package = null) {
 		$vendorPath = $this->_getMainPath('/vendor');
-		$package = trim($package, '/');
+		$package = trim($package, '/\\');
 		return $this->_folderExists($vendorPath . '/' . $package);
 	}
 
@@ -974,6 +973,8 @@ class Funcs extends BaseInstances {
 	public function _regexPath($pattern, $pregQuote = true, $delimiter = '/') {
 		// Nếu chứa ký tự escaped slash -> đang là regex thật -> trả về nguyên
 		if (strpos($pattern, '\/') !== false) {
+			$pattern = preg_replace('/(?<!\\\\)(?:\\\\\\\\)*\//', '\\/', $pattern);
+			$pattern = preg_replace('/(?:\\\\\/){2,}/', '\\/', $pattern);
 			return $pattern;
 		}
 
@@ -1004,7 +1005,9 @@ class Funcs extends BaseInstances {
 		$pattern = preg_replace('/(\w+)=\((\?P<[^>]+>[^)]+)\)/', '$1=($2)', $pattern);
 
 		// Không có regex, không param -> escape path thuần
-		return $pregQuote ? $this->_pregQuoteKeepGroups($pattern, $delimiter) : $pattern;
+		$pattern = $pregQuote ? $this->_pregQuoteKeepGroups($pattern, $delimiter) : $pattern;
+
+		return $pattern;
 	}
 
 	public function _pregQuoteKeepGroups($pattern, $delimiter = '/') {
