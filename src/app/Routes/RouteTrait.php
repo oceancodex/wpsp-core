@@ -263,7 +263,8 @@ trait RouteTrait {
 
 		// Match pattern: KHÔNG escape path vì path đã là regex pattern (có thể chứa (?P<name>...))
 		// Nếu $path có ^ hoặc $ thì vẫn dùng như vậy; nếu không có, ta match toàn chuỗi.
-		$regexPath = $this->funcs->_regexPath($path);
+		echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($fullPath); echo '</pre>';
+		$regexPath = $this->funcs->_regexPath($fullPath);
 		$pattern   = '#' . $regexPath . '#iu';
 
 		$passed = false;
@@ -471,8 +472,6 @@ trait RouteTrait {
 				return null;
 			}
 		});
-
-		dd($this->request);
 
 		return $callParams;
 	}
