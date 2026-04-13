@@ -98,7 +98,7 @@ class RouteManager extends BaseInstances {
 						rtrim($merged['prefix'], '/') . '/' . ltrim($prefix, '/');
 
 					// Chuẩn hóa: bỏ slash đầu/cuối
-					$merged['prefix'] = trim($merged['prefix'], '/');
+					$merged['prefix'] = trim($merged['prefix'], '/\\');
 
 					// Nếu có prefix → thêm slash cho đúng chuẩn
 					if ($merged['prefix'] !== '') {

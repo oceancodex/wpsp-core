@@ -48,7 +48,7 @@ trait HookRunnerTrait {
 				$this->prefixEnv,
 			], $constructParams);
 
-			$requestPath = trim($this->request->getRequestUri(), '/\\');
+			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 			$callback    = $this->prepareRouteCallback($callback, $constructParams);
 			$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback);
 			$callback    = $this->resolveCallback($callback, $callParams);

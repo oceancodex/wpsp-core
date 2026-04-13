@@ -22,7 +22,7 @@ class RewriteFrontPages extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
-		$requestPath = trim($this->request->getRequestUri(), '/\\');
+		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
 		$path        = $route->path;
 		$fullPath    = $route->fullPath;

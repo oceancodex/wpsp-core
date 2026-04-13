@@ -45,7 +45,7 @@ class Ajaxs extends BaseRoute {
 	 */
 
 	public function executeMethod($hookAction, $route) {
-		$requestPath = trim($this->request->getRequestUri(), '/\\');
+		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
 		$path        = $route->path;
 		$fullPath    = $route->fullPath;

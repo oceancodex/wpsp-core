@@ -92,8 +92,8 @@ class adminpagemetaboxes extends BaseDirective {
 						$adminPageMetaBoxes = (new $adminPageMetaBoxCallbackClass())->adminPageMetaBoxes();
 					}
 
-					echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($adminPageMetaBoxName); echo '</pre>';
-					echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($adminPageMenuArgs); echo '</pre>';
+//					echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($adminPageMetaBoxName); echo '</pre>';
+//					echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($adminPageMenuArgs); echo '</pre>';
 				}
 			}
 
