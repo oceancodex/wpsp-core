@@ -215,7 +215,7 @@ trait RouteTrait {
 	public function prepareCallbackFunction($method, $path, $fullPath, $args = []): \Closure {
 		return function() use ($method, $path, $fullPath, $args) {
 
-			$requestPath = trim($this->request->getRequestUri(), '/\\');
+			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
 			// build callback [instance, method]
 			$callback = [$this, $method];
@@ -263,7 +263,7 @@ trait RouteTrait {
 
 		// Match pattern: KHÔNG escape path vì path đã là regex pattern (có thể chứa (?P<name>...))
 		// Nếu $path có ^ hoặc $ thì vẫn dùng như vậy; nếu không có, ta match toàn chuỗi.
-		$regexPath = $this->funcs->_regexPath($path);
+		$regexPath = $this->funcs->_regexPath($fullPath);
 		$pattern   = '#' . $regexPath . '#iu';
 
 		$passed = false;

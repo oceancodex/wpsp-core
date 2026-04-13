@@ -49,7 +49,7 @@ abstract class BaseFrontPage extends BaseInstances {
 
 		if ($path && $fullPath) {
 
-			$requestPath = trim($this->request->getPathInfo(), '/\\');
+			$requestPath = ltrim($this->request->getPathInfo(), '/\\');
 
 			// Access URL that match rewrite rule.
 			if (!is_admin()) {
