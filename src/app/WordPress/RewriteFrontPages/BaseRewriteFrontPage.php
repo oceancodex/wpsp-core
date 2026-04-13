@@ -51,49 +51,40 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 		$path     = $this->path ?? $path;
 		$fullPath = $this->fullPath ?? $fullPath;
 
+		// Prepare regex path.
+		$regexPrefix = '^';
+		$regexSuffix = '$';
+		$regexPath   = $this->funcs->_regexPath($fullPath);
+		$regexPath   = !str_starts_with($regexPath, $regexPrefix) ? $regexPrefix . $regexPath : $regexPath;
+		$regexPath   = !str_ends_with($regexPath, $regexSuffix) ? $regexPath . $regexSuffix : $regexPath;
+
+		$appShortName = $this->funcs->_config('app.short_name');
+
 		if ($path && $fullPath) {
 			// Prepare string matches.
-			preg_match_all('/\(.+?\)/iu', $this->funcs->_regexPath($fullPath), $groupMatches);
+			preg_match_all('/\(.+?\)/iu', $regexPath, $groupMatches);
 
 			$stringMatches = '';
 
 			if (!empty($groupMatches) && !empty($groupMatches[0])) {
 				foreach ($groupMatches[0] as $groupMatchKey => $groupMatch) {
-					$stringMatches .= '&' . $this->funcs->_config('app.short_name') . '_rewrite_group_' . ($groupMatchKey + 1) . '=$matches[' . ($groupMatchKey + 1) . ']';
+					$stringMatches .= '&' . $appShortName . '_rewrite_group_' . ($groupMatchKey + 1) . '=$matches[' . ($groupMatchKey + 1) . ']';
 				}
 			}
 
 			if ($this->rewriteIdent) {
-				$stringMatches .= '&' . $this->funcs->_config('app.short_name') . '_rewrite_ident=' . $this->rewriteIdent;
+				$stringMatches .= '&' . $appShortName . '_rewrite_ident=' . $this->rewriteIdent;
 			}
-
-			// Prepare regex path.
-			$regexPath   = $this->funcs->_regexPath($fullPath);
-			$regexPrefix = '^';
-			$regexSuffix = '$';
-
-			$regexPath = !str_starts_with($regexPath, $regexPrefix) ? $regexPrefix . $regexPath : $regexPath;
-			$regexPath = !str_ends_with($regexPath, $regexSuffix) ? $regexPath . $regexSuffix : $regexPath;
 
 			// Rewrite rule.
 			add_rewrite_rule($regexPath, 'index.php?post_type=' . $this->rewriteFrontPagePostType . '&pagename=' . $this->rewriteFrontPageSlug . '&is_rewrite=true' . $stringMatches, 'top');
 
 			$requestPath = ltrim($this->request->getPathInfo(), '/\\');
 
+			if (!preg_match('/' . $regexPath . '/iu', $requestPath, $matches)) return;
+
 			// Fix "404" for custom permalinks.
-			add_action('parse_request', function($wp) use ($fullPath, $requestPath, $regexPath, $stringMatches) {
-				try {
-					$matched = preg_match('/^' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath);
-					if (!$matched) {
-						$matched = preg_match('/^' . $fullPath . '$/iu', $requestPath);
-					}
-				}
-				catch (\Throwable $e) {
-					$matched = false;
-				}
-
-				if (!$matched) return;
-
+			add_action('parse_request', function($wp) use ($fullPath, $requestPath, $regexPath, $stringMatches, $matches, $appShortName) {
 				unset($wp->query_vars['attachment']);
 				unset($wp->query_vars['page']);
 				unset($wp->query_vars['name']);
@@ -103,15 +94,9 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 				$wp->query_vars['pagename']   = $this->rewriteFrontPageSlug;
 				$wp->query_vars['post_type']  = $this->rewriteFrontPagePostType;
 
-				$matches = [];
-				if (preg_match('/'.$regexPath.'/iu', $requestPath, $matches)) {
-					foreach ($matches as $k => $v) {
-						if ($k === 0) continue;
-
-						$wp->query_vars[
-						$this->funcs->_config('app.short_name') . '_rewrite_group_' . $k
-						] = $v;
-					}
+				foreach ($matches as $k => $v) {
+					if ($k === 0) continue;
+					$wp->query_vars[$appShortName . '_rewrite_group_' . $k] = $v;
 				}
 			}, 9999999999);
 
@@ -119,23 +104,9 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			if (!is_admin()) {
 				// Cần phải hook vào 'wp' để có thể truy cập được global $post.
 				add_action('wp', function() use ($path, $fullPath, $requestPath) {
-					try {
-						$matched = preg_match('/^' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath);
-						if (!$matched) {
-							$matched = preg_match('/^' . $fullPath . '$/iu', $requestPath);
-						}
-					}
-					catch (\Throwable $e) {
-						$matched = false;
-					}
-
-					if (!$matched) return;
-
 					$this->maybeNoTemplate();
 					$callback = $this->prepareCallbackFunction($this->callback_function, $path, $fullPath);
 					$this->resolveAndCall($callback);
-//					$callParams = $this->getCallParams($path, $fullPath, $requestPath, $this, $this->callback_function);
-//					$this->resolveAndCall($callback, $callParams);
 				});
 			}
 		}
