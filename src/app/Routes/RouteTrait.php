@@ -472,6 +472,8 @@ trait RouteTrait {
 			}
 		});
 
+		dd($this->request);
+
 		return $callParams;
 	}
 
