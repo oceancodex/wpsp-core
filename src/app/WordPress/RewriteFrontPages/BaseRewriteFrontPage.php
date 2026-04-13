@@ -78,7 +78,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			// Rewrite rule.
 			add_rewrite_rule($regexPath, 'index.php?post_type=' . $this->rewriteFrontPagePostType . '&pagename=' . $this->rewriteFrontPageSlug . '&is_rewrite=true' . $stringMatches, 'top');
 
-			$requestPath = trim($this->request->getPathInfo(), '/\\');
+			$requestPath = ltrim($this->request->getPathInfo(), '/\\');
 
 			// Fix "404" for custom permalinks.
 			add_action('parse_request', function($wp) use ($fullPath, $requestPath, $regexPath, $stringMatches) {

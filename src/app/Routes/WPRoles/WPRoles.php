@@ -17,7 +17,7 @@ class WPRoles extends BaseRoute {
 	 */
 	public function execute($route) {
 		$request     = $this->request;
-		$requestPath = trim($request->getRequestUri(), '/\\');
+		$requestPath = ltrim($request->getRequestUri(), '/\\');
 
 		$path        = $route->path;
 		$fullPath    = $route->fullPath;

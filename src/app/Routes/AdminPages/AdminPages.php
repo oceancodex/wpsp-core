@@ -54,7 +54,7 @@ class AdminPages extends BaseRoute {
 			return;
 		}
 
-		$requestPath = trim($request->getRequestUri(), '/\\');
+		$requestPath = ltrim($request->getRequestUri(), '/\\');
 		if (
 			(
 				($callback instanceof \Closure)
@@ -102,7 +102,7 @@ class AdminPages extends BaseRoute {
 
 	public function executeMethodGet($route) {
 		$request     = $this->request;
-		$requestPath = trim($request->getRequestUri(), '/\\');
+		$requestPath = ltrim($request->getRequestUri(), '/\\');
 
 		$method      = $route->method;
 		$path        = $route->path;

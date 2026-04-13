@@ -22,14 +22,14 @@ class RewriteFrontPages extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
-		$requestPath = trim($this->request->getRequestUri(), '/\\');
+		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
 		$path        = $route->path;
 		$fullPath    = $route->fullPath;
 		$method      = $route->method;
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares;
-echo '<pre style="background:white;z-index:9999;position:relative">'; print_r($this->funcs->_regexPath($fullPath)); echo '</pre>';
+
 		if (
 			$this->request->method() == strtoupper($method)
 			&& preg_match('/' . $this->funcs->_regexPath($fullPath) . '/iu', $requestPath)
