@@ -4,6 +4,7 @@ namespace WPSPCORE;
 
 use Illuminate\Auth\AuthManager;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Bootstrap\LoadConfiguration;
 use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
@@ -151,11 +152,14 @@ abstract class WPSP extends BaseInstances {
 		$this->application->instance('request', Request::capture());
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
+		$this->application->singleton('storage', function ($app) { return new FilesystemManager($app); });
 	}
 
 	protected function bindingsConsole() {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
+		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
+		$this->application->singleton('storage', function ($app) { return new FilesystemManager($app); });
 	}
 
 	protected function registerBladeDirectives() {
