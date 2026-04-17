@@ -13,6 +13,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Request;
+use Illuminate\Process\Factory;
 use Illuminate\Support\Timebox;
 use WPSPCORE\App\Http\Middleware\StartSessionIfAuthenticated;
 use WPSPCORE\App\View\Directives\adminpagemetaboxes;
@@ -149,6 +150,7 @@ abstract class WPSP extends BaseInstances {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('request', Request::capture());
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
+		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
 	}
 
 	protected function bindingsConsole() {
