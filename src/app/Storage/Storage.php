@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Storage;
 
-use Illuminate\Process\Factory;
+use Illuminate\Filesystem\FilesystemManager;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Storage extends BaseInstances {
 
-	private Factory $process;
+	private FilesystemManager $storage;
 
 	/*
 	 *
 	 */
 
-	public function getProcess(): Factory {
-		return $this->process;
+	public function getStorage(): FilesystemManager {
+		return $this->storage;
 	}
 
-	public function setProcess() {
-		$this->process = $this->funcs->getApplication('process');
+	public function setStorage() {
+		$this->storage = $this->funcs->getApplication('storage');
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Storage extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getProcess()->$method(...$arguments);
+		return $instance->getStorage()->$method(...$arguments);
 	}
 
 }
