@@ -4,6 +4,7 @@ namespace WPSPCORE;
 
 use Illuminate\Auth\AuthManager;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Bootstrap\LoadConfiguration;
 use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
@@ -13,6 +14,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Request;
+use Illuminate\Process\Factory;
 use Illuminate\Support\Timebox;
 use WPSPCORE\App\Http\Middleware\StartSessionIfAuthenticated;
 use WPSPCORE\App\View\Directives\adminpagemetaboxes;
@@ -149,11 +151,25 @@ abstract class WPSP extends BaseInstances {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('request', Request::capture());
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
+		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
+
+		// Bind "storage" dưới dạn alias để sử dụng được cả "filesystem".
+//		$this->application->singleton('storage', function ($app) { return new FilesystemManager($app); });
+		$this->application->singleton('filesystem', function ($app) { return new FilesystemManager($app); });
+		$this->application->alias('filesystem', 'storage');
+		$this->application->alias('filesystem', FilesystemManager::class);
 	}
 
 	protected function bindingsConsole() {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
+		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
+
+		// Bind "storage" dưới dạn alias để sử dụng được cả "filesystem".
+//		$this->application->singleton('storage', function ($app) { return new FilesystemManager($app); });
+		$this->application->singleton('filesystem', function ($app) { return new FilesystemManager($app); });
+		$this->application->alias('filesystem', 'storage');
+		$this->application->alias('filesystem', FilesystemManager::class);
 	}
 
 	protected function registerBladeDirectives() {
