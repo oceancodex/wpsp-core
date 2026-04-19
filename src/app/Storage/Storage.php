@@ -2,11 +2,12 @@
 
 namespace WPSPCORE\App\Storage;
 
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Filesystem\FilesystemManager
+ * @mixin \Illuminate\Filesystem\Filesystem
  * @mixin \Illuminate\Support\Facades\Storage
  */
 abstract class Storage extends BaseInstances {
@@ -22,7 +23,9 @@ abstract class Storage extends BaseInstances {
 	}
 
 	public function setStorage() {
-		$this->storage = $this->funcs->getApplication('storage');
+		$this->storage = $this->funcs->getApplication('filesystem');
+//		$this->storage = $this->funcs->getApplication('storage');
+//		$this->storage = $this->funcs->getApplication(FilesystemManager::class);
 	}
 
 	/*

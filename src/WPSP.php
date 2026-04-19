@@ -152,14 +152,24 @@ abstract class WPSP extends BaseInstances {
 		$this->application->instance('request', Request::capture());
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
-		$this->application->singleton('storage', function ($app) { return new FilesystemManager($app); });
+
+		// Bind "storage" dưới dạn alias để sử dụng được cả "filesystem".
+//		$this->application->singleton('storage', function ($app) { return new FilesystemManager($app); });
+		$this->application->singleton('filesystem', function ($app) { return new FilesystemManager($app); });
+		$this->application->alias('filesystem', 'storage');
+		$this->application->alias('filesystem', FilesystemManager::class);
 	}
 
 	protected function bindingsConsole() {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
-		$this->application->singleton('storage', function ($app) { return new FilesystemManager($app); });
+
+		// Bind "storage" dưới dạn alias để sử dụng được cả "filesystem".
+//		$this->application->singleton('storage', function ($app) { return new FilesystemManager($app); });
+		$this->application->singleton('filesystem', function ($app) { return new FilesystemManager($app); });
+		$this->application->alias('filesystem', 'storage');
+		$this->application->alias('filesystem', FilesystemManager::class);
 	}
 
 	protected function registerBladeDirectives() {
