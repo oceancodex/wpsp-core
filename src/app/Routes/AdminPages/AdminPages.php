@@ -117,6 +117,7 @@ class AdminPages extends BaseRoute {
 				&& (
 					!isset($callback[1])
 					|| $callback[1] == 'index'
+					|| (isset($route->args['init']) && $route->args['init'])
 					|| $request->get('page') == $fullPath
 					|| preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
 				)
@@ -179,7 +180,7 @@ class AdminPages extends BaseRoute {
 					});
 				}
 				else {
-					if (isset($callback[1]) && is_string($callback[1]) && $callback[1] !== 'index') {
+					if ((isset($callback[1]) && is_string($callback[1]) && $callback[1] !== 'index') && (!isset($route->args['init']))) {
 						if (preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
 							$callback   = $this->prepareRouteCallback($callback, $constructParams);
 							$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
@@ -191,7 +192,7 @@ class AdminPages extends BaseRoute {
 						 * Khi callback có method là "index", thì sẽ thay đổi method thành "init".\
 						 * Mục đích sẽ gọi method "init" trong Base để khởi tạo Admin menu page.
 						 */
-						if (isset($callback[1]) && $callback[1] == 'index' || !isset($callback[1])) $callback[1] = 'init';
+						if (isset($callback[1]) && $callback[1] == 'index' || !isset($callback[1]) || isset($route->args['init'])) $callback[1] = 'init';
 
 						/**
 						 * Vì thế, DI tại đây được triển khai với method "init".\
