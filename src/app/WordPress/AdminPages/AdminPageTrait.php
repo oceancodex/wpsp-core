@@ -24,6 +24,10 @@ trait AdminPageTrait {
 	 * Sau đó gọi phương thức với DI.
 	 */
 	public function callAdminPageMethod($method, $args = []) {
+		if (is_array($method)) {
+			$method = $method[1];
+		}
+
 		if (method_exists($this, $method)) {
 			$callback = $this->prepareAdminPageMethod($method, $args);
 			$this->resolveAndCall($callback);
@@ -34,6 +38,10 @@ trait AdminPageTrait {
 	 * Chuẩn bị phương thức trong admin page class đã được DI.
 	 */
 	public function prepareAdminPageMethod($method, $args = []) {
+		if (is_array($method)) {
+			$method = $method[1];
+		}
+
 		if (method_exists($this, $method)) {
 			return $this->prepareCallbackFunction($method, $this->menu_slug, $this->menu_slug, $args);
 		}
