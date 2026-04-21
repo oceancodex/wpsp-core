@@ -1,0 +1,29 @@
+<?php
+
+namespace {{ rootNamespace }}\App\WordPress\AdminBarMenus;
+
+use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
+use {{ coreNamespace }}\App\WordPress\AdminBarMenus\BaseAdminBarMenu;
+
+class {{ className }} extends BaseAdminBarMenu {
+
+	use InstancesTrait;
+
+	// Args.
+	public $id     = '{{ name }}';
+	public $title  = '{{ name }}';
+	public $href   = '/wp-admin/admin.php?page=wpsp';
+	public $parent = {{ parent }};
+	public $meta   = [];
+
+
+	/*
+	 *
+	 */
+
+	public function customProperties() {
+		$this->id    = '{{ name }}';
+		$this->title = '{{ name }}';
+	}
+
+}
