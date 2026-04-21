@@ -217,7 +217,7 @@ class {{ className }} extends BaseListTable {
 	 */
 	public function get_data() {
 		try {
-			$model = \{{ rootNamespace }}\App\Models\SettingsModel::query();
+			$model = SettingsModel::query();
 
 			/**
 			 * Cache tổng số lượng bản ghi trong 300s\

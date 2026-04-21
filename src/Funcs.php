@@ -612,8 +612,11 @@ class Funcs extends BaseInstances {
 		// Remove double slash (//) nhưng giữ prefix như https://
 		$finalUrl = preg_replace('#(?<!:)//+#', '/', $finalUrl);
 
-		// Cleanup
+		// Cleanup.
 		$finalUrl = trim($finalUrl, '?$&');
+
+		// Normalize URL.
+		$finalUrl = $this->_normalizeURL($finalUrl);
 
 		return $finalUrl;
 	}
@@ -687,6 +690,10 @@ class Funcs extends BaseInstances {
 		else {
 			return false;
 		}
+	}
+
+	public function _viewDetect($viewName = null) {
+		return $viewName;
 	}
 
 	public function _viewInstance() {
@@ -1044,7 +1051,9 @@ class Funcs extends BaseInstances {
 		return $quoted;
 	}
 
-	public function _sanitizeURL($url) {
+	public function _sanitizeURL($url = null) {
+		if (!$url) return $url;
+
 		$url = trim($url);
 
 		// Nếu chuỗi rỗng => return luôn
@@ -1092,6 +1101,10 @@ class Funcs extends BaseInstances {
 
 		// 🔹 6. Dọn ký tự ? hoặc & cuối cùng (nếu vẫn dư)
 		return preg_replace('/(\?|\&)+$/', '', $url);
+	}
+
+	public function _normalizeURL($url = null) {
+		return $this->_sanitizeURL($url);
 	}
 
 	public function _commentTokens() {

@@ -85,7 +85,7 @@ class {{ className }} extends BaseAdminPage {
 		/**
 		 * Định nghĩa các metaboxes sẽ được hiển thị trong admin page.
 		 */
-//		$this->adminPageMetaBoxes = $this->prepareAdminPageMetaBoxes();
+//		$this->adminPageMetaBoxes = $this->adminPageMetaBoxes();
 
 		/**
 		 * Định nghĩa screen option key duy nhất dựa theo params trong URL.\
@@ -132,7 +132,7 @@ class {{ className }} extends BaseAdminPage {
 	 *
 	 */
 
-//	public function prepareAdminPageMetaBoxes() {
+//	public function adminPageMetaBoxes() {
 //		return [
 //			'side' => [
 //				'submitdiv' => [
