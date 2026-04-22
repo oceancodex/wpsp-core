@@ -33,7 +33,7 @@ class Apis extends BaseRoute {
 	public function execute($route) {
 		add_action('rest_api_init', function() use ($route) {
 			$this->registerRestRoute($route);
-		});
+		}, 9999999999);
 	}
 
 	/*

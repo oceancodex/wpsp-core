@@ -309,6 +309,8 @@ abstract class BaseRoute extends BaseInstances {
 		 */
 		if (array_key_exists('namespace', $this->pending)) {
 			$group['namespace'] = $this->pending['namespace'];
+		} elseif (!empty($group['namespace'])) {
+			$group['namespace'] = $group['namespace'] . '';
 		}
 		else {
 			$group['namespace'] = $this->defaultNamespace ?? $this->funcs->_getRootNamespace() ?? null;
@@ -319,6 +321,8 @@ abstract class BaseRoute extends BaseInstances {
 		 */
 		if (array_key_exists('version', $this->pending)) {
 			$group['version'] = $this->pending['version'];
+		} elseif (!empty($group['version'])) {
+			$group['version'] = $group['version'] . '';
 		}
 		else {
 			$group['version'] = $this->defaultVersion ?? null;
