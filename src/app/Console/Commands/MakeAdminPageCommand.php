@@ -13,6 +13,8 @@ class MakeAdminPageCommand extends Command {
 
 	protected $signature = 'make:admin-page
         {path? : The path of the admin page}
+        {--child : Is this admin page a child of another admin page}
+        {--parent_slug : The slug of the parent admin page}
         {--view : Create view files for this admin page}';
 
 	protected $description = 'Create a new admin page. | Eg: php artisan make:admin-page custom-admin-page --view';
@@ -44,6 +46,12 @@ class MakeAdminPageCommand extends Command {
 			}
 
 			// Nếu có câu trả lời, hãy tiếp tục hỏi.
+			$child = $this->confirm('Is this admin page a child of another admin page?', false);
+
+			if ($child) {
+				$parentSlug = $this->ask('Please enter the slug of the parent admin page');
+			}
+
 			$createView = $this->confirm('Do you want to create view files for this admin page?', false);
 		}
 
@@ -52,6 +60,10 @@ class MakeAdminPageCommand extends Command {
 
 		// Chuẩn bị thêm các biến để sử dụng.
 		$name       = Str::slug(str_replace('-', '_', $path), '_');
+		$child      = $child ?? $this->option('child') ?: false;
+		$child      = $child ? 'true' : 'false';
+		$parentSlug = $parentSlug ?? $this->option('parent_slug') ?: null;
+		$parentSlug = $parentSlug ? "'$parentSlug'" : 'null';
 		$createView = $createView ?? $this->option('view') ?: false;
 
 		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
@@ -79,8 +91,8 @@ class MakeAdminPageCommand extends Command {
 		}
 
 		$content = str_replace(
-			['{{ className }}', '{{ name }}', '{{ path }}'],
-			[$name, $name, $path],
+			['{{ className }}', '{{ name }}', '{{ path }}', '{{ parentSlug }}', '{{ child }}'],
+			[$name, $name, $path, $parentSlug, $child],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -110,8 +122,8 @@ class MakeAdminPageCommand extends Command {
 				$view = File::get(__DIR__ . '/../Views/AdminPages' . $nonBladeSep . '/' . $stub);
 
 				$view = str_replace(
-					['{{ name }}', '{{ path }}'],
-					[$name, $path],
+					['{{ name }}', '{{ path }}', '{{ parentSlug }}', '{{ child }}'],
+					[$name, $path, $parentSlug, $child],
 					$view
 				);
 
