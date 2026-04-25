@@ -621,14 +621,15 @@ class Funcs extends BaseInstances {
 		return $finalUrl;
 	}
 
-	public function _trans($string, $wordpress = false) {
+	public function _trans($string, $replaces = [], $wordpress = false) {
 		try {
 			if ($wordpress) {
 				return __($string, $this->_getTextDomain());
 			}
 			else {
+				/** @var \Illuminate\Translation\Translator $translation */
 				$translation = $this->getApplication('translator');
-				return $translation->has($string) ? $translation->get($string) : $translation->get($string, [], $this->_config('app.fallback_locale'));
+				return $translation->has($string) ? $translation->get($string, $replaces) : $translation->get($string, $replaces, $this->_config('app.fallback_locale'));
 			}
 		}
 		catch (\Throwable $e) {

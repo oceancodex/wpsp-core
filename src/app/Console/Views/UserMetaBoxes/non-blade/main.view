@@ -1,10 +1,10 @@
 <?php
 if (isset($requestParams['{{ id }}-tab']) && $requestParams['{{ id }}-tab'] == 'tab-2') {
-	$title = $funcs->_trans('Tab 2', true);
+	$title = $funcs->_trans('Tab 2', null, true);
 	$view  = $funcs->_getResourcesPath('/views/user-meta-boxes/{{ id }}/tab-2.php');
 }
 else {
-	$title = $funcs->_trans('Tab 1', true);
+	$title = $funcs->_trans('Tab 1', null, true);
 	$view  = $funcs->_getResourcesPath('/views/user-meta-boxes/{{ id }}/tab-1.php');
 }
 $navigation = $funcs->_getResourcesPath('/views/user-meta-boxes/{{ id }}/navigation.php');
