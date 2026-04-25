@@ -38,7 +38,7 @@ abstract class BaseListTable extends \WP_List_Table {
 			$screenId = $screen->id;
 			$showScreenOptions = $screen->show_screen_options ?? false;
 			if ($showScreenOptions) {
-				// Nếu screen ID hiện tại không khớp với screenOptionsKey của list table, không khởi tạo sreen options panel.
+				// Nếu screen ID hiện tại không khớp với screenOptionsKey của list table, không khởi tạo sreen option columns và items per page.
 				if (is_array($this->screenOptionsKey)) {
 					if (!in_array($screenId, $this->screenOptionsKey)) return;
 				}
