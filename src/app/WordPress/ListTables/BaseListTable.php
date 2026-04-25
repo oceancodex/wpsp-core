@@ -14,7 +14,7 @@ abstract class BaseListTable extends \WP_List_Table {
 	 *
 	 */
 
-	public function __construct($args = [], $screenId = null, $mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
+	public function __construct($args = [], $screenIds = null, $mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 		// Cần gọi __construct của parent trước.
 		parent::__construct($args);
 
@@ -23,7 +23,7 @@ abstract class BaseListTable extends \WP_List_Table {
 
 		// Chuẩn hóa "screenOptionsKey".
 		if (!$this->screenOptionsKey) {
-			$this->screenOptionsKey = $this->funcs->_slugParams(['page']) ?? $screenId;
+			$this->screenOptionsKey = $this->funcs->_slugParams(['page']) ?? $screenIds;
 		}
 
 		// Tự động đăng ký các checkboxes để ẩn/hiện cột cho Custom List Table trên Screen Options panel.
