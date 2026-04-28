@@ -101,7 +101,7 @@ class YoastSEO {
 
 	public function ogDescription() {
 		if ($this->opengraphDescription) {
-			add_filter('wpseo_opengraph_description', function($description) {
+			add_filter('wpseo_opengraph_desc', function($description) {
 				return $this->opengraphDescription;
 			});
 		}
