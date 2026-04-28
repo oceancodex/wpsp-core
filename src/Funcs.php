@@ -478,7 +478,7 @@ class Funcs extends BaseInstances {
 		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
 	}
 
-	public function _route($routeMap, $routeClass, $routeName, $args = [], $buildURL = false) {
+	public function _route($routeMap, $routeClass, $routeName, $args = [], $buildURL = false, $sanitize = true) {
 		// Normalize
 		if (preg_match('/\\\\/', $routeClass)) {
 			$parts = explode('\\', trim($routeClass, '\\'));
@@ -616,7 +616,9 @@ class Funcs extends BaseInstances {
 		$finalUrl = trim($finalUrl, '?$&');
 
 		// Normalize URL.
-		$finalUrl = $this->_normalizeURL($finalUrl);
+		if ($sanitize) {
+			$finalUrl = $this->_normalizeURL($finalUrl);
+		}
 
 		return $finalUrl;
 	}
