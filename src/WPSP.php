@@ -21,6 +21,7 @@ use WPSPCORE\App\View\Directives\adminpagemetaboxes;
 
 abstract class WPSP extends BaseInstances {
 
+	/** @var null|Application */
 	public $application = null;
 	public $response    = null;
 
@@ -49,7 +50,7 @@ abstract class WPSP extends BaseInstances {
 
 		$this->application->boot();
 
-		$this->handleRequest();
+//		$this->handleRequest();
 		$this->afterHandleRequest();
 	}
 
@@ -194,7 +195,8 @@ abstract class WPSP extends BaseInstances {
 	 */
 
 	protected function handleRequest() {
-		$request        = $this->application['request'];
+		$request = $this->application['request'];
+		/** @var \Illuminate\Foundation\Http\Kernel $kernel */
 		$kernel         = $this->application->make(Kernel::class);
 		$response       = $kernel->handle($request);
 		$this->response = $response;

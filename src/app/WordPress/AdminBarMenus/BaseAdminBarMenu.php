@@ -12,7 +12,7 @@ abstract class BaseAdminBarMenu extends BaseInstances {
 	public $name              = null;
 	public $title             = null;
 	public $href              = null;
-	public $parent            = null;
+	public $parent            = '';
 	public $meta              = [];
 	public $callback_function = null;
 
