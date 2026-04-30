@@ -50,7 +50,7 @@ abstract class WPSP extends BaseInstances {
 
 		$this->application->boot();
 
-//		$this->handleRequest();
+		$this->handleRequest();
 		$this->afterHandleRequest();
 	}
 
@@ -230,7 +230,7 @@ abstract class WPSP extends BaseInstances {
 			$auth->extend('session', function ($app, $name, $config) use ($auth) {
 				$provider = $auth->createUserProvider($config['provider']);
 
-				$guard = new app\Auth\SessionGuard(
+				$guard = new \WPSPCORE\App\Auth\SessionGuard(
 					$name,
 					$provider,
 					$app['session.store'],
