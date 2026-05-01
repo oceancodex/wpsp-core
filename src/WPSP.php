@@ -43,14 +43,14 @@ abstract class WPSP extends BaseInstances {
 			->create();
 
 		$this->bootstrap();
-		$this->extends();
+//		$this->extends();
 		$this->bindings();
 
 //		$this->registerBladeDirectives();
 
 		$this->application->boot();
 
-		$this->handleRequest();
+//		$this->handleRequest();
 		$this->afterHandleRequest();
 	}
 
@@ -118,7 +118,12 @@ abstract class WPSP extends BaseInstances {
 		(new LoadEnvironmentVariables)->bootstrap($this->application);
 
 		// Configs.
+//		global $wpspAppInstanceConfigDBConnections;
+//		$appInstanceConfigDatabase = require($this->funcs->_getConfigPath('database.php'));
+//		$appInstanceConfigDatabaseConnections = $appInstanceConfigDatabase['connections'] ?? [];
+//		$wpspAppInstanceConfigDBConnections = array_merge($appInstanceConfigDatabaseConnections, $wpspAppInstanceConfigDBConnections ?: []);
 		(new LoadConfiguration)->bootstrap($this->application);
+//		$this->application->make('config')->set('database.connections', $wpspAppInstanceConfigDBConnections);
 
 		// Facades.
 		(new RegisterFacades)->bootstrap($this->application);
