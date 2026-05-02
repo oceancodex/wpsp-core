@@ -119,7 +119,12 @@ abstract class WPSP extends BaseInstances {
 		(new LoadEnvironmentVariables)->bootstrap($this->application);
 
 		// Configs.
+//		global $wpspAppInstanceConfigDBConnections;
+//		$appInstanceConfigDatabase = require($this->funcs->_getConfigPath('database.php'));
+//		$appInstanceConfigDatabaseConnections = $appInstanceConfigDatabase['connections'] ?? [];
+//		$wpspAppInstanceConfigDBConnections = array_merge($appInstanceConfigDatabaseConnections, $wpspAppInstanceConfigDBConnections ?: []);
 		(new LoadConfiguration)->bootstrap($this->application);
+//		$this->application->make('config')->set('database.connections', $wpspAppInstanceConfigDBConnections);
 
 		// Facades.
 		(new RegisterFacades)->bootstrap($this->application);
@@ -196,12 +201,15 @@ abstract class WPSP extends BaseInstances {
 	 */
 
 	public function handleRequest() {
-		$request = $this->application['request'];
-		/** @var \Illuminate\Foundation\Http\Kernel $kernel */
-		$kernel         = $this->application->make(Kernel::class);
-		$response       = $kernel->handle($request);
-		$this->response = $response;
-		$kernel->terminate($request, $this->response);
+//		add_action('init', function() {
+			$request = $this->application['request'];
+			/** @var \Illuminate\Foundation\Http\Kernel $kernel */
+			$kernel         = $this->application->make(Kernel::class);
+			$response       = $kernel->handle($request);
+			$this->response = $response;
+//			$this->response->setContent(null)->sendContent()->sendHeaders();
+			$kernel->terminate($request, $this->response);
+//		}, 10);
 	}
 
 	public function afterHandleRequest() {
