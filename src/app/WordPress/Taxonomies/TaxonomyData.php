@@ -97,11 +97,11 @@ class TaxonomyData {
 		$this->show_tagcloud         = true;
 		$this->show_in_quick_edit    = true;
 		$this->show_admin_column     = true;
-//		$this->meta_box_cb           = null;
+		$this->meta_box_cb           = false;
 //		$this->meta_box_sanitize_cb  = null;
 		$this->capabilities          = [];          // ['manage_terms', 'edit_terms', 'delete_terms', 'assign_terms']
-//		$this->rewrite               = [];          // true/false or ['slug', 'with_front', 'hierarchical', 'ep_mask']
-//		$this->query_var             = '';
+		$this->rewrite               = [];          // true/false or ['slug', 'with_front', 'hierarchical', 'ep_mask']
+		$this->query_var             = false;
 //		$this->update_count_callback = null;
 //		$this->default_term          = [];          // ['name','slug', 'description']
 //		$this->sort                  = null;

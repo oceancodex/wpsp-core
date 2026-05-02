@@ -3,6 +3,7 @@
 namespace WPSPCORE;
 
 use Illuminate\Auth\AuthManager;
+use Illuminate\Config\Repository;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Foundation\Application;
@@ -21,6 +22,7 @@ use WPSPCORE\App\View\Directives\adminpagemetaboxes;
 
 abstract class WPSP extends BaseInstances {
 
+	/** @var null|Application */
 	public $application = null;
 	public $response    = null;
 
@@ -112,7 +114,26 @@ abstract class WPSP extends BaseInstances {
 	 *
 	 */
 
-	protected function bootstrap() {
+	public function bootstrap() {
+		// Environment variables.
+		(new LoadEnvironmentVariables)->bootstrap($this->application);
+
+		// Configs.
+//		global $wpspAppInstanceConfigDBConnections;
+//		$appInstanceConfigDatabase = require($this->funcs->_getConfigPath('database.php'));
+//		$appInstanceConfigDatabaseConnections = $appInstanceConfigDatabase['connections'] ?? [];
+//		$wpspAppInstanceConfigDBConnections = array_merge($appInstanceConfigDatabaseConnections, $wpspAppInstanceConfigDBConnections ?: []);
+		(new LoadConfiguration)->bootstrap($this->application);
+//		$this->application->make('config')->set('database.connections', $wpspAppInstanceConfigDBConnections);
+
+		// Facades.
+		(new RegisterFacades)->bootstrap($this->application);
+
+		// Providers.
+		(new RegisterProviders)->bootstrap($this->application);
+	}
+
+	public function bootstrapConsole() {
 		// Environment variables.
 		(new LoadEnvironmentVariables)->bootstrap($this->application);
 
@@ -126,28 +147,14 @@ abstract class WPSP extends BaseInstances {
 		(new RegisterProviders)->bootstrap($this->application);
 	}
 
-	protected function bootstrapConsole() {
-		// Environment variables.
-		(new LoadEnvironmentVariables)->bootstrap($this->application);
-
-		// Configs.
-		(new LoadConfiguration)->bootstrap($this->application);
-
-		// Facades.
-		(new RegisterFacades)->bootstrap($this->application);
-
-		// Providers.
-		(new RegisterProviders)->bootstrap($this->application);
-	}
-
-	protected function extends() {
+	public function extends() {
 		// Override SessionGuard để thay đổi remember_web_* thành wpsp_remember_web_*
 		$this->overrideRememberCookieName();
 	}
 
-	protected function extendsConsole() {}
+	public function extendsConsole() {}
 
-	protected function bindings() {
+	public function bindings() {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('request', Request::capture());
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
@@ -160,7 +167,7 @@ abstract class WPSP extends BaseInstances {
 		$this->application->alias('filesystem', FilesystemManager::class);
 	}
 
-	protected function bindingsConsole() {
+	public function bindingsConsole() {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
@@ -172,7 +179,7 @@ abstract class WPSP extends BaseInstances {
 		$this->application->alias('filesystem', FilesystemManager::class);
 	}
 
-	protected function registerBladeDirectives() {
+	public function registerBladeDirectives() {
 		$bladeCompiler = $this->application->make('blade.compiler');
 
 		$directiveClasses = [
@@ -193,15 +200,19 @@ abstract class WPSP extends BaseInstances {
 	 *
 	 */
 
-	protected function handleRequest() {
-		$request        = $this->application['request'];
-		$kernel         = $this->application->make(Kernel::class);
-		$response       = $kernel->handle($request);
-		$this->response = $response;
-		$kernel->terminate($request, $this->response);
+	public function handleRequest() {
+//		add_action('init', function() {
+			$request = $this->application['request'];
+			/** @var \Illuminate\Foundation\Http\Kernel $kernel */
+			$kernel         = $this->application->make(Kernel::class);
+			$response       = $kernel->handle($request);
+			$this->response = $response;
+//			$this->response->setContent(null)->sendContent()->sendHeaders();
+			$kernel->terminate($request, $this->response);
+//		}, 10);
 	}
 
-	protected function afterHandleRequest() {
+	public function afterHandleRequest() {
 		// Share flash data to view.
 		add_action('template_redirect', function() {
 //			$this->application->make('view')->share('errors', session('errors'));
@@ -224,11 +235,11 @@ abstract class WPSP extends BaseInstances {
 	 * Override SessionGuard để thay đổi remember_web_* thành wpsp_remember_web_*
 	 */
 	private function overrideRememberCookieName() {
-		$this->application->afterResolving('auth', function (AuthManager $auth) {
-			$auth->extend('session', function ($app, $name, $config) use ($auth) {
+		$this->application->afterResolving('auth', function(AuthManager $auth) {
+			$auth->extend('session', function($app, $name, $config) use ($auth) {
 				$provider = $auth->createUserProvider($config['provider']);
 
-				$guard = new app\Auth\SessionGuard(
+				$guard = new \WPSPCORE\App\Auth\SessionGuard(
 					$name,
 					$provider,
 					$app['session.store'],
@@ -251,7 +262,7 @@ abstract class WPSP extends BaseInstances {
 	 *
 	 */
 
-	protected function normalizeEnvPrefix() {
+	public function normalizeEnvPrefix() {
 		$prefix = (string)$this->prefixEnv;
 		if ($prefix === '') return;
 
