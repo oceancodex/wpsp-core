@@ -1,0 +1,13 @@
+<?php
+
+namespace {{ namespace }};
+use {{ rootNamespace }}Widen\Traits\ModelsTrait;
+
+{{ factoryImport }}
+use Illuminate\Database\Eloquent\Model;
+
+class {{ class }} extends Model
+{
+    use ModelsTrait;
+    {{ factory }}
+}

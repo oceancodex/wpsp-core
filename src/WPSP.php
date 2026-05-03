@@ -13,7 +13,6 @@ use Illuminate\Foundation\Bootstrap\RegisterProviders;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
-use Illuminate\Http\Request;
 use Illuminate\Process\Factory;
 use Illuminate\Support\Timebox;
 use WPSPCORE\App\Http\Middleware\StartSessionIfAuthenticated;
@@ -21,6 +20,7 @@ use WPSPCORE\App\View\Directives\adminpagemetaboxes;
 
 abstract class WPSP extends BaseInstances {
 
+	/** @var null|Application */
 	public $application = null;
 	public $response    = null;
 
@@ -41,9 +41,10 @@ abstract class WPSP extends BaseInstances {
 			->withCommands($commands)
 			->create();
 
+		$this->setPaths();
 		$this->bootstrap();
-		$this->extends();
 		$this->bindings();
+		$this->extends();
 
 //		$this->registerBladeDirectives();
 
@@ -112,7 +113,18 @@ abstract class WPSP extends BaseInstances {
 	 *
 	 */
 
-	protected function bootstrap() {
+	public function setPaths() {
+		$this->application->useAppPath($this->mainPath . '/app');
+		$this->application->useLangPath($this->mainPath . '/lang');
+		$this->application->useConfigPath($this->mainPath . '/config');
+		$this->application->usePublicPath($this->mainPath . '/public');
+		$this->application->useStoragePath($this->mainPath . '/storage');
+		$this->application->useDatabasePath($this->mainPath . '/database');
+		$this->application->useBootstrapPath($this->mainPath . '/bootstrap');
+		$this->application->useEnvironmentPath($this->mainPath);
+	}
+
+	public function bootstrap() {
 		// Environment variables.
 		(new LoadEnvironmentVariables)->bootstrap($this->application);
 
@@ -126,7 +138,7 @@ abstract class WPSP extends BaseInstances {
 		(new RegisterProviders)->bootstrap($this->application);
 	}
 
-	protected function bootstrapConsole() {
+	public function bootstrapConsole() {
 		// Environment variables.
 		(new LoadEnvironmentVariables)->bootstrap($this->application);
 
@@ -140,16 +152,16 @@ abstract class WPSP extends BaseInstances {
 		(new RegisterProviders)->bootstrap($this->application);
 	}
 
-	protected function extends() {
+	public function extends() {
 		// Override SessionGuard để thay đổi remember_web_* thành wpsp_remember_web_*
 		$this->overrideRememberCookieName();
 	}
 
-	protected function extendsConsole() {}
+	public function extendsConsole() {}
 
-	protected function bindings() {
+	public function bindings() {
 		$this->application->instance('files', new Filesystem());
-		$this->application->instance('request', Request::capture());
+		$this->application->instance('request', $this->request);
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
 
@@ -160,7 +172,7 @@ abstract class WPSP extends BaseInstances {
 		$this->application->alias('filesystem', FilesystemManager::class);
 	}
 
-	protected function bindingsConsole() {
+	public function bindingsConsole() {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
@@ -172,7 +184,7 @@ abstract class WPSP extends BaseInstances {
 		$this->application->alias('filesystem', FilesystemManager::class);
 	}
 
-	protected function registerBladeDirectives() {
+	public function registerBladeDirectives() {
 		$bladeCompiler = $this->application->make('blade.compiler');
 
 		$directiveClasses = [
@@ -193,15 +205,14 @@ abstract class WPSP extends BaseInstances {
 	 *
 	 */
 
-	protected function handleRequest() {
-		$request        = $this->application['request'];
+	public function handleRequest() {
+		/** @var \Illuminate\Foundation\Http\Kernel $kernel */
 		$kernel         = $this->application->make(Kernel::class);
-		$response       = $kernel->handle($request);
-		$this->response = $response;
-		$kernel->terminate($request, $this->response);
+		$this->response = $kernel->handle($this->request);
+		$kernel->terminate($this->request, $this->response);
 	}
 
-	protected function afterHandleRequest() {
+	public function afterHandleRequest() {
 		// Share flash data to view.
 		add_action('template_redirect', function() {
 //			$this->application->make('view')->share('errors', session('errors'));
@@ -224,11 +235,11 @@ abstract class WPSP extends BaseInstances {
 	 * Override SessionGuard để thay đổi remember_web_* thành wpsp_remember_web_*
 	 */
 	private function overrideRememberCookieName() {
-		$this->application->afterResolving('auth', function (AuthManager $auth) {
-			$auth->extend('session', function ($app, $name, $config) use ($auth) {
+		$this->application->afterResolving('auth', function(AuthManager $auth) {
+			$auth->extend('session', function($app, $name, $config) use ($auth) {
 				$provider = $auth->createUserProvider($config['provider']);
 
-				$guard = new app\Auth\SessionGuard(
+				$guard = new \WPSPCORE\App\Auth\SessionGuard(
 					$name,
 					$provider,
 					$app['session.store'],
@@ -245,41 +256,6 @@ abstract class WPSP extends BaseInstances {
 				return $guard;
 			});
 		});
-	}
-
-	/*
-	 *
-	 */
-
-	protected function normalizeEnvPrefix() {
-		$prefix = (string)$this->prefixEnv;
-		if ($prefix === '') return;
-
-		$len = strlen($prefix);
-
-		foreach (array_keys($_ENV) as $key) {
-			if (strpos($key, $prefix) === 0) {
-
-				$plain = substr($key, $len);
-
-				// Nếu plain rỗng hoặc trùng key => bỏ qua
-				if ($plain === '' || $plain === $key) {
-					continue;
-				}
-
-				// Nếu key dạng PREFIX_something => bỏ qua
-				if (strpos($plain, $prefix) === 0) {
-					continue;
-				}
-
-				$value = $_ENV[$key];
-
-				// Tạo key không prefix
-				if (!isset($_ENV[$plain])) $_ENV[$plain] = $value;
-				if (!isset($_SERVER[$plain])) $_SERVER[$plain] = $value;
-				if (getenv($plain) === false) @putenv("$plain=$value");
-			}
-		}
 	}
 
 }
