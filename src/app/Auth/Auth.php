@@ -30,27 +30,40 @@ abstract class Auth extends BaseInstances {
 	 */
 
 	public function _login(AuthenticatableContract $user, $remember = false) {
-		$this->auth->login($user, $remember);
-		$this->saveSessionsAndCookies();
+		try {
+			$this->auth->login($user, $remember);
+			$this->saveSessionsAndCookies();
+		}
+		catch (\Exception $e) {
+
+		}
 	}
 
 	public function _attempt($credentials, $remember = false) {
-		$attempt = $this->auth->attempt($credentials, $remember);
+		try {
+			$attempt = $this->auth->attempt($credentials, $remember);
 
-		if ($attempt) {
-			$user = $this->auth->user();
-			if ($user) {
-				$this->cleanupOldSessionsForUser($user->getAuthIdentifier());
+			if ($attempt) {
+				$user = $this->auth->user();
+				if ($user) {
+					$this->cleanupOldSessionsForUser($user->getAuthIdentifier());
+				}
 			}
-		}
 
-		$this->saveSessionsAndCookies();
-		return $attempt;
+			$this->saveSessionsAndCookies();
+			return $attempt;
+		}
+		catch (\Exception $e) {
+			return false;
+		}
 	}
 
 	public function _logout() {
-		$this->auth->logout();
-		$this->saveSessionsAndCookies();
+		try {
+			$this->auth->logout();
+			$this->saveSessionsAndCookies();
+		}
+		catch (\Exception $e) {}
 	}
 
 	/*

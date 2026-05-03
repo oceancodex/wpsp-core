@@ -43,8 +43,8 @@ abstract class WPSP extends BaseInstances {
 
 		$this->setPaths();
 		$this->bootstrap();
-		$this->extends();
 		$this->bindings();
+		$this->extends();
 
 //		$this->registerBladeDirectives();
 
@@ -129,12 +129,7 @@ abstract class WPSP extends BaseInstances {
 		(new LoadEnvironmentVariables)->bootstrap($this->application);
 
 		// Configs.
-//		global $wpspAppInstanceConfigDBConnections;
-//		$appInstanceConfigDatabase = require($this->funcs->_getConfigPath('database.php'));
-//		$appInstanceConfigDatabaseConnections = $appInstanceConfigDatabase['connections'] ?? [];
-//		$wpspAppInstanceConfigDBConnections = array_merge($appInstanceConfigDatabaseConnections, $wpspAppInstanceConfigDBConnections ?: []);
 		(new LoadConfiguration)->bootstrap($this->application);
-//		$this->application->make('config')->set('database.connections', $wpspAppInstanceConfigDBConnections);
 
 		// Facades.
 		(new RegisterFacades)->bootstrap($this->application);
@@ -261,41 +256,6 @@ abstract class WPSP extends BaseInstances {
 				return $guard;
 			});
 		});
-	}
-
-	/*
-	 *
-	 */
-
-	public function normalizeEnvPrefix() {
-		$prefix = (string)$this->prefixEnv;
-		if ($prefix === '') return;
-
-		$len = strlen($prefix);
-
-		foreach (array_keys($_ENV) as $key) {
-			if (strpos($key, $prefix) === 0) {
-
-				$plain = substr($key, $len);
-
-				// Nếu plain rỗng hoặc trùng key => bỏ qua
-				if ($plain === '' || $plain === $key) {
-					continue;
-				}
-
-				// Nếu key dạng PREFIX_something => bỏ qua
-				if (strpos($plain, $prefix) === 0) {
-					continue;
-				}
-
-				$value = $_ENV[$key];
-
-				// Tạo key không prefix
-				if (!isset($_ENV[$plain])) $_ENV[$plain] = $value;
-				if (!isset($_SERVER[$plain])) $_SERVER[$plain] = $value;
-				if (getenv($plain) === false) @putenv("$plain=$value");
-			}
-		}
 	}
 
 }

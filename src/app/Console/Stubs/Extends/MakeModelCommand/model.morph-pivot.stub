@@ -1,0 +1,12 @@
+<?php
+
+namespace {{ namespace }};
+use {{ rootNamespace }}Widen\Traits\ModelsTrait;
+
+use Illuminate\Database\Eloquent\Relations\MorphPivot;
+
+class {{ class }} extends MorphPivot
+{
+    use ModelsTrait;
+    //
+}
