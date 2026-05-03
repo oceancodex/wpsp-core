@@ -3,7 +3,6 @@
 namespace WPSPCORE;
 
 use Illuminate\Auth\AuthManager;
-use Illuminate\Config\Repository;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Foundation\Application;
@@ -14,7 +13,6 @@ use Illuminate\Foundation\Bootstrap\RegisterProviders;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
-use Illuminate\Http\Request;
 use Illuminate\Process\Factory;
 use Illuminate\Support\Timebox;
 use WPSPCORE\App\Http\Middleware\StartSessionIfAuthenticated;
@@ -43,9 +41,10 @@ abstract class WPSP extends BaseInstances {
 			->withCommands($commands)
 			->create();
 
+		$this->setPaths();
 		$this->bootstrap();
-		$this->extends();
 		$this->bindings();
+		$this->extends();
 
 //		$this->registerBladeDirectives();
 
@@ -114,17 +113,23 @@ abstract class WPSP extends BaseInstances {
 	 *
 	 */
 
+	public function setPaths() {
+		$this->application->useAppPath($this->mainPath . '/app');
+		$this->application->useLangPath($this->mainPath . '/lang');
+		$this->application->useConfigPath($this->mainPath . '/config');
+		$this->application->usePublicPath($this->mainPath . '/public');
+		$this->application->useStoragePath($this->mainPath . '/storage');
+		$this->application->useDatabasePath($this->mainPath . '/database');
+		$this->application->useBootstrapPath($this->mainPath . '/bootstrap');
+		$this->application->useEnvironmentPath($this->mainPath);
+	}
+
 	public function bootstrap() {
 		// Environment variables.
 		(new LoadEnvironmentVariables)->bootstrap($this->application);
 
 		// Configs.
-//		global $wpspAppInstanceConfigDBConnections;
-//		$appInstanceConfigDatabase = require($this->funcs->_getConfigPath('database.php'));
-//		$appInstanceConfigDatabaseConnections = $appInstanceConfigDatabase['connections'] ?? [];
-//		$wpspAppInstanceConfigDBConnections = array_merge($appInstanceConfigDatabaseConnections, $wpspAppInstanceConfigDBConnections ?: []);
 		(new LoadConfiguration)->bootstrap($this->application);
-//		$this->application->make('config')->set('database.connections', $wpspAppInstanceConfigDBConnections);
 
 		// Facades.
 		(new RegisterFacades)->bootstrap($this->application);
@@ -156,7 +161,7 @@ abstract class WPSP extends BaseInstances {
 
 	public function bindings() {
 		$this->application->instance('files', new Filesystem());
-		$this->application->instance('request', Request::capture());
+		$this->application->instance('request', $this->request);
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
 
@@ -201,15 +206,10 @@ abstract class WPSP extends BaseInstances {
 	 */
 
 	public function handleRequest() {
-//		add_action('init', function() {
-			$request = $this->application['request'];
-			/** @var \Illuminate\Foundation\Http\Kernel $kernel */
-			$kernel         = $this->application->make(Kernel::class);
-			$response       = $kernel->handle($request);
-			$this->response = $response;
-//			$this->response->setContent(null)->sendContent()->sendHeaders();
-			$kernel->terminate($request, $this->response);
-//		}, 10);
+		/** @var \Illuminate\Foundation\Http\Kernel $kernel */
+		$kernel         = $this->application->make(Kernel::class);
+		$this->response = $kernel->handle($this->request);
+		$kernel->terminate($this->request, $this->response);
 	}
 
 	public function afterHandleRequest() {
@@ -256,41 +256,6 @@ abstract class WPSP extends BaseInstances {
 				return $guard;
 			});
 		});
-	}
-
-	/*
-	 *
-	 */
-
-	public function normalizeEnvPrefix() {
-		$prefix = (string)$this->prefixEnv;
-		if ($prefix === '') return;
-
-		$len = strlen($prefix);
-
-		foreach (array_keys($_ENV) as $key) {
-			if (strpos($key, $prefix) === 0) {
-
-				$plain = substr($key, $len);
-
-				// Nếu plain rỗng hoặc trùng key => bỏ qua
-				if ($plain === '' || $plain === $key) {
-					continue;
-				}
-
-				// Nếu key dạng PREFIX_something => bỏ qua
-				if (strpos($plain, $prefix) === 0) {
-					continue;
-				}
-
-				$value = $_ENV[$key];
-
-				// Tạo key không prefix
-				if (!isset($_ENV[$plain])) $_ENV[$plain] = $value;
-				if (!isset($_SERVER[$plain])) $_SERVER[$plain] = $value;
-				if (getenv($plain) === false) @putenv("$plain=$value");
-			}
-		}
 	}
 
 }

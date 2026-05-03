@@ -1,0 +1,12 @@
+<?php
+
+namespace {{ namespace }};
+use {{ rootNamespace }}Widen\Traits\ModelsTrait;
+
+use Illuminate\Database\Eloquent\Relations\Pivot;
+
+class {{ class }} extends Pivot
+{
+    use ModelsTrait;
+    //
+}
