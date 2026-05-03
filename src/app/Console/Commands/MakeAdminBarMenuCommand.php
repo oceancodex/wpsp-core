@@ -53,7 +53,7 @@ class MakeAdminBarMenuCommand extends Command {
 		// Chuẩn bị thêm các biến để sử dụng.
 		$path = $mainPath . '/app/WordPress/AdminBarMenus/' . $name . '.php';
 		$parent = $parent ?? $this->option('parent') ?: null;
-		$parent = $parent ? "'$parent'" : 'null';
+		$parent = $parent ? "'$parent'" : "''";
 
 		// Kiểm tra tồn tại.
 		if (File::exists($path) || File::exists($path)) {
