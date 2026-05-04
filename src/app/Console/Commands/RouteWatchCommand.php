@@ -3,7 +3,6 @@
 namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
-use WPSP\Funcs;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class RouteWatchCommand extends Command {
