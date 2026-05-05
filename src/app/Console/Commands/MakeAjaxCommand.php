@@ -13,10 +13,10 @@ class MakeAjaxCommand extends Command {
 
 	protected $signature = 'make:ajax
         {action? : The action name of the Ajax}
-        {--method : The HTTP method of the Ajax (GET, POST, PUT, DELETE)}
+        {--method= : The HTTP method of the Ajax (GET, POST, PUT, DELETE)}
         {--nopriv : Allow access for non-logged users}';
 
-	protected $description = 'Create a new Ajax action. | Eg: php artisan make:ajax GET my_action --nopriv';
+	protected $description = 'Create a new Ajax action. | Eg: php artisan make:ajax my_action --method=GET --nopriv';
 
 	public function handle() {
 		/**
