@@ -8,6 +8,8 @@ abstract class BaseListTable extends \WP_List_Table {
 
 	use BaseInstancesTrait;
 
+	public $args             = [];
+	public $screenIds        = null;
 	public $screenOptionsKey = null;
 
 	/*
@@ -15,8 +17,11 @@ abstract class BaseListTable extends \WP_List_Table {
 	 */
 
 	public function __construct($args = [], $screenIds = null, $mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
+		$this->args = $args;
+		$this->screenIds = $screenIds;
+
 		// Cần gọi __construct của parent trước.
-		parent::__construct($args);
+		parent::__construct($this->args);
 
 		// Khởi tạo các thuộc tính cơ bản.
 		$this->baseInstanceConstruct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
