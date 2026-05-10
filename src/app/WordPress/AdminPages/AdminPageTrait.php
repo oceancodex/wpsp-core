@@ -66,7 +66,7 @@ trait AdminPageTrait {
 					}
 
 					foreach ($submenu[$this->parent_slug] as $index => &$item) {
-						if ($item[2] === $this->menu_slug) {
+						if ($item[2] === $this->menu_slug || $item[2] === $this->forceInitSlug) {
 							$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $additionalClasses);
 						}
 					}
@@ -77,7 +77,7 @@ trait AdminPageTrait {
 					global $menu;
 
 					foreach ($menu as $index => &$item) {
-						if ($item[2] === $this->menu_slug) {
+						if ($item[2] === $this->menu_slug || $item[2] === $this->forceInitSlug) {
 							$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $additionalClasses);
 							break;
 						}
@@ -94,12 +94,12 @@ trait AdminPageTrait {
 			add_action('admin_menu', function() {
 				global $submenu;
 
-				if (!isset($submenu[$this->menu_slug])) {
+				if (!isset($submenu[$this->menu_slug]) && !isset($submenu[$this->forceInitSlug])) {
 					return;
 				}
 
 				foreach ($submenu[$this->menu_slug] as $index => &$item) {
-					if ($item[2] === $this->menu_slug) {
+					if ($item[2] === $this->menu_slug || $item[2] === $this->forceInitSlug) {
 						$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $this->firstSubmenuClasses);
 					}
 				}
