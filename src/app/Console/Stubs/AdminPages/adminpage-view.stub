@@ -25,7 +25,8 @@ class {{ className }} extends BaseAdminPage {
 	/**
 	 * Parent properties.
 	 */
-//	public $classes                = null;
+//	public $forceInitSlug          = null; // Nếu bạn đăng ký một route: "custom_page&edit=(.*?)" mà chưa có route khởi tạo "custom_page", hãy điền "custom_page" ở đây để ép khởi tạo admin page trước.
+//	public $classes                = null; // Thêm HTML class vào attribute "class" của admin menu item.
 //	public $firstSubmenuTitle      = null; // WordPress sẽ tự sinh submenu cho trang chính. Thay đổi tên submenu tự sinh.
 //	public $firstSubmenuClasses    = null; // WordPress sẽ tự sinh submenu cho trang chính. Thêm class cho submenu tự sinh.
 	public $isSubmenuPage          = {{ $child }};
