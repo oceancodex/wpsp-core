@@ -31,6 +31,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public  $callback_function     = null;
 	private $calledAssets          = false;
+	private $isForceInit           = false;
 
 	/*
 	 *
@@ -51,6 +52,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	public function overrideMenuSlug($menu_slug = null) {
 		if (isset($this->extraParams['route']->args['force_init']) && $this->forceInitSlug) {
 			$this->menu_slug = $this->forceInitSlug;
+			$this->isForceInit = true;
 		}
 		elseif ($menu_slug && !$this->menu_slug) {
 			$this->menu_slug = $menu_slug;
