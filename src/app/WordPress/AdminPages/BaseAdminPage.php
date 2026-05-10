@@ -20,6 +20,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $position               = null;
 	public $parent_slug            = null;
 
+	public $forceInitSlug          = null;
 	public $classes                = null;
 	public $firstSubmenuTitle      = null;
 	public $firstSubmenuClasses    = null;
@@ -48,7 +49,10 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	public function overrideMenuSlug($menu_slug = null) {
-		if ($menu_slug && !$this->menu_slug) {
+		if (isset($this->extraParams['route']->args['force_init']) && $this->forceInitSlug) {
+			$this->menu_slug = $this->forceInitSlug;
+		}
+		elseif ($menu_slug && !$this->menu_slug) {
 			$this->menu_slug = $menu_slug;
 		}
 	}
