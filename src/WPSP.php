@@ -28,11 +28,18 @@ abstract class WPSP extends BaseInstances {
 	 *
 	 */
 
-	public function setApplication($basePath) {
+	public function setApplication($basePath, $handleRequest = true) {
 		$commands = $this->getCustomCommands();
 		$providers = $this->getConfig('providers');
 
 		$this->application = Application::configure($basePath)
+			->withRouting(
+				web      : $this->funcs->_getRoutesPath('/original/web.php'),
+				api      : $this->funcs->_getRoutesPath('/original/api.php'),
+				commands : $this->funcs->_getRoutesPath('/original/console.php'),
+				health   : '/up',
+//				apiPrefix: 'api/admin',
+			)
 			->withMiddleware(function(Middleware $middleware) {
 				$middleware->append(StartSessionIfAuthenticated::class); // Start session trước mọi code (bao gồm cả view share).
 			})
@@ -50,8 +57,9 @@ abstract class WPSP extends BaseInstances {
 
 		$this->application->boot();
 
-		$this->handleRequest();
-		$this->afterHandleRequest();
+		if ($handleRequest) {
+			$this->handleRequest();
+		}
 	}
 
 	public function setApplicationForConsole($basePath) {
@@ -59,6 +67,13 @@ abstract class WPSP extends BaseInstances {
 		$providers = $this->getConfig('providers');
 
 		$this->application = Application::configure($basePath)
+			->withRouting(
+				web      : $this->funcs->_getRoutesPath('/original/web.php'),
+				api      : $this->funcs->_getRoutesPath('/original/api.php'),
+				commands : $this->funcs->_getRoutesPath('/original/console.php'),
+				health   : '/up',
+//				apiPrefix: 'api/admin',
+			)
 			->withMiddleware(function(Middleware $middleware) {})
 			->withExceptions(function(Exceptions $exceptions) {})
 			->withProviders($providers)
@@ -68,6 +83,9 @@ abstract class WPSP extends BaseInstances {
 		$this->bootstrapConsole();
 		$this->extendsConsole();
 		$this->bindingsConsole();
+		$this->extendsConsole();
+
+		$this->application->boot();
 
 		return $this->application;
 	}
@@ -210,6 +228,7 @@ abstract class WPSP extends BaseInstances {
 		$kernel         = $this->application->make(Kernel::class);
 		$this->response = $kernel->handle($this->request);
 		$kernel->terminate($this->request, $this->response);
+		$this->afterHandleRequest();
 	}
 
 	public function afterHandleRequest() {

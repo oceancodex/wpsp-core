@@ -187,10 +187,15 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _getMainUrl() {
-		if (!function_exists('plugin_dir_url')) {
-			require($this->_getSitePath() . '/wp-admin/includes/plugin.php');
+		try {
+			if (!function_exists('plugin_dir_url')) {
+				require($this->_getSitePath() . '/wp-admin/includes/plugin.php');
+			}
+			return rtrim(plugin_dir_url($this->_getMainFilePath()), '/\\');
 		}
-		return rtrim(plugin_dir_url($this->_getMainFilePath()), '/\\');
+		catch (\Exception $e) {
+			return null;
+		}
 	}
 
 	public function _getPublicUrl($path = null) {
@@ -475,7 +480,15 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _asset($path, $secure = null) {
-		return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
+		try {
+			if (!function_exists('plugin_dir_url')) {
+				return null;
+			}
+			return $this->_getPublicUrl() . '/' . ltrim($path, '/\\');
+		}
+		catch (\Exception $e) {
+			return null;
+		}
 	}
 
 	public function _route($routeMap, $routeClass, $routeName, $args = [], $buildURL = false, $sanitize = true) {
