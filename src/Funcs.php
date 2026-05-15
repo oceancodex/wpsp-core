@@ -1168,6 +1168,37 @@ class Funcs extends BaseInstances {
 		}
 	}
 
+	public function _unNumberFormat($value, $locale = 'vi') {
+		if ($value === null || $value === '') {
+			return 0;
+		}
+
+		// Convert to string if not already
+		$value = (string) $value;
+
+		// Remove all whitespace (including non-breaking spaces used in some locales)
+		$value = preg_replace('/\s+/u', '', $value);
+
+		// Determine separators based on locale
+		$formatter = new NumberFormatter($locale, NumberFormatter::DECIMAL);
+		$decimalSep  = $formatter->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
+		$groupingSep = $formatter->getSymbol(NumberFormatter::GROUPING_SEPARATOR_SYMBOL);
+
+		// Remove thousands separator, then normalize decimal separator to '.'
+		$value = str_replace($groupingSep, '', $value);
+		$value = str_replace($decimalSep, '.', $value);
+
+		// Strip any remaining non-numeric characters (except minus and decimal point)
+		$value = preg_replace('/[^0-9.\-]/', '', $value);
+
+		// Cast to appropriate type
+		if (str_contains($value, '.')) {
+			return (float) $value;
+		}
+
+		return (int) $value;
+	}
+
 	public function _normalizeDateTime($value) {
 		$tz      = wp_timezone();
 		$now     = new \DateTimeImmutable('now', $tz);
