@@ -98,7 +98,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			/**
 			 * Lấy request path hiện tại
 			 */
-			$requestPath = ltrim($this->request->getPathInfo(), '/\\');
+			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
 			/**
 			 * Nếu URL hiện tại không match regex → bỏ qua
