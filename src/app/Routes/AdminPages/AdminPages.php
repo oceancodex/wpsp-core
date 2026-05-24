@@ -69,6 +69,7 @@ class AdminPages extends BaseRoute {
 			(
 				($request->get('page') == $fullPath && preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath))
 				|| preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
+				|| preg_match('/' . $fullPath . '/iu', $requestPath)
 			)
 		) {
 			if ($this->isPassedMiddleware($middlewares, $request, ['route' => $route])) {
@@ -110,116 +111,120 @@ class AdminPages extends BaseRoute {
 		$callback    = $route->callback;
 		$middlewares = $route->middlewares;
 
-		if (
-			($callback instanceof \Closure)
-			|| (
-				(is_array($callback) || is_callable($callback) || is_null($callback[1]))
-				&& (
-					!isset($callback[1])
-					|| $callback[1] == 'index'
-					|| (isset($route->args['force_init']) && $route->args['force_init'])
-					|| $request->get('page') == $fullPath
-					|| preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
+		try {
+			if (
+				($callback instanceof \Closure)
+				|| (
+					(is_array($callback) || is_callable($callback) || is_null($callback[1]))
+					&& (
+						!isset($callback[1])
+						|| $callback[1] == 'index'
+						|| (isset($route->args['force_init']) && $route->args['force_init'])
+						|| $request->get('page') == $fullPath
+						|| preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
+						|| preg_match('/' . $fullPath . '/iu', $requestPath)
+					)
 				)
-			)
-		) {
-			if ($this->isPassedMiddleware($middlewares, $request, ['route' => $route])) {
-				$constructParams = [
-					$this->funcs->_getMainPath(),
-					$this->funcs->_getRootNamespace(),
-					$this->funcs->_getPrefixEnv(),
-					[
-						'path'              => $path,
-						'full_path'         => $fullPath,
-						'callback_function' => $callback instanceof \Closure ? $callback : $callback[1] ?? null,
-					],
-				];
+			) {
+				if ($this->isPassedMiddleware($middlewares, $request, ['route' => $route])) {
+					$constructParams = [
+						$this->funcs->_getMainPath(),
+						$this->funcs->_getRootNamespace(),
+						$this->funcs->_getPrefixEnv(),
+						[
+							'path'              => $path,
+							'full_path'         => $fullPath,
+							'callback_function' => $callback instanceof \Closure ? $callback : $callback[1] ?? null,
+						],
+					];
 
-				if ($callback instanceof \Closure) {
-					add_action('admin_menu', function() use ($fullPath, $callback) {
-						if (is_array($callback)) {
-							$callbackRef = new \ReflectionMethod($callback[0], $callback[1]);
-						}
-						else {
-							$callbackRef = new \ReflectionFunction($callback);
-						}
-						$params = $callbackRef->getParameters();
-						$args   = [];
-						foreach ($params as $param) {
-							$name = $param->getName();
-
-							if ($param->isDefaultValueAvailable()) {
-								$default = $param->getDefaultValue();
+					if ($callback instanceof \Closure) {
+						add_action('admin_menu', function() use ($fullPath, $callback) {
+							if (is_array($callback)) {
+								$callbackRef = new \ReflectionMethod($callback[0], $callback[1]);
 							}
 							else {
-								$default = null;
+								$callbackRef = new \ReflectionFunction($callback);
 							}
-							$args[$name] = $default;
-						}
-						if (isset($args['is_submenu_page']) && $args['is_submenu_page']) {
-							add_submenu_page(
-								$args['parent_slug'] ?? 'options-general.php',
-								$args['page_title'] ?? $fullPath,
-								$args['menu_title'] ?? $fullPath,
-								$args['capability'] ?? 'manage_options',
-								$args['menu_slug'] ?? $fullPath,
-								$callback,
-								$args['position'] ?? null
-							);
+							$params = $callbackRef->getParameters();
+							$args   = [];
+							foreach ($params as $param) {
+								$name = $param->getName();
+
+								if ($param->isDefaultValueAvailable()) {
+									$default = $param->getDefaultValue();
+								}
+								else {
+									$default = null;
+								}
+								$args[$name] = $default;
+							}
+							if (isset($args['is_submenu_page']) && $args['is_submenu_page']) {
+								add_submenu_page(
+									$args['parent_slug'] ?? 'options-general.php',
+									$args['page_title'] ?? $fullPath,
+									$args['menu_title'] ?? $fullPath,
+									$args['capability'] ?? 'manage_options',
+									$args['menu_slug'] ?? $fullPath,
+									$callback,
+									$args['position'] ?? null
+								);
+							}
+							else {
+								add_menu_page(
+									$args['page_title'] ?? $fullPath,
+									$args['menu_title'] ?? $fullPath,
+									$args['capability'] ?? 'manage_options',
+									$args['menu_slug'] ?? $fullPath,
+									$callback,
+									$args['icon_url'] ?? null,
+								);
+							}
+						});
+					}
+					else {
+						if ((isset($callback[1]) && is_string($callback[1]) && $callback[1] !== 'index') && (!isset($route->args['force_init']))) {
+							if (preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
+								$callback   = $this->prepareRouteCallback($callback, $constructParams);
+								$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
+								$this->resolveAndCall($callback, $callParams);
+							}
 						}
 						else {
-							add_menu_page(
-								$args['page_title'] ?? $fullPath,
-								$args['menu_title'] ?? $fullPath,
-								$args['capability'] ?? 'manage_options',
-								$args['menu_slug'] ?? $fullPath,
-								$callback,
-								$args['icon_url'] ?? null,
-							);
-						}
-					});
-				}
-				else {
-					if ((isset($callback[1]) && is_string($callback[1]) && $callback[1] !== 'index') && (!isset($route->args['force_init']))) {
-						if (preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
+							/**
+							 * Khi callback có method là "index", thì sẽ thay đổi method thành "init".\
+							 * Mục đích sẽ gọi method "init" trong Base để khởi tạo Admin menu page.
+							 */
+							if (isset($callback[1]) && $callback[1] == 'index' || !isset($callback[1]) || isset($route->args['force_init'])) $callback[1] = 'init';
+
+							/**
+							 * Vì thế, DI tại đây được triển khai với method "init".\
+							 * Thành ra method "index" khi gọi trong "init" sẽ không có DI.\
+							 * Cần phải truyền thêm "route" vào "extraParams" trong "constructParams"\
+							 * để DI hoạt động được với method "index".
+							 */
+							$constructParams[3]['route'] = $route;
+
 							$callback   = $this->prepareRouteCallback($callback, $constructParams);
 							$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 							$this->resolveAndCall($callback, $callParams);
 						}
 					}
-					else {
-						/**
-						 * Khi callback có method là "index", thì sẽ thay đổi method thành "init".\
-						 * Mục đích sẽ gọi method "init" trong Base để khởi tạo Admin menu page.
-						 */
-						if (isset($callback[1]) && $callback[1] == 'index' || !isset($callback[1]) || isset($route->args['force_init'])) $callback[1] = 'init';
-
-						/**
-						 * Vì thế, DI tại đây được triển khai với method "init".\
-						 * Thành ra method "index" khi gọi trong "init" sẽ không có DI.\
-						 * Cần phải truyền thêm "route" vào "extraParams" trong "constructParams"\
-						 * để DI hoạt động được với method "index".
-						 */
-						$constructParams[3]['route'] = $route;
-
-						$callback   = $this->prepareRouteCallback($callback, $constructParams);
-						$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
-						$this->resolveAndCall($callback, $callParams);
-					}
+				}
+				elseif (preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
+					wp_die(
+						'<h1>ERROR: 403 - Truy cập bị từ chối</h1>' .
+						'<p>Bạn không được phép truy cập vào trang này.</p>',
+						'ERROR: 403 - Truy cập bị từ chối',
+						[
+							'response'  => 403,
+							'back_link' => true,
+						]
+					);
 				}
 			}
-			elseif (preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
-				wp_die(
-					'<h1>ERROR: 403 - Truy cập bị từ chối</h1>' .
-					'<p>Bạn không được phép truy cập vào trang này.</p>',
-					'ERROR: 403 - Truy cập bị từ chối',
-					[
-						'response'  => 403,
-						'back_link' => true,
-					]
-				);
-			}
 		}
+		catch (\Exception $e) {}
 	}
 
 }
