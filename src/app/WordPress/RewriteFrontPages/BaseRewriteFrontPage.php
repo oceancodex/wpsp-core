@@ -62,6 +62,9 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 		$regexPath   = !str_starts_with($regexPath, $regexPrefix) ? $regexPrefix . $regexPath : $regexPath;
 		$regexPath   = !str_ends_with($regexPath, $regexSuffix) ? $regexPath . $regexSuffix : $regexPath;
 
+		$fullPathEx = !str_starts_with($fullPath, $regexPrefix) ? $regexPrefix . $fullPath : $fullPath;
+		$fullPathEx = !str_ends_with($fullPathEx, $regexSuffix) ? $regexPath . $fullPathEx : $fullPathEx;
+
 		$appShortName = $this->funcs->_config('app.short_name');
 
 		if ($path && $fullPath) {
@@ -104,7 +107,17 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			 * Nếu URL hiện tại không match regex → bỏ qua
 			 * (tránh hook không cần thiết)
 			 */
-			if (!preg_match('/' . $regexPath . '/iu', $requestPath, $matches)) return;
+			try {
+				$matched = preg_match('/' . $regexPath . '/iu', $requestPath, $matches);
+				if (!$matched) {
+					$matched = preg_match('/' . $fullPathEx . '/iu', $requestPath, $matches);
+				}
+			}
+			catch (\Throwable $e) {
+				$matched = false;
+			}
+
+			if (!$matched) return;
 
 			/**
 			 * Xử lý khi truy cập URL rewrite ở frontend.
