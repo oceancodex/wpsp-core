@@ -34,7 +34,7 @@ class Filters extends BaseRoute {
 					[
 						'path'              => $path,
 						'full_path'         => $fullPath,
-						'callback_function' => $callback[1] ?? null,
+						'callback_function' => is_array($callback) && isset($callback[1]) ? $callback[1] :  null,
 					],
 				];
 

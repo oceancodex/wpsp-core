@@ -13,28 +13,53 @@ class {{ className }} extends BaseListTable {
 	use InstancesTrait;
 
 	/**
+	 * Khai báo screen options key để list table này được khởi tạo.
+	 * Mục đích để ép List Table này chỉ hiển thị ở những màn hình (screenId) cụ thể.\
+	 * Ví dụ:\
+	 * - Admin page có screen id: **wpsp_page_wpsp_tab_roles**\
+	 * - List table này chỉ khai báo: **wpsp_page_wpsp_tab_list_users**\
+	 *
+	 * Như vậy không khớp, screen option columns và items per page sẽ không được khởi tạo.\
+	 * Mặc định "screenOptionsKey" được đăng ký với URL param: "page".
+	 */
+//	public $screenOptionsKey = null;
+
+	/**
 	 * Request parameters.\
 	 * Lấy từ URL thông qua helper Request riêng của hệ thống.
 	 */
-	private $page         = null; // trang admin hiện tại (slug)
-	private $tab          = null; // tab trong page (nếu có)
+	private $page         = null; 	// trang admin hiện tại (slug)
+	private $tab          = null; 	// tab trong page (nếu có)
 
-	private $type         = null; // View link (All | Publish | Trashed)
-	private $search       = null; // chuỗi tìm kiếm
-	private $category     = null; // category filter
+	private $type         = null; 	// View link (All | Publish | Trashed)
+	private $search       = null; 	// chuỗi tìm kiếm
+	private $category     = null; 	// category filter
 
-	private $paged        = null; // số trang hiện tại (phân trang)
-	private $total_items  = 0;    // tổng số item để phân trang
-	private $orderby      = 'id'; // sắp xếp theo cột nào
-	private $order        = 'asc';// thứ tự asc|desc
+	private $paged        = null; 	// số trang hiện tại (phân trang)
+	private $total_items  = 0;    	// tổng số item để phân trang
+	private $orderby      = 'id'; 	// sắp xếp theo cột nào
+	private $order        = 'desc';	// thứ tự asc|desc
 
-	private $currentURL   = null; // URL base hiện tại không bao gồm sort/paged
-	private $itemsPerPage = 10;   // số dòng hiển thị trên 1 trang
+	private $currentURL   = null; 	// URL base hiện tại không bao gồm sort/paged
+	private $itemsPerPage = 10;   	// số dòng hiển thị trên 1 trang
 
 	/**
 	 * Khởi tạo các biến cần thiết để tái sử dụng.
 	 */
 	public function customProperties() {
+		/**
+		 * Tùy chỉnh "screenOptionsKey". Có thể khai báo string hoặc array.\
+		 * Mục đích để ép List Table này chỉ hiển thị ở những màn hình (screenId) cụ thể.\
+		 * Ví dụ:\
+		 * - Admin page có screen id: **wpsp_page_wpsp_tab_roles**\
+		 * - List table này chỉ khai báo: **wpsp_page_wpsp_tab_list_users**\
+		 *
+		 * Như vậy không khớp, screen option columns và items per page sẽ không được khởi tạo.
+		 */
+//		$this->screenOptionsKey = [
+//			$this->funcs->_getAppShortName() . '_page_wpsp_tab_settings',
+//			$this->funcs->_getAppShortName() . '_page_wpsp_tab_table',
+//		];
 
 		// Lấy tham số từ URL (request)
 		$this->page  = $this->request->get('page'); // slug page admin
@@ -62,6 +87,18 @@ class {{ className }} extends BaseListTable {
 		 * Lấy số item hiển thị mỗi trang từ user meta (WordPress tự lưu sau khi user chọn Screen Options)
 		 */
 		$this->itemsPerPage = $this->get_items_per_page($this->funcs->_slugParams(['page', 'tab']) . '_items_per_page');
+	}
+
+	/**
+	 * Thực hiện các hành động cần thiết sau khi class được khởi tạo.
+	 *
+	 * @return void
+	 */
+	public function afterInstanceConstruct() {
+		/**
+		 * Xử lý bulk actions.
+		 */
+		$this->process_bulk_action();
 	}
 
 	/*
@@ -95,6 +132,10 @@ class {{ className }} extends BaseListTable {
 	 * Xử lý bulk action khi user bấm Apply.
 	 */
 	public function process_bulk_action() {
+		// Nếu không có action, không thực thi.
+		if (!$this->current_action()) {
+			return;
+		}
 
 		// Kiểm tra nonce bảo mật
 		if (!empty($_REQUEST['_wpnonce']) && $nonce = $_REQUEST['_wpnonce']) {
@@ -114,6 +155,9 @@ class {{ className }} extends BaseListTable {
 				Funcs::notice(Funcs::trans('Deleted successfully'), 'success');
 			}
 		}
+
+		// Chuyển hướng, loại bỏ các params thừa.
+		$this->redirectBulkActions(['items'], ['saved' => true]);
 	}
 
 	/*
@@ -125,7 +169,6 @@ class {{ className }} extends BaseListTable {
 	 * Sử dụng để mở rộng tính năng filter khác.
 	 */
 	public function extra_tablenav($which) {
-
 		if ($which == 'top') {
 			echo '<div class="alignleft actions bulkactions">';
 			echo '<select name="c" id="filter-by-sites"><option value="">Select category</option>';
@@ -134,7 +177,6 @@ class {{ className }} extends BaseListTable {
 			echo '<input type="submit" name="filter_action" class="button" value="Filter"/>';
 			echo '</div>';
 		}
-
 	}
 
 	/*
@@ -182,7 +224,7 @@ class {{ className }} extends BaseListTable {
 			case 'key':
 			case 'value':
 			default:
-				return $item[$column_name];
+				return $item[$column_name] ?? $item['model']->$column_name ?? '';
 		}
 	}
 
@@ -218,6 +260,15 @@ class {{ className }} extends BaseListTable {
 	public function get_data() {
 		try {
 			$model = SettingsModel::query();
+//			$data = SettingsModel::hierarchyPaginate(
+//				$this->itemsPerPage,
+//				$this->paged,
+//				'parent_setting_id',
+//				'value',
+//				$this->orderby,
+//				$this->order,
+//			);
+//			$items = $data['items'];
 
 			/**
 			 * Cache tổng số lượng bản ghi trong 300s\
@@ -227,6 +278,7 @@ class {{ className }} extends BaseListTable {
 //				return $model->count();
 //			});
             $this->total_items = $model->count();
+//			$this->total_items = $data['total'] ?? 0;
 
 			$take = $this->itemsPerPage;          // số item mỗi trang
 			$skip = ($this->paged - 1) * $take;   // offset trong SQL
@@ -241,6 +293,9 @@ class {{ className }} extends BaseListTable {
 			 * Dùng để tối ưu phân trang (pagination)
 			 */
 //			$data = Cache::remember($pageKey, 180, function() use ($skip, $take, $model) {
+//				/**
+//				 * Query thực tế: ORDER + LIMIT + OFFSET
+//				 */
 //				return $model->orderBy($this->orderby, $this->order)
 //					->skip($skip)
 //					->take($take)
@@ -255,6 +310,7 @@ class {{ className }} extends BaseListTable {
 				->toArray();
 
 			return $data;
+//			return $items;
 		}
 		catch (\Throwable $e) {
 
@@ -278,10 +334,6 @@ class {{ className }} extends BaseListTable {
 	 * Load data, set pagination, register column headers.
 	 */
 	public function prepare_items() {
-
-		// Xử lý bulk action trước.
-		$this->process_bulk_action();
-
 		// Lấy data.
 		$data = $this->get_data();
 
