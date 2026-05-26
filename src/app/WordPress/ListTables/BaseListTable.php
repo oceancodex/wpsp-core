@@ -65,4 +65,33 @@ abstract class BaseListTable extends \WP_List_Table {
 		}, 9999999999);
 	}
 
+	/**
+	 * Redirects the request after processing a bulk action by removing unnecessary query variables
+	 * from the URL to prevent repetition of the same actions.
+	 *
+	 * @return void
+	 */
+	public function redirectBulkActions($removeQueryVars = [], $params = []) {
+		$defaultRemoveQueryVars = [
+			'_wp_http_referer',
+			'_wpnonce',
+			'action',
+			'action2',
+			'bulk_action',
+		];
+
+		$removeQueryVars = array_merge($defaultRemoveQueryVars, $removeQueryVars);
+
+		if (isset($_REQUEST['action']) && isset($_REQUEST['action2'])) {
+			$url = remove_query_arg($removeQueryVars, stripslashes($_SERVER['REQUEST_URI']));
+
+			if (!empty($params)) {
+				$url = add_query_arg($params, $url);
+			}
+
+			wp_safe_redirect($url);
+			exit;
+		}
+	}
+
 }
