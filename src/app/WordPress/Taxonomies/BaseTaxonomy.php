@@ -35,7 +35,9 @@ abstract class BaseTaxonomy extends BaseInstances {
 	public function init($taxonomy = null) {
 		$taxonomy = $this->taxonomy ?? $taxonomy;
 		if ($taxonomy) {
-			register_taxonomy($taxonomy, $this->object_type, $this->args);
+//			add_action('init', function() use ($taxonomy) {
+				register_taxonomy($taxonomy, $this->object_type, $this->args);
+//			});
 		}
 	}
 
