@@ -4,7 +4,7 @@ namespace WPSPCORE\App\Routes\Actions;
 
 trait ActionsRouteTrait {
 
-	public function register(): void {
+	public function register() {
 		$this->actions();
 		$this->wp_actions();
 	}

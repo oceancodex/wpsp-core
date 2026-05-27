@@ -4,7 +4,7 @@ namespace WPSPCORE\App\Routes\Filters;
 
 trait FiltersRouteTrait {
 
-	public function register(): void {
+	public function register() {
 		$this->filters();
 		$this->wp_filters();
 	}

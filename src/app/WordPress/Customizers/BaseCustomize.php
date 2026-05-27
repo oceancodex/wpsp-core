@@ -42,6 +42,9 @@ abstract class BaseCustomize extends BaseInstances {
 			$this->settings($wpCustomizeManager);
 			$this->controls($wpCustomizeManager);
 		}, 9999999999);
+
+		// Custom hooks.
+		$this->hooks();
 	}
 
 	/*
@@ -65,6 +68,12 @@ abstract class BaseCustomize extends BaseInstances {
 	abstract public function controls(\WP_Customize_Manager $wpCustomizeManager);
 
 	abstract public function settings(\WP_Customize_Manager $wpCustomizeManager);
+
+	/*
+	 *
+	 */
+
+	public function hooks() {}
 
 	/*
 	 *
