@@ -46,7 +46,7 @@ trait AdminPageScreenOptionsTrait {
 			if (!$this->screenOptionsPageNow && $this->screenOptionsKey) {
 				add_action('admin_head', function() {
 					echo '<script> var pagenow = "' . $this->screenOptionsKey . '"; </script>';
-				}, 999999999);
+				}, 9999999999);
 			}
 
 			// Save items per page option.
@@ -72,7 +72,7 @@ trait AdminPageScreenOptionsTrait {
 		if ($this->screenOptionsPageNow) {
 			add_action('admin_head', function() {
 				echo '<script> var pagenow = "' . $this->screenOptionsPageNow . '"; </script>';
-			}, 999999999);
+			}, 9999999999);
 
 			// Ghi đè "screen id" và "screen base".
 			// Mục đích để screen options hoạt động độc lập theo "screenOptionsPageNow".
