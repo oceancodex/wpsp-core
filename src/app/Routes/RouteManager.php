@@ -11,6 +11,7 @@ class RouteManager extends BaseInstances {
 	 * Mỗi phần tử là một đối tượng RouteData.
 	 */
 	private $routes = [];
+	private $routeByTypes = [];
 
 	/**
 	 * Stack chứa các group attributes (prefix, name, middlewares)\
@@ -157,6 +158,7 @@ class RouteManager extends BaseInstances {
 	 */
 	public function addRoute(RouteData $route) {
 		$this->routes[] = $route;
+		$this->routeByTypes[$route->type][] = $route;
 	}
 
 	/**
@@ -171,35 +173,64 @@ class RouteManager extends BaseInstances {
 	}
 
 	/**
+	 * Thực thi một route đã được xác định.
+	 *
+	 * @param object $routeItem Đối tượng chứa thông tin về route cần thực thi, bao gồm loại route, phương thức,
+	 *                          và các thông tin khác liên quan đến route như tên, middlewares, callback, v.v.
+	 *
+	 * @return void
+	 */
+	public function executeRoute($routeItem) {
+		$type        = $routeItem->type;
+		$route       = $routeItem->route;
+//		$parentRoute = '\\' . trim($routeItem->parentRoute, '\\');
+		$method      = $routeItem->method;
+//		$path        = $routeItem->path;
+//		$fullPath    = $routeItem->fullPath;
+//		$callback    = $routeItem->callback;
+//		$args        = $routeItem->args;
+//		$name        = $routeItem->name;
+//		$middlewares = $routeItem->middlewares;
+
+		/**
+		 * Nếu route là Actions hoặc Filters thì method sẽ là "action" và "filter".\
+		 * Như thế sẽ chạy vào hook() thay vì execute() => Sai\
+		 * Vì vậy cần phải lọc điều kiện "type" để loại trừ việc Actions và Filter chạy hook().\
+		 * Actions và Filters cần phải chạy phương thức execute() tương tự các route khác.
+		 */
+		if ($type !== 'Actions' && $type !== 'Filters' && ($method == 'action' || $method == 'filter')) {
+			$route::instance()->hook($routeItem);
+		}
+		elseif ($method == 'remove_action' || $method == 'remove_filter') {
+			$route::instance()->remove_hook($routeItem);
+		}
+		else {
+			$route::instance()->execute($routeItem);
+		}
+	}
+
+	/**
 	 * Chạy tất cả các route đã tạo.
 	 */
-	public function executeAllRoutes() {
+	public function executeAllRoutes($excludeTypes = []) {
 		foreach ($this->routes as $routeItem) {
-			$type        = $routeItem->type;
-			$route       = $routeItem->route;
-//			$parentRoute = '\\' . trim($routeItem->parentRoute, '\\');
-			$method      = $routeItem->method;
-//			$path        = $routeItem->path;
-//			$fullPath    = $routeItem->fullPath;
-//			$callback    = $routeItem->callback;
-//			$args        = $routeItem->args;
-//			$name        = $routeItem->name;
-//			$middlewares = $routeItem->middlewares;
+			if (in_array($routeItem->type, $excludeTypes)) continue;
+			$this->executeRoute($routeItem);
+		}
+	}
 
-			/**
-			 * Nếu route là Actions hoặc Filters thì method sẽ là "action" và "filter".\
-			 * Như thế sẽ chạy vào hook() thay vì execute() => Sai\
-			 * Vì vậy cần phải lọc điều kiện "type" để loại trừ việc Actions và Filter chạy hook().\
-			 * Actions và Filters cần phải chạy phương thức execute() tương tự các route khác.
-			 */
-			if ($type !== 'Actions' && $type !== 'Filters' && ($method == 'action' || $method == 'filter')) {
-				$route::instance()->hook($routeItem);
-			}
-			elseif ($method == 'remove_action' || $method == 'remove_filter') {
-				$route::instance()->remove_hook($routeItem);
-			}
-			else {
-				$route::instance()->execute($routeItem);
+	/**
+	 * Thực thi các route dựa trên các loại được cung cấp.
+	 *
+	 * @param array $types Danh sách các loại route cần thực thi.
+	 *
+	 * @return void
+	 */
+	public function executeRouteByTypes($types = []) {
+		foreach ($types as $type) {
+			if (empty($this->routeByTypes[$type])) continue;
+			foreach ($this->routeByTypes[$type] as $routeItem) {
+				$this->executeRoute($routeItem);
 			}
 		}
 	}

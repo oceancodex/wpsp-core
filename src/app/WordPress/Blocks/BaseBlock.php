@@ -32,9 +32,12 @@ abstract class BaseBlock extends BaseInstances {
 	 */
 
 	public function init($blockFolder = null) {
-		$blockBuildPath = $this->funcs->_getResourcesPath('/views/blocks/build/' . $this->blockFolder);
-		if (File::exists($blockBuildPath)) {
-			register_block_type($blockBuildPath);
+		$blockFolder = $this->blockFolder ?? $blockFolder;
+		if ($blockFolder) {
+			$blockBuildPath = $this->funcs->_getResourcesPath('/views/blocks/build/' . $blockFolder);
+			if (File::exists($blockBuildPath)) {
+				register_block_type($blockBuildPath);
+			}
 		}
 	}
 

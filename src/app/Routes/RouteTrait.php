@@ -2,7 +2,6 @@
 
 namespace WPSPCORE\App\Routes;
 
-use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -493,6 +492,7 @@ trait RouteTrait {
 	 * "callParams" có thể được chuẩn bị bằng method getCallParams().
 	 */
 	public function resolveAndCall($callback, $callParams = [], $call = true) {
+		/** @var \Illuminate\Container\Container $container */
 		$container = $this->funcs->getApplication();
 
 		if (!$call) {

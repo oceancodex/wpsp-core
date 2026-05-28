@@ -6,6 +6,7 @@ trait ActionsRouteTrait {
 
 	public function register() {
 		$this->actions();
+		$this->wp_actions();
 	}
 
 	/*
@@ -13,5 +14,7 @@ trait ActionsRouteTrait {
 	 */
 
 	abstract public function actions();
+
+	abstract public function wp_actions();
 
 }
