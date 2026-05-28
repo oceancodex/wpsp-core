@@ -98,8 +98,8 @@ class MakeBlockCommand extends Command {
 			$view = File::get(__DIR__ . '/../Stubs/Blocks/' . $viewFile);
 
 			$view = str_replace(
-				['{{ name }}', '{{ className }}', '{{ textDomain }}'],
-				[$name, $className, $textDomain],
+				['{{ name }}', '{{ className }}', '{{ textDomain }}', '{{ blockDirName }}'],
+				[$name, $className, $textDomain, $blockDirName],
 				$view
 			);
 
