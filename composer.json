@@ -1,10 +1,10 @@
 {
 	"name": "oceancodex/wpsp-core",
-	"version": "13.0",
+	"version": "13.0.0",
 	"description": "WordPress Starter Plugin - Core",
 	"keywords": [
 	],
-	"license": "MIT",
+	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": "^8.3",
 		"laravel/framework": "^v13.8",
