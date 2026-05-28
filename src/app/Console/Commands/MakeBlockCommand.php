@@ -49,10 +49,11 @@ class MakeBlockCommand extends Command {
 
 		// Chuẩn bị thêm các biến để sử dụng.
 		$className = Str::slug(str_replace('-', '_', $name), '_');
+		$blockDirName = Str::slug(str_replace('_', '-', $name), '-');
 
 		// Kiểm tra tồn tại.
 		$adminClassPath = $mainPath . '/app/WordPress/Blocks/' . $className . '.php';
-		$viewDirPath    = $mainPath . '/resources/views/blocks/src/' . $name;
+		$viewDirPath    = $mainPath . '/resources/views/blocks/src/' . $blockDirName;
 
 		if (File::exists($adminClassPath) || File::exists($viewDirPath)) {
 			$this->error('The block "' . $name . '" already exists! Please try again.');
@@ -66,8 +67,8 @@ class MakeBlockCommand extends Command {
 		 */
 		$content = File::get(__DIR__ . '/../Stubs/Blocks/block.stub');
 		$content = str_replace(
-			['{{ name }}', '{{ className }}'],
-			[$name, $className],
+			['{{ name }}', '{{ className }}', '{{ blockDirName }}'],
+			[$name, $className, $blockDirName],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -97,8 +98,8 @@ class MakeBlockCommand extends Command {
 			$view = File::get(__DIR__ . '/../Stubs/Blocks/' . $viewFile);
 
 			$view = str_replace(
-				['{{ name }}', '{{ className }}', '{{ textDomain }}'],
-				[$name, $className, $textDomain],
+				['{{ name }}', '{{ className }}', '{{ textDomain }}', '{{ blockDirName }}'],
+				[$name, $className, $textDomain, $blockDirName],
 				$view
 			);
 
