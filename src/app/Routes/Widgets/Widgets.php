@@ -5,7 +5,7 @@ namespace WPSPCORE\App\Routes\Widgets;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
- * @method static $this widget(string $name, callable|array $callback, array $args = [])
+ * @method static $this widget(string $id_base, callable|array $callback, array $args = [])
  */
 class Widgets extends BaseRoute {
 

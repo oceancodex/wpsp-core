@@ -17,19 +17,26 @@ abstract class BaseWidget extends \WP_Widget {
 	 *
 	 */
 
-	public function __construct() {
-		$this->beforeInstanceConstruct();
-
-		// Tùy chỉnh các tham số.
-		$this->customProperties();
+	public function __construct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
+		// Khởi tạo các thuộc tính cơ bản.
+		$this->baseInstanceConstruct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
 
 		// Cần gọi __construct của parent trước.
 		parent::__construct(
 			$this->id_base,
-			$this->name,
+			$this->name ?? $this->id_base,
 			$this->widget_options,
 			$this->control_options
 		);
+	}
+
+	/*
+	 *
+	 */
+
+	public function afterConstruct() {
+		$this->callback_function = $this->extraParams['callback_function'];
+		$this->overrideIdBase($this->extraParams['full_path']);
 	}
 
 	/*
@@ -42,10 +49,24 @@ abstract class BaseWidget extends \WP_Widget {
 	 *
 	 */
 
-	public function init() {
-//		add_action('widgets_init', function() {
-			register_widget($this);
-//		});
+	public function init($id_base = null) {
+		$id_base = $this->id_base ?? $id_base;
+
+		if ($id_base) {
+//		    add_action('widgets_init', function() {
+				register_widget($this);
+//		    });
+		}
+	}
+
+	/*
+	 *
+	 */
+
+	protected function overrideIdBase($id_base = null) {
+		if ($id_base && !$this->id_base) {
+			$this->id_base = $id_base;
+		}
 	}
 
 }
