@@ -8,4 +8,6 @@ class {{ className }} extends BaseBlock {
 
 	use InstancesTrait;
 
+	public $blockFolder = '{{ blockDirName }}';
+
 }
