@@ -34,7 +34,9 @@ abstract class BasePostType extends BaseInstances {
 	public function init($postType = null) {
 		$postType = $this->post_type ?? $postType;
 		if ($postType) {
-			register_post_type($postType, $this->args);
+//			add_action('init', function() use ($postType) {
+				register_post_type($postType, $this->args);
+//			});
 		}
 	}
 
