@@ -1,0 +1,1 @@
+        Route::widget('{{ id_base }}', [{{ id_base }}::class]);

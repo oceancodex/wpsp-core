@@ -6,6 +6,7 @@ trait FiltersRouteTrait {
 
 	public function register() {
 		$this->filters();
+		$this->wp_filters();
 	}
 
 	/*
@@ -13,5 +14,7 @@ trait FiltersRouteTrait {
 	 */
 
 	abstract public function filters();
+
+	abstract public function wp_filters();
 
 }
