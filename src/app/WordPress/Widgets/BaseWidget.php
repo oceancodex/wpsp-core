@@ -18,7 +18,6 @@ abstract class BaseWidget extends \WP_Widget {
 	 */
 
 	public function __construct() {
-		// Khởi tạo các thuộc tính cơ bản.
 		$this->beforeInstanceConstruct();
 
 		// Tùy chỉnh các tham số.
@@ -45,7 +44,7 @@ abstract class BaseWidget extends \WP_Widget {
 
 	public function init() {
 //		add_action('widgets_init', function() {
-			register_widget(static::class);
+			register_widget($this);
 //		});
 	}
 
