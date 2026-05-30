@@ -347,22 +347,13 @@ trait RouteTrait {
 			$name = $param->getName();
 			$type = $param->getType();
 
-			// Nếu param có type-hint là class (non-builtin) -> để container xử lý, KHÔNG gán value vào routeParams
-			// (Container::call sẽ tự inject class instances)
-//			if ($type && !$type->isBuiltin()) {
-//				// Không set $callParams[$name] — container sẽ resolve type-hint
-//				continue;
-//			}
-
 			/**
 			 * Model binding.
 			 */
-			if ($type && !$type->isBuiltin()) {
-				$className = $type->getName();
-
+			$className = $this->getClassFromType($type);
+			if ($className) {
 				// Nếu type là Eloquent Model => tự binding
 				if (is_subclass_of($className, \Illuminate\Database\Eloquent\Model::class)) {
-
 					// Lấy id từ path / query
 					$id = null;
 
@@ -382,22 +373,48 @@ trait RouteTrait {
 
 					// Nếu có ID → binding
 					if (!empty($id)) {
-						$callParams[$name] = $className::query()->findOrFail($id);
-					} else {
+						try {
+							$callParams[$name] = $className::query()->findOrFail($id);
+						}
+						catch (\Exception $e) {
+							wp_die($e->getMessage(), $e->getMessage(), [
+								'back_link' => true,
+							]);
+						}
+					}
+					else {
 						// Không có id nhưng param optional → default / null
 						if ($param->isDefaultValueAvailable()) {
-							$callParams[$name] = $param->getDefaultValue();
-						} else {
+							$defaultValue = $param->getDefaultValue();
+							try {
+								$callParams[$name] = $className::query()->findOrFail($defaultValue);
+							}
+							catch (\Exception $e) {
+								$callParams[$name] = $defaultValue;
+							}
+						}
+						else {
 							$callParams[$name] = null;
 						}
 					}
 
 					continue; // xong param model-binding
 				}
-
-				// Còn lại để Container inject
-				continue;
+				else {
+					continue;
+				}
 			}
+
+//			if ($type && !$type->isBuiltin()) {
+//				$className = $type->getName();
+//
+////				if (is_subclass_of($className, \Illuminate\Database\Eloquent\Model::class)) {
+////					...
+////				}
+//
+//				// Còn lại để Container inject
+//				continue;
+//			}
 
 			$value = null;
 
@@ -476,6 +493,33 @@ trait RouteTrait {
 		});
 
 		return $callParams;
+	}
+
+	protected function getClassFromType(\ReflectionType|null $type): ?string {
+		if (!$type) {
+			return null;
+		}
+
+		if ($type instanceof \ReflectionNamedType) {
+			return $type->isBuiltin()
+				? null
+				: $type->getName();
+		}
+
+		if ($type instanceof \ReflectionUnionType) {
+
+			foreach ($type->getTypes() as $t) {
+
+				if (
+					$t instanceof \ReflectionNamedType &&
+					!$t->isBuiltin()
+				) {
+					return $t->getName();
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/**
