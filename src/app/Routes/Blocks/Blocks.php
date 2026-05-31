@@ -4,7 +4,7 @@ namespace WPSPCORE\App\Routes\Blocks;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
- * @method static $this block(string $block, callable|array $callback, array $args = [])
+ * @method static $this block(string $name, callable|array $callback, array $args = [])
  */
 class Blocks extends BaseRoute {
 
