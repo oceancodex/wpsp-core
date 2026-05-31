@@ -25,6 +25,7 @@ class MakeBlockCommand extends Command {
 		$this->funcs = $this->getLaravel()->make('funcs');
 		$mainPath    = $this->funcs->mainPath;
 		$textDomain  = $this->funcs->_getTextDomain();
+		$appShortName = $this->funcs->_getAppShortName();
 
 		/**
 		 * ---
@@ -86,9 +87,11 @@ class MakeBlockCommand extends Command {
 		$viewFiles = [
 			'block.json',
 			'edit.js',
+			'save.js',
 			'editor.scss',
 			'index.js',
 			'render.php',
+			'render.blade.php',
 			'script.js',
 			'style.scss',
 			'view.js',
@@ -98,8 +101,8 @@ class MakeBlockCommand extends Command {
 			$view = File::get(__DIR__ . '/../Stubs/Blocks/' . $viewFile);
 
 			$view = str_replace(
-				['{{ name }}', '{{ className }}', '{{ textDomain }}', '{{ blockDirName }}'],
-				[$name, $className, $textDomain, $blockDirName],
+				['{{ name }}', '{{ className }}', '{{ textDomain }}', '{{ blockDirName }}', '{{ appShortName }}'],
+				[$name, $className, $textDomain, $blockDirName, $appShortName],
 				$view
 			);
 
@@ -141,7 +144,7 @@ class MakeBlockCommand extends Command {
 		$this->addClassToRoute('Blocks', 'blocks', $func, $use);
 
 		$this->warn('The block "' . $name . '" is currently being built...');
-		$this->newLine();
+//		$this->newLine();
 
 		/**
 		 * ---
