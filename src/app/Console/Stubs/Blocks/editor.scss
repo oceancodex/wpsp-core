@@ -4,6 +4,6 @@
  * Replace them with your own styles or remove the file completely.
  */
 
-.wp-block-{{ textDomain }}-{{ name }} {
+.wp-block-{{ textDomain }}-{{ blockDirName }} {
 	border: 1px dotted #f00;
 }
