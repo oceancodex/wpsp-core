@@ -2,7 +2,7 @@
 	"_docs":           "https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/",
 	"$schema":         "https://schemas.wp.org/trunk/block.json",
 	"apiVersion":      3,
-	"name":            "wpsp/{{ blockDirName }}",
+	"name":            "{{ appShortName }}/{{ blockDirName }}",
 	"title":           "{{ rootNamespace }} Block: {{ name }}",
 	"description":     "{{ rootNamespace }} Block: {{ name }} - description...",
 	"version":         "1.0.0",
@@ -10,7 +10,11 @@
 	"category":        "text",
 	"textdomain":      "{{ textDomain }}",
 	"keywords":        [],
-	"attributes":      {},
+	"attributes":      {
+		"title": {
+			"type": "string"
+		}
+	},
 	"providesContext": {},
 	"usesContext":     [],
 	"selectors":       {},
@@ -24,5 +28,5 @@
 	"style":           "file:./style.css",
 	"viewStyle":       "file:./view.css",
 	"editorStyle":     "file:./index.css",
-	"render":          "file:./render.php"
+	"render":          "file:./render.blade.php"
 }
