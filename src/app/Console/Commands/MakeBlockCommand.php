@@ -91,6 +91,7 @@ class MakeBlockCommand extends Command {
 			'editor.scss',
 			'index.js',
 			'render.php',
+			'render.blade.php',
 			'script.js',
 			'style.scss',
 			'view.js',

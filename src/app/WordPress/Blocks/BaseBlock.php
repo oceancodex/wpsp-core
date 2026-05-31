@@ -7,23 +7,25 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseBlock extends BaseInstances {
 
-	public $blockFolder = null;
+	public $name 		= null;
+	public $blockPath   = null;
+	public $args		= [];
 
 	/*
 	 *
 	 */
 
 	public function afterConstruct() {
-		$this->overrideBlockFolder($this->extraParams['full_path']);
+		$this->overrideName($this->extraParams['full_path']);
 	}
 
 	/*
 	 *
 	 */
 
-	private function overrideBlockFolder($blockFolder = null) {
-		if ($blockFolder && !$this->blockFolder) {
-			$this->blockFolder = $blockFolder;
+	private function overrideName($name = null) {
+		if ($name && !$this->name) {
+			$this->name = $name;
 		}
 	}
 
@@ -31,12 +33,19 @@ abstract class BaseBlock extends BaseInstances {
 	 *
 	 */
 
-	public function init($blockFolder = null) {
-		$blockFolder = $this->blockFolder ?? $blockFolder;
-		if ($blockFolder) {
-			$blockBuildPath = $this->funcs->_getResourcesPath('/views/blocks/build/' . $blockFolder);
-			if (File::exists($blockBuildPath)) {
-				register_block_type($blockBuildPath);
+	public function init($name = null) {
+		$name = $this->name ?? $name;
+		if ($name) {
+			$blockPath = $this->blockPath ?? $this->funcs->_getResourcesPath('/views/blocks/build/' . $name);
+
+			if (File::exists($blockPath)) {
+				if (method_exists($this, 'render')) {
+					$this->args['render_callback'] = function($attributes, $content, $block) {
+						return $this->render($attributes, $content, $block);
+					};
+				}
+
+				register_block_type($blockPath, $this->args);
 			}
 		}
 	}
