@@ -1,0 +1,1 @@
+console.log('Custom block "{{ name }}" - script.js');
