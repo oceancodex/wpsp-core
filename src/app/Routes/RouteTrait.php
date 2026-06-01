@@ -396,7 +396,7 @@ trait RouteTrait {
 				$type = $param->getType();
 
 				// Nếu type là class → container sẽ inject sau
-				if ($type && !$type->isBuiltin()) {
+				if ($this->getClassFromType($type)) {
 					continue;
 				}
 
