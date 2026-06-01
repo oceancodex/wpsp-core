@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\app\Database;
+namespace WPSPCORE\App\Database;
 
 use Illuminate\Database\DatabaseManager;
 use WPSPCORE\BaseInstances;

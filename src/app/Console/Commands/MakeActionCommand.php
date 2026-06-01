@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\app\Console\Commands;
+namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;

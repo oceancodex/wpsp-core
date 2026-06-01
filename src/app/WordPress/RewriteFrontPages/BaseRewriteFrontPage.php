@@ -2,12 +2,9 @@
 
 namespace WPSPCORE\App\WordPress\RewriteFrontPages;
 
-use WPSPCORE\App\Routes\RouteTrait;
 use WPSPCORE\BaseInstances;
 
 abstract class BaseRewriteFrontPage extends BaseInstances {
-
-	use RouteTrait;
 
 	public $path                     = null;
 	public $fullPath                 = null;
@@ -22,8 +19,8 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 */
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
-		$this->overridePath($this->extraParams['path']);
 		$this->overrideFullPath($this->extraParams['full_path']);
+		$this->overridePath($this->extraParams['path']);
 	}
 
 	/**
@@ -32,6 +29,9 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	private function overridePath($path = null) {
 		if ($path && !$this->path) {
 			$this->path = $path;
+		}
+		elseif ($this->path) {
+			$this->fullPath = $this->path;
 		}
 	}
 

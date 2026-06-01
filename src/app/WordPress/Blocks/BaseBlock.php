@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\app\WordPress\Blocks;
+namespace WPSPCORE\App\WordPress\Blocks;
 
 use Illuminate\Support\Facades\File;
 use WPSPCORE\BaseInstances;
