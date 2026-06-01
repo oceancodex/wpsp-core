@@ -3,14 +3,20 @@
 namespace WPSPCORE\App\Traits;
 
 use Illuminate\Http\Request;
+use WPSPCORE\App\Routes\RouteTrait;
 
 /**
  * BaseInstancesTrait.
  *
  * @property \WPSPCORE\Funcs          $funcs
  * @property \Illuminate\Http\Request $request
+ * @method $this __wpspConstruct
+ * @method $this customProperties
+ * @method $this afterInstanceConstruct
  */
 trait BaseInstancesTrait {
+
+	use RouteTrait;
 
 	public $funcs         = null;
 	public $mainPath      = null;
@@ -29,15 +35,24 @@ trait BaseInstancesTrait {
 		$this->prepareFuncs();
 		$this->prepareRequest();
 		$this->afterConstruct();
-		$this->customProperties();
-		$this->afterInstanceConstruct();
+		$this->baseInstanceCall('__wpspConstruct');
+		$this->baseInstanceCall('customProperties');
+		$this->baseInstanceCall('afterInstanceConstruct');
 	}
 
 	/*
 	 *
 	 */
 
-	public function customProperties() {}
+	public function baseInstanceCall($method) {
+		if ($this->funcs) {
+			$path        = $this->extraParams['path'] ?? null;
+			$fullPath    = $this->extraParams['full_path'] ?? null;
+			$requestPath = $this->request->getRequestUri();
+			return $this->autoResolveAndCall($path, $fullPath, $requestPath, $this, $method);
+		}
+		return null;
+	}
 
 	/*
 	 *
@@ -84,7 +99,5 @@ trait BaseInstancesTrait {
 	public function beforeConstruct() {}
 
 	public function afterConstruct() {}
-
-	public function afterInstanceConstruct() {}
 
 }

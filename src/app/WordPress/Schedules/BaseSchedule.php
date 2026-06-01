@@ -2,12 +2,9 @@
 
 namespace WPSPCORE\App\WordPress\Schedules;
 
-use WPSPCORE\App\Routes\RouteTrait;
 use WPSPCORE\BaseInstances;
 
 abstract class BaseSchedule extends BaseInstances {
-
-	use RouteTrait;
 
 	public $hook              = null;
 	public $interval          = null;

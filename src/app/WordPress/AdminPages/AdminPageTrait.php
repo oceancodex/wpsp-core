@@ -43,7 +43,7 @@ trait AdminPageTrait {
 		}
 
 		if (method_exists($this, $method)) {
-			return $this->prepareCallbackFunction($method, $this->menu_slug, $this->menu_slug, $args);
+			return $this->prepareCallbackFunction($method, $this->menu_slug, $this->menu_slug, $this, $args);
 		}
 		return null;
 	}

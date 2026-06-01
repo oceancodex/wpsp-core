@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\app\WordPress\AdminPages;
+namespace WPSPCORE\App\WordPress\AdminPages;
 
 trait AdminPageScreenOptionsTrait {
 
