@@ -2,12 +2,11 @@
 
 namespace WPSPCORE\App\WordPress\AdminPages;
 
-use WPSPCORE\App\Routes\RouteTrait;
 use WPSPCORE\BaseInstances;
 
 abstract class BaseAdminPage extends BaseInstances {
 
-	use RouteTrait, AdminPageTrait, AdminPageScreenOptionsTrait, AdminPageMetaBoxesTrait;
+	use AdminPageTrait, AdminPageScreenOptionsTrait, AdminPageMetaBoxesTrait;
 
 	/**
 	 * WordPress admin page properties.

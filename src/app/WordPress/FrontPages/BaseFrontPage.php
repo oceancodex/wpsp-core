@@ -2,12 +2,9 @@
 
 namespace WPSPCORE\App\WordPress\FrontPages;
 
-use WPSPCORE\App\Routes\RouteTrait;
 use WPSPCORE\BaseInstances;
 
 abstract class BaseFrontPage extends BaseInstances {
-
-	use RouteTrait;
 
 	public $path                     = null;
 	public $fullPath                 = null;
