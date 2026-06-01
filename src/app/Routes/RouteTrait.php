@@ -7,6 +7,28 @@ use Symfony\Component\HttpFoundation\Response;
 
 trait RouteTrait {
 
+	/**
+	 * Kiểm tra middleware hiện tại có phải là middleware cuối cùng trong pipeline hay không.
+	 *
+	 * Hàm chỉ xét các phần tử có key dạng số trong danh sách middleware,
+	 * bỏ qua các phần tử cấu hình khác có key dạng chuỗi.
+	 *
+	 * Middleware được coi là middleware cuối cùng khi phần tử cuối cùng
+	 * trong danh sách có dạng:
+	 *
+	 * [
+	 *     TênClassMiddleware::class,
+	 *     'handle'
+	 * ]
+	 *
+	 * và tên class trùng với giá trị của tham số $currentClass.
+	 *
+	 * @param string $currentClass Tên class middleware cần kiểm tra.
+	 * @param mixed  $allMiddlewares Danh sách middleware của pipeline.
+	 *
+	 * @return bool Trả về true nếu middleware hiện tại là middleware cuối cùng,
+	 *              ngược lại trả về false.
+	 */
 	public function isLastMiddleware($currentClass, $allMiddlewares) {
 		if (!is_array($allMiddlewares)) {
 			return false;
@@ -35,6 +57,59 @@ trait RouteTrait {
 		return false;
 	}
 
+	/**
+	 * Kiểm tra xem route hiện tại có vượt qua toàn bộ middleware hay không.
+	 *
+	 * Middleware được tổ chức thành nhiều "block middleware".
+	 * Mỗi block có thể chứa một hoặc nhiều middleware và có thể định nghĩa
+	 * quan hệ đánh giá thông qua key `relation`:
+	 *
+	 * - AND: tất cả middleware trong block phải PASS.
+	 * - OR : chỉ cần một middleware trong block PASS.
+	 *
+	 * Route chỉ được coi là PASS khi tất cả các block middleware đều PASS.
+	 *
+	 * Middleware hỗ trợ các định dạng:
+	 *
+	 * - Closure
+	 * - ClassName::class
+	 * - [ClassName::class, 'method']
+	 *
+	 * Giá trị trả về của middleware:
+	 *
+	 * - true  : PASS
+	 * - false : FAIL
+	 * - Response có status < 400 : PASS
+	 * - Response có status >= 400 : FAIL
+	 *
+	 * Thông tin block hiện tại sẽ được truyền vào tham số `$args`
+	 * với key `current_block_middleware`.
+	 *
+	 * Ví dụ:
+	 *
+	 * [
+	 *     [
+	 *         'relation' => 'AND',
+	 *         AuthMiddleware::class,
+	 *         VerifiedMiddleware::class,
+	 *     ],
+	 *     [
+	 *         'relation' => 'OR',
+	 *         AdminMiddleware::class,
+	 *         ManagerMiddleware::class,
+	 *     ],
+	 * ]
+	 *
+	 * Trong ví dụ trên:
+	 * - AuthMiddleware và VerifiedMiddleware đều phải PASS.
+	 * - AdminMiddleware hoặc ManagerMiddleware chỉ cần một PASS.
+	 *
+	 * @param array $middlewares Danh sách middleware block cần kiểm tra.
+	 * @param mixed $request Request hiện tại. Nếu null sẽ tự động lấy từ container.
+	 * @param array $args Dữ liệu bổ sung được truyền vào middleware.
+	 *
+	 * @return bool Trả về true nếu toàn bộ middleware đều PASS, ngược lại false.
+	 */
 	public function isPassedMiddleware($middlewares = [], $request = null, $args = []) {
 		// Không có middleware → pass
 		if (empty($middlewares)) {
@@ -184,10 +259,36 @@ trait RouteTrait {
 	}
 
 	/**
-	 * Chuẩn bị callback hoàn chỉnh cho route.\
-	 * Nếu callback là Closure, trả về callback đó.\
-	 * Nếu callback là mảng, tạo mới instance và trả về mảng [instance, method].\
-	 * Nếu không hợp lệ, ném exception.
+	 * Chuẩn bị callback cho route trước khi thực thi.
+	 *
+	 * Hỗ trợ các dạng callback:
+	 *
+	 * - Closure
+	 * - [ClassName::class, 'method']
+	 *
+	 * Nếu callback là Closure, hàm sẽ trả về nguyên bản.
+	 * Nếu callback là mảng chứa tên class và method, một instance của class
+	 * sẽ được khởi tạo bằng các tham số truyền vào thông qua `$constructParams`,
+	 * sau đó trả về dưới dạng callable `[object, method]`.
+	 *
+	 * Ví dụ:
+	 *
+	 * prepareRouteCallback(function () {});
+	 *
+	 * prepareRouteCallback([
+	 *     UserController::class,
+	 *     'index'
+	 * ]);
+	 *
+	 * Nếu callback không thuộc các định dạng được hỗ trợ,
+	 * RuntimeException sẽ được ném ra.
+	 *
+	 * @param mixed $callback Callback cần chuẩn hóa.
+	 * @param array $constructParams Các tham số truyền vào constructor của class.
+	 *
+	 * @return callable Callback đã được chuẩn hóa và sẵn sàng để thực thi.
+	 *
+	 * @throws \RuntimeException Khi callback không hợp lệ.
 	 */
 	public function prepareRouteCallback($callback, $constructParams = []) {
 		if ($callback instanceof \Closure) {
@@ -205,19 +306,20 @@ trait RouteTrait {
 	/**
 	 * Chuẩn bị callback cho các function đặc biệt, ví dụ: add_menu_page()\
 	 * Sử dụng hàm này khi cần gọi "Callback Dependencies Injection" trong các class callback của Route.\
-	 * Ví dụ:\
-	 * ㅤRoute::get('/my-page', [MyClass::class, 'myMethod']);\
+	 * Ví dụ:
+	 * - Route::get('/my-page', [MyClass::class, 'myMethod']);
+	 *
 	 * Lúc này myMethod được gọi với DI tự động.\
 	 * Nhưng trong myMethod chúng ta lại muốn gọi tiếp method khác, ví dụ: $this->secondMethod()
 	 * Nếu không sử dụng hàm này, thì secondMethod() sẽ không được "Dependencies Injection".
 	 */
-	public function prepareCallbackFunction($method, $path, $fullPath, $args = []): \Closure {
-		return function() use ($method, $path, $fullPath, $args) {
+	public function prepareCallbackFunction($method, $path, $fullPath, $class = null, $args = []): \Closure {
+		return function() use ($method, $path, $fullPath, $class, $args) {
 
 			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
 			// build callback [instance, method]
-			$callback = [$this, $method];
+			$callback = [$class ?? $this, $method];
 
 			if (!isset($args['route'])) {
 				$args['route'] = $this->extraParams['route'] ?? null;
@@ -405,17 +507,6 @@ trait RouteTrait {
 				}
 			}
 
-//			if ($type && !$type->isBuiltin()) {
-//				$className = $type->getName();
-//
-////				if (is_subclass_of($className, \Illuminate\Database\Eloquent\Model::class)) {
-////					...
-////				}
-//
-//				// Còn lại để Container inject
-//				continue;
-//			}
-
 			$value = null;
 
 			// 1) Nếu có named capture trùng tên param -> ưu tiên
@@ -452,6 +543,7 @@ trait RouteTrait {
 			$callParams[$name] = $value;
 		}
 
+		// Thêm các thuộc tính vào params.
 		$callParams['path']            = $path;
 		$callParams['path_regex']      = $this->funcs->_regexPath($path);
 		$callParams['full_path']       = $fullPath;
@@ -495,6 +587,26 @@ trait RouteTrait {
 		return $callParams;
 	}
 
+	/**
+	 * Lấy tên class từ một ReflectionType.
+	 *
+	 * Hàm này được sử dụng để xác định class cần được khởi tạo tự động
+	 * từ khai báo kiểu dữ liệu (type declaration) của tham số hoặc phương thức.
+	 *
+	 * Chỉ các kiểu đối tượng (class/interface) mới được trả về. Các kiểu
+	 * dựng sẵn của PHP như string, int, bool, float, array... sẽ bị bỏ qua.
+	 *
+	 * Đối với Union Type, hàm sẽ trả về class đầu tiên tìm thấy.
+	 *
+	 * Ví dụ:
+	 * - LoggerInterface      => "LoggerInterface"
+	 * - string               => null
+	 * - Logger|NullLogger    => "Logger"
+	 *
+	 * @param \ReflectionType|null $type Kiểu dữ liệu cần phân tích.
+	 *
+	 * @return string|null Tên class/interface nếu tìm thấy, ngược lại trả về null.
+	 */
 	protected function getClassFromType(\ReflectionType|null $type): ?string {
 		if (!$type) {
 			return null;
@@ -546,6 +658,23 @@ trait RouteTrait {
 		}
 
 		return $container->call($callback, $callParams);
+	}
+
+	/**
+	 * Gọi callback với Dependency Injection.\
+	 * Tự động hoàn toàn.
+	 */
+	public function autoResolveAndCall($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []) {
+		$class    = is_array($callbackOrClass) ? $callbackOrClass[0] : $callbackOrClass;
+		$method   = $method ?? (is_array($callbackOrClass) ? ($callbackOrClass[1] ?? null) : null);
+		$method   = $method ?? '__wpspConstruct';
+
+		if ($class && $method && method_exists($class, $method)) {
+			$callback = $this->prepareCallbackFunction($method, $path, $fullPath, $class, $args);
+			$params   = $this->getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method, $args);
+			return $this->resolveAndCall($callback, $params);
+		}
+		return null;
 	}
 
 	/*

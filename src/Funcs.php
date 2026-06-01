@@ -5,11 +5,8 @@ namespace WPSPCORE;
 use Carbon\Carbon;
 use Illuminate\View\View;
 use NumberFormatter;
-use WPSPCORE\App\Routes\RouteTrait;
 
 class Funcs extends BaseInstances {
-
-	use RouteTrait;
 
 	public $WPSPClass;
 	public $routeMapClass;
@@ -57,7 +54,7 @@ class Funcs extends BaseInstances {
 	/**
 	 * @return \WPSPCORE\App\Routes\RouteMap
 	 */
-	public function getRouteMap(): ?app\Routes\RouteMap {
+	public function getRouteMap() {
 		try {
 			return $this->routeMapClass::instance();
 		}
@@ -69,7 +66,7 @@ class Funcs extends BaseInstances {
 	/**
 	 * @return \WPSPCORE\App\Routes\RouteManager
 	 */
-	public function getRouteManager(): ?app\Routes\RouteManager {
+	public function getRouteManager() {
 		try {
 			return $this->routeManagerClass::instance();
 		}

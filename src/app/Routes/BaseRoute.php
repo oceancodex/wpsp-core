@@ -17,7 +17,7 @@ use WPSPCORE\BaseInstances;
  */
 abstract class BaseRoute extends BaseInstances {
 
-	use RouteTrait, HookRunnerTrait;
+	use HookRunnerTrait;
 
 	/**
 	 * Namespace và Version mặc định cho tất cả các route (ví dụ: WPSP, v1).\
@@ -175,7 +175,7 @@ abstract class BaseRoute extends BaseInstances {
 			}
 
 			// Push toàn bộ thuộc tính group vào RouteManager
-			$this->funcs->getRouteManager()->pushGroupAttributes($attrs);
+			$this->funcs->getRouteManager()?->pushGroupAttributes($attrs);
 
 			// reset pending để không ảnh hưởng route khác
 			$this->pending = [];
@@ -190,7 +190,7 @@ abstract class BaseRoute extends BaseInstances {
 			}
 
 			// pop group attributes khỏi stack
-			$this->funcs->getRouteManager()->popGroupAttributes();
+			$this->funcs->getRouteManager()?->popGroupAttributes();
 
 			return $this;
 		}
@@ -233,7 +233,7 @@ abstract class BaseRoute extends BaseInstances {
 		 * Lấy attributes của tất cả group đang active.\
 		 * Truyền $type vào để thực hiện một số công việc cụ thể.
 		 */
-		$group = $this->funcs->getRouteManager()->currentGroupAttributes($type);
+		$group = $this->funcs->getRouteManager()?->currentGroupAttributes($type);
 
 		/**
 		 * Hợp nhất prefix tạm (chỉ có tác dụng cho route này)
@@ -355,7 +355,7 @@ abstract class BaseRoute extends BaseInstances {
 		}
 
 		// Lưu route vào RouteManager.
-		$this->funcs->getRouteManager()->addRoute($route);
+		$this->funcs->getRouteManager()?->addRoute($route);
 
 		// Reset pending sau khi tạo route.
 		$this->pending = [];
