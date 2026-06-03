@@ -32,7 +32,7 @@ class WipeCommand extends \Illuminate\Database\Console\WipeCommand {
 		/** @var \Illuminate\Database\DatabaseManager $db */
 		$db = $this->laravel->make('db');
 
-		$database   = $this->option('database') ?: config('database.default');
+		$database   = $this->option('database') ?: $this->funcs->_config('database.default');
 		$connection = $db->connection($database);
 		$prefix     = $connection->getTablePrefix();
 
@@ -45,11 +45,11 @@ class WipeCommand extends \Illuminate\Database\Console\WipeCommand {
 
 		// lấy danh sách bảng
 		$tables = $connection->select("
-        SELECT table_name
-        FROM information_schema.tables
-        WHERE table_schema = ?
-          AND table_name LIKE ?
-    ", [$dbName, $prefix.'%']);
+			SELECT table_name
+			FROM information_schema.tables
+			WHERE table_schema = ?
+			  AND table_name LIKE ?
+		", [$dbName, $prefix.'%']);
 
 		$tableNames = array_map(fn($t) => $t->table_name, $tables);
 
