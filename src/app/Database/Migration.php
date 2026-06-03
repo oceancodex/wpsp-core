@@ -213,12 +213,13 @@ class Migration extends BaseInstances {
 	/**
 	 * Xóa toàn bộ bảng.
 	 */
-	public function dropAllDatabaseTables($output = null) {
+	public function dropAllDatabaseTables($extraDropDatabaseTables = [], $output = null) {
 		$tz                    = function_exists('wp_timezone') ? wp_timezone() : new \DateTimeZone('Asia/Ho_Chi_Minh');
 		$dt                    = new \DateTime('now', $tz);
 		$timestamp             = '[' . $dt->format('Y-m-d H:i:s') . ']';
 		$definedDatabaseTables = $this->getDefinedDatabaseTables();
-		$definedDatabaseTables = array_merge($definedDatabaseTables, ['migrations', 'roles', 'permissions', 'model_has_permissions', 'model_has_roles', 'role_has_permissions']);
+		$definedDatabaseTables = array_merge($definedDatabaseTables, ['migrations']);
+		$definedDatabaseTables = array_merge($definedDatabaseTables, $extraDropDatabaseTables);
 		foreach ($definedDatabaseTables as $definedDatabaseTable) {
 			$tableDropped = $this->dropDatabaseTable($definedDatabaseTable);
 			if ($output) {
