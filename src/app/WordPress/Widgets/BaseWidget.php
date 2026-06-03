@@ -49,13 +49,9 @@ abstract class BaseWidget extends \WP_Widget {
 	 *
 	 */
 
-	public function init($id_base = null) {
-		$id_base = $this->id_base ?? $id_base;
-
-		if ($id_base) {
-//		    add_action('widgets_init', function() {
-				register_widget($this);
-//		    });
+	protected function overrideIdBase($id_base = null) {
+		if ($id_base && !$this->id_base) {
+			$this->id_base = $id_base;
 		}
 	}
 
@@ -63,9 +59,13 @@ abstract class BaseWidget extends \WP_Widget {
 	 *
 	 */
 
-	protected function overrideIdBase($id_base = null) {
-		if ($id_base && !$this->id_base) {
-			$this->id_base = $id_base;
+	public function init($id_base = null) {
+		$id_base = $this->id_base ?? $id_base;
+
+		if ($id_base) {
+//		    add_action('widgets_init', function() {
+				register_widget($this);
+//		    });
 		}
 	}
 

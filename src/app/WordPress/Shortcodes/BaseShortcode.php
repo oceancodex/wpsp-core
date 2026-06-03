@@ -23,10 +23,13 @@ abstract class BaseShortcode extends BaseInstances {
 	 */
 
 	public function init($shortcode = null) {
-		$callback  = $this->callback_function ? [$this, $this->callback_function] : null;
 		$shortcode = $this->shortcode ?? $shortcode;
+
 		if ($shortcode) {
-			add_shortcode($shortcode, $callback);
+			// Register shortcode with dependency injection.
+			add_shortcode($shortcode, function($atts, $content, $tag) use ($shortcode) {
+				return $this->autoResolveAndCall($shortcode, $shortcode, $this->request->getRequestUri(), $this, $this->callback_function, ['atts' => $atts, 'content' => $content, 'tag' => $tag]);
+			});
 		}
 	}
 

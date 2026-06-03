@@ -1,13 +1,13 @@
 <?php
 
-namespace WPSPCORE\App\Routes\MetaBoxes;
+namespace WPSPCORE\App\Routes\DashboardWidgets;
 
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
- * @method static $this meta_box(string $id, callable|array $callback, array $args = [])
+ * @method static $this widget(string $widget_id, callable|array $callback, array $args = [])
  */
-class MetaBoxes extends BaseRoute {
+class DashboardWidgets extends BaseRoute {
 
 	public function beforeConstruct() {}
 
@@ -18,12 +18,10 @@ class MetaBoxes extends BaseRoute {
 	public function execute($route) {
 		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
-		$path         = $route->path;
-		$fullPath     = $route->fullPath;
-		$callback     = $route->callback;
-		$middlewares  = $route->middlewares;
-		$priority     = $route->args['priority'] ?? 10;
-		$acceptedArgs = $route->args['accepted_args'] ?? 1;
+		$path        = $route->path;
+		$fullPath    = $route->fullPath;
+		$callback    = $route->callback;
+		$middlewares = $route->middlewares;
 
 		if ($this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
 			$constructParams = [
@@ -34,8 +32,6 @@ class MetaBoxes extends BaseRoute {
 					'path'              => $path,
 					'full_path'         => $fullPath,
 					'callback_function' => $callback[1] ?? null,
-					'priority'          => $priority,
-					'accepted_args'     => $acceptedArgs,
 				],
 			];
 
@@ -52,11 +48,6 @@ class MetaBoxes extends BaseRoute {
 			 * để DI hoạt động được với method "index".
 			 */
 			$constructParams[3]['route'] = $route;
-
-//			$callback        = $this->prepareRouteCallback($callback, $constructParams);
-//			$callback[1]     = 'init';
-//			add_action('add_meta_boxes', $callback, $priority, $acceptedArgs);
-
 			$callback   = $this->prepareRouteCallback($callback, $constructParams);
 			$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 			$this->resolveAndCall($callback, $callParams);

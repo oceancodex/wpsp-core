@@ -39,15 +39,38 @@ abstract class BaseMetaBox extends BaseInstances {
 
 	public function init($post_type = null, $post = null) {
 		if ($this->id) {
-			add_meta_box(
-				$this->id,
-				$this->title,
-				[$this, $this->callback_function],
-				$this->screen,
-				$this->context,
-				$this->priority,
-				array_merge($this->callback_args ?? [], ['post_type' => $post_type, 'post' => $post])
-			);
+			if ($this->screen == 'dashboard') {
+				add_action('wp_dashboard_setup', function() use ($post_type, $post) {
+					add_meta_box(
+						$this->id,
+						$this->title,
+						function($post, $meta_box) {
+							$requestPath = $this->request->getRequestUri();
+							return $this->autoResolveAndCall($this->id, $this->extraParams['full_path'], $requestPath, $this, $this->callback_function, ['post' => $post, 'meta_box' => $meta_box]);
+						},
+						$this->screen,
+						$this->context,
+						$this->priority,
+						array_merge($this->callback_args ?? [], ['post_type' => $post_type, 'post' => $post])
+					);
+				});
+			}
+			else {
+				add_action('add_meta_boxes', function() use ($post_type, $post) {
+					add_meta_box(
+						$this->id,
+						$this->title,
+						function($post, $meta_box) {
+							$requestPath = $this->request->getRequestUri();
+							return $this->autoResolveAndCall($this->id, $this->extraParams['full_path'], $requestPath, $this, $this->callback_function, ['post' => $post, 'meta_box' => $meta_box]);
+						},
+						$this->screen,
+						$this->context,
+						$this->priority,
+						array_merge($this->callback_args ?? [], ['post_type' => $post_type, 'post' => $post])
+					);
+				});
+			}
 		}
 	}
 
