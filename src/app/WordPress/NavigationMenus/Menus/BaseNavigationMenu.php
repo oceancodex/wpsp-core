@@ -12,8 +12,9 @@ abstract class BaseNavigationMenu extends BaseInstances {
 
 	use ObjectToArrayTrait;
 
-	private $args = null;
+	private $args 				  = null;
 
+	public  $menu                 = null;
 	public  $menu_class           = '';
 	public  $menu_id              = '';            // The "id" attribute of the <ul> element.
 	public  $container            = '';
@@ -73,12 +74,12 @@ abstract class BaseNavigationMenu extends BaseInstances {
 		}
 
 		// Unset "items_wrap" if it's empty.
-		if (isset($this->items_wrap) && $this->items_wrap) {
-			$this->args->items_wrap = $this->items_wrap;
-		}
-		else {
-			unset($this->args->items_wrap);
-		}
+//		if (isset($this->items_wrap) && $this->items_wrap) {
+//			$this->args->items_wrap = $this->items_wrap;
+//		}
+//		else {
+//			unset($this->args->items_wrap);
+//		}
 
 		// Default menu name.
 		$this->args->menu = $this->args->menu ?: strtolower(basename(static::class));
