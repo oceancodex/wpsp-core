@@ -45,7 +45,7 @@ class MakeAdminBarMenuCommand extends Command {
 				exit;
 			}
 
-			$parent = $this->ask('Please enter the name of the parent admin bar menu');
+			$parent = $this->ask('Please enter the name of the parent admin bar menu (optional)');
 		}
 
 		// Kiểm tra chuỗi hợp lệ.

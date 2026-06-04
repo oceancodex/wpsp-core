@@ -20,7 +20,7 @@ class {{ class_name }} extends BaseAdminPage {
 //	public $menu_slug              = '{{ path }}';
 	public $icon_url               = 'dashicons-admin-generic';
 //	public $position               = 2;
-	public $parent_slug            = '{{ parent }}';
+	public $parent_slug            = {{ parent }};
 
 	/**
 	 * Parent properties.
@@ -29,7 +29,7 @@ class {{ class_name }} extends BaseAdminPage {
 //	public $classes                = null; // Thêm HTML class vào attribute "class" của admin menu item.
 //	public $firstSubmenuTitle      = null; // WordPress sẽ tự sinh submenu cho trang chính. Thay đổi tên submenu tự sinh.
 //	public $firstSubmenuClasses    = null; // WordPress sẽ tự sinh submenu cho trang chính. Thêm class cho submenu tự sinh.
-	public $isSubmenuPage          = {{ $child }};
+	public $isSubmenuPage          = {{ child }};
 //	public $removeFirstSubmenu     = true; // WordPress sẽ tự sinh submenu cho trang chính. Xóa submenu tự sinh.
 
 //	public $urlsMatchCurrentAccess = [];

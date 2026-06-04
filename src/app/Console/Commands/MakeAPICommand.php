@@ -26,6 +26,7 @@ class MakeAPICommand extends Command {
 		 * ---
 		 */
 		$this->funcs = $this->getLaravel()->make('funcs');
+		$appShortName = $this->funcs->_getAppShortName();
 
 		/**
 		 * ---
@@ -46,7 +47,7 @@ class MakeAPICommand extends Command {
 
 			// Nếu có câu trả lời, hãy tiếp tục hỏi.
 			$method    = $this->ask('Please enter the method of the API endpoint (Eg: GET, POST or get, post,...)', 'GET');
-			$namespace = $this->ask('Please enter the namespace of the API endpoint (Eg: wpsp, custom-namespace,...', $this->funcs->_getAppShortName());
+			$namespace = $this->ask('Please enter the namespace of the API endpoint (Eg: ' . $appShortName . ', custom-namespace,...)', $appShortName);
 			$version   = $this->ask('Please enter the version of the API endpoint (Eg: v1, v2,...)', 'v1');
 		}
 

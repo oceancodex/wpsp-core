@@ -13,7 +13,6 @@ class MakeAdminPageCommand extends Command {
 
 	protected $signature = 'make:admin-page
         {path? : The path of the admin page}
-        {--child : Is this admin page a child of another admin page}
         {--parent= : The slug of the parent admin page}
         {--view : Create view files for this admin page}';
 
@@ -46,12 +45,7 @@ class MakeAdminPageCommand extends Command {
 			}
 
 			// Nếu có câu trả lời, hãy tiếp tục hỏi.
-			$child = $this->confirm('Is this admin page a child of another admin page?', false);
-
-			if ($child) {
-				$parent = $this->ask('Please enter the slug of the parent admin page');
-			}
-
+			$parent     = $this->ask('Please enter the slug of the parent admin page (optional)');
 			$createView = $this->confirm('Do you want to create view files for this admin page?', false);
 		}
 
@@ -60,9 +54,8 @@ class MakeAdminPageCommand extends Command {
 
 		// Chuẩn bị thêm các biến để sử dụng.
 		$className  = Str::slug($path, '_');
-		$child      = $child ?? $this->option('child') ?: false;
-		$child      = $child ? 'true' : 'false';
-		$parent     = $parent ?? $this->option('parent_slug') ?: null;
+		$parent     = $parent ?? $this->option('parent') ?: null;
+		$child      = $parent ? 'true' : 'false';
 		$parent     = $parent ? "'$parent'" : 'null';
 		$createView = $createView ?? $this->option('view') ?: false;
 
