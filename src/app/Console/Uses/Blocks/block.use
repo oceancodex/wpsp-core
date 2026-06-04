@@ -1,1 +1,1 @@
-use {{ root_namespace }}\App\WordPress\Blocks\{{ className }};
+use {{ root_namespace }}\App\WordPress\Blocks\{{ class_name }};
