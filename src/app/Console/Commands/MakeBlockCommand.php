@@ -12,7 +12,8 @@ class MakeBlockCommand extends Command {
 	use CommandsTrait;
 
 	protected $signature = 'make:block
-        {name? : The block name}';
+        {name? : The block name}
+        {--view : Use Blade template engine for render this block?}';
 
 	protected $description = 'Create a new block. | Eg: php artisan make:block custom-block';
 
@@ -43,6 +44,9 @@ class MakeBlockCommand extends Command {
 				$this->error('Missing block name. Please try again.');
 				exit;
 			}
+
+			// Nếu có câu trả lời, hãy tiếp tục hỏi.
+			$createView = $this->confirm('Do you want to use Blade template engine for render this block?', false);
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
@@ -51,6 +55,8 @@ class MakeBlockCommand extends Command {
 		// Chuẩn bị thêm các biến để sử dụng.
 		$className    = Str::slug($name, '_');
 		$blockDirName = Str::slug($name, '-');
+		$createView   = $createView ?? $this->option('view') ?: false;
+		$isBlade      = $createView ? '.blade' : null;
 
 		// Kiểm tra tồn tại.
 		$adminClassPath = $mainPath . '/app/WordPress/Blocks/' . $className . '.php';
@@ -66,10 +72,10 @@ class MakeBlockCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$content = File::get(__DIR__ . '/../Stubs/Blocks/block.stub');
+		$content = File::get(__DIR__ . '/../Stubs/Blocks/block' . ($createView ? '-view' : '') . '.stub');
 		$content = str_replace(
-			['{{ name }}', '{{ class_name }}', '{{ text_domain }}', '{{ block_dir_name }}', '{{ app_short_name }}'],
-			[$name, $className, $textDomain, $blockDirName, $appShortName],
+			['{{ name }}', '{{ class_name }}', '{{ text_domain }}', '{{ block_dir_name }}', '{{ app_short_name }}', '{{ is_blade }}'],
+			[$name, $className, $textDomain, $blockDirName, $appShortName, $isBlade],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -101,8 +107,8 @@ class MakeBlockCommand extends Command {
 			$view = File::get(__DIR__ . '/../Stubs/Blocks/' . $viewFile);
 
 			$view = str_replace(
-				['{{ name }}', '{{ class_name }}', '{{ text_domain }}', '{{ block_dir_name }}', '{{ app_short_name }}'],
-				[$name, $className, $textDomain, $blockDirName, $appShortName],
+				['{{ name }}', '{{ class_name }}', '{{ text_domain }}', '{{ block_dir_name }}', '{{ app_short_name }}', '{{ is_blade }}'],
+				[$name, $className, $textDomain, $blockDirName, $appShortName, $isBlade],
 				$view
 			);
 
@@ -118,8 +124,8 @@ class MakeBlockCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/Blocks/block.func');
 		$func = str_replace(
-			['{{ name }}', '{{ class_name }}', '{{ text_domain }}', '{{ block_dir_name }}', '{{ app_short_name }}'],
-			[$name, $className, $textDomain, $blockDirName, $appShortName],
+			['{{ name }}', '{{ class_name }}', '{{ text_domain }}', '{{ block_dir_name }}', '{{ app_short_name }}', '{{ is_blade }}'],
+			[$name, $className, $textDomain, $blockDirName, $appShortName, $isBlade],
 			$func
 		);
 
@@ -130,8 +136,8 @@ class MakeBlockCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/Blocks/block.use');
 		$use = str_replace(
-			['{{ name }}', '{{ class_name }}', '{{ text_domain }}', '{{ block_dir_name }}', '{{ app_short_name }}'],
-			[$name, $className, $textDomain, $blockDirName, $appShortName],
+			['{{ name }}', '{{ class_name }}', '{{ text_domain }}', '{{ block_dir_name }}', '{{ app_short_name }}', '{{ is_blade }}'],
+			[$name, $className, $textDomain, $blockDirName, $appShortName, $isBlade],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

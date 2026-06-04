@@ -19,14 +19,32 @@
 	"usesContext":     [],
 	"selectors":       {},
 	"supports":        {},
-	"styles":          [],
-	"example":         {},
-	"variations":      [],
-	"script":          "file:./script.js",
-	"viewScript":      "file:./view.js",
-	"editorScript":    "file:./index.js",
-	"style":           "file:./style.css",
-	"viewStyle":       "file:./view.css",
-	"editorStyle":     "file:./index.css",
-	"render":          "file:./render.blade.php"
+	"styles":          [
+		{ "name": "default", "label": "Default", "isDefault": true },
+		{ "name": "other", "label": "Other" }
+	],
+	"example":         {
+		"attributes": {
+			"title": "This is a title!"
+		}
+	},
+	"variations":      [
+		{
+			"name": "example",
+			"title": "Example",
+			"attributes": {
+				"level": 2,
+				"message": "This is an example!"
+			},
+			"scope": ["block"],
+			"isActive": ["level"]
+		}
+	],
+	"style":           ["file:./style.css", "example-style-registed-by-wp_register_style", 		"editor/frontend"],
+	"script":          ["file:./script.js", "example-script-registed-by-wp_register_script", 	"editor/frontend"],
+	"viewStyle":       ["file:./view.css", 	"example-style-registed-by-wp_register_style", 		"frontend"],
+	"viewScript":      ["file:./view.js", 	"example-script-registed-by-wp_register_script", 	"frontend"],
+	"editorStyle":     ["file:./index.css", "example-style-registed-by-wp_register_style", 		"editor"],
+	"editorScript":    ["file:./index.js", 	"example-script-registed-by-wp_register_script", 	"editor"],
+	"render":          "file:./render{{ is_blade }}.php"
 }
