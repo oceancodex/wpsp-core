@@ -1,14 +1,14 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\ListTables;
+namespace {{ root_namespace }}\App\WordPress\ListTables;
 
-use {{ rootNamespace }}\App\Widen\Support\Facades\Cache;
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ rootNamespace }}\App\Models\SettingsModel;
-use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\App\WordPress\ListTables\BaseListTable;
+use {{ root_namespace }}\App\Widen\Support\Facades\Cache;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\App\Models\SettingsModel;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\App\WordPress\ListTables\BaseListTable;
 
-class {{ className }} extends BaseListTable {
+class {{ class_name }} extends BaseListTable {
 
 	use InstancesTrait;
 
@@ -274,7 +274,7 @@ class {{ className }} extends BaseListTable {
 			 * Cache tổng số lượng bản ghi trong 300s\
 			 * Dùng để tối ưu phân trang (pagination)
 			 */
-//			$this->total_items = Cache::remember('{{ className }}.total', 300, function() use ($model) {
+//			$this->total_items = Cache::remember('{{ class_name }}.total', 300, function() use ($model) {
 //				return $model->count();
 //			});
             $this->total_items = $model->count();
@@ -286,7 +286,7 @@ class {{ className }} extends BaseListTable {
 			/**
 			 * Tạo key riêng cho mỗi trang và mỗi trạng thái order.
 			 */
-			$pageKey = "{{ className }}.page.{$this->paged}.{$this->itemsPerPage}.{$this->orderby}.{$this->order}";
+			$pageKey = "{{ class_name }}.page.{$this->paged}.{$this->itemsPerPage}.{$this->orderby}.{$this->order}";
 
 			/**
 			 * Cache dữ liệu cho mỗi trang.\

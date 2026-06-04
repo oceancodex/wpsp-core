@@ -46,10 +46,13 @@ class MakePostTypeCommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($name);
+		$this->validateSlug($name);
+
+		// Chuẩn bị thêm các biến để sử dụng.
+		$className = Str::slug($name, '_');
 
 		// Kiểm tra tồn tại.
-		$path = $mainPath . '/app/WordPress/PostTypes/' . $name . '.php';
+		$path = $mainPath . '/app/WordPress/PostTypes/' . $className . '.php';
 
 		if (File::exists($path)) {
 			$this->error('Post type: "' . $name . '" already exists! Please try again.');
@@ -62,8 +65,11 @@ class MakePostTypeCommand extends Command {
 		 * ---
 		 */
 		$content = File::get(__DIR__ . '/../Stubs/PostTypes/posttype.stub');
-		$content = str_replace('{{ className }}', $name, $content);
-		$content = str_replace('{{ name }}', $name, $content);
+		$content = str_replace(
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
+			$content
+		);
 		$content = $this->replaceNamespaces($content);
 
 		File::ensureDirectoryExists(dirname($path));
@@ -75,7 +81,11 @@ class MakePostTypeCommand extends Command {
 		 * ---
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/PostTypes/posttype.func');
-		$func = str_replace(['{{ name }}'], [$name], $func);
+		$func = str_replace(
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
+			$func
+		);
 
 		/**
 		 * ---
@@ -83,7 +93,11 @@ class MakePostTypeCommand extends Command {
 		 * ---
 		 */
 		$use = File::get(__DIR__ . '/../Uses/PostTypes/posttype.use');
-		$use = str_replace(['{{ name }}'], [$name], $use);
+		$use = str_replace(
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
+			$use
+		);
 		$use = $this->replaceNamespaces($use);
 
 		/**

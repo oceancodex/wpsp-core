@@ -12,12 +12,12 @@ class MakeDashboardWidgetCommand extends Command {
 	use CommandsTrait;
 
 	protected $signature = 'make:dashboard-widget
-        {widget_id? : The id of the widget.}
-        {--view : Create view files for this widget}';
+        {widget_id? : The id of the dashboard widget.}
+        {--view : Create view files for this dashboard widget}';
 
-	protected $description = 'Create a new widget. | Eg: php artisan make:widget custom_widget --view';
+	protected $description = 'Create a new dashboard widget. | Eg: php artisan make:dashboard-widget custom_dashboard_widget --view';
 
-	protected $help = 'This command allows you to create a widget.';
+	protected $help = 'This command allows you to create a dashboard widget.';
 
 	public function handle() {
 		/**
@@ -33,35 +33,35 @@ class MakeDashboardWidgetCommand extends Command {
 		 * Khai báo, hỏi và kiểm tra.
 		 * ---
 		 */
-		$id_base = $this->argument('id_base');
+		$widget_id = $this->argument('widget_id');
 
 		// Nếu không khai báo, hãy hỏi.
-		if (!$id_base) {
-			$id_base = $this->ask('Please enter the id base of the widget (Eg: custom_widget)');
+		if (!$widget_id) {
+			$widget_id = $this->ask('Please enter the id of the dashboard widget (Eg: custom_dashboard_widget)');
 
 			// Nếu không có câu trả lời, hãy thoát.
-			if (empty($id_base)) {
-				$this->error('Missing id base for the widget. Please try again.');
+			if (empty($widget_id)) {
+				$this->error('Missing id for the dashboard widget. Please try again.');
 				exit;
 			}
 
 			// Nếu có câu trả lời, hãy tiếp tục hỏi.
-			$createView = $this->confirm('Do you want to create view files for this widget?', false);
+			$createView = $this->confirm('Do you want to create view files for this dashboard widget?', false);
 		}
 
-		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($id_base);
-
 		// Chuẩn bị thêm các biến để sử dụng.
-		$createView  = $createView ?? $this->option('view');
+		$className  = Str::slug($widget_id, '_');
+		$createView = $createView ?? $this->option('view');
+
+		// Kiểm tra chuỗi hợp lệ.
+//		$this->validateClassName($className);
 
 		// Kiểm tra tồn tại.
-		$classPath = $mainPath . '/app/WordPress/Widgets/' . $id_base . '.php';
-		$formViewPath  = $mainPath . '/resources/views/widgets/' . $id_base . '/form.blade.php';
-		$widgetViewPath  = $mainPath . '/resources/views/widgets/' . $id_base . '/widget.blade.php';
+		$classPath = $mainPath . '/app/WordPress/DashboardWidgets/' . $className . '.php';
+		$widgetViewPath  = $mainPath . '/resources/views/dashboard-widgets/' . $widget_id . '.blade.php';
 
 		if (File::exists($classPath)) {
-			$this->error('Widget: "' . $id_base . '" already exists! Please try again.');
+			$this->error('Widget: "' . $widget_id . '" already exists! Please try again.');
 			exit;
 		}
 
@@ -71,35 +71,26 @@ class MakeDashboardWidgetCommand extends Command {
 		 * ---
 		 */
 		if ($createView) {
-			$formView = File::get(__DIR__ . '/../Views/Widgets/form.view');
-			$formView = str_replace(
-				['{{ id_base }}', '{{ name }}'],
-				[$id_base, $id_base],
-				$formView
-			);
-
-			$widgetView = File::get(__DIR__ . '/../Views/Widgets/widget.view');
+			$widgetView = File::get(__DIR__ . '/../Views/DashboardWidgets/dashboard-widget.view');
 			$widgetView = str_replace(
-				['{{ id_base }}', '{{ name }}'],
-				[$id_base, $id_base],
+				['{{ class_name }}', '{{ widget_id }}'],
+				[$className, $widget_id],
 				$widgetView
 			);
 
-			File::ensureDirectoryExists(dirname($formViewPath));
 			File::ensureDirectoryExists(dirname($widgetViewPath));
 
-			File::put($formViewPath, $formView);
 			File::put($widgetViewPath, $widgetView);
 
-			$stub = File::get(__DIR__ . '/../Stubs/Widgets/widget-view.stub');
+			$stub = File::get(__DIR__ . '/../Stubs/DashboardWidgets/dashboard-widget-view.stub');
 		}
 		else {
-			$stub = File::get(__DIR__ . '/../Stubs/Widgets/widget.stub');
+			$stub = File::get(__DIR__ . '/../Stubs/DashboardWidgets/dashboard-widget.stub');
 		}
 
 		$stub = str_replace(
-			['{{ className }}', '{{ id_base }}', '{{ name }}'],
-			[$id_base, $id_base, $id_base],
+			['{{ class_name }}', '{{ widget_id }}'],
+			[$className, $widget_id],
 			$stub
 		);
 
@@ -113,10 +104,10 @@ class MakeDashboardWidgetCommand extends Command {
 		 * Function.
 		 * ---
 		 */
-		$func = File::get(__DIR__ . '/../Funcs/Widgets/widget.func');
+		$func = File::get(__DIR__ . '/../Funcs/DashboardWidgets/dashboard-widget.func');
 		$func = str_replace(
-			['{{ id_base }}', '{{ name }}'],
-			[$id_base, $id_base],
+			['{{ class_name }}', '{{ widget_id }}'],
+			[$className, $widget_id],
 			$func
 		);
 
@@ -125,10 +116,10 @@ class MakeDashboardWidgetCommand extends Command {
 		 * Use.
 		 * ---
 		 */
-		$use = File::get(__DIR__ . '/../Uses/Widgets/widget.use');
+		$use = File::get(__DIR__ . '/../Uses/DashboardWidgets/dashboard-widget.use');
 		$use = str_replace(
-			['{{ id_base }}', '{{ name }}'],
-			[$id_base, $id_base],
+			['{{ class_name }}', '{{ widget_id }}'],
+			[$className, $widget_id],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);
@@ -138,11 +129,11 @@ class MakeDashboardWidgetCommand extends Command {
 		 * Thêm class vào route.
 		 * ---
 		 */
-		$this->addClassToRoute('Widgets', 'widgets', $func, $use);
+		$this->addClassToRoute('DashboardWidgets', 'dashboard_widgets', $func, $use);
 
 
 		// Done.
-		$this->info('Created new widget: "' . $id_base . '"');
+		$this->info('Created new dashboard widget: "' . $widget_id . '"');
 
 		exit;
 	}

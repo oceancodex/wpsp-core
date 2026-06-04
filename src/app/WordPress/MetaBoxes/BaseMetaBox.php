@@ -37,37 +37,59 @@ abstract class BaseMetaBox extends BaseInstances {
 	 *
 	 */
 
-	public function init($post_type = null, $post = null) {
-		if ($this->id) {
+	public function init($id = null) {
+		$id = $this->id ?? $id;
+
+		if ($id) {
 			if ($this->screen == 'dashboard') {
-				add_action('wp_dashboard_setup', function() use ($post_type, $post) {
+				add_action('wp_dashboard_setup', function($metabox_id) use ($id) {
 					add_meta_box(
-						$this->id,
+						$id,
 						$this->title,
-						function($post, $meta_box) {
-							$requestPath = $this->request->getRequestUri();
-							return $this->autoResolveAndCall($this->id, $this->extraParams['full_path'], $requestPath, $this, $this->callback_function, ['post' => $post, 'meta_box' => $meta_box]);
+						function($post, $meta_box) use ($id) {
+							$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+							return $this->autoResolveAndCall(
+								$id,
+								$this->extraParams['full_path'],
+								$requestPath,
+								$this,
+								$this->callback_function,
+								[
+									'post'     => $post,
+									'meta_box' => $meta_box,
+								]
+							);
 						},
 						$this->screen,
 						$this->context,
 						$this->priority,
-						array_merge($this->callback_args ?? [], ['post_type' => $post_type, 'post' => $post])
+						array_merge($this->callback_args ?? [], ['id' => $id, 'metabox_id' => $metabox_id])
 					);
 				});
 			}
 			else {
-				add_action('add_meta_boxes', function() use ($post_type, $post) {
+				add_action('add_meta_boxes', function($metabox_id) use ($id) {
 					add_meta_box(
-						$this->id,
+						$id,
 						$this->title,
-						function($post, $meta_box) {
-							$requestPath = $this->request->getRequestUri();
-							return $this->autoResolveAndCall($this->id, $this->extraParams['full_path'], $requestPath, $this, $this->callback_function, ['post' => $post, 'meta_box' => $meta_box]);
+						function($post, $meta_box) use ($metabox_id, $id) {
+							$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+							return $this->autoResolveAndCall(
+								$id,
+								$this->extraParams['full_path'],
+								$requestPath,
+								$this,
+								$this->callback_function,
+								[
+									'post'     => $post,
+									'meta_box' => $meta_box,
+								]
+							);
 						},
 						$this->screen,
 						$this->context,
 						$this->priority,
-						array_merge($this->callback_args ?? [], ['post_type' => $post_type, 'post' => $post])
+						array_merge($this->callback_args ?? [], ['id' => $id, 'metabox_id' => $metabox_id])
 					);
 				});
 			}

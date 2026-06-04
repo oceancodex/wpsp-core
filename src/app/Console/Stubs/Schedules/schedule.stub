@@ -1,11 +1,11 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\Schedules;
+namespace {{ root_namespace }}\App\WordPress\Schedules;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\App\WordPress\Schedules\BaseSchedule;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ core_namespace }}\App\WordPress\Schedules\BaseSchedule;
 
-class {{ className }} extends BaseSchedule {
+class {{ class_name }} extends BaseSchedule {
 
 	use InstancesTrait;
 

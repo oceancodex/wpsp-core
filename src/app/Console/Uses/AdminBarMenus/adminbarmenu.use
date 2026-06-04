@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\AdminBarMenus\{{ name }};
+use {{ root_namespace }}\App\WordPress\AdminBarMenus\{{ class_name }};

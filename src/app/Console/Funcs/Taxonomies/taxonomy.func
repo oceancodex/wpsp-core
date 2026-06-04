@@ -1,1 +1,1 @@
-		Route::taxonomy('{{ name }}', [{{ name }}::class]);
+		Route::taxonomy('{{ name }}', [{{ class_name }}::class]);

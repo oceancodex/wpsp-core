@@ -1,1 +1,1 @@
-		Route::block('{{ name }}', [{{ className }}::class]);
+		Route::block('{{ name }}', [{{ class_name }}::class]);

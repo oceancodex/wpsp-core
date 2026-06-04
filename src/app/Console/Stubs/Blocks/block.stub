@@ -1,15 +1,16 @@
 <?php
-namespace {{ rootNamespace }}\App\WordPress\Blocks;
+namespace {{ root_namespace }}\App\WordPress\Blocks;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\App\WordPress\Blocks\BaseBlock;
+use {{ root_namespace }}\App\Services\TestService;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\App\WordPress\Blocks\BaseBlock;
 
-class {{ className }} extends BaseBlock {
+class {{ class_name }} extends BaseBlock {
 
 	use InstancesTrait;
 
-	public $name 		= '{{ blockDirName }}';
+	public $name 		= '{{ block_dir_name }}';
 //	public $blockPath   = null;
 //	public $args		= [];
 
@@ -55,8 +56,9 @@ class {{ className }} extends BaseBlock {
 	 * @param string    $content    The inner content of the block.
 	 * @param \WP_Block $block      The block data structure.
 	 */
-//	public function render(array $attributes, string $content, \WP_Block $block) {
-//		return Funcs::view('blocks.src.{{ blockFolder }}.render', compact('attributes', 'content', 'block'));
+//	public function render(array $attributes, string $content, \WP_Block $block, TestService $testService) {
+//		$attributes['test'] = $testService->test();
+//		return Funcs::view('blocks.src.{{ block_dir_name }}.render', compact('attributes', 'content', 'block'));
 //	}
 
 }

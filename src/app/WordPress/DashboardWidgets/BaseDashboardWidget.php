@@ -38,7 +38,7 @@ abstract class BaseDashboardWidget extends BaseInstances {
 
 	public function init($widget_id = null) {
 		$widget_id   = $this->widget_id ?? $widget_id;
-		$requestPath = $this->request->getRequestUri();
+		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
 		add_action('wp_dashboard_setup', function() use ($widget_id, $requestPath) {
 			wp_add_dashboard_widget(

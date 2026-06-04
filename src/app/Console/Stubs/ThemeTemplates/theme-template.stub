@@ -1,19 +1,19 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\ThemeTemplates;
+namespace {{ root_namespace }}\App\WordPress\ThemeTemplates;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\App\WordPress\ThemeTemplates\BaseThemeTemplates;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\App\WordPress\ThemeTemplates\BaseThemeTemplates;
 
-class {{ className }} extends BaseThemeTemplates {
+class {{ class_name }} extends BaseThemeTemplates {
 
 	use InstancesTrait;
 
 //	public $name       = '{{ name }}';
-	public $label      = '[{{ rootNamespace }}] Template: {{ name }}';
+	public $label      = '[{{ root_namespace }}] Template: {{ name }}';
 //	public $path       = null;
-	public $post_types = ['{{ postType }}'];
+	public $post_types = ['{{ post_type }}'];
 
 	/*
 	 *

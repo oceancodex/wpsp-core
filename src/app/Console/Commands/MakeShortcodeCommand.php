@@ -50,13 +50,14 @@ class MakeShortcodeCommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($name);
+		$this->validateSlug($name);
 
 		// Chuẩn bị thêm các biến để sử dụng.
+		$className   = Str::slug($name, '_');
 		$createView  = $createView ?? $this->option('view');
 
 		// Kiểm tra tồn tại.
-		$classPath = $mainPath . '/app/WordPress/Shortcodes/' . $name . '.php';
+		$classPath = $mainPath . '/app/WordPress/Shortcodes/' . $className . '.php';
 		$viewPath  = $mainPath . '/resources/views/shortcodes/' . $name . '.blade.php';
 
 		if (File::exists($classPath)) {
@@ -72,8 +73,8 @@ class MakeShortcodeCommand extends Command {
 		if ($createView) {
 			$view = File::get(__DIR__ . '/../Views/Shortcodes/shortcode.view');
 			$view = str_replace(
-				['{{ name }}'],
-				[$name],
+				['{{ class_name }}', '{{ name }}'],
+				[$className, $name],
 				$view
 			);
 
@@ -87,8 +88,8 @@ class MakeShortcodeCommand extends Command {
 		}
 
 		$stub = str_replace(
-			['{{ className }}', '{{ name }}'],
-			[$name, $name],
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
 			$stub
 		);
 
@@ -104,8 +105,8 @@ class MakeShortcodeCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/Shortcodes/shortcode.func');
 		$func = str_replace(
-			['{{ name }}'],
-			[$name],
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
 			$func
 		);
 
@@ -116,8 +117,8 @@ class MakeShortcodeCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/Shortcodes/shortcode.use');
 		$use = str_replace(
-			['{{ name }}'],
-			[$name],
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);
@@ -128,7 +129,6 @@ class MakeShortcodeCommand extends Command {
 		 * ---
 		 */
 		$this->addClassToRoute('Shortcodes', 'shortcodes', $func, $use);
-
 
 		// Done.
 		$this->info('Created new shortcode: "' . $name . '"');

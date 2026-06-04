@@ -1,11 +1,11 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\NavigationMenus\Menus;
+namespace {{ root_namespace }}\App\WordPress\NavigationMenus\Menus;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\App\WordPress\NavigationMenus\Menus\BaseNavigationMenu;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ core_namespace }}\App\WordPress\NavigationMenus\Menus\BaseNavigationMenu;
 
-class {{ className }} extends BaseNavigationMenu {
+class {{ class_name }} extends BaseNavigationMenu {
 
     use InstancesTrait;
 

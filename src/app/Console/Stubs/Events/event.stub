@@ -1,11 +1,11 @@
 <?php
 
-namespace {{ rootNamespace }}\App\Events;
+namespace {{ root_namespace }}\App\Events;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\Base\BaseInstances;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ core_namespace }}\Base\BaseInstances;
 
-class {{ className }} extends BaseInstances {
+class {{ class_name }} extends BaseInstances {
 
 	use InstancesTrait;
 

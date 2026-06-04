@@ -1,12 +1,12 @@
 <?php
 
-namespace {{ rootNamespace }}\App\Exceptions;
+namespace {{ root_namespace }}\App\Exceptions;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\Base\BaseException;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\Base\BaseException;
 
-class {{ className }} extends BaseException {
+class {{ class_name }} extends BaseException {
 
 	use InstancesTrait;
 
@@ -48,7 +48,7 @@ class {{ className }} extends BaseException {
 	public function report() {
 //		if (Funcs::env('APP_DEBUG', true) == 'true') {
 //			error_log(sprintf(
-//				'{{ className }}: %s | URL: %s | IP: %s',
+//				'{{ class_name }}: %s | URL: %s | IP: %s',
 //				$this->getMessage(),
 //				$_SERVER['REQUEST_URI'] ?? 'Unknown',
 //				$_SERVER['REMOTE_ADDR'] ?? 'Unknown'

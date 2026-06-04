@@ -15,7 +15,7 @@ class MakeRewriteFrontPageCommand extends Command {
         {path? : The path of the rewrite front page.}
         {--method= : The method for rewrite front page.}
         {--post-type= : The post type for rewrite front page.}
-        {--page-slug= : The page slug for rewrite front page.}
+        {--page-slug= : The page slug of post type for rewrite front page.}
         {--template : Generate view using template.}';
 
 	protected $description = 'Create a new rewrite front page. | Eg: php artisan make:rewrite-front-page custom-rewrite-front-page --method=GET --post-type=page --page-slug=parent/rewrite-front-pages --template';
@@ -59,17 +59,17 @@ class MakeRewriteFrontPageCommand extends Command {
 		$this->validateSlug($path, 'path');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$name                = Str::slug(str_replace('-', '_', $path), '_');
+		$className           = Str::slug($path, '_');
 		$method              = strtolower($method ?? $this->option('method') ?: 'GET');
 		$rewritePagePostType = $rewritePagePostType ?? $this->option('post-type') ?: 'page';
 		$rewritePageSlug     = $rewritePageSlug ?? $this->option('page-slug') ?: 'rewrite-front-pages';
 		$useTemplate         = $useTemplate ?? $this->option('template') ?: false;
 
 		// Kiểm tra tồn tại.
-		$componentPath = $mainPath . '/app/WordPress/RewriteFrontPages/' . $name . '.php';
-		$viewPath      = $mainPath . '/resources/views/rewrite-front-pages/' . $path . '.blade.php';
+		$classPath = $mainPath . '/app/WordPress/RewriteFrontPages/' . $className . '.php';
+		$viewPath  = $mainPath . '/resources/views/rewrite-front-pages/' . $path . '.blade.php';
 
-		if (File::exists($componentPath) || File::exists($viewPath)) {
+		if (File::exists($classPath) || File::exists($viewPath)) {
 			$this->error('Rewrite front page: "' . $path . '" already exists! Please try again.');
 			exit;
 		}
@@ -81,15 +81,15 @@ class MakeRewriteFrontPageCommand extends Command {
 		 */
 		$content = File::get(__DIR__ . '/../Stubs/RewriteFrontPages/rewritefrontpage.stub');
 		$content = str_replace(
-			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}', '{{ useTemplate }}'],
-			[$name, $name, $path, $method, $rewritePagePostType, $rewritePageSlug, $useTemplate ? 'true' : 'false'],
+			['{{ class_name }}', '{{ path }}', '{{ method }}', '{{ post_type }}', '{{ page_slug }}', '{{ use_template }}'],
+			[$className, $path, $method, $rewritePagePostType, $rewritePageSlug, $useTemplate ? 'true' : 'false'],
 			$content
 		);
 
 		$content = $this->replaceNamespaces($content);
 
-		File::ensureDirectoryExists(dirname($componentPath));
-		File::put($componentPath, $content);
+		File::ensureDirectoryExists(dirname($classPath));
+		File::put($classPath, $content);
 
 		/**
 		 * ---
@@ -102,8 +102,8 @@ class MakeRewriteFrontPageCommand extends Command {
 
 		$view = File::get($viewStubPath);
 		$view = str_replace(
-			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}'],
-			[$name, $name, $path, $method, $rewritePagePostType, $rewritePageSlug],
+			['{{ class_name }}', '{{ path }}', '{{ method }}', '{{ post_type }}', '{{ page_slug }}', '{{ use_template }}'],
+			[$className, $path, $method, $rewritePagePostType, $rewritePageSlug, $useTemplate ? 'true' : 'false'],
 			$view
 		);
 
@@ -117,8 +117,8 @@ class MakeRewriteFrontPageCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/RewriteFrontPages/rewritefrontpage.func');
 		$func = str_replace(
-			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}'],
-			[$name, $name, $path, $method, $rewritePagePostType, $rewritePageSlug],
+			['{{ class_name }}', '{{ path }}', '{{ method }}', '{{ post_type }}', '{{ page_slug }}', '{{ use_template }}'],
+			[$className, $path, $method, $rewritePagePostType, $rewritePageSlug, $useTemplate ? 'true' : 'false'],
 			$func
 		);
 
@@ -129,8 +129,8 @@ class MakeRewriteFrontPageCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/RewriteFrontPages/rewritefrontpage.use');
 		$use = str_replace(
-			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}', '{{ postType }}', '{{ pageSlug }}'],
-			[$name, $name, $path, $method, $rewritePagePostType, $rewritePageSlug],
+			['{{ class_name }}', '{{ path }}', '{{ method }}', '{{ post_type }}', '{{ page_slug }}', '{{ use_template }}'],
+			[$className, $path, $method, $rewritePagePostType, $rewritePageSlug, $useTemplate ? 'true' : 'false'],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

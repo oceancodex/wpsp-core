@@ -54,13 +54,10 @@ class MakeAPICommand extends Command {
 		$this->validateSlug($path, 'path');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$name      = Str::slug(str_replace('-', '_', $path), '_');
+		$className = Str::slug($path, '_');
 		$method    = strtolower($method ?? $this->option('method') ?: 'GET');
 		$namespace = $namespace ?? $this->option('namespace') ?: null;
 		$version   = $version ?? $this->option('ver') ?: null;
-
-		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
-		// $name sẽ được slugify từ "path" ra.
 
 		/**
 		 * ---
@@ -79,8 +76,8 @@ class MakeAPICommand extends Command {
 			$func = File::get(__DIR__ . '/../Funcs/APIs/api.func');
 		}
 		$func = str_replace(
-			['{{ name }}', '{{ path }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
-			[$name, $path, $method, $namespace, $version],
+			['{{ class_name }}', '{{ path }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
+			[$className, $path, $method, $namespace, $version],
 			$func
 		);
 
@@ -91,8 +88,8 @@ class MakeAPICommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/APIs/api.use');
 		$use = str_replace(
-			['{{ name }}', '{{ path }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
-			[$name, $path, $method, $namespace, $version],
+			['{{ class_name }}', '{{ path }}', '{{ method }}', '{{ namespace }}', '{{ version }}'],
+			[$className, $path, $method, $namespace, $version],
 			$use
 		);
 

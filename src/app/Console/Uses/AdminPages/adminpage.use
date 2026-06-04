@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\AdminPages\{{ name }};
+use {{ root_namespace }}\App\WordPress\AdminPages\{{ class_name }};

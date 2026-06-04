@@ -1,15 +1,16 @@
 <?php
-namespace {{ rootNamespace }}\App\WordPress\TaxonomyColumns;
+namespace {{ root_namespace }}\App\WordPress\TaxonomyColumns;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\App\WordPress\TaxonomyColumns\BaseTaxonomyColumn;
+use Illuminate\Http\Request;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ core_namespace }}\App\WordPress\TaxonomyColumns\BaseTaxonomyColumn;
 
-class {{ className }} extends BaseTaxonomyColumn {
+class {{ class_name }} extends BaseTaxonomyColumn {
 
 	use InstancesTrait;
 
-//	public $column                  = null;
-	public $column_title            = '{{ className }}';
+//	public $column_name             = '{{ name }}';
+	public $column_title            = '{{ name }}';
 	public $column_add_priority     = 9999;
 	public $column_content_priority = 9999;
 	public $taxonomies              = ['category'];
@@ -17,7 +18,6 @@ class {{ className }} extends BaseTaxonomyColumn {
 //	public $after_column            = ['name'];
 //	public $position                = 2;
 	public $sortable                = true;
-//	public $callback_function       = null;
 
 	/*
 	 *
@@ -29,8 +29,8 @@ class {{ className }} extends BaseTaxonomyColumn {
 	 *
 	 */
 
-	public function index($content, $columnName, $termId) {
-		echo $termId;
+	public function index($content, $column_name, $term_id, Request $request) {
+		echo $term_id;
 	}
 
 	/*

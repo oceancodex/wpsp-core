@@ -49,13 +49,14 @@ class MakeCustomizeCommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($name);
+		$this->validateSlug($name);
 
 		// Chuẩn bị thêm các biến để sử dụng.
+		$className   = Str::slug($name, '_');
 //		$createView  = $createView ?? $this->option('view');
 
 		// Kiểm tra tồn tại.
-		$classPath = $mainPath . '/app/WordPress/Customizers/' . $name . '.php';
+		$classPath = $mainPath . '/app/WordPress/Customizers/' . $className . '.php';
 //		$viewPath  = $mainPath . '/resources/views/customizers/' . $name . '.blade.php';
 
 		if (File::exists($classPath)) {
@@ -86,8 +87,8 @@ class MakeCustomizeCommand extends Command {
 //		}
 
 		$stub = str_replace(
-			['{{ className }}', '{{ name }}'],
-			[$name, $name],
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
 			$stub
 		);
 
@@ -103,8 +104,8 @@ class MakeCustomizeCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/Customizers/customize.func');
 		$func = str_replace(
-			['{{ name }}'],
-			[$name],
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
 			$func
 		);
 
@@ -115,8 +116,8 @@ class MakeCustomizeCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/Customizers/customize.use');
 		$use = str_replace(
-			['{{ name }}'],
-			[$name],
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

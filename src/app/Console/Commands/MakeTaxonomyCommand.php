@@ -63,7 +63,7 @@ class MakeTaxonomyCommand extends Command {
 		 */
 		$content = File::get(__DIR__ . '/../Stubs/Taxonomies/taxonomy.stub');
 		$content = str_replace(
-			['{{ className }}', '{{ name }}'],
+			['{{ class_name }}', '{{ name }}'],
 			[$name, $name],
 			$content
 		);

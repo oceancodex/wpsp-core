@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\Http\Controllers\PagesController;
+use {{ root_namespace }}\App\Http\Controllers\PagesController;

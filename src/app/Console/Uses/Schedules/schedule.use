@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\Schedules\{{ hook }};
+use {{ root_namespace }}\App\WordPress\Schedules\{{ class_name }};

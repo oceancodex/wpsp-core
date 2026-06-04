@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\ThemeTemplates\{{ name }};
+use {{ root_namespace }}\App\WordPress\ThemeTemplates\{{ class_name }};

@@ -1,9 +1,9 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\PostTypes;
+namespace {{ root_namespace }}\App\WordPress\PostTypes;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\App\WordPress\PostTypes\BasePostType;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ core_namespace }}\App\WordPress\PostTypes\BasePostType;
 
 /**
  * WordPress register post type.
@@ -12,7 +12,7 @@ use {{ coreNamespace }}\App\WordPress\PostTypes\BasePostType;
  * @see https://developer.wordpress.org/reference/functions/get_post_type_labels/
  * @mixin \WPSPCORE\App\WordPress\PostTypes\PostTypeData
  */
-class {{ className }} extends BasePostType {
+class {{ class_name }} extends BasePostType {
 
 	use InstancesTrait;
 

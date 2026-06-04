@@ -49,8 +49,8 @@ class MakeBlockCommand extends Command {
 		$this->validateSlug($name, 'name');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className = Str::slug(str_replace('-', '_', $name), '_');
-		$blockDirName = Str::slug(str_replace('_', '-', $name), '-');
+		$className    = Str::slug($name, '_');
+		$blockDirName = Str::slug($name, '-');
 
 		// Kiểm tra tồn tại.
 		$adminClassPath = $mainPath . '/app/WordPress/Blocks/' . $className . '.php';
@@ -68,8 +68,8 @@ class MakeBlockCommand extends Command {
 		 */
 		$content = File::get(__DIR__ . '/../Stubs/Blocks/block.stub');
 		$content = str_replace(
-			['{{ name }}', '{{ className }}', '{{ blockDirName }}'],
-			[$name, $className, $blockDirName],
+			['{{ name }}', '{{ class_name }}', '{{ text_domain }}', '{{ block_dir_name }}', '{{ app_short_name }}'],
+			[$name, $className, $textDomain, $blockDirName, $appShortName],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -101,7 +101,7 @@ class MakeBlockCommand extends Command {
 			$view = File::get(__DIR__ . '/../Stubs/Blocks/' . $viewFile);
 
 			$view = str_replace(
-				['{{ name }}', '{{ className }}', '{{ textDomain }}', '{{ blockDirName }}', '{{ appShortName }}'],
+				['{{ name }}', '{{ class_name }}', '{{ text_domain }}', '{{ block_dir_name }}', '{{ app_short_name }}'],
 				[$name, $className, $textDomain, $blockDirName, $appShortName],
 				$view
 			);
@@ -118,8 +118,8 @@ class MakeBlockCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/Blocks/block.func');
 		$func = str_replace(
-			['{{ name }}', '{{ className }}'],
-			[$name, $className],
+			['{{ name }}', '{{ class_name }}', '{{ text_domain }}', '{{ block_dir_name }}', '{{ app_short_name }}'],
+			[$name, $className, $textDomain, $blockDirName, $appShortName],
 			$func
 		);
 
@@ -130,8 +130,8 @@ class MakeBlockCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/Blocks/block.use');
 		$use = str_replace(
-			['{{ name }}', '{{ className }}'],
-			[$name, $className],
+			['{{ name }}', '{{ class_name }}', '{{ text_domain }}', '{{ block_dir_name }}', '{{ app_short_name }}'],
+			[$name, $className, $textDomain, $blockDirName, $appShortName],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

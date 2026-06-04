@@ -1,11 +1,11 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\Taxonomies;
+namespace {{ root_namespace }}\App\WordPress\Taxonomies;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\App\WordPress\Taxonomies\BaseTaxonomy;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ core_namespace }}\App\WordPress\Taxonomies\BaseTaxonomy;
 
-class {{ className }} extends BaseTaxonomy {
+class {{ class_name }} extends BaseTaxonomy {
 
 	use InstancesTrait;
 

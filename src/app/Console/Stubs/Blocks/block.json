@@ -2,13 +2,13 @@
 	"_docs":           "https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/",
 	"$schema":         "https://schemas.wp.org/trunk/block.json",
 	"apiVersion":      3,
-	"name":            "{{ appShortName }}/{{ blockDirName }}",
-	"title":           "{{ rootNamespace }} Block: {{ name }}",
-	"description":     "{{ rootNamespace }} Block: {{ name }} - description...",
+	"name":            "{{ app_short_name }}/{{ block_dir_name }}",
+	"title":           "{{ root_namespace }} Block: {{ name }}",
+	"description":     "{{ root_namespace }} Block: {{ name }} - description...",
 	"version":         "1.0.0",
 	"icon":            "block-default",
 	"category":        "text",
-	"textdomain":      "{{ textDomain }}",
+	"textdomain":      "{{ text_domain }}",
 	"keywords":        [],
 	"attributes":      {
 		"title": {

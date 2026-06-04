@@ -46,10 +46,13 @@ class MakeListTableCommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($name);
+		$this->validateSlug($name);
+
+		// Chuẩn bị thêm các biến để sử dụng.
+		$className = Str::slug($name, '_');
 
 		// Kiểm tra tồn tại.
-		$path = $mainPath . '/app/WordPress/ListTables/' . $name . '.php';
+		$path = $mainPath . '/app/WordPress/ListTables/' . $className . '.php';
 
 		if (File::exists($path)) {
 			$this->error('List table: "' . $name . '" already exists! Please try again.');
@@ -62,7 +65,11 @@ class MakeListTableCommand extends Command {
 		 * ---
 		 */
 		$content = File::get(__DIR__ . '/../Stubs/ListTables/listtable.stub');
-		$content = str_replace('{{ className }}', $name, $content);
+		$content = str_replace(
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
+			$content
+		);
 		$content = $this->replaceNamespaces($content);
 
 		File::ensureDirectoryExists(dirname($path));

@@ -1,15 +1,15 @@
 <?php
 
-namespace {{ rootNamespace }}\database\seeders;
+namespace {{ root_namespace }}\database\seeders;
 
 use Faker\Factory as Faker;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use {{ rootNamespace }}\App\Models\SettingsModel;
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\Base\BaseSeeder;
+use {{ root_namespace }}\App\Models\SettingsModel;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\Base\BaseSeeder;
 
-class {{ className }} extends BaseSeeder {
+class {{ class_name }} extends BaseSeeder {
 
 	use InstancesTrait, WithoutModelEvents;
 

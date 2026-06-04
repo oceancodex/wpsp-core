@@ -1,1 +1,1 @@
-		Route::post_type('{{ name }}', [{{ name }}::class]);
+		Route::post_type('{{ name }}', [{{ class_name }}::class]);
