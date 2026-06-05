@@ -1,6 +1,6 @@
 <?php
 
-namespace {{ root_namespace }}\App\WordPress\Customizers;
+namespace {{ root_namespace }}\App\WordPress\Customizers\{{ class_name }};
 
 use Illuminate\Http\Request;
 use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;

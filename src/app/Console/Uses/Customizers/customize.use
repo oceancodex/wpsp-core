@@ -1,1 +1,1 @@
-use {{ root_namespace }}\App\WordPress\Customizers\{{ class_name }};
+use {{ root_namespace }}\App\WordPress\Customizers\{{ class_name }}\{{ class_name }};
