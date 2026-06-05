@@ -60,7 +60,7 @@ class {{ class_name }} extends BaseNavigationMenu {
 
 	public function fallback() {
 		return function () {
-			return 'Menu 1 fallback...';
+			return '{{ name }} fallback...';
 		};
 	}
 
