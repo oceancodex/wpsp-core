@@ -36,7 +36,7 @@ class {{ class_name }} extends BaseBlock {
 //			'example'                => null,
 //			'render_callback'        => function($attributes, $content, $block) { return 'Custom block "block-demo": ' . $attributes['title'] ?? null; }
 //			'variation_callback'     => null,
-//			'attributes'             => null,
+			'attributes'             => ['test' => ['type' => 'string', 'default' => 'Test value']],
 //			'uses_context'           => [],
 //			'provides_context'       => null,
 //			'block_hooks'            => [],

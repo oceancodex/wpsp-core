@@ -16,6 +16,6 @@
 ?>
 <div <?php echo get_block_wrapper_attributes(); ?>>
     <?php echo 'Custom block "' . $block->name . '" - frontend content<br/>'; ?>
-    <?php echo 'Title attribute value: <strong>' . $attributes['title'] . '</strong><br/>'; ?>
-    <?php echo 'Test attribute value: <strong>' . $attributes['test'] . '</strong>'; ?>
+    <?php echo 'Title attribute value: <strong>' . ($attributes['title'] ?? '') . '</strong><br/>'; ?>
+    <?php echo 'Test attribute value: <strong>' . ($attributes['test'] ?? '') . '</strong>'; ?>
 </div>
