@@ -12,9 +12,10 @@ class MakeCustomizeCommand extends Command {
 	use CommandsTrait;
 
 	protected $signature = 'make:customize
-        {name? : The name of the customize.}';
+        {name? : The name of the customize.}
+        {--view : Create view files for this customize}';
 
-	protected $description = 'Create a new customize. | Eg: php artisan make:customize custom_customize';
+	protected $description = 'Create a new customize. | Eg: php artisan make:customize custom_customize --view';
 
 	protected $help = 'This command allows you to create a customize.';
 
@@ -45,7 +46,7 @@ class MakeCustomizeCommand extends Command {
 			}
 
 			// Nếu có câu trả lời, hãy tiếp tục hỏi.
-//			$createView = $this->confirm('Do you want to create view files for this customize?', false);
+			$createView = $this->confirm('Do you want to create view files for this customize?', false);
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
@@ -53,11 +54,12 @@ class MakeCustomizeCommand extends Command {
 
 		// Chuẩn bị thêm các biến để sử dụng.
 		$className   = Str::slug($name, '_');
-//		$createView  = $createView ?? $this->option('view');
+		$createView  = $createView ?? $this->option('view');
 
 		// Kiểm tra tồn tại.
 		$classPath = $mainPath . '/app/WordPress/Customizers/' . $className . '.php';
-//		$viewPath  = $mainPath . '/resources/views/customizers/' . $name . '.blade.php';
+		$exampleControlViewPath  = $mainPath . '/resources/views/customizers/' . $className . '/Controls/ExampleControl.blade.php';
+		$exampleControlClassPath  = $mainPath . '/app/WordPress/Customizers/' . $className . '/Controls/ExampleControl.php';
 
 		if (File::exists($classPath)) {
 			$this->error('Customize: "' . $name . '" already exists! Please try again.');
@@ -69,22 +71,31 @@ class MakeCustomizeCommand extends Command {
 		 * Class & Views.
 		 * ---
 		 */
-//		if ($createView) {
-//			$view = File::get(__DIR__ . '/../Views/Customizers/customize.view');
-//			$view = str_replace(
-//				['{{ name }}'],
-//				[$name],
-//				$view
-//			);
-//
-//			File::ensureDirectoryExists(dirname($viewPath));
-//			File::put($viewPath, $view);
-//
-//			$stub = File::get(__DIR__ . '/../Stubs/Customizers/customize-view.stub');
-//		}
-//		else {
+		if ($createView) {
+			$controlView  = File::get(__DIR__ . '/../Views/Customizers/control.view');
+			$controlView = str_replace(
+				['{{ class_name }}', '{{ name }}'],
+				[$className, $name],
+				$controlView
+			);
+			File::ensureDirectoryExists(dirname($exampleControlViewPath));
+			File::put($exampleControlViewPath, $controlView);
+
+			$controlClass = File::get(__DIR__ . '/../Stubs/Customizers/control.stub');
+			$controlClass = str_replace(
+				['{{ class_name }}', '{{ name }}'],
+				[$className, $name],
+				$controlClass
+			);
+			$controlClass = $this->replaceNamespaces($controlClass);
+			File::ensureDirectoryExists(dirname($exampleControlClassPath));
+			File::put($exampleControlClassPath, $controlClass);
+
+			$stub = File::get(__DIR__ . '/../Stubs/Customizers/customize-view.stub');
+		}
+		else {
 			$stub = File::get(__DIR__ . '/../Stubs/Customizers/customize.stub');
-//		}
+		}
 
 		$stub = str_replace(
 			['{{ class_name }}', '{{ name }}'],
