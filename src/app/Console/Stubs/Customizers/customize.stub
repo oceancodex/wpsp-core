@@ -15,7 +15,7 @@ class {{ class_name }} extends BaseCustomize {
 	use InstancesTrait;
 
 //	public  $name   = '{{ name }}';
-//	private $prefix = null;
+	private $prefix = null;
 
 	/*
 	 *
