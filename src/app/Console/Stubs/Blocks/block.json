@@ -46,5 +46,5 @@
 	"viewScript":      ["file:./view.js", 	"example-script-registed-by-wp_register_script", 	"frontend"],
 	"editorStyle":     ["file:./index.css", "example-style-registed-by-wp_register_style", 		"editor"],
 	"editorScript":    ["file:./index.js", 	"example-script-registed-by-wp_register_script", 	"editor"],
-	"render":          "file:./render{{ is_blade }}.php"
+	"render":          "file:./render.php"
 }
