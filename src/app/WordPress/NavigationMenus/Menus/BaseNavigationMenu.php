@@ -12,7 +12,7 @@ abstract class BaseNavigationMenu extends BaseInstances {
 
 	use ObjectToArrayTrait;
 
-	private $args 				  = null;
+	public  $args 				  = null;
 
 	public  $menu                 = null;
 	public  $menu_class           = '';
@@ -54,7 +54,7 @@ abstract class BaseNavigationMenu extends BaseInstances {
 	 *
 	 */
 
-	public function render() {
+	public function renderNavMenu() {
 		$args = $this->args->toArray();
 		if (wp_get_nav_menu_object($args['menu'])) {
 			return wp_nav_menu($args);
