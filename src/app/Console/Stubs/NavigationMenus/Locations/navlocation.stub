@@ -10,16 +10,16 @@ class {{ class_name }} extends BaseNavigationLocation {
     use InstancesTrait;
 
 	// Args.
-//	public $location    = '{{ name }}';
-	public $description = 'Navigation menu location "{{ name }}"';
+//	public $location    = '{{ location }}';
+	public $description = 'Navigation menu location "{{ location }}"';
 
 	/*
 	 *
 	 */
 
 	public function customProperties() {
-//		$this->location    = '{{ name }}';
-//		$this->description = 'Navigation menu location "{{ name }}"';
+//		$this->location    = '{{ location }}';
+//		$this->description = 'Navigation menu location "{{ location }}"';
 	}
 
 }
