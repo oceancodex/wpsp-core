@@ -18,7 +18,7 @@ class {{ class_name }} extends BaseSchedule {
 	 */
 
 //	public function __wpspConstruct(TestService $testService) {
-//		error_log('Schedule "custom-schedule-2" __wpspConstruct!');
+//		error_log('Schedule "{{ hook }}" __wpspConstruct!');
 //	}
 
 	/*
@@ -26,6 +26,7 @@ class {{ class_name }} extends BaseSchedule {
 	 */
 
 	public function __invoke(TestService $testService) {
+//		error_log('Schedule "{{ hook }}" __invoke!');
 		$this->handle($testService);
 	}
 
@@ -35,7 +36,7 @@ class {{ class_name }} extends BaseSchedule {
 
 	public function handle($testService) {
 		// Code here...
-		error_log('Schedule "{{ hook }}" fired! - ' . $testService->test());
+		error_log('Schedule "{{ hook }}" fired! - Call via __invoke - ' . $testService->test());
 	}
 
 }
