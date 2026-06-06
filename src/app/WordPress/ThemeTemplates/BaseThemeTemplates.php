@@ -55,9 +55,22 @@ abstract class BaseThemeTemplates extends BaseInstances {
 	 *
 	 */
 
+	/**
+	 * Thêm theme template vào danh sách template có sẵn của WordPress
+	 *
+	 * Method này sử dụng filter của WordPress để đăng ký một template tùy chỉnh
+	 * vào danh sách các template có sẵn. Template sẽ xuất hiện trong dropdown
+	 * "Template" khi chỉnh sửa post/page trong WordPress admin.
+	 *
+	 * @param string      $name     Tên của template (tên file hoặc tên tùy chỉnh)
+	 * @param string|null $postType Loại post type cần áp dụng template (page, post, custom post type...). Null nếu áp dụng cho tất cả.
+	 */
 	public function addThemeTemplate($name, $postType = null) {
-		if ($postType) $postType = $postType . '_';
-		add_filter('theme_'.$postType.'templates', function($templates) use ($name) {
+		if ($postType) {
+			$postType = $postType . '_';
+		}
+
+		add_filter('theme_' . $postType . 'templates', function($templates) use ($name) {
 			if ($this->path) {
 				$name .= '|' . preg_replace('/\/|\\\/iu', '%%slash%%', $this->path);
 			}
@@ -73,6 +86,14 @@ abstract class BaseThemeTemplates extends BaseInstances {
 	 *
 	 */
 
+	/**
+	 * Sử dụng filter `template_include` để hiển thị giao diện post/page\
+	 * theo theme template được chọn. Tại sao phải vậy?\
+	 * Theme template được sử dụng trong theme với cấu trúc:\
+	 * .../wp-content/themes/my-theme/{template_name}.php\
+	 * Nhưng đây là môi trường plugin, vậy nên cần phải sử dụng hook để "ép" giao diện\
+	 * hiển thị cho post/page theo template đuợc chọn.
+	 */
 	private function templateInclude() {
 		if ($this->mainPath) {
 			add_filter('template_include', function($template) {
@@ -92,9 +113,7 @@ abstract class BaseThemeTemplates extends BaseInstances {
 								return $filePath;
 							}
 							elseif ($this->funcs->_config('app.debug')) {
-								echo '<pre>';
-								print_r('Template file not found: ' . $filePath);
-								echo '</pre>';
+								echo '<pre style="background:white;z-index:9999;position:relative;color:red;">'; print_r('Template file not found: ' . $filePath); echo '</pre>';
 							}
 						}
 					}
