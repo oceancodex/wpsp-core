@@ -79,7 +79,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$content = File::get(__DIR__ . '/../Stubs/RewriteFrontPages/rewritefrontpage.stub');
+		$content = File::get(__DIR__ . '/../Stubs/RewriteFrontPages/rewritefrontpage' . ($useTemplate ? '-template' : '') . '.stub');
 		$content = str_replace(
 			['{{ class_name }}', '{{ path }}', '{{ method }}', '{{ post_type }}', '{{ page_slug }}', '{{ use_template }}'],
 			[$className, $path, $method, $rewritePagePostType, $rewritePageSlug, $useTemplate ? 'true' : 'false'],
