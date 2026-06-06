@@ -1,1 +1,1 @@
-		Route::{{ method }}('{{ path }}\/?$', [{{ name }}::class, 'index']);
+		Route::{{ method }}('{{ path }}\/?$', [{{ class_name }}::class, 'index']);

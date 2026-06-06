@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\TaxonomyColumns\{{ name }};
+use {{ root_namespace }}\App\WordPress\TaxonomyColumns\{{ class_name }};

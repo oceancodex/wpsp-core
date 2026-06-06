@@ -1,0 +1,75 @@
+<?php
+
+namespace {{ root_namespace }}\App\WordPress\RewriteFrontPages;
+
+use Illuminate\Http\Request;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\App\WordPress\Integration\RankmathSEO;
+use {{ core_namespace }}\App\WordPress\Integration\YoastSEO;
+use {{ core_namespace }}\App\WordPress\RewriteFrontPages\BaseRewriteFrontPage;
+
+class {{ class_name }} extends BaseRewriteFrontPage {
+
+	use InstancesTrait;
+
+//	public $path                     = '{{ path }}';
+	public $rewriteIdent             = '{{ path }}';
+	public $useTemplate              = {{ use_template }};
+	public $rewriteFrontPageSlug     = '{{ page_slug }}'; // You need create a "Page" with the slug like this.
+	public $rewriteFrontPagePostType = '{{ post_type }}';
+
+	/**
+	 * Private properties.
+	 */
+
+	private $currentURL     = null;
+	private $queryVarGroup1 = null;
+
+	/*
+	 *
+	 */
+
+	public function customProperties() {
+//		$this->path = 'wpsp\/([^\/]+)\/?$';
+	}
+
+	/*
+	 *
+	 */
+
+	public function index(Request $request, $endpoint = null) {
+		global $wp_query, $post;
+
+		$post->post_content = 'Rewrite front page for path: ' . $this->path . ' - Content';
+		$post->post_title   = 'Rewrite front page for path: ' . $this->path . ' - Title';
+
+		// Override SEO.
+		$this->seo();
+
+//		echo 'Rewrite front page for path: ' . $this->path;
+	}
+
+	public function update($path = null) {
+//		global $wp_query, $post;
+//		echo '<pre>'; print_r($wp_query); echo '</pre>';
+		echo '<pre>'; print_r($this->request->request->all()); echo '</pre>';
+	}
+
+	/*
+	 *
+	 */
+
+	public function seo() {
+//		global $wp_query, $post;
+//		echo '<pre>'; print_r($wp_query); echo '</pre>';
+
+//		echo '<pre>'; print_r($this->request->query->all()); echo '</pre>';
+
+//		$post->post_title = $this->rewriteIdent;
+//		$post->post_content = 'Rewrite front page for path: ' . $this->path;
+
+//		add_filter('yoast_seo_development_mode', '__return_true');
+	}
+
+}

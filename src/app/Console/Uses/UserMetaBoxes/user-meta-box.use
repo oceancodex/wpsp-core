@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\UserMetaBoxes\{{ id }};
+use {{ root_namespace }}\App\WordPress\UserMetaBoxes\{{ class_name }};

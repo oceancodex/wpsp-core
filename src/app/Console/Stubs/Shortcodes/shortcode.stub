@@ -1,23 +1,17 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\Shortcodes;
+namespace {{ root_namespace }}\App\WordPress\Shortcodes;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\App\WordPress\Shortcodes\BaseShortcode;
+use Illuminate\Http\Request;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\App\WordPress\Shortcodes\BaseShortcode;
 
-class {{ className }} extends BaseShortcode {
+class {{ class_name }} extends BaseShortcode {
 
 	use InstancesTrait;
 
-//	public $shortcode = null;
-
-	/*
-	 *
-	 */
-
-	public function index($atts, $content, $tag) {
-		return do_shortcode($content);
-	}
+//	public $shortcode = '{{ name }}';
 
 	/*
 	 *
@@ -25,6 +19,15 @@ class {{ className }} extends BaseShortcode {
 
 	public function customProperties() {
 //		$this->shortcode = 'custom_shortcode';
+	}
+
+	/*
+	 *
+	 */
+
+	public function index($atts, $content, $tag, Request $request) {
+		echo 'Request URL: ' . $request->url();
+		return do_shortcode($content);
 	}
 
 }

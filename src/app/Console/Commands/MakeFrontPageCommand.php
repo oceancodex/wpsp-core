@@ -16,7 +16,7 @@ class MakeFrontPageCommand extends Command {
         {--method= : The method for front page.}
         {--view : Create a view file for this front page}';
 
-	protected $description = 'Create a new front page. | Eg: php artisan make:front-page my-front-page --method=GET';
+	protected $description = 'Create a new front page. | Eg: php artisan make:front-page my-front-page --method=GET --view';
 
 	protected $help = 'This command allows you to create a front page.';
 
@@ -59,11 +59,11 @@ class MakeFrontPageCommand extends Command {
 		$this->validateSlug($path, 'path');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$name   = Str::slug(str_replace('-', '_', $path), '_');
-		$method = strtolower($method ?: 'GET');
+		$className = Str::slug($path, '_');
+		$method    = strtolower($method ?: 'GET');
 
 		// Kiểm tra tồn tại.
-		$componentPath = $mainPath . '/app/WordPress/FrontPages/' . $name . '.php';
+		$componentPath = $mainPath . '/app/WordPress/FrontPages/' . $className . '.php';
 		$viewPath      = $mainPath . '/resources/views/front-pages/' . $path . '.blade.php';
 
 		if (File::exists($componentPath) || File::exists($viewPath)) {
@@ -81,8 +81,8 @@ class MakeFrontPageCommand extends Command {
 
 			$view = File::get(__DIR__ . '/../Views/FrontPages/frontpage.view');
 			$view = str_replace(
-				['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}'],
-				[$name, $name, $path, $method],
+				['{{ class_name }}', '{{ path }}', '{{ method }}'],
+				[$className, $path, $method],
 				$view
 			);
 
@@ -95,8 +95,8 @@ class MakeFrontPageCommand extends Command {
 		}
 
 		$content = str_replace(
-			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}'],
-			[$name, $name, $path, $method],
+			['{{ class_name }}', '{{ path }}', '{{ method }}'],
+			[$className, $path, $method],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -111,8 +111,8 @@ class MakeFrontPageCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/FrontPages/frontpage.func');
 		$func = str_replace(
-			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}'],
-			[$name, $name, $path, $method],
+			['{{ class_name }}', '{{ path }}', '{{ method }}'],
+			[$className, $path, $method],
 			$func
 		);
 
@@ -123,8 +123,8 @@ class MakeFrontPageCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/FrontPages/frontpage.use');
 		$use = str_replace(
-			['{{ className }}', '{{ name }}', '{{ path }}', '{{ method }}'],
-			[$name, $name, $path, $method],
+			['{{ class_name }}', '{{ path }}', '{{ method }}'],
+			[$className, $path, $method],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

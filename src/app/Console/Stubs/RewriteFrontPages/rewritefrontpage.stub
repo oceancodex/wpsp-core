@@ -1,23 +1,23 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\RewriteFrontPages;
+namespace {{ root_namespace }}\App\WordPress\RewriteFrontPages;
 
 use Illuminate\Http\Request;
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\App\WordPress\Integration\RankmathSEO;
-use {{ coreNamespace }}\App\WordPress\Integration\YoastSEO;
-use {{ coreNamespace }}\App\WordPress\RewriteFrontPages\BaseRewriteFrontPage;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\App\WordPress\Integration\RankmathSEO;
+use {{ core_namespace }}\App\WordPress\Integration\YoastSEO;
+use {{ core_namespace }}\App\WordPress\RewriteFrontPages\BaseRewriteFrontPage;
 
-class {{ className }} extends BaseRewriteFrontPage {
+class {{ class_name }} extends BaseRewriteFrontPage {
 
 	use InstancesTrait;
 
-//	public $path                     = null;
+//	public $path                     = '{{ path }}';
 	public $rewriteIdent             = '{{ path }}';
-	public $useTemplate              = {{ useTemplate }};
-	public $rewriteFrontPageSlug     = '{{ pageSlug }}'; // You need create a "Page" with the slug like this.
-	public $rewriteFrontPagePostType = '{{ postType }}';
+	public $useTemplate              = {{ use_template }};
+	public $rewriteFrontPageSlug     = '{{ page_slug }}'; // You need create a "Page" with the slug like this.
+	public $rewriteFrontPagePostType = '{{ post_type }}';
 
 	/**
 	 * Private properties.

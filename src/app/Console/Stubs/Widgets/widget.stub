@@ -1,12 +1,12 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\Widgets;
+namespace {{ root_namespace }}\App\WordPress\Widgets;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\App\WordPress\Widgets\BaseWidget;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\App\WordPress\Widgets\BaseWidget;
 
-class {{ className }} extends BaseWidget {
+class {{ class_name }} extends BaseWidget {
 
 	use InstancesTrait;
 
@@ -14,6 +14,14 @@ class {{ className }} extends BaseWidget {
 //	public $name            = '{{ id_base }}';
 //	public $widget_options  = [];
 //	public $control_options = [];
+
+	/*
+	 *
+	 */
+
+//	public function __wpspConstruct(Request $request) {
+//		dump($request);
+//	}
 
 	/*
 	 *
@@ -82,6 +90,14 @@ class {{ className }} extends BaseWidget {
 		echo '<p>{{ id_base }} - Description.</p>';
 	}
 
+	/**
+	 * Updates the widget instance with new values.
+	 *
+	 * @param array $new_instance The new instance data submitted by the widget form.
+	 * @param array $old_instance The existing instance data of the widget.
+	 *
+	 * @return array The updated instance data with sanitized settings.
+	 */
 	public function update($new_instance, $old_instance) {
 		$instance          = [];
 		$instance['title'] = sanitize_text_field($new_instance['title']);

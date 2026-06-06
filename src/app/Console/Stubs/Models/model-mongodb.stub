@@ -1,12 +1,12 @@
 <?php
-namespace {{ rootNamespace }}\App\Models;
+namespace {{ root_namespace }}\App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\Database\Base\BaseMongoDBModel;
-use {{ coreNamespace }}\Traits\ObserversTrait;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ core_namespace }}\Database\Base\BaseMongoDBModel;
+use {{ core_namespace }}\Traits\ObserversTrait;
 
-class {{ className }} extends BaseMongoDBModel {
+class {{ class_name }} extends BaseMongoDBModel {
 
 	use InstancesTrait, SoftDeletes, ObserversTrait;
 
@@ -46,7 +46,7 @@ class {{ className }} extends BaseMongoDBModel {
 //	public    $wasRecentlyCreated;
 
 //	protected static $observers = [
-//		\{{ rootNamespace }}\App\Observers\{{ className }}Observer::class,
+//		\{{ root_namespace }}\App\Observers\{{ class_name }}Observer::class,
 //	];
 
 //	public function __construct($attributes = []) {

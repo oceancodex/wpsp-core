@@ -383,6 +383,7 @@ trait RouteTrait {
 		if (
 			preg_match($pattern, $requestPath, $matches)
 			|| preg_match('#' . $fullPath . '#iu', $requestPath, $matches)
+			|| $fullPath == $requestPath
 		) {
 			$passed = true;
 		}
@@ -661,10 +662,18 @@ trait RouteTrait {
 	}
 
 	/**
+	 * Trả về callback với Dependency Injection.\
+	 * Tự động hoàn toàn.
+	 */
+	public function autoResolveCallback($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []) {
+		return $this->autoResolveAndCall($path, $fullPath, $requestPath, $callbackOrClass, $method, $args, false);
+	}
+
+	/**
 	 * Gọi callback với Dependency Injection.\
 	 * Tự động hoàn toàn.
 	 */
-	public function autoResolveAndCall($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []) {
+	public function autoResolveAndCall($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = [], $call = true) {
 		$class    = is_array($callbackOrClass) ? $callbackOrClass[0] : $callbackOrClass;
 		$method   = $method ?? (is_array($callbackOrClass) ? ($callbackOrClass[1] ?? null) : null);
 		$method   = $method ?? '__wpspConstruct';
@@ -672,7 +681,7 @@ trait RouteTrait {
 		if ($class && $method && method_exists($class, $method)) {
 			$callback = $this->prepareCallbackFunction($method, $path, $fullPath, $class, $args);
 			$params   = $this->getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method, $args);
-			return $this->resolveAndCall($callback, $params);
+			return $this->resolveAndCall($callback, $params, $call);
 		}
 		return null;
 	}

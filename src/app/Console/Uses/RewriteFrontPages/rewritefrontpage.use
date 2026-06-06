@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\RewriteFrontPages\{{ name }};
+use {{ root_namespace }}\App\WordPress\RewriteFrontPages\{{ class_name }};

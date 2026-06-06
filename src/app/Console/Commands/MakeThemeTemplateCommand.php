@@ -4,6 +4,7 @@ namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class MakeThemeTemplateCommand extends Command {
@@ -48,13 +49,14 @@ class MakeThemeTemplateCommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($name);
+		$this->validateSlug($name);
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$postType = $postType ?? $this->option('post-type') ?: 'page';
+		$className = Str::slug($name, '_');
+		$postType  = $postType ?? $this->option('post-type') ?: 'page';
 
 		// Kiểm tra tồn tại.
-		$classPath = $mainPath . '/app/WordPress/ThemeTemplates/' . $name . '.php';
+		$classPath = $mainPath . '/app/WordPress/ThemeTemplates/' . $className . '.php';
 		$viewPath  = $mainPath . '/resources/views/theme-templates/' . $name . '.php';
 
 		if (File::exists($classPath)) {
@@ -69,8 +71,8 @@ class MakeThemeTemplateCommand extends Command {
 		 */
 		$content = File::get(__DIR__ . '/../Stubs/ThemeTemplates/theme-template.stub');
 		$content = str_replace(
-			['{{ className }}', '{{ name }}', '{{ postType }}'],
-			[$name, $name, $postType],
+			['{{ class_name }}', '{{ name }}', '{{ post_type }}'],
+			[$className, $name, $postType],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -85,8 +87,8 @@ class MakeThemeTemplateCommand extends Command {
 		 */
 		$view = File::get(__DIR__ . '/../Views/ThemeTemplates/theme-template.view');
 		$view = str_replace(
-			['{{ name }}', '{{ postType }}'],
-			[$name, $postType],
+			['{{ class_name }}', '{{ name }}', '{{ post_type }}'],
+			[$className, $name, $postType],
 			$view
 		);
 
@@ -100,8 +102,8 @@ class MakeThemeTemplateCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/ThemeTemplates/theme-template.func');
 		$func = str_replace(
-			['{{ name }}', '{{ postType }}'],
-			[$name, $postType],
+			['{{ class_name }}', '{{ name }}', '{{ post_type }}'],
+			[$className, $name, $postType],
 			$func
 		);
 
@@ -112,8 +114,8 @@ class MakeThemeTemplateCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/ThemeTemplates/theme-template.use');
 		$use = str_replace(
-			['{{ name }}', '{{ postType }}'],
-			[$name, $postType],
+			['{{ class_name }}', '{{ name }}', '{{ post_type }}'],
+			[$className, $name, $postType],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

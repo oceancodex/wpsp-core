@@ -46,10 +46,13 @@ class MakePostTypeColumnCommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($name);
+		$this->validateSlug($name);
+
+		// Chuẩn bị thêm các biến để sử dụng.
+		$className = Str::slug($name, '_');
 
 		// Kiểm tra tồn tại.
-		$path = $mainPath . '/app/WordPress/PostTypeColumns/' . $name . '.php';
+		$path = $mainPath . '/app/WordPress/PostTypeColumns/' . $className . '.php';
 
 		if (File::exists($path)) {
 			$this->error('Post type column: "' . $name . '" already exists! Please try again.');
@@ -62,7 +65,11 @@ class MakePostTypeColumnCommand extends Command {
 		 * ---
 		 */
 		$stub = File::get(__DIR__ . '/../Stubs/PostTypeColumns/post_type_column.stub');
-		$stub = str_replace('{{ className }}', $name, $stub);
+		$stub = str_replace(
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
+			$stub
+		);
 		$stub = $this->replaceNamespaces($stub);
 
 		File::ensureDirectoryExists(dirname($path));
@@ -75,8 +82,8 @@ class MakePostTypeColumnCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/PostTypeColumns/post_type_column.func');
 		$func = str_replace(
-			['{{ name }}'],
-			[$name],
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
 			$func
 		);
 
@@ -87,8 +94,8 @@ class MakePostTypeColumnCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/PostTypeColumns/post_type_column.use');
 		$use = str_replace(
-			['{{ name }}'],
-			[$name],
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

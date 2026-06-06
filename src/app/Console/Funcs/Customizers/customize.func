@@ -1,1 +1,1 @@
-        Route::customize('{{ name }}', [{{ name }}::class]);
+        Route::customize('{{ name }}', [{{ class_name }}::class]);

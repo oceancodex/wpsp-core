@@ -1,11 +1,11 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\WPRoles;
+namespace {{ root_namespace }}\App\WordPress\WPRoles;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\App\WordPress\WPRoles\BaseWPRole;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ core_namespace }}\App\WordPress\WPRoles\BaseWPRole;
 
-class {{ className }} extends BaseWPRole {
+class {{ class_name }} extends BaseWPRole {
 
 	use InstancesTrait;
 
@@ -16,6 +16,12 @@ class {{ className }} extends BaseWPRole {
 //		'manage_options',
 //		'edit_themes',
 //	];
+
+	/*
+	 *
+	 */
+
+//	public function __wpspConstruct() {}
 
 	/*
 	 *

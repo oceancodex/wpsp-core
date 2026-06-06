@@ -10,52 +10,68 @@ abstract class BaseFrontPage extends BaseInstances {
 	public $fullPath                 = null;
 	public $callback_function        = null;
 
-	/*
-	 *
+	/**
+	 * Khởi tạo sau construct
 	 */
-
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
-		$this->overridePath($this->extraParams['path']);
 		$this->overrideFullPath($this->extraParams['full_path']);
+		$this->overridePath($this->extraParams['path']);
 	}
 
-	/*
-	 *
+	/**
+	 * Override path nếu được truyền từ ngoài
 	 */
-
 	private function overridePath($path = null) {
 		if ($path && !$this->path) {
 			$this->path = $path;
 		}
+		elseif ($this->path) {
+			$this->fullPath = $this->path;
+		}
 	}
 
+	/**
+	 * Override fullPath nếu được truyền từ ngoài
+	 */
 	private function overrideFullPath($fullPath = null) {
 		if ($fullPath && !$this->fullPath) {
 			$this->fullPath = $fullPath;
 		}
 	}
 
-	/*
-	 *
+	/**
+	 * Hàm init chính: đăng ký rewrite + hook lifecycle
 	 */
-
 	public function init($path = null, $fullPath = null) {
 		$path     = $this->path ?? $path;
 		$fullPath = $this->fullPath ?? $fullPath;
 
-		if ($path && $fullPath) {
+		/**
+		 * Chuẩn hóa regex path
+		 * - luôn có ^ ở đầu
+		 * - luôn có $ ở cuối
+		 */
+		$regexPrefix = '^';
+		$regexSuffix = '$';
+		$regexPath   = $this->funcs->_regexPath($fullPath);
+		$regexPath   = !str_starts_with($regexPath, $regexPrefix) ? $regexPrefix . $regexPath : $regexPath;
+		$regexPath   = !str_ends_with($regexPath, $regexSuffix) ? $regexPath . $regexSuffix : $regexPath;
 
+		$fullPathEx = !str_starts_with($fullPath, $regexPrefix) ? $regexPrefix . $fullPath : $fullPath;
+		$fullPathEx = !str_ends_with($fullPathEx, $regexSuffix) ? $regexPath . $fullPathEx : $fullPathEx;
+
+		if ($path && $fullPath) {
 			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
 			// Access URL that match rewrite rule.
 			if (!is_admin()) {
 				// Cần phải hook vào 'wp' để có thể truy cập được global $post.
-				add_action('wp', function() use ($path, $fullPath, $requestPath) {
+				add_action('wp', function() use ($path, $fullPath, $regexPath, $fullPathEx, $requestPath) {
 					try {
-						$matched = preg_match('/^' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath);
+						$matched = preg_match('/' . $regexPath . '/iu', $requestPath, $matches);
 						if (!$matched) {
-							$matched = preg_match('/^' . $fullPath . '$/iu', $requestPath);
+							$matched = preg_match('/' . $fullPathEx . '/iu', $requestPath, $matches);
 						}
 					}
 					catch (\Throwable $e) {

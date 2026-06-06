@@ -1,12 +1,12 @@
 <?php
-namespace {{ rootNamespace }}\App\Models;
+namespace {{ root_namespace }}\App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\Database\Base\BaseModel;
-use {{ coreNamespace }}\Traits\ObserversTrait;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ core_namespace }}\Database\Base\BaseModel;
+use {{ core_namespace }}\Traits\ObserversTrait;
 
-class {{ className }} extends BaseModel {
+class {{ class_name }} extends BaseModel {
 
 	use InstancesTrait, SoftDeletes, ObserversTrait;
 
@@ -46,7 +46,7 @@ class {{ className }} extends BaseModel {
 //	public    $wasRecentlyCreated;
 
 //	protected static $observers = [
-//		\{{ rootNamespace }}\App\Observers\{{ className }}Observer::class,
+//		\{{ root_namespace }}\App\Observers\{{ class_name }}Observer::class,
 //	];
 
 //	public function __construct($attributes = []) {

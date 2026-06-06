@@ -2,13 +2,13 @@
 	"_docs":           "https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/",
 	"$schema":         "https://schemas.wp.org/trunk/block.json",
 	"apiVersion":      3,
-	"name":            "{{ appShortName }}/{{ blockDirName }}",
-	"title":           "{{ rootNamespace }} Block: {{ name }}",
-	"description":     "{{ rootNamespace }} Block: {{ name }} - description...",
+	"name":            "{{ app_short_name }}/{{ block_dir_name }}",
+	"title":           "{{ root_namespace }} Block: {{ name }}",
+	"description":     "{{ root_namespace }} Block: {{ name }} - description...",
 	"version":         "1.0.0",
 	"icon":            "block-default",
 	"category":        "text",
-	"textdomain":      "{{ textDomain }}",
+	"textdomain":      "{{ text_domain }}",
 	"keywords":        [],
 	"attributes":      {
 		"title": {
@@ -19,14 +19,32 @@
 	"usesContext":     [],
 	"selectors":       {},
 	"supports":        {},
-	"styles":          [],
-	"example":         {},
-	"variations":      [],
-	"script":          "file:./script.js",
-	"viewScript":      "file:./view.js",
-	"editorScript":    "file:./index.js",
-	"style":           "file:./style.css",
-	"viewStyle":       "file:./view.css",
-	"editorStyle":     "file:./index.css",
-	"render":          "file:./render.blade.php"
+	"styles":          [
+		{ "name": "default", "label": "Default", "isDefault": true },
+		{ "name": "other", "label": "Other" }
+	],
+	"example":         {
+		"attributes": {
+			"title": "This is a title!"
+		}
+	},
+	"variations":      [
+		{
+			"name": "example",
+			"title": "Example",
+			"attributes": {
+				"level": 2,
+				"message": "This is an example!"
+			},
+			"scope": ["block"],
+			"isActive": ["level"]
+		}
+	],
+	"style":           ["file:./style.css", "example-style-registed-by-wp_register_style", 		"editor/frontend"],
+	"script":          ["file:./script.js", "example-script-registed-by-wp_register_script", 	"editor/frontend"],
+	"viewStyle":       ["file:./view.css", 	"example-style-registed-by-wp_register_style", 		"frontend"],
+	"viewScript":      ["file:./view.js", 	"example-script-registed-by-wp_register_script", 	"frontend"],
+	"editorStyle":     ["file:./index.css", "example-style-registed-by-wp_register_style", 		"editor"],
+	"editorScript":    ["file:./index.js", 	"example-script-registed-by-wp_register_script", 	"editor"],
+	"render":          "file:./render.php"
 }

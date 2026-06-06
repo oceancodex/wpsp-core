@@ -46,10 +46,13 @@ class MakeWPRoleCommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($name);
+		$this->validateSlug($name);
+
+		// Chuẩn bị thêm các biến để sử dụng.
+		$className  = Str::slug($name, '_');
 
 		// Kiểm tra tồn tại.
-		$path = $mainPath . '/app/WordPress/WPRoles/' . $name . '.php';
+		$path = $mainPath . '/app/WordPress/WPRoles/' . $className . '.php';
 
 		if (File::exists($path)) {
 			$this->error('Role: "' . $name . '" already exists! Please try again.');
@@ -63,8 +66,8 @@ class MakeWPRoleCommand extends Command {
 		 */
 		$content = File::get(__DIR__ . '/../Stubs/WPRoles/wprole.stub');
 		$content = str_replace(
-			['{{ className }}', '{{ name }}'],
-			[$name, $name],
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -79,8 +82,8 @@ class MakeWPRoleCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/WPRoles/wprole.func');
 		$func = str_replace(
-			['{{ className }}', '{{ name }}'],
-			[$name, $name],
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
 			$func
 		);
 
@@ -91,8 +94,8 @@ class MakeWPRoleCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/WPRoles/wprole.use');
 		$use = str_replace(
-			['{{ className }}', '{{ name }}'],
-			[$name, $name],
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

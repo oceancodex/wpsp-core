@@ -13,11 +13,10 @@ class MakeAdminPageCommand extends Command {
 
 	protected $signature = 'make:admin-page
         {path? : The path of the admin page}
-        {--child : Is this admin page a child of another admin page}
-        {--parent_slug : The slug of the parent admin page}
+        {--parent= : The slug of the parent admin page}
         {--view : Create view files for this admin page}';
 
-	protected $description = 'Create a new admin page. | Eg: php artisan make:admin-page custom-admin-page --view';
+	protected $description = 'Create a new admin page. | Eg: php artisan make:admin-page custom-admin-page --child --parent=parent-admin-page-slug --view';
 
 	public function handle() {
 		/**
@@ -46,12 +45,7 @@ class MakeAdminPageCommand extends Command {
 			}
 
 			// Nếu có câu trả lời, hãy tiếp tục hỏi.
-			$child = $this->confirm('Is this admin page a child of another admin page?', false);
-
-			if ($child) {
-				$parentSlug = $this->ask('Please enter the slug of the parent admin page');
-			}
-
+			$parent     = $this->ask('Please enter the slug of the parent admin page (optional)');
 			$createView = $this->confirm('Do you want to create view files for this admin page?', false);
 		}
 
@@ -59,18 +53,14 @@ class MakeAdminPageCommand extends Command {
 		$this->validateSlug($path, 'path');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$name       = Str::slug(str_replace('-', '_', $path), '_');
-		$child      = $child ?? $this->option('child') ?: false;
-		$child      = $child ? 'true' : 'false';
-		$parentSlug = $parentSlug ?? $this->option('parent_slug') ?: null;
-		$parentSlug = $parentSlug ? "'$parentSlug'" : 'null';
+		$className  = Str::slug($path, '_');
+		$parent     = $parent ?? $this->option('parent') ?: null;
+		$child      = $parent ? 'true' : 'false';
+		$parent     = $parent ? "'$parent'" : 'null';
 		$createView = $createView ?? $this->option('view') ?: false;
 
-		// Không cần validate "name", vì command này yêu cầu "path" mà path có thể chứa "-".
-		// $name sẽ được slugify từ "path" ra.
-
 		// Kiểm tra tồn tại.
-		$adminClassPath = $mainPath . '/app/WordPress/AdminPages/' . $name . '.php';
+		$adminClassPath = $mainPath . '/app/WordPress/AdminPages/' . $className . '.php';
 		$viewDirPath    = $mainPath . '/resources/views/admin-pages/' . $path;
 
 		if (File::exists($adminClassPath) || File::exists($viewDirPath)) {
@@ -91,8 +81,8 @@ class MakeAdminPageCommand extends Command {
 		}
 
 		$content = str_replace(
-			['{{ className }}', '{{ name }}', '{{ path }}', '{{ parentSlug }}', '{{ child }}'],
-			[$name, $name, $path, $parentSlug, $child],
+			['{{ class_name }}', '{{ path }}', '{{ parent }}', '{{ child }}'],
+			[$className, $path, $parent, $child],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -122,8 +112,8 @@ class MakeAdminPageCommand extends Command {
 				$view = File::get(__DIR__ . '/../Views/AdminPages' . $nonBladeSep . '/' . $stub);
 
 				$view = str_replace(
-					['{{ name }}', '{{ path }}', '{{ parentSlug }}', '{{ child }}'],
-					[$name, $path, $parentSlug, $child],
+					['{{ class_name }}', '{{ path }}', '{{ parent }}', '{{ child }}'],
+					[$className, $path, $parent, $child],
 					$view
 				);
 
@@ -137,9 +127,11 @@ class MakeAdminPageCommand extends Command {
 		 * ---
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/AdminPages/adminpage.func');
-		$func = str_replace(['{{ name }}', '{{ path }}'],
-			[$name, $path],
-			$func);
+		$func = str_replace(
+			['{{ class_name }}', '{{ path }}', '{{ parent }}', '{{ child }}'],
+			[$className, $path, $parent, $child],
+			$func
+		);
 
 		/**
 		 * ---
@@ -148,8 +140,8 @@ class MakeAdminPageCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/AdminPages/adminpage.use');
 		$use = str_replace(
-			['{{ name }}', '{{ path }}'],
-			[$name, $path],
+			['{{ class_name }}', '{{ path }}', '{{ parent }}', '{{ child }}'],
+			[$className, $path, $parent, $child],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

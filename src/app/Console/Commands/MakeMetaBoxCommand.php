@@ -53,11 +53,11 @@ class MakeMetaBoxCommand extends Command {
 		$this->validateSlug($id, 'id');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$name       = Str::slug(str_replace('-', '_', $id), '_');
+		$className  = Str::slug($id, '_');
 		$createView = $createView ?? $this->option('view') ?: false;
 
 		// Kiểm tra tồn tại.
-		$componentPath = $mainPath . '/app/WordPress/MetaBoxes/' . $name . '.php';
+		$componentPath = $mainPath . '/app/WordPress/MetaBoxes/' . $className . '.php';
 		$viewPath      = $mainPath . '/resources/views/meta-boxes/' . $id . '.blade.php';
 
 		if (File::exists($componentPath)) {
@@ -74,7 +74,11 @@ class MakeMetaBoxCommand extends Command {
 			File::ensureDirectoryExists(dirname($viewPath));
 
 			$view = File::get(__DIR__ . '/../Views/MetaBoxes/meta-box.view');
-			$view = str_replace(['{{ id }}'], [$id], $view);
+			$view = str_replace(
+				['{{ id }}', '{{ class_name }}'],
+				[$id, $className],
+				$view
+			);
 
 			File::put($viewPath, $view);
 
@@ -85,8 +89,8 @@ class MakeMetaBoxCommand extends Command {
 		}
 
 		$content = str_replace(
-			['{{ className }}', '{{ id }}'],
-			[$id, $id],
+			['{{ id }}', '{{ class_name }}'],
+			[$id, $className],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -100,7 +104,11 @@ class MakeMetaBoxCommand extends Command {
 		 * ---
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/MetaBoxes/meta-box.func');
-		$func = str_replace(['{{ id }}'], [$id], $func);
+		$func = str_replace(
+			['{{ id }}', '{{ class_name }}'],
+			[$id, $className],
+			$func
+		);
 
 		/**
 		 * ---
@@ -108,7 +116,11 @@ class MakeMetaBoxCommand extends Command {
 		 * ---
 		 */
 		$use = File::get(__DIR__ . '/../Uses/MetaBoxes/meta-box.use');
-		$use = str_replace(['{{ id }}'], [$id], $use);
+		$use = str_replace(
+			['{{ id }}', '{{ class_name }}'],
+			[$id, $className],
+			$use
+		);
 		$use = $this->replaceNamespaces($use);
 
 		/**
