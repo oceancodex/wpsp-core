@@ -13,7 +13,7 @@ class MakeScheduleCommand extends Command {
 
 	protected $signature = 'make:schedule
         {hook? : The hook name of the schedule.}
-        {--type= : The type of the schedule (wpsp, wordpress).}
+        {--type= : The type of the schedule (wpsp | wordpress).}
         {interval? : The interval of the schedule.}';
 
 	protected $description = 'Create a new schedule. | Eg: php artisan make:schedule custom_schedule_hook --type=wordpress hourly';
@@ -47,7 +47,7 @@ class MakeScheduleCommand extends Command {
 			}
 
 			// Nếu có câu trả lời, hãy tiếp tục hỏi.
-			$type     = $this->ask('Please enter the type of the schedule (Eg: wpsp, wordpress)', 'wordpress');
+			$type     = $this->ask('Please enter the type of the schedule (wpsp | wordpress)', 'wordpress');
 			$interval = $this->ask('Please enter the interval of the schedule (everyMinute, hourly, daily, weekly, monthly, yearly,...)', 'everyMinute');
 		}
 
@@ -57,7 +57,7 @@ class MakeScheduleCommand extends Command {
 		$interval  = $interval ?? $this->argument('interval') ?: 'everyMinute';
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($hook, 'hook');
+		$this->validateSlug($hook, 'hook');
 		$this->validateClassName($interval, 'interval');
 
 		// Kiểm tra tồn tại.
