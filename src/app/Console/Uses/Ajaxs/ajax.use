@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\Http\Controllers\AjaxsController;
+use {{ root_namespace }}\App\Http\Controllers\AjaxsController;

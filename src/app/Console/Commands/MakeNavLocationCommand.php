@@ -4,6 +4,7 @@ namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class MakeNavLocationCommand extends Command {
@@ -11,7 +12,7 @@ class MakeNavLocationCommand extends Command {
 	use CommandsTrait;
 
 	protected $signature = 'make:nav-location
-        {name? : The name of the navigation menu location.}';
+        {location? : The name of the navigation menu location.}';
 
 	protected $description = 'Create a new navigation menu location. | Eg: php artisan make:nav-location custom_nav_location';
 
@@ -31,24 +32,32 @@ class MakeNavLocationCommand extends Command {
 		 * Khai báo, hỏi và kiểm tra.
 		 * ---
 		 */
-		$name = $this->argument('name');
+		$location = $this->argument('location');
 
 		// Nếu không khai báo, hãy hỏi.
-		if (!$name) {
-			$name = $this->ask('Please enter the name of the navigation menu location (Eg: custom_nav_location)');
+		if (!$location) {
+			$location = $this->ask('Please enter the location of the navigation menu location (Eg: custom_nav_location)');
 
 			// Nếu không có câu trả lời, hãy thoát.
-			if (empty($name)) {
-				$this->error('Missing name for the navigation menu location. Please try again.');
+			if (empty($location)) {
+				$this->error('Missing location for the navigation menu location. Please try again.');
 				exit;
 			}
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($name);
+		$this->validateSlug($location);
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$path = $mainPath . '/app/WordPress/NavigationMenus/Locations/' . $name . '.php';
+		$className = Str::slug($location, '_');
+
+		// Kiểm tra tồn tại.
+		$path = $mainPath . '/app/WordPress/NavigationMenus/Locations/' . $className . '.php';
+
+		if (File::exists($path)) {
+			$this->error('Navigation menu location: "' . $location . '" already exists! Please try again.');
+			exit;
+		}
 
 		/**
 		 * ---
@@ -56,8 +65,11 @@ class MakeNavLocationCommand extends Command {
 		 * ---
 		 */
 		$content = File::get(__DIR__ . '/../Stubs/NavigationMenus/Locations/navlocation.stub');
-		$content = str_replace('{{ className }}', $name, $content);
-		$content = str_replace('{{ name }}', $name, $content);
+		$content = str_replace(
+			['{{ location }}', '{{ class_name }}'],
+			[$location, $className],
+			$content
+		);
 		$content = $this->replaceNamespaces($content);
 
 		File::ensureDirectoryExists(dirname($path));
@@ -69,7 +81,11 @@ class MakeNavLocationCommand extends Command {
 		 * ---
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/NavigationMenus/Locations/navlocation.func');
-		$func = str_replace(['{{ name }}'], [$name], $func);
+		$func = str_replace(
+			['{{ location }}', '{{ class_name }}'],
+			[$location, $className],
+			$func
+		);
 
 		/**
 		 * ---
@@ -77,7 +93,11 @@ class MakeNavLocationCommand extends Command {
 		 * ---
 		 */
 		$use = File::get(__DIR__ . '/../Uses/NavigationMenus/Locations/navlocation.use');
-		$use = str_replace(['{{ name }}'], [$name], $use);
+		$use = str_replace(
+			['{{ location }}', '{{ class_name }}'],
+			[$location, $className],
+			$use
+		);
 		$use = $this->replaceNamespaces($use);
 
 		/**
@@ -88,7 +108,7 @@ class MakeNavLocationCommand extends Command {
 		$this->addClassToRoute('NavLocations', 'nav_locations', $func, $use);
 
 		// Done.
-		$this->info('Created new navigation menu location: "' . $name . '"');
+		$this->info('Created new navigation menu location: "' . $location . '"');
 
 		exit;
 	}

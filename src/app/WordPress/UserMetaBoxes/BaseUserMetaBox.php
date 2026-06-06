@@ -6,10 +6,12 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseUserMetaBox extends BaseInstances {
 
-	public $id                = null;
-	public $title             = null;
-	public $update            = false;
-	public $callback_function = null;
+	public  $id                = null;
+	public  $title             = null;
+	public  $priority          = 10;
+
+	private $path              = null;
+	public  $callback_function = null;
 
 	/*
 	 *
@@ -18,9 +20,13 @@ abstract class BaseUserMetaBox extends BaseInstances {
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
 		$this->overrideId($this->extraParams['full_path'] ?? null);
+		$this->overridePriority($this->extraParams['priority'] ?? null);
+		$this->path = $this->extraParams['path'] ?? null;
 
 		// Update meta boxes.
-		if ($this->update) $this->updateUser();
+		if (method_exists($this, 'update')) {
+			$this->updateUser();
+		}
 
 		// Enqueue scripts and styles.
 		if ($this->isUserEditPage()) {
@@ -40,9 +46,46 @@ abstract class BaseUserMetaBox extends BaseInstances {
 		}
 	}
 
+	public function overridePriority($priority = null) {
+		if ($priority && !$this->priority) {
+			$this->priority = $priority;
+		}
+	}
+
+	/*
+	 *
+	 */
+
+	public function init($id = null) {
+		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+		$id          = $this->id ?? $id;
+
+		if ($id) {
+			$callback = function($user) use ($requestPath, $id) {
+				return $this->autoResolveAndCall($this->path, $id, $requestPath, $this, $this->callback_function, [
+					'user'  => $user,
+					'id'    => $id,
+					'title' => $this->title,
+				]);
+			};
+
+			add_action('show_user_profile', $callback, $this->priority);
+			add_action('edit_user_profile', $callback, $this->priority);
+		}
+	}
+
+	/*
+	 *
+	 */
+
 	private function updateUser() {
-		add_action('personal_options_update', [$this, 'update']);
-		add_action('edit_user_profile_update', [$this, 'update']);
+		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+		$callback    = function($user_id) use ($requestPath) {
+			return $this->autoResolveAndCall($this->path, $this->id, $requestPath, $this, 'update', ['user_id' => $user_id]);
+		};
+
+		add_action('personal_options_update', $callback);
+		add_action('edit_user_profile_update', $callback);
 	}
 
 	private function isUserEditPage($type = null) {
@@ -58,14 +101,6 @@ abstract class BaseUserMetaBox extends BaseInstances {
 
 		return in_array($pagenow, ['user-edit.php', 'profile.php'], true);
 	}
-
-	/*
-	 *
-	 */
-
-	abstract public function index($user);
-
-	abstract public function update($userId);
 
 	/*
 	 *

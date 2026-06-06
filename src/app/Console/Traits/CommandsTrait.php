@@ -19,7 +19,10 @@ trait CommandsTrait {
 
 	public function replaceNamespaces($content) {
 		$content = str_replace('{{ rootNamespace }}', $this->funcs->rootNamespace, $content);
-		return str_replace('{{ coreNamespace }}', $this->coreNamespace, $content);
+		$content = str_replace('{{ coreNamespace }}', $this->coreNamespace, $content);
+		$content = str_replace('{{ root_namespace }}', $this->funcs->rootNamespace, $content);
+		$content = str_replace('{{ core_namespace }}', $this->coreNamespace, $content);
+		return $content;
 	}
 
 	public function validateClassName($className = null, $inputName = 'name') {

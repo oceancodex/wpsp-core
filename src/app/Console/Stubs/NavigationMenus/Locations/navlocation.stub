@@ -1,25 +1,25 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\NavigationMenus\Locations;
+namespace {{ root_namespace }}\App\WordPress\NavigationMenus\Locations;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ coreNamespace }}\App\WordPress\NavigationMenus\Locations\BaseNavigationLocation;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ core_namespace }}\App\WordPress\NavigationMenus\Locations\BaseNavigationLocation;
 
-class {{ className }} extends BaseNavigationLocation {
+class {{ class_name }} extends BaseNavigationLocation {
 
     use InstancesTrait;
 
 	// Args.
-//	public $location    = '{{ name }}';
-	public $description = 'Navigation menu location "{{ name }}"';
+//	public $location    = '{{ location }}';
+	public $description = 'Navigation menu location "{{ location }}"';
 
 	/*
 	 *
 	 */
 
 	public function customProperties() {
-//		$this->location    = '{{ name }}';
-//		$this->description = 'Navigation menu location "{{ name }}"';
+//		$this->location    = '{{ location }}';
+//		$this->description = 'Navigation menu location "{{ location }}"';
 	}
 
 }

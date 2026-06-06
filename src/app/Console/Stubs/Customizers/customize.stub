@@ -1,15 +1,16 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\Customizers;
+namespace {{ root_namespace }}\App\WordPress\Customizers\{{ class_name }};
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\App\WordPress\Customizers\BaseCustomize;
+use Illuminate\Http\Request;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\App\WordPress\Customizers\BaseCustomize;
 
 /**
  * @see https://developer.wordpress.org/themes/classic-themes/customize-api/customizer-objects/
  */
-class {{ className }} extends BaseCustomize {
+class {{ class_name }} extends BaseCustomize {
 
 	use InstancesTrait;
 
@@ -20,8 +21,16 @@ class {{ className }} extends BaseCustomize {
 	 *
 	 */
 
-	public function customProperties() {
-		$this->name = basename(get_class($this));
+//	public function __wpspConstruct(Request $request) {
+//		dump($request);
+//	}
+
+	/*
+	 *
+	 */
+
+	public function customProperties(Request $request) {
+//		$this->name   = class_basename($this);
 		$this->prefix = Funcs::instance()->_getAppShortName() . '_';
 	}
 
@@ -94,7 +103,9 @@ class {{ className }} extends BaseCustomize {
 	 *
 	 */
 
-	public function hooks() {}
+	public function hooks() {
+//		add_action(...);
+	}
 
 	/*
 	 *

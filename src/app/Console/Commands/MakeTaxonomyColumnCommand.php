@@ -46,10 +46,13 @@ class MakeTaxonomyColumnCommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($name);
+		$this->validateSlug($name);
+
+		// Chuẩn bị thêm các biến để sử dụng.
+		$className = Str::slug($name, '_');
 
 		// Kiểm tra tồn tại.
-		$path = $mainPath . '/app/WordPress/TaxonomyColumns/' . $name . '.php';
+		$path = $mainPath . '/app/WordPress/TaxonomyColumns/' . $className . '.php';
 
 		if (File::exists($path)) {
 			$this->error('Taxonomy column: "' . $name . '" already exists! Please try again.');
@@ -62,7 +65,11 @@ class MakeTaxonomyColumnCommand extends Command {
 		 * ---
 		 */
 		$stub = File::get(__DIR__ . '/../Stubs/TaxonomyColumns/taxonomy_column.stub');
-		$stub = str_replace('{{ className }}', $name, $stub);
+		$stub = str_replace(
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
+			$stub
+		);
 		$stub = $this->replaceNamespaces($stub);
 
 		File::ensureDirectoryExists(dirname($path));
@@ -74,7 +81,11 @@ class MakeTaxonomyColumnCommand extends Command {
 		 * ---
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/TaxonomyColumns/taxonomy_column.func');
-		$func = str_replace(['{{ name }}'], [$name], $func);
+		$func = str_replace(
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
+			$func
+		);
 
 		/**
 		 * ---
@@ -82,7 +93,11 @@ class MakeTaxonomyColumnCommand extends Command {
 		 * ---
 		 */
 		$use = File::get(__DIR__ . '/../Uses/TaxonomyColumns/taxonomy_column.use');
-		$use = str_replace(['{{ name }}'], [$name], $use);
+		$use = str_replace(
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
+			$use
+		);
 		$use = $this->replaceNamespaces($use);
 
 		/**

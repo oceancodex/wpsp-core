@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\NavigationMenus\Locations\{{ name }};
+use {{ root_namespace }}\App\WordPress\NavigationMenus\Locations\{{ class_name }};

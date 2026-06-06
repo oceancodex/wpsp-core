@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\FrontPages\{{ name }};
+use {{ root_namespace }}\App\WordPress\FrontPages\{{ class_name }};

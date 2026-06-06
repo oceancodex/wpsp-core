@@ -1,15 +1,18 @@
 <?php
-namespace {{ rootNamespace }}\App\WordPress\Blocks;
+namespace {{ root_namespace }}\App\WordPress\Blocks;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\App\WordPress\Blocks\BaseBlock;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\App\WordPress\Blocks\BaseBlock;
 
-class {{ className }} extends BaseBlock {
+/**
+ * @docs https://developer.wordpress.org/block-editor/
+ */
+class {{ class_name }} extends BaseBlock {
 
 	use InstancesTrait;
 
-	public $name 		= '{{ blockDirName }}';
+	public $name 		= '{{ block_dir_name }}';
 //	public $blockPath   = null;
 //	public $args		= [];
 
@@ -35,7 +38,7 @@ class {{ className }} extends BaseBlock {
 //			'example'                => null,
 //			'render_callback'        => function($attributes, $content, $block) { return 'Custom block "block-demo": ' . $attributes['title'] ?? null; }
 //			'variation_callback'     => null,
-//			'attributes'             => null,
+			'attributes'             => ['test' => ['type' => 'string', 'default' => 'Test value']],
 //			'uses_context'           => [],
 //			'provides_context'       => null,
 //			'block_hooks'            => [],
@@ -49,14 +52,16 @@ class {{ className }} extends BaseBlock {
 	}
 
 	/**
-	 * Renders the view for the specified block with the given attributes and content.
+	 * Renders the view for the specified block with the given attributes and content.\
+	 * Support DI after "$block" parameter.
 	 *
 	 * @param array     $attributes An array of attributes for the block.
 	 * @param string    $content    The inner content of the block.
 	 * @param \WP_Block $block      The block data structure.
 	 */
 //	public function render(array $attributes, string $content, \WP_Block $block) {
-//		return Funcs::view('blocks.src.{{ blockFolder }}.render', compact('attributes', 'content', 'block'));
+//		$attributes['test'] = $testService->test();
+//		return Funcs::view('blocks.src.{{ block_dir_name }}.render', compact('attributes', 'content', 'block'));
 //	}
 
 }

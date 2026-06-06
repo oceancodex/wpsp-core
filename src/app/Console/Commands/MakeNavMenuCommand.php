@@ -4,6 +4,7 @@ namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class MakeNavMenuCommand extends Command {
@@ -45,10 +46,18 @@ class MakeNavMenuCommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($name);
+		$this->validateSlug($name);
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$path = $mainPath . '/app/WordPress/NavigationMenus/Menus/' . $name . '.php';
+		$className = Str::slug($name, '_');
+
+		// Kiểm tra tồn tại.
+		$path = $mainPath . '/app/WordPress/NavigationMenus/Menus/' . $className . '.php';
+
+		if (File::exists($path)) {
+			$this->error('Navigation menu: "' . $name . '" already exists! Please try again.');
+			exit;
+		}
 
 		/**
 		 * ---
@@ -56,8 +65,11 @@ class MakeNavMenuCommand extends Command {
 		 * ---
 		 */
 		$content = File::get(__DIR__ . '/../Stubs/NavigationMenus/Menus/navmenu.stub');
-		$content = str_replace('{{ className }}', $name, $content);
-		$content = str_replace('{{ name }}', $name, $content);
+		$content = str_replace(
+			['{{ class_name }}', '{{ name }}'],
+			[$className, $name],
+			$content
+		);
 		$content = $this->replaceNamespaces($content);
 
 		File::ensureDirectoryExists(dirname($path));

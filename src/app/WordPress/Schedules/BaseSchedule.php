@@ -6,9 +6,11 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseSchedule extends BaseInstances {
 
-	public $hook              = null;
-	public $interval          = null;
-	public $callback_function = null;
+	public  $hook              = null;
+	public  $interval          = null;
+	public  $callback_function = null;
+
+	private $path              = null;
 
 	/*
 	 *
@@ -18,6 +20,7 @@ abstract class BaseSchedule extends BaseInstances {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
 		$this->overrideInterval($this->extraParams['interval'] ?? null);
 		$this->overrideHook($this->extraParams['full_path'] ?? null);
+		$this->path = $this->extraParams['path'] ?? null;
 	}
 
 	/*
@@ -41,8 +44,8 @@ abstract class BaseSchedule extends BaseInstances {
 	 */
 
 	public function init($hook = null, $interval = null) {
-		$hook     = $hook ?? $this->hook;
-		$interval = $interval ?? $this->interval;
+		$hook        = $hook ?? $this->hook;
+		$interval    = $interval ?? $this->interval;
 
 		// Đăng ký schedule nếu chưa tồn lại.
 		if (!wp_next_scheduled($hook)) {
@@ -50,6 +53,13 @@ abstract class BaseSchedule extends BaseInstances {
 		}
 
 		// Đăng ký action gắn với schedule.
+		// Không thể DI tại đây, vì plugin Crontrol sẽ detect callback như sau: "Closure in: ...\RouteTrait.php at line 655"
+		// Xử lý DI ở function __call() bên dưới.
+//		$callback = $this->autoResolveCallback($this->path, $hook, $requestPath, $this, $this->callback_function, [
+//			'hook' => $hook,
+//			'interval' => $interval,
+//		]);
+//		add_action($hook, $callback);
 		add_action($hook, [$this, $this->callback_function . '!']);
 
 		// Xóa schedule khi plugin bị hủy kích hoạt

@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\Shortcodes\{{ name }};
+use {{ root_namespace }}\App\WordPress\Shortcodes\{{ class_name }};

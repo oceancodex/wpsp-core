@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\Taxonomies\{{ name }};
+use {{ root_namespace }}\App\WordPress\Taxonomies\{{ class_name }};

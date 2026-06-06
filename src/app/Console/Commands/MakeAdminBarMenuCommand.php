@@ -4,6 +4,7 @@ namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class MakeAdminBarMenuCommand extends Command {
@@ -12,7 +13,7 @@ class MakeAdminBarMenuCommand extends Command {
 
 	protected $signature = 'make:admin-bar-menu
         {name? : The name of the admin bar menu.}
-        {--parent= : The parent of the admin bar menu.}';
+        {--parent= : The name of the parent admin bar menu.}';
 
 	protected $description = 'Create a new admin bar menu. | Eg: php artisan make:admin-bar-menu custom_admin_bar_menu --parent=parent_admin_bar_menu';
 
@@ -44,18 +45,19 @@ class MakeAdminBarMenuCommand extends Command {
 				exit;
 			}
 
-			$parent = $this->ask('Please enter the name of the parent admin bar menu');
+			$parent = $this->ask('Please enter the name of the parent admin bar menu (optional)');
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($name);
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$path = $mainPath . '/app/WordPress/AdminBarMenus/' . $name . '.php';
-		$parent = $parent ?? $this->option('parent') ?: null;
-		$parent = $parent ? "'$parent'" : "''";
+		$className = Str::slug($name, '_');
+		$parent    = $parent ?? $this->option('parent') ?: null;
+		$parent    = $parent ? "'$parent'" : "''";
 
 		// Kiểm tra tồn tại.
+		$path = $mainPath . '/app/WordPress/AdminBarMenus/' . $className . '.php';
+
 		if (File::exists($path) || File::exists($path)) {
 			$this->error('Admin bar menu: "' . $name . '" already exists! Please try again.');
 			exit;
@@ -67,7 +69,7 @@ class MakeAdminBarMenuCommand extends Command {
 		 * ---
 		 */
 		$content = File::get(__DIR__ . '/../Stubs/AdminBarMenus/adminbarmenu.stub');
-		$content = str_replace('{{ className }}', $name, $content);
+		$content = str_replace('{{ class_name }}', $className, $content);
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = str_replace('{{ parent }}', $parent, $content);
 		$content = $this->replaceNamespaces($content);
@@ -81,7 +83,7 @@ class MakeAdminBarMenuCommand extends Command {
 		 * ---
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/AdminBarMenus/adminbarmenu.func');
-		$func = str_replace(['{{ name }}'], [$name], $func);
+		$func = str_replace(['{{ class_name }}', '{{ name }}'], [$className, $name], $func);
 
 		/**
 		 * ---
@@ -89,7 +91,7 @@ class MakeAdminBarMenuCommand extends Command {
 		 * ---
 		 */
 		$use = File::get(__DIR__ . '/../Uses/AdminBarMenus/adminbarmenu.use');
-		$use = str_replace(['{{ name }}'], [$name], $use);
+		$use = str_replace(['{{ class_name }}', '{{ name }}'], [$className, $name], $use);
 		$use = $this->replaceNamespaces($use);
 
 		/**

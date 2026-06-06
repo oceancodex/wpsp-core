@@ -12,6 +12,7 @@ use WPSPCORE\App\Routes\RouteTrait;
  * @property \Illuminate\Http\Request $request
  * @method $this __wpspConstruct
  * @method $this customProperties
+ * @method $this afterCustomProperties
  * @method $this afterInstanceConstruct
  */
 trait BaseInstancesTrait {
@@ -37,7 +38,9 @@ trait BaseInstancesTrait {
 		$this->afterConstruct();
 		$this->baseInstanceCall('__wpspConstruct');
 		$this->baseInstanceCall('customProperties');
+		$this->baseInstanceCall('afterCustomProperties');
 		$this->baseInstanceCall('afterInstanceConstruct');
+		$this->baseInstanceCall('afterBaseInstanceConstruct'); // Sử dụng hàm này để prepare args cho Navigation Menu.
 	}
 
 	/*
@@ -48,7 +51,7 @@ trait BaseInstancesTrait {
 		if ($this->funcs && $this->request) {
 			$path        = $this->extraParams['path'] ?? null;
 			$fullPath    = $this->extraParams['full_path'] ?? null;
-			$requestPath = $this->request->getRequestUri();
+			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 			return $this->autoResolveAndCall($path, $fullPath, $requestPath, $this, $method);
 		}
 		return null;
@@ -99,5 +102,26 @@ trait BaseInstancesTrait {
 	public function beforeConstruct() {}
 
 	public function afterConstruct() {}
+
+	/*
+	 *
+	 */
+
+	public function wpspCall($method, $class = null, $args = []) {
+//		if ($this->funcs && $this->request) {
+			$path        = $this->extraParams['path'] ?? null;
+			$fullPath    = $this->extraParams['full_path'] ?? null;
+			$requestPath = ltrim($this->request?->getRequestUri() ?? null, '/\\');
+
+			if ($class) {
+				return $this->autoResolveAndCall($path, $fullPath, $requestPath, $class, $method, $args);
+			}
+			else {
+				return $this->autoResolveAndCall($path, $fullPath, $requestPath, $this, $method, $args);
+			}
+//		}
+
+//		return null;
+	}
 
 }

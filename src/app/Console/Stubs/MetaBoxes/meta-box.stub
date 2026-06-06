@@ -1,12 +1,13 @@
 <?php
 
-namespace {{ rootNamespace }}\App\WordPress\MetaBoxes;
+namespace {{ root_namespace }}\App\WordPress\MetaBoxes;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\App\WordPress\MetaBoxes\BaseMetaBox;
+use Illuminate\Http\Request;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\App\WordPress\MetaBoxes\BaseMetaBox;
 
-class {{ className }} extends BaseMetaBox {
+class {{ class_name }} extends BaseMetaBox {
 
 	use InstancesTrait;
 
@@ -20,7 +21,13 @@ class {{ className }} extends BaseMetaBox {
 	 *
 	 */
 
-	public function customProperties() {
+//	public function __wpspConstruct(Request $request) {}
+
+	/*
+	 *
+	 */
+
+	public function customProperties(Request $request) {
 //		$this->title = 'Custom Meta Box "{{ id }}" Title Override';
 	}
 
@@ -28,7 +35,7 @@ class {{ className }} extends BaseMetaBox {
 	 *
 	 */
 
-	public function index($post, $meta_box) {
+	public function index($post, $meta_box, Request $request) {
 		echo 'Custom Meta Box "{{ id }}" Content';
 	}
 

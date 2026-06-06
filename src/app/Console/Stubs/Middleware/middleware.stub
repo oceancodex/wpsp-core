@@ -1,10 +1,10 @@
 <?php
 
-namespace {{ rootNamespace }}\App\Http\Middleware;
+namespace {{ root_namespace }}\App\Http\Middleware;
 
-use {{ coreNamespace }}\Base\BaseMiddleware;
+use {{ core_namespace }}\Base\BaseMiddleware;
 
-class {{ className }} extends BaseMiddleware {
+class {{ class_name }} extends BaseMiddleware {
 
 	/**
 	 * @param \Symfony\Component\HttpFoundation\Request|\WP_REST_Request $request
