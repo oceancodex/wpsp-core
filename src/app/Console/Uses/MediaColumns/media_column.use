@@ -1,0 +1,1 @@
+use {{ root_namespace }}\App\WordPress\MediaColumns\{{ class_name }};
