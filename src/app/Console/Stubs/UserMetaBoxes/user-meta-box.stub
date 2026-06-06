@@ -19,6 +19,12 @@ class {{ class_name }} extends BaseUserMetaBox {
 	 *
 	 */
 
+//	public function __wpspConstruct(Request $request) {}
+
+	/*
+	 *
+	 */
+
 	public function customProperties() {
 //		$this->title = 'Custom user meta box: {{ id }}';
 	}
