@@ -316,7 +316,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->styles();
 			$this->scripts();
 			$this->localizeScripts();
-		});
+		}, 9999999999);
 
 		$this->calledAssets = true;
 	}

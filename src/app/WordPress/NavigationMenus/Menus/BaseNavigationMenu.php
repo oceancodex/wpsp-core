@@ -42,8 +42,7 @@ abstract class BaseNavigationMenu extends BaseInstances {
 	}
 
 	/**
-	 * Ở class con (ví dụ: Menu1).\
-	 * Sau khi custom properties thì cần chạy prepareArguments()\
+	 * Ở class base con, sau khi custom properties thì cần chạy prepareArguments()\
 	 * trong hàm afterBaseInstanceConstruct() vì hàm này chạy sau customProperties().
 	 */
 	public function afterBaseInstanceConstruct() {
