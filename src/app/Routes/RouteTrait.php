@@ -383,6 +383,7 @@ trait RouteTrait {
 		if (
 			preg_match($pattern, $requestPath, $matches)
 			|| preg_match('#' . $fullPath . '#iu', $requestPath, $matches)
+			|| $fullPath == $requestPath
 		) {
 			$passed = true;
 		}

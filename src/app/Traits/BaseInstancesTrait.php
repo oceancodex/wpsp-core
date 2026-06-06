@@ -103,4 +103,25 @@ trait BaseInstancesTrait {
 
 	public function afterConstruct() {}
 
+	/*
+	 *
+	 */
+
+	public function wpspCall($method, $class = null, $args = []) {
+//		if ($this->funcs && $this->request) {
+			$path        = $this->extraParams['path'] ?? null;
+			$fullPath    = $this->extraParams['full_path'] ?? null;
+			$requestPath = ltrim($this->request?->getRequestUri() ?? null, '/\\');
+
+			if ($class) {
+				return $this->autoResolveAndCall($path, $fullPath, $requestPath, $class, $method, $args);
+			}
+			else {
+				return $this->autoResolveAndCall($path, $fullPath, $requestPath, $this, $method, $args);
+			}
+//		}
+
+//		return null;
+	}
+
 }
