@@ -18,6 +18,7 @@ class {{ class_name }} extends BaseShortcode {
 	 */
 
 	public function index($atts, $content, $tag, Request $request) {
+		echo 'Request URL: ' . $request->url();
 		return do_shortcode($content);
 	}
 

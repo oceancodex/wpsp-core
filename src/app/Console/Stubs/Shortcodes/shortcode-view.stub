@@ -11,13 +11,14 @@ class {{ class_name }} extends BaseShortcode {
 
 	use InstancesTrait;
 
-//	public $shortcode = null;
+//	public $shortcode = '{{ name }}';
 
 	/*
 	 *
 	 */
 
 	public function index($atts, $content, $tag, Request $request) {
+		echo 'Request URL: ' . $request->url();
 		return Funcs::view('shortcodes.{{ name }}')->render();
 	}
 
