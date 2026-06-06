@@ -21,6 +21,12 @@ class {{ class_name }} extends BaseWPRole {
 	 *
 	 */
 
+//	public function __wpspConstruct() {}
+
+	/*
+	 *
+	 */
+
 	public function customProperties() {
 //		$this->capabilities = [];
 	}

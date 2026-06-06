@@ -2,7 +2,6 @@
 namespace {{ root_namespace }}\App\WordPress\PostTypeColumns;
 
 use Illuminate\Http\Request;
-use {{ root_namespace }}\App\Services\TestService;
 use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
 use {{ core_namespace }}\App\WordPress\PostTypeColumns\BasePostTypeColumn;
 
@@ -36,7 +35,7 @@ class {{ class_name }} extends BasePostTypeColumn {
 	 *
 	 */
 
-	public function index($column_name, $post_id, Request $request, TestService $testService) {
+	public function index($column_name, $post_id, Request $request) {
 		echo $post_id;
 	}
 
