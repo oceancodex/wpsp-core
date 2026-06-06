@@ -1,13 +1,13 @@
 <?php
 
-namespace {{ rootNamespace }}\App\Listeners;
+namespace {{ root_namespace }}\App\Listeners;
 
-use {{ rootNamespace }}\App\Widen\Traits\InstancesTrait;
-use {{ rootNamespace }}\Funcs;
-use {{ coreNamespace }}\Base\BaseInstances;
-use {{ coreNamespace }}\Events\Contracts\ListenerContract;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\Base\BaseInstances;
+use {{ core_namespace }}\Events\Contracts\ListenerContract;
 
-class {{ className }} extends BaseInstances implements ListenerContract {
+class {{ class_name }} extends BaseInstances implements ListenerContract {
 
 	use InstancesTrait;
 
@@ -15,7 +15,7 @@ class {{ className }} extends BaseInstances implements ListenerContract {
 
 		// Code here...
 
-		Funcs::notice('{{ className }} fired! in: ' . __FILE__, 'info', true);
+		Funcs::notice('{{ class_name }} fired! in: ' . __FILE__, 'info', true);
 
 	}
 

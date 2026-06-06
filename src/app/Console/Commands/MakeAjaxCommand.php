@@ -47,9 +47,9 @@ class MakeAjaxCommand extends Command {
 		$this->validateSlug($action, 'action');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$name   = Str::slug(str_replace('-', '_', $action), '_');
-		$method = strtolower($method ?? $this->option('method') ?: 'GET');
-		$nopriv = $nopriv ?? $this->option('nopriv') ?: false;
+		$className = Str::slug($action, '_');
+		$method    = strtolower($method ?? $this->option('method') ?: 'GET');
+		$nopriv    = $nopriv ?? $this->option('nopriv') ?: false;
 
 		/**
 		 * ---
@@ -58,8 +58,8 @@ class MakeAjaxCommand extends Command {
 		 */
 		$func = $nopriv ? File::get(__DIR__ . '/../Funcs/Ajaxs/ajax-nopriv.func') : File::get(__DIR__ . '/../Funcs/Ajaxs/ajax.func');
 		$func = str_replace(
-			['{{ method }}', '{{ action }}', '{{ name }}', '{{ nopriv }}'],
-			[$method, $action, $name, $nopriv],
+			['{{ method }}', '{{ action }}', '{{ class_name }}', '{{ nopriv }}'],
+			[$method, $action, $className, $nopriv],
 			$func
 		);
 
@@ -70,8 +70,8 @@ class MakeAjaxCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/Ajaxs/ajax.use');
 		$use = str_replace(
-			['{{ method }}', '{{ action }}', '{{ name }}', '{{ nopriv }}'],
-			[$method, $action, $name, $nopriv],
+			['{{ method }}', '{{ action }}', '{{ class_name }}', '{{ nopriv }}'],
+			[$method, $action, $className, $nopriv],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

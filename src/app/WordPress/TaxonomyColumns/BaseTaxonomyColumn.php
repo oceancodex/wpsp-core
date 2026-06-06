@@ -12,16 +12,18 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 
 	use ObjectToArrayTrait;
 
-	public $column                  = null;
-	public $column_title            = null;
-	public $column_add_priority     = 10;
-	public $column_content_priority = 0;
-	public $taxonomies              = ['category'];
-	public $before_column           = [];
-	public $after_column            = [];
-	public $position                = null;
-	public $sortable                = false;
-	public $callback_function       = null;
+	public 	$column_name             = null;
+	public 	$column_title            = null;
+	public 	$column_add_priority     = 10;
+	public 	$column_content_priority = 0;
+	public 	$taxonomies              = ['category'];
+	public 	$before_column           = [];
+	public 	$after_column            = [];
+	public 	$position                = null;
+	public 	$sortable                = false;
+
+	private $path 					 = null;
+	public 	$callback_function       = null;
 
 	/*
 	 *
@@ -29,16 +31,17 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'] ?? null;
-		$this->overrideColumn($this->extraParams['full_path'] ?? null);
+		$this->overrideColumnName($this->extraParams['full_path'] ?? null);
+		$this->path = $this->extraParams['path'] ?? null;
 	}
 
 	/*
 	 *
 	 */
 
-	protected function overrideColumn($column = null) {
-		if ($column && !$this->column) {
-			$this->column = $column;
+	protected function overrideColumnName($column_name = null) {
+		if ($column_name && !$this->column_name) {
+			$this->column_name = $column_name;
 		}
 	}
 
@@ -46,15 +49,17 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 	 *
 	 */
 
-	public function init($column = null) {
-		$column = $this->column ?? $column;
-		if ($column) {
+	public function init($column_name = null) {
+		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+		$column_name = $this->column_name ?? $column_name;
+
+		if ($column_name) {
 			foreach ($this->taxonomies as $taxonomy) {
 
 				/**
 				 * Add column to each post type list table.
 				 */
-				add_filter('manage_edit-'.$taxonomy.'_columns', function($columns) use ($column) {
+				add_filter('manage_edit-'.$taxonomy.'_columns', function($columns) use ($column_name) {
 					$new_columns = [];
 					$inserted = false;
 
@@ -64,7 +69,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 
 						foreach ($columns as $key => $value) {
 							if (in_array($key, $before_columns)) {
-								$new_columns[$column] = $this->column_title ?? $column;
+								$new_columns[$column_name] = $this->column_title ?? $column_name;
 								$inserted = true;
 							}
 							$new_columns[$key] = $value;
@@ -78,7 +83,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 						foreach ($columns as $key => $value) {
 							$new_columns[$key] = $value;
 							if (in_array($key, $after_columns)) {
-								$new_columns[$column] = $this->column_title ?? $column;
+								$new_columns[$column_name] = $this->column_title ?? $column_name;
 								$inserted = true;
 							}
 						}
@@ -91,7 +96,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 
 						foreach ($columns as $key => $value) {
 							if ($i === $position) {
-								$new_columns[$column] = $this->column_title ?? $column;
+								$new_columns[$column_name] = $this->column_title ?? $column_name;
 								$inserted = true;
 							}
 							$new_columns[$key] = $value;
@@ -100,7 +105,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 
 						// Nếu position lớn hơn số lượng columns hiện tại
 						if (!$inserted) {
-							$new_columns[$column] = $this->column_title ?? $column;
+							$new_columns[$column_name] = $this->column_title ?? $column_name;
 							$inserted = true;
 						}
 					}
@@ -108,7 +113,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 					// Nếu chưa insert được (trường hợp không tìm thấy before/after/position)
 					if (!$inserted) {
 						$new_columns = $columns;
-						$new_columns[$column] = $this->column_title ?? $column;
+						$new_columns[$column_name] = $this->column_title ?? $column_name;
 					}
 
 					return $new_columns;
@@ -117,9 +122,19 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 				/**
 				 * The column content.
 				 */
-				add_filter('manage_' . $taxonomy . '_custom_column', function($content, $columnName, $termId) use ($column) {
-					if ($columnName === $column) {
-						return call_user_func_array([$this, $this->callback_function], func_get_args());
+				add_filter('manage_' . $taxonomy . '_custom_column', function($content, $columnName, $termId) use ($requestPath, $column_name) {
+					if ($columnName === $column_name) {
+						return $this->autoResolveAndCall(
+							$this->path,
+							$column_name,
+							$requestPath,
+							$this,
+							$this->callback_function,
+							[
+								'column_name' => $column_name,
+								'term_id'     => $termId,
+							]
+						);
 					}
 					return $content;
 				}, $this->column_content_priority, 3);
@@ -129,7 +144,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 				 */
 				if ($this->sortable) {
 					add_filter('manage_edit-' . $taxonomy . '_sortable_columns', function($columns) {
-						$columns[$this->column] = $this->column;
+						$columns[$this->column_name] = $this->column_name;
 						return $columns;
 					});
 				}
@@ -148,11 +163,5 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 	 */
 
 	public function afterInit() {}
-
-	/*
-	 *
-	 */
-
-	abstract public function index($content, $columnName, $termId);
 
 }

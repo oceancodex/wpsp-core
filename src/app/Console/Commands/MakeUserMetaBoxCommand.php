@@ -50,13 +50,14 @@ class MakeUserMetaBoxCommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($id, 'id');
+		$this->validateSlug($id, 'id');
 
 		// Chuẩn bị thêm các biến để sử dụng.
+		$className  = Str::slug($id, '_');
 		$createView = $createView ?? $this->option('view');
 
 		// Kiểm tra tồn tại.
-		$classPath = $mainPath . '/app/WordPress/UserMetaBoxes/' . $id . '.php';
+		$classPath = $mainPath . '/app/WordPress/UserMetaBoxes/' . $className . '.php';
 		$viewDir   = $mainPath . '/resources/views/user-meta-boxes/' . $id;
 
 		if (File::exists($classPath) || File::exists($viewDir)) {
@@ -77,8 +78,8 @@ class MakeUserMetaBoxCommand extends Command {
 		}
 
 		$content = str_replace(
-			['{{ className }}', '{{ id }}'],
-			[$id, $id],
+			['{{ class_name }}', '{{ id }}'],
+			[$className, $id],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -108,8 +109,8 @@ class MakeUserMetaBoxCommand extends Command {
 				$view = File::get(__DIR__ . '/../Views/UserMetaBoxes' . $nonBladeSep . '/' . $stubFile);
 
 				$view = str_replace(
-					['{{ className }}', '{{ id }}'],
-					[$id, $id],
+					['{{ class_name }}', '{{ id }}'],
+					[$className, $id],
 					$view
 				);
 
@@ -124,8 +125,8 @@ class MakeUserMetaBoxCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/UserMetaBoxes/user-meta-box.func');
 		$func = str_replace(
-			['{{ id }}'],
-			[$id],
+			['{{ class_name }}', '{{ id }}'],
+			[$className, $id],
 			$func
 		);
 
@@ -136,8 +137,8 @@ class MakeUserMetaBoxCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/UserMetaBoxes/user-meta-box.use');
 		$use = str_replace(
-			['{{ id }}'],
-			[$id],
+			['{{ class_name }}', '{{ id }}'],
+			[$className, $id],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
-namespace {{ rootNamespace }}\database\migrations;
+namespace {{ root_namespace }}\database\migrations;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
-use {{ rootNamespace }}\Funcs;
+use {{ root_namespace }}\Funcs;
 
 /**
  * All tables must use the prefix: "{{ dbCustomMigrationTablePrefix }}" (Eg: {{ dbCustomMigrationTablePrefix }}my_custom_table).
@@ -12,7 +12,7 @@ use {{ rootNamespace }}\Funcs;
  * @see https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html#mapping-matrix
  * @see https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/schema-representation.html#column
  */
-final class {{ className }} extends AbstractMigration {
+final class {{ class_name }} extends AbstractMigration {
 
 //	protected $connection = 'mongodb';
 

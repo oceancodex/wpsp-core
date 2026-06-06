@@ -1,1 +1,1 @@
-use {{ rootNamespace }}\App\WordPress\Widgets\{{ id_base }};
+use {{ root_namespace }}\App\WordPress\Widgets\{{ class_name }};

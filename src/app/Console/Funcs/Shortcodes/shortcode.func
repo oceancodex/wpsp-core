@@ -1,1 +1,1 @@
-        Route::shortcode('{{ name }}', [{{ name }}::class, 'index']);
+        Route::shortcode('{{ name }}', [{{ class_name }}::class, 'index']);

@@ -1,1 +1,1 @@
-		Route::meta_box('{{ id }}', [{{ id }}::class, 'index']);
+		Route::meta_box('{{ id }}', [{{ class_name }}::class, 'index']);

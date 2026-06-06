@@ -5,7 +5,7 @@ namespace WPSPCORE\App\Routes\PostTypeColumns;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
- * @method static $this column(string $column, callable|array $callback, array $args = [])
+ * @method static $this column(string $column_name, callable|array $callback, array $args = [])
  */
 class PostTypeColumns extends BaseRoute {
 

@@ -1,0 +1,51 @@
+<?php
+
+namespace {{ root_namespace }}\App\WordPress\DashboardWidgets;
+
+use Illuminate\Http\Request;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\App\WordPress\DashboardWidgets\BaseDashboardWidget;
+
+class {{ class_name }} extends BaseDashboardWidget {
+
+	use InstancesTrait;
+
+	public $widget_id         = '{{ widget_id }}';
+	public $widget_name       = '{{ widget_id }}';
+//	public $callback_args     = null;
+//	public $context           = 'column3'; // 'normal', 'side', 'column3', 'column4'
+//	public $priority          = 'default'; // 'high', 'core', 'default', 'low'
+
+	/*
+	 *
+	 */
+
+//	public function __wpspConstruct(Request $request) {}
+
+	/*
+	 *
+	 */
+
+	/**
+	 * Tùy chỉnh các tham số.
+	 */
+	public function customProperties(Request $request) {}
+
+	/*
+	 *
+	 */
+
+	public function index($post, $callback_args, Request $request) {
+		echo Funcs::view('dashboard-widgets.{{ widget_id }}')->render();
+	}
+
+	/*
+	 *
+	 */
+
+	public function control_callback($post, $callback_args, Request $request) {
+		echo '<p><input type="text" name="dashboard_widget_setting_1" style="width:100%;" placeholder="Setting 1..." autocomplete="off"/></p>';
+	}
+
+}

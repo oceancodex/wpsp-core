@@ -7,9 +7,11 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseBlock extends BaseInstances {
 
-	public $name 		= null;
-	public $blockPath   = null;
-	public $args		= [];
+	public  $name      = null;
+	public  $blockPath = null;
+	public  $args      = [];
+
+	private $path      = null;
 
 	/*
 	 *
@@ -17,6 +19,7 @@ abstract class BaseBlock extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->overrideName($this->extraParams['full_path']);
+		$this->path = $this->extraParams['path'];
 	}
 
 	/*
@@ -34,14 +37,27 @@ abstract class BaseBlock extends BaseInstances {
 	 */
 
 	public function init($name = null) {
+		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 		$name = $this->name ?? $name;
+
 		if ($name) {
 			$blockPath = $this->blockPath ?? $this->funcs->_getResourcesPath('/views/blocks/build/' . $name);
 
 			if (File::exists($blockPath)) {
 				if (method_exists($this, 'render')) {
-					$this->args['render_callback'] = function($attributes, $content, $block) {
-						return $this->render($attributes, $content, $block);
+					$this->args['render_callback'] = function($attributes, $content, $block) use ($requestPath) {
+						return $this->autoResolveAndCall(
+							$this->path,
+							$this->name,
+							$requestPath,
+							$this,
+							'render',
+							[
+								'attributes' => $attributes,
+								'content' => $content,
+								'block' => $block
+							]
+						);
 					};
 				}
 

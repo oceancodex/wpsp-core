@@ -12,11 +12,11 @@ class MakeScheduleCommand extends Command {
 	use CommandsTrait;
 
 	protected $signature = 'make:schedule
-        {hook? : The hook of the schedule.}
-        {--type= : The type of the schedule.}
+        {hook? : The hook name of the schedule.}
+        {--type= : The type of the schedule (wpsp | wordpress).}
         {interval? : The interval of the schedule.}';
 
-	protected $description = 'Create a new schedule. | Eg: php artisan make:schedule custom_schedule_hook hourly';
+	protected $description = 'Create a new schedule. | Eg: php artisan make:schedule custom_schedule_hook --type=wordpress hourly';
 
 	protected $help = 'This command allows you to create a schedule.';
 
@@ -47,20 +47,21 @@ class MakeScheduleCommand extends Command {
 			}
 
 			// Nếu có câu trả lời, hãy tiếp tục hỏi.
-			$type     = $this->ask('Please enter the type of the schedule (Eg: wpsp, wordpress)', 'wordpress');
+			$type     = $this->ask('Please enter the type of the schedule (wpsp | wordpress)', 'wordpress');
 			$interval = $this->ask('Please enter the interval of the schedule (everyMinute, hourly, daily, weekly, monthly, yearly,...)', 'everyMinute');
 		}
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$type     = $type ?? $this->option('type') ?: 'wordpress';
-		$interval = $interval ?? $this->argument('interval') ?: 'everyMinute';
+		$className = Str::slug($hook, '_');
+		$type      = $type ?? $this->option('type') ?: 'wordpress';
+		$interval  = $interval ?? $this->argument('interval') ?: 'everyMinute';
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($hook, 'hook');
+		$this->validateSlug($hook, 'hook');
 		$this->validateClassName($interval, 'interval');
 
 		// Kiểm tra tồn tại.
-		$path = $mainPath . '/app/WordPress/Schedules/' . $hook . '.php';
+		$path = $mainPath . '/app/WordPress/Schedules/' . $className . '.php';
 
 		if (File::exists($path)) {
 			$this->error('Schedule: "' . $hook . '" already exists! Please try again.');
@@ -74,8 +75,8 @@ class MakeScheduleCommand extends Command {
 		 */
 		$content = File::get(__DIR__ . '/../Stubs/Schedules/schedule.stub');
 		$content = str_replace(
-			['{{ className }}', '{{ hook }}', '{{ interval }}'],
-			[$hook, $hook, $interval],
+			['{{ class_name }}', '{{ hook }}', '{{ interval }}', '{{ type }}'],
+			[$className, $hook, $interval, $type],
 			$content
 		);
 		$content = $this->replaceNamespaces($content);
@@ -90,8 +91,8 @@ class MakeScheduleCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/Schedules/schedule'.($type == 'wpsp' ? '-wpsp' : '').'.func');
 		$func = str_replace(
-			['{{ hook }}', '{{ interval }}'],
-			[$hook, $interval],
+			['{{ class_name }}', '{{ hook }}', '{{ interval }}', '{{ type }}'],
+			[$className, $hook, $interval, $type],
 			$func
 		);
 
@@ -102,8 +103,8 @@ class MakeScheduleCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/Schedules/schedule.use');
 		$use = str_replace(
-			['{{ hook }}', '{{ interval }}'],
-			[$hook, $interval],
+			['{{ class_name }}', '{{ hook }}', '{{ interval }}', '{{ type }}'],
+			[$className, $hook, $interval, $type],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

@@ -1,1 +1,1 @@
-		Route::theme_template('{{ name }}', [{{ name }}::class]);
+		Route::theme_template('{{ name }}', [{{ class_name }}::class]);

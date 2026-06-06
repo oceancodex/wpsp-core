@@ -50,13 +50,14 @@ class MakeWidgetCommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateClassName($id_base);
+		$this->validateSlug($id_base);
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$createView  = $createView ?? $this->option('view');
+		$className  = Str::slug($id_base, '_');
+		$createView = $createView ?? $this->option('view');
 
 		// Kiểm tra tồn tại.
-		$classPath = $mainPath . '/app/WordPress/Widgets/' . $id_base . '.php';
+		$classPath = $mainPath . '/app/WordPress/Widgets/' . $className . '.php';
 		$formViewPath  = $mainPath . '/resources/views/widgets/' . $id_base . '/form.blade.php';
 		$widgetViewPath  = $mainPath . '/resources/views/widgets/' . $id_base . '/widget.blade.php';
 
@@ -73,15 +74,15 @@ class MakeWidgetCommand extends Command {
 		if ($createView) {
 			$formView = File::get(__DIR__ . '/../Views/Widgets/form.view');
 			$formView = str_replace(
-				['{{ id_base }}', '{{ name }}'],
-				[$id_base, $id_base],
+				['{{ class_name }}', '{{ id_base }}'],
+				[$className, $id_base],
 				$formView
 			);
 
 			$widgetView = File::get(__DIR__ . '/../Views/Widgets/widget.view');
 			$widgetView = str_replace(
-				['{{ id_base }}', '{{ name }}'],
-				[$id_base, $id_base],
+				['{{ class_name }}', '{{ id_base }}'],
+				[$className, $id_base],
 				$widgetView
 			);
 
@@ -98,8 +99,8 @@ class MakeWidgetCommand extends Command {
 		}
 
 		$stub = str_replace(
-			['{{ className }}', '{{ id_base }}', '{{ name }}'],
-			[$id_base, $id_base, $id_base],
+			['{{ class_name }}', '{{ id_base }}'],
+			[$className, $id_base],
 			$stub
 		);
 
@@ -115,8 +116,8 @@ class MakeWidgetCommand extends Command {
 		 */
 		$func = File::get(__DIR__ . '/../Funcs/Widgets/widget.func');
 		$func = str_replace(
-			['{{ id_base }}', '{{ name }}'],
-			[$id_base, $id_base],
+			['{{ class_name }}', '{{ id_base }}'],
+			[$className, $id_base],
 			$func
 		);
 
@@ -127,8 +128,8 @@ class MakeWidgetCommand extends Command {
 		 */
 		$use = File::get(__DIR__ . '/../Uses/Widgets/widget.use');
 		$use = str_replace(
-			['{{ id_base }}', '{{ name }}'],
-			[$id_base, $id_base],
+			['{{ class_name }}', '{{ id_base }}'],
+			[$className, $id_base],
 			$use
 		);
 		$use = $this->replaceNamespaces($use);

@@ -1,10 +1,10 @@
 <?php
 
-namespace {{ rootNamespace }}\App\Http\Requests;
+namespace {{ root_namespace }}\App\Http\Requests;
 
-use {{ rootNamespace }}\App\Instances\Requests\FormRequest;
+use {{ root_namespace }}\App\Instances\Requests\FormRequest;
 
-class {{ className }} extends FormRequest {
+class {{ class_name }} extends FormRequest {
 
 	/**
 	 * Xác định xem người dùng hiện tại có được phép gửi request này không.

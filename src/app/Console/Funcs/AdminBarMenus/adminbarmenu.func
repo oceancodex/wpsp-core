@@ -1,1 +1,1 @@
-		Route::admin_bar_menu('{{ name }}', [{{ name }}::class]);
+		Route::admin_bar_menu('{{ name }}', [{{ class_name }}::class]);

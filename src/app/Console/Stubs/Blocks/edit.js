@@ -38,7 +38,7 @@ export default function Edit({ attributes, setAttributes }) {
 			<p>
 				{ __(
 					'Custom block "{{ name }}" - editor content',
-					'{{ textDomain }}'
+					'{{ text_domain }}'
 				) }
 			</p>
 			<div>

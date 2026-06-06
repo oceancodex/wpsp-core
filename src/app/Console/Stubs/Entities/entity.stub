@@ -1,8 +1,8 @@
 <?php
-namespace {{ rootNamespace }}\App\Entities;
+namespace {{ root_namespace }}\App\Entities;
 
 use Doctrine\ORM\Mapping as ORM;
-use {{ coreNamespace }}\Base\BaseEntity;
+use {{ core_namespace }}\Base\BaseEntity;
 
 /**
  * @see https://www.doctrine-project.org/projects/doctrine-orm/en/3.5/reference/attributes-reference.html
@@ -12,7 +12,7 @@ use {{ coreNamespace }}\Base\BaseEntity;
 
 #[ORM\Entity]
 #[ORM\Table(name: '{{ table }}')]
-class {{ className }} extends BaseEntity {
+class {{ class_name }} extends BaseEntity {
 
 	#[ORM\Id]
 	#[ORM\Column(type: 'integer')]

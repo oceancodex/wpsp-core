@@ -22,16 +22,6 @@ abstract class BaseNavigationLocation extends BaseInstances {
 		$this->overrideLocation($this->extraParams['full_path']);
 	}
 
-	/*
-	 *
-	 */
-
-	public function init($location = null) {
-		if ($this->location) {
-			register_nav_menu($this->location, $this->description);
-		}
-	}
-
 
 	/*
 	 *
@@ -40,6 +30,16 @@ abstract class BaseNavigationLocation extends BaseInstances {
 	public function overrideLocation($location = null) {
 		if ($location && !$this->location) {
 			$this->location = $location;
+		}
+	}
+
+	/*
+	 *
+	 */
+
+	public function init($location = null) {
+		if ($this->location) {
+			register_nav_menu($this->location, $this->description);
 		}
 	}
 
