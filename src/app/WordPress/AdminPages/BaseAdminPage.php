@@ -176,7 +176,12 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	private function maybeCallIndexMethod() {
-		if (!$this->isForceInit && $this->callback_function === 'index' && method_exists($this, 'index')) {
+		if (
+			!$this->isForceInit
+			&& $this->callback_function === 'index'
+			&& method_exists($this, 'index')
+			&& str_contains($this->menu_slug, '&')
+		) {
 			$this->callAdminPageMethod('index');
 		}
 	}
@@ -260,6 +265,7 @@ abstract class BaseAdminPage extends BaseInstances {
 					$this->assets();
 					if ($this->screenOptionsPageNow) $this->overrideScreenOptionsPageNow();
 					$this->matchedCurrentAccess();
+					$this->maybeCallIndexMethod();
 					$this->overridePageTitle();
 					$this->showScreenOptions();
 					break;
@@ -279,6 +285,7 @@ abstract class BaseAdminPage extends BaseInstances {
 				$this->assets();
 				if ($this->screenOptionsPageNow) $this->overrideScreenOptionsPageNow();
 				$this->matchedCurrentAccess();
+				$this->maybeCallIndexMethod();
 				$this->overridePageTitle();
 				$this->showScreenOptions();
 			}
