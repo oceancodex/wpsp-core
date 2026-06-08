@@ -89,9 +89,9 @@ class AdminPages extends BaseRoute {
 			}
 			else {
 				wp_die(
-					'<h1>ERROR: 403 - Truy cập bị từ chối</h1>' .
-					'<p>Bạn không được phép truy cập vào trang này.</p>',
-					'ERROR: 403 - Truy cập bị từ chối',
+					'<h1>ERROR: 403 - Access denied</h1>' .
+					'<p>You are not allowed to access this page.</p>',
+					'ERROR: 403 - Access denied',
 					[
 						'response'  => 403,
 						'back_link' => true,
@@ -213,9 +213,9 @@ class AdminPages extends BaseRoute {
 				}
 				elseif (preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
 					wp_die(
-						'<h1>ERROR: 403 - Truy cập bị từ chối</h1>' .
-						'<p>Bạn không được phép truy cập vào trang này.</p>',
-						'ERROR: 403 - Truy cập bị từ chối',
+						'<h1>ERROR: 403 - Access denied</h1>' .
+						'<p>You are not allowed to access this page.</p>',
+						'ERROR: 403 - Access denied',
 						[
 							'response'  => 403,
 							'back_link' => true,

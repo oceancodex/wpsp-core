@@ -992,7 +992,7 @@ class Funcs extends BaseInstances {
 
 	public function _regexPath($pattern, $forceRegex = false, $pregQuote = true, $delimiter = '/') {
 		// Nếu chứa ký tự escaped slash -> đang là regex thật -> trả về nguyên
-		if (strpos($pattern, '\/') !== false || $forceRegex) {
+		if (str_contains($pattern, '\\') || $forceRegex) {
 			$pattern = preg_replace('/(?<!\\\\)(?:\\\\\\\\)*\//', '\\/', $pattern);
 			$pattern = preg_replace('/(?:\\\\\/){2,}/', '\\/', $pattern);
 			return $pattern;
