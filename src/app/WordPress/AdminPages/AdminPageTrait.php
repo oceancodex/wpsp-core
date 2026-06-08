@@ -98,8 +98,8 @@ trait AdminPageTrait {
 					return;
 				}
 
-				foreach ($submenu[$this->menu_slug] as $index => &$item) {
-					if ($item[2] === $this->menu_slug || $item[2] === $this->forceInitSlug) {
+				foreach ($submenu[$this->forceInitSlug] ?? $submenu[$this->menu_slug] ?? [] as $index => &$item) {
+					if ($item[2] === $this->forceInitSlug || $item[2] === $this->menu_slug) {
 						$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $this->firstSubmenuClasses);
 					}
 				}
