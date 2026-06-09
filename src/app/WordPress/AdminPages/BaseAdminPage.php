@@ -11,26 +11,27 @@ abstract class BaseAdminPage extends BaseInstances {
 	/**
 	 * WordPress admin page properties.
 	 */
-	public $menu_title             = null;
-	public $page_title             = null;
-	public $capability             = null;
-	public $menu_slug              = null;
-	public $icon_url               = null;
-	public $position               = null;
-	public $parent_slug            = null;
+	public 	$menu_title             = null;
+	public 	$page_title             = null;
+	public 	$capability             = null;
+	public 	$menu_slug              = null;
+	public 	$icon_url               = null;
+	public 	$position               = null;
+	public 	$parent_slug            = null;
 
-	public $forceInitSlug          = null;
-	public $classes                = null;
-	public $firstSubmenuTitle      = null;
-	public $firstSubmenuClasses    = null;
-	public $isSubmenuPage          = false;
-	public $removeFirstSubmenu     = false;
-	public $urlsMatchCurrentAccess = [];
-	public $urlsMatchHighlightMenu = [];
+	public 	$classes                = null;
+	public 	$firstSubmenuTitle      = null;
+	public 	$firstSubmenuClasses    = null;
+	public 	$isSubmenuPage          = false;
+	public 	$removeFirstSubmenu     = false;
+	public 	$urlsMatchCurrentAccess = [];
+	public 	$urlsMatchHighlightMenu = [];
 
-	public  $callback_function     = null;
-	private $calledAssets          = false;
-	private $isForceInit           = false;
+	public 	$forceInit           	= false;
+	public 	$forceInitSlug         	= null;
+
+	private $callback_function     	= null;
+	private $calledAssets          	= false;
 
 	/*
 	 *
@@ -38,7 +39,11 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->callback_function = $this->extraParams['callback_function'];
+
 		$this->overrideMenuSlug($this->extraParams['full_path']);
+
+		$this->forceInit();
+
 		if (!$this->screenOptionsKey) {
 			$this->screenOptionsKey = $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
 		}
@@ -49,12 +54,18 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	public function overrideMenuSlug($menu_slug = null) {
-		if (isset($this->extraParams['route']->args['force_init']) && $this->forceInitSlug) {
-			$this->isForceInit = true;
-		}
-
 		if ($menu_slug && !$this->menu_slug) {
 			$this->menu_slug = $menu_slug;
+		}
+	}
+
+	public function forceInit() {
+		if (!$this->forceInitSlug && isset($this->extraParams['route']->args['force_init_slug'])) {
+			$this->forceInitSlug = $this->extraParams['route']->args['force_init_slug'];
+		}
+
+		if (!$this->forceInit && isset($this->extraParams['route']->args['force_init']) && $this->extraParams['route']->args['force_init'] === true && $this->forceInitSlug) {
+			$this->forceInit = true;
 		}
 	}
 
@@ -88,7 +99,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->page_title,
 			$this->menu_title,
 			$this->capability,
-			$this->isForceInit ? $this->forceInitSlug : $this->menu_slug,
+			$this->forceInit ? $this->forceInitSlug : $this->menu_slug,
 			$callback,
 			$this->icon_url,
 			$this->position
@@ -103,7 +114,7 @@ abstract class BaseAdminPage extends BaseInstances {
 				$this->page_title,
 				$this->firstSubmenuTitle,
 				$this->capability,
-				$this->isForceInit ? $this->forceInitSlug : $this->menu_slug,
+				$this->forceInit ? $this->forceInitSlug : $this->menu_slug,
 				$callback,
 				$this->position
 			);
@@ -126,7 +137,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->page_title,
 			$this->menu_title,
 			$this->capability,
-			$this->isForceInit ? $this->forceInitSlug : $this->menu_slug,
+			$this->forceInit ? $this->forceInitSlug : $this->menu_slug,
 			$callback,
 			$this->position
 		);
@@ -177,7 +188,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	private function maybeCallIndexMethod() {
 		if (
-			!$this->isForceInit
+			!$this->forceInit
 			&& $this->callback_function === 'index'
 			&& method_exists($this, 'index')
 			&& str_contains($this->menu_slug, '&')
