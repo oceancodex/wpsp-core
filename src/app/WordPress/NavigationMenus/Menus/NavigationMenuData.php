@@ -34,11 +34,19 @@ class NavigationMenuData {
 	// Custom properties.
 //	public $navigationMenuInstance;
 
+	/*
+	 *
+	 */
+
 	public function __construct($navigationMenuInstance) {
 //		$this->navigationMenuInstance = $navigationMenuInstance;
 //		$this->prepareCustomVariables();
 		$this->prepareArgs();
 	}
+
+	/*
+	 *
+	 */
 
 	private function prepareArgs() {
 //		$this->menu                 = '';

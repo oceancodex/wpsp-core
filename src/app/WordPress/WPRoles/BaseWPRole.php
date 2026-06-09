@@ -10,17 +10,34 @@ abstract class BaseWPRole extends BaseInstances {
 	use ObjectToArrayTrait;
 
 	public $role              = null;
-	public $callback_function = null;
 	public $display_name      = null;
 	public $capabilities      = [];
+
+	public $callback_function = null;
 
 	/*
 	 *
 	 */
 
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'];
-		$this->overrideRole($this->extraParams['full_path']);
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
+		$this->overrideRole($this->extraParams['full_path'] ?? null);
+	}
+
+	/*
+	 *
+	 */
+
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
+	private function overrideRole($role = null) {
+		if ($role && !$this->role) {
+			$this->role = $role;
+		}
 	}
 
 	/*
@@ -50,16 +67,6 @@ abstract class BaseWPRole extends BaseInstances {
 				}
 				$role->add_cap('_role_bookmark_' . $this->funcs->_getAppShortName());
 			}
-		}
-	}
-
-	/*
-	 *
-	 */
-
-	protected function overrideRole($role = null) {
-		if ($role && !$this->role) {
-			$this->role = $role;
 		}
 	}
 

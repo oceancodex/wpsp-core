@@ -11,6 +11,7 @@ abstract class BaseDashboardWidget extends BaseInstances {
 	public $callback_args     = null;
 	public $context           = 'normal';
 	public $priority          = 'core';
+
 	public $callback_function = null;
 
 	/*
@@ -18,15 +19,21 @@ abstract class BaseDashboardWidget extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'];
-		$this->overrideWidgetId($this->extraParams['full_path']);
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
+		$this->overrideWidgetId($this->extraParams['full_path'] ?? null);
 	}
 
 	/*
 	 *
 	 */
 
-	protected function overrideWidgetId($widget_id = null) {
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
+	private function overrideWidgetId($widget_id = null) {
 		if ($widget_id && !$this->widget_id) {
 			$this->widget_id = $widget_id;
 		}

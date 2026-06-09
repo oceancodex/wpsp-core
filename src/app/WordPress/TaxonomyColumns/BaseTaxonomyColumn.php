@@ -22,15 +22,16 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 	public 	$position                = null;
 	public 	$sortable                = false;
 
-	private $path 					 = null;
 	public 	$callback_function       = null;
+
+	private $path 					 = null;
 
 	/*
 	 *
 	 */
 
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'] ?? null;
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideColumnName($this->extraParams['full_path'] ?? null);
 		$this->path = $this->extraParams['path'] ?? null;
 	}
@@ -39,7 +40,13 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 	 *
 	 */
 
-	protected function overrideColumnName($column_name = null) {
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
+	private function overrideColumnName($column_name = null) {
 		if ($column_name && !$this->column_name) {
 			$this->column_name = $column_name;
 		}
