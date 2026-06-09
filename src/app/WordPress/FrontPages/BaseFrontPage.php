@@ -8,20 +8,29 @@ abstract class BaseFrontPage extends BaseInstances {
 
 	public $path                     = null;
 	public $fullPath                 = null;
+
 	public $callback_function        = null;
 
-	/**
-	 * Khởi tạo sau construct
+	/*
+	 *
 	 */
+
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'];
-		$this->overrideFullPath($this->extraParams['full_path']);
-		$this->overridePath($this->extraParams['path']);
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
+		$this->overrideFullPath($this->extraParams['full_path'] ?? null);
+		$this->overridePath($this->extraParams['path'] ?? null);
 	}
 
-	/**
-	 * Override path nếu được truyền từ ngoài
+	/*
+	 *
 	 */
+
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
 	private function overridePath($path = null) {
 		if ($path && !$this->path) {
 			$this->path = $path;
@@ -31,18 +40,16 @@ abstract class BaseFrontPage extends BaseInstances {
 		}
 	}
 
-	/**
-	 * Override fullPath nếu được truyền từ ngoài
-	 */
 	private function overrideFullPath($fullPath = null) {
 		if ($fullPath && !$this->fullPath) {
 			$this->fullPath = $fullPath;
 		}
 	}
 
-	/**
-	 * Hàm init chính: đăng ký rewrite + hook lifecycle
+	/*
+	 *
 	 */
+
 	public function init($path = null, $fullPath = null) {
 		$path     = $this->path ?? $path;
 		$fullPath = $this->fullPath ?? $fullPath;

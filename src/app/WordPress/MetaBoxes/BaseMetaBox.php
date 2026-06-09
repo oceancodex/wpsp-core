@@ -12,6 +12,7 @@ abstract class BaseMetaBox extends BaseInstances {
 	public $context           = 'advanced';
 	public $priority          = 'default';
 	public $callback_args     = [];
+
 	public $callback_function = null;
 
 	/*
@@ -19,13 +20,19 @@ abstract class BaseMetaBox extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'] ?? null;
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideId($this->extraParams['full_path'] ?? null);
 	}
 
 	/*
 	 *
 	 */
+
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
 
 	private function overrideId($id = null) {
 		if ($id && !$this->id) {

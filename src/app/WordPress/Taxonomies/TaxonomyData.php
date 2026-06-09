@@ -73,6 +73,10 @@ class TaxonomyData {
 	public $taxonomyInstance;
 	public $previousArgs;
 
+	/*
+	 *
+	 */
+
 	public function __construct($taxonomyInstance = null, $previousArgs = null) {
 		$this->taxonomyInstance = $taxonomyInstance;
 		$this->previousArgs     = $previousArgs;
@@ -80,6 +84,10 @@ class TaxonomyData {
 		$this->prepareArgs();
 		$this->prepareLabels();
 	}
+
+	/*
+	 *
+	 */
 
 	public function prepareArgs() {
 		$this->labels                = [];

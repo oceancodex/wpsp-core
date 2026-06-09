@@ -10,15 +10,16 @@ abstract class BaseUserMetaBox extends BaseInstances {
 	public  $title             = null;
 	public  $priority          = 10;
 
-	private $path              = null;
 	public  $callback_function = null;
+
+	private $path              = null;
 
 	/*
 	 *
 	 */
 
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'] ?? null;
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideId($this->extraParams['full_path'] ?? null);
 		$this->overridePriority($this->extraParams['priority'] ?? null);
 		$this->path = $this->extraParams['path'] ?? null;
@@ -40,13 +41,19 @@ abstract class BaseUserMetaBox extends BaseInstances {
 	 *
 	 */
 
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
 	private function overrideId($id = null) {
 		if ($id && !$this->id) {
 			$this->id = $id;
 		}
 	}
 
-	public function overridePriority($priority = null) {
+	private function overridePriority($priority = null) {
 		if ($priority && !$this->priority) {
 			$this->priority = $priority;
 		}

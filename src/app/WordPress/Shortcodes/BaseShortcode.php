@@ -6,19 +6,36 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseShortcode extends BaseInstances {
 
-	private $path              = null;
-
 	public  $shortcode         = null;
+
 	public  $callback_function = null;
+
+	private $path              = null;
 
 	/*
 	 *
 	 */
 
 	public function afterConstruct() {
-		$this->path = $this->extraParams['path'];
-		$this->callback_function = $this->extraParams['callback_function'];
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideShortcode($this->extraParams['full_path']);
+		$this->path = $this->extraParams['path'];
+	}
+
+	/*
+	 *
+	 */
+
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
+	private function overrideShortcode($shortcode = null) {
+		if ($shortcode && !$this->shortcode) {
+			$this->shortcode = $shortcode;
+		}
 	}
 
 	/*
@@ -44,16 +61,6 @@ abstract class BaseShortcode extends BaseInstances {
 					]
 				);
 			});
-		}
-	}
-
-	/*
-	 *
-	 */
-
-	protected function overrideShortcode($shortcode = null) {
-		if ($shortcode && !$this->shortcode) {
-			$this->shortcode = $shortcode;
 		}
 	}
 

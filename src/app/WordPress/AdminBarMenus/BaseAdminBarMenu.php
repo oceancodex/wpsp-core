@@ -14,6 +14,7 @@ abstract class BaseAdminBarMenu extends BaseInstances {
 	public $href              = null;
 	public $parent            = '';
 	public $meta              = [];
+
 	public $callback_function = null;
 
 	/*
@@ -21,8 +22,24 @@ abstract class BaseAdminBarMenu extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'];
-		$this->overrideName($this->extraParams['full_path']);
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
+		$this->overrideName($this->extraParams['full_path'] ?? null);
+	}
+
+	/*
+	 *
+	 */
+
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
+	private function overrideName($name = null) {
+		if ($name && !$this->name) {
+			$this->name = $name;
+		}
 	}
 
 	/*
@@ -40,17 +57,6 @@ abstract class BaseAdminBarMenu extends BaseInstances {
 					'parent' => $this->parent,
 				]);
 			}, 999);
-		}
-	}
-
-
-	/*
-	 *
-	 */
-
-	public function overrideName($name = null) {
-		if ($name && !$this->name) {
-			$this->name = $name;
 		}
 	}
 

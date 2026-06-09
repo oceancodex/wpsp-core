@@ -81,7 +81,7 @@ abstract class BaseTaxonomy extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'];
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideTaxonomy($this->extraParams['full_path']);
 
 		// Init args.
@@ -102,6 +102,22 @@ abstract class BaseTaxonomy extends BaseInstances {
 	 *
 	 */
 
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
+	private function overrideTaxonomy($taxonomy = null) {
+		if ($taxonomy && !$this->taxonomy) {
+			$this->taxonomy = $taxonomy;
+		}
+	}
+
+	/*
+	 *
+	 */
+
 	public function init($taxonomy = null) {
 		$taxonomy = $this->taxonomy ?? $taxonomy;
 		if ($taxonomy) {
@@ -115,17 +131,7 @@ abstract class BaseTaxonomy extends BaseInstances {
 	 *
 	 */
 
-	protected function overrideTaxonomy($taxonomy = null) {
-		if ($taxonomy && !$this->taxonomy) {
-			$this->taxonomy = $taxonomy;
-		}
-	}
-
-	/*
-	 *
-	 */
-
-	protected function prepareArguments() {
+	private function prepareArguments() {
 		foreach ($this->toArray() as $key => $value) {
 			if (property_exists($this->args, $key)) {
 				$this->args->{$key} = $value;

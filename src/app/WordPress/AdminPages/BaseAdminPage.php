@@ -30,7 +30,8 @@ abstract class BaseAdminPage extends BaseInstances {
 	public 	$forceInit           	= false;
 	public 	$forceInitSlug         	= null;
 
-	private $callback_function     	= null;
+	public  $callback_function     	= null;
+
 	private $calledAssets          	= false;
 
 	/*
@@ -38,10 +39,8 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'];
-
-		$this->overrideMenuSlug($this->extraParams['full_path']);
-
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
+		$this->overrideMenuSlug($this->extraParams['full_path'] ?? null);
 		$this->forceInit();
 
 		if (!$this->screenOptionsKey) {
@@ -53,13 +52,26 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	public function overrideMenuSlug($menu_slug = null) {
+	/**
+	 * Cần phải override callback function để xử lý vấn đề maybeCallIndexMethod().\
+	 * Tình huống xảy ra với AdminPages/wpsp_tab_tools.php\
+	 * Khi callback của metabox là index(). Thì index() sẽ được gọi 2 lần.\
+	 * Một lần ở maybeCallIndexMethod() và một lần ở callback của metabox.\
+	 * Vì vậy, nếu chỉ muốn index() là callback hợp lệ render ra nội dung của metabox thì cần cho $callback_function = false.
+	 */
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
+	private function overrideMenuSlug($menu_slug = null) {
 		if ($menu_slug && !$this->menu_slug) {
 			$this->menu_slug = $menu_slug;
 		}
 	}
 
-	public function forceInit() {
+	private function forceInit() {
 		if (!$this->forceInitSlug && isset($this->extraParams['route']->args['force_init_slug'])) {
 			$this->forceInitSlug = $this->extraParams['route']->args['force_init_slug'];
 		}

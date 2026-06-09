@@ -96,7 +96,7 @@ abstract class BasePostType extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'] ?? null;
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overridePostType($this->extraParams['full_path'] ?? null);
 
 		// Init args.
@@ -130,7 +130,13 @@ abstract class BasePostType extends BaseInstances {
 	 *
 	 */
 
-	protected function overridePostType($postType = null) {
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
+	private function overridePostType($postType = null) {
 		if ($postType && !$this->post_type) {
 			$this->post_type = $postType;
 		}
@@ -140,7 +146,7 @@ abstract class BasePostType extends BaseInstances {
 	 *
 	 */
 
-	protected function prepareArguments() {
+	private function prepareArguments() {
 		foreach ($this->toArray() as $key => $value) {
 			if (property_exists($this->args, $key)) {
 				$this->args->{$key} = $value;
