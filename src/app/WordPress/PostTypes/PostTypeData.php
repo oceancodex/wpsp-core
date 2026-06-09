@@ -93,6 +93,10 @@ class PostTypeData {
 	public $postTypeInstance;
 	public $previousArgs;
 
+	/*
+	 *
+	 */
+
 	public function __construct($postTypeInstance = null, $previousArgs = null) {
 		$this->postTypeInstance = $postTypeInstance;
 		$this->previousArgs     = $previousArgs;
@@ -100,6 +104,10 @@ class PostTypeData {
 		$this->prepareArgs();
 		$this->prepareLabels();
 	}
+
+	/*
+	 *
+	 */
 
 	public function prepareArgs() {
 		$this->label                           = null;

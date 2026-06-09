@@ -10,12 +10,33 @@ abstract class BaseThemeTemplates extends BaseInstances {
 	public $label             = null;
 	public $path              = null;
 	public $post_types        = [];
+
 	public $callback_function = null;
 
+	/*
+	 *
+	 */
+
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'] ?? null;
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideName($this->extraParams['full_path']);
 		$this->templateInclude();
+	}
+
+	/*
+	 *
+	 */
+
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
+	private function overrideName($name = null) {
+		if ($name && !$this->name) {
+			$this->name = $name;
+		}
 	}
 
 	/*
@@ -38,16 +59,6 @@ abstract class BaseThemeTemplates extends BaseInstances {
 			elseif (is_string($this->post_types) && $postType = $this->post_types) {
 				$this->addThemeTemplate($name, $postType);
 			}
-		}
-	}
-
-	/*
-	 *
-	 */
-
-	protected function overrideName($name = null) {
-		if ($name && !$this->name) {
-			$this->name = $name;
 		}
 	}
 
