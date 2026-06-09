@@ -13,6 +13,8 @@ abstract class BaseWidget extends \WP_Widget {
 	public $widget_options  = [];
 	public $control_options = [];
 
+	public $callback_function = null;
+
 	/*
 	 *
 	 */
@@ -35,8 +37,24 @@ abstract class BaseWidget extends \WP_Widget {
 	 */
 
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'];
-		$this->overrideIdBase($this->extraParams['full_path']);
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
+		$this->overrideIdBase($this->extraParams['full_path'] ?? null);
+	}
+
+	/*
+	 *
+	 */
+
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
+	private function overrideIdBase($id_base = null) {
+		if ($id_base && !$this->id_base) {
+			$this->id_base = $id_base;
+		}
 	}
 
 	/*
@@ -44,16 +62,6 @@ abstract class BaseWidget extends \WP_Widget {
 	 */
 
 	public function customProperties() {}
-
-	/*
-	 *
-	 */
-
-	protected function overrideIdBase($id_base = null) {
-		if ($id_base && !$this->id_base) {
-			$this->id_base = $id_base;
-		}
-	}
 
 	/*
 	 *

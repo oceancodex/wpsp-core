@@ -7,6 +7,7 @@ use WPSPCORE\BaseInstances;
 abstract class BaseCustomize extends BaseInstances {
 
 	public  $name                = null;
+
 	public  $callback_function   = null;
 
 	private $calledControlAssets = false;
@@ -17,8 +18,24 @@ abstract class BaseCustomize extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'];
-		$this->overrideName($this->extraParams['full_path']);
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
+		$this->overrideName($this->extraParams['full_path'] ?? null);
+	}
+
+	/*
+	 *
+	 */
+
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
+	private function overrideName($name = null) {
+		if ($name && !$this->name) {
+			$this->name = $name;
+		}
 	}
 
 	/*
@@ -45,16 +62,6 @@ abstract class BaseCustomize extends BaseInstances {
 
 		// Custom hooks.
 		$this->hooks();
-	}
-
-	/*
-	 *
-	 */
-
-	protected function overrideName($name = null) {
-		if ($name && !$this->name) {
-			$this->name = $name;
-		}
 	}
 
 	/*

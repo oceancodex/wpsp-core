@@ -11,6 +11,7 @@ abstract class BaseNavigationLocation extends BaseInstances {
 
 	public $location          = null;
 	public $description       = null;
+
 	public $callback_function = null;
 
 	/*
@@ -18,7 +19,7 @@ abstract class BaseNavigationLocation extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->callback_function = $this->extraParams['callback_function'];
+		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideLocation($this->extraParams['full_path']);
 	}
 
@@ -27,7 +28,13 @@ abstract class BaseNavigationLocation extends BaseInstances {
 	 *
 	 */
 
-	public function overrideLocation($location = null) {
+	private function overrideCallbackFunction($callback_function = null) {
+		if ($callback_function && $this->callback_function === null) {
+			$this->callback_function = $callback_function;
+		}
+	}
+
+	private function overrideLocation($location = null) {
 		if ($location && !$this->location) {
 			$this->location = $location;
 		}
