@@ -10,40 +10,43 @@ class {{ class_name }} extends BaseModel {
 
 	use InstancesTrait, SoftDeletes, ObserversTrait;
 
-	protected $connection                   = 'wordpress';
-//	protected $prefix                       = 'wp_{{ tablePrefix }}';
-	protected $table                        = '{{ table }}';
-//	protected $primaryKey                   = 'id';
+//	protected $connection                   = '';
+//	protected $prefix                       = '';
+//	protected $table                        = '';
+//	protected $primaryKey                   = '';
 
-//	protected $appends;
-//	protected $attributeCastCache;
-//	protected $attributes;
-//	protected $casts;
-//	protected $changes;
-//	protected $classCastCache;
-//	protected $dateFormat;
-//	protected $dispatchesEvents;
-//	protected $escapeWhenCastingToString;
+//	protected $appends                      = [];
+//	protected $attributeCastCache			= [];
+//	protected $attributes					= [];
+//	protected $casts                        = [];
+//	protected $changes						= [];
+//	protected $classCastCache				= [];
+//	protected $dateFormat					= '';
+//	protected $dispatchesEvents				= [];
+//	protected $escapeWhenCastingToString	= false;
 //	protected $fillable                     = [];
-//	protected $forceDeleting;
-	protected $guarded                      = [];
-//	protected $hidden;
-//	protected $keyType;
-//	protected $observables;
-//	protected $original;
-//	protected $perPage;
-//	protected $relations;
-//	protected $touches;
-//	protected $visible;
-//	protected $with;
-//	protected $withCount;
+//	protected $forceDeleting				= false;
+//	protected $guarded                      = [];
+//	protected $hidden                       = [];
+//	protected $keyType						= 'int';
+//	protected $observables					= [];
+//	protected $original						= [];
+//	protected $perPage						= 15;
+//	protected $previous						= [];
+//	protected $relations					= [];
+//	protected $relationAutoloadCallback 	= null;
+//	protected $relationAutoloadContext 		= null;
+//	protected $touches						= [];
+//	protected $visible						= [];
+//	protected $with							= [];
+//	protected $withCount					= [];
 
-//	public    $exists;
-//	public    $incrementing;
-//	public    $preventsLazyLoading;
-//	public    $timestamps;
-//	public    $usesUniqueIds;
-//	public    $wasRecentlyCreated;
+//	public    $exists						= false;
+//	public    $incrementing					= true;
+//	public    $preventsLazyLoading			= false;
+//	public    $timestamps					= true;
+//	public    $usesUniqueIds				= false;
+//	public    $wasRecentlyCreated			= false;
 
 //	protected static $observers = [
 //		\{{ root_namespace }}\App\Observers\{{ class_name }}Observer::class,

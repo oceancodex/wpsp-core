@@ -1,12 +1,50 @@
 <?php
 
 namespace {{ namespace }};
-use {{ root_namespace }}Widen\Traits\ModelsTrait;
 
+use {{ rootNamespace }}Widen\Traits\ModelsTrait;
 use Illuminate\Database\Eloquent\Relations\MorphPivot;
 
-class {{ class }} extends MorphPivot
-{
-    use ModelsTrait;
-    //
+class {{ class }} extends MorphPivot {
+
+	use ModelsTrait;
+
+//	protected $connection                   = '';
+//	protected $prefix                       = '';
+//	protected $table                        = '';
+//	protected $primaryKey                   = '';
+
+//	protected $appends                      = [];
+//	protected $attributeCastCache			= [];
+//	protected $attributes					= [];
+//	protected $casts                        = [];
+//	protected $changes						= [];
+//	protected $classCastCache				= [];
+//	protected $dateFormat					= '';
+//	protected $dispatchesEvents				= [];
+//	protected $escapeWhenCastingToString	= false;
+//	protected $fillable                     = [];
+//	protected $forceDeleting				= false;
+//	protected $guarded                      = [];
+//	protected $hidden                       = [];
+//	protected $keyType						= 'int';
+//	protected $observables					= [];
+//	protected $original						= [];
+//	protected $perPage						= 15;
+//	protected $previous						= [];
+//	protected $relations					= [];
+//	protected $relationAutoloadCallback 	= null;
+//	protected $relationAutoloadContext 		= null;
+//	protected $touches						= [];
+//	protected $visible						= [];
+//	protected $with							= [];
+//	protected $withCount					= [];
+
+//	public    $exists						= false;
+//	public    $incrementing					= true;
+//	public    $preventsLazyLoading			= false;
+//	public    $timestamps					= true;
+//	public    $usesUniqueIds				= false;
+//	public    $wasRecentlyCreated			= false;
+
 }
