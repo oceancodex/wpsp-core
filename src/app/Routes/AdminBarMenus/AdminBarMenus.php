@@ -47,6 +47,12 @@ class AdminBarMenus extends BaseRoute {
 		 */
 		$constructParams[3]['route'] = $route;
 
+		/**
+		 * Hợp nhất contructParams với args được truyền từ route vào nhau.\
+		 * Mục đích để callback Class có thể sử dụng được.
+		 */
+		$constructParams = array_merge($constructParams, $route->args);
+
 		$callback   = $this->prepareRouteCallback($callback, $constructParams);
 		$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 		$this->resolveAndCall($callback, $callParams);

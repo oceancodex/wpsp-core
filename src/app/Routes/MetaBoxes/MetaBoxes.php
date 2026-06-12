@@ -34,8 +34,6 @@ class MetaBoxes extends BaseRoute {
 					'path'              => $path,
 					'full_path'         => $fullPath,
 					'callback_function' => $callback[1] ?? null,
-					'priority'          => $priority,
-					'accepted_args'     => $acceptedArgs,
 				],
 			];
 
@@ -52,6 +50,12 @@ class MetaBoxes extends BaseRoute {
 			 * để DI hoạt động được với method "index".
 			 */
 			$constructParams[3]['route'] = $route;
+
+			/**
+			 * Hợp nhất contructParams với args được truyền từ route vào nhau.\
+			 * Mục đích để callback Class có thể sử dụng được.
+			 */
+			$constructParams = array_merge($constructParams, $route->args);
 
 //			$callback        = $this->prepareRouteCallback($callback, $constructParams);
 //			$callback[1]     = 'init';
