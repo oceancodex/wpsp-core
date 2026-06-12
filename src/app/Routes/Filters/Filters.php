@@ -60,9 +60,31 @@ class Filters extends BaseRoute {
 				 * 4. Gọi callback.
 				 */
 				$callback   = $this->prepareRouteCallback($callback, $constructParams);
-				$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
-				$callback   = $this->resolveCallback($callback, $callParams);
-				add_filter($fullPath, $callback, $priority, $acceptedArgs);
+//				$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
+//				$callback   = $this->resolveCallback($callback, $callParams);
+//				add_filter($fullPath, $callback, $priority, $acceptedArgs);
+
+				add_filter(
+					$fullPath,
+					function(...$wpParams) use ($path, $fullPath, $requestPath, $callback, $route) {
+						$callParams = $this->getCallParams(
+							$path,
+							$fullPath,
+							$requestPath,
+							$callback[0],
+							$callback[1],
+							['route' => $route],
+							$wpParams
+						);
+
+						return $this->resolveAndCall(
+							$callback,
+							$callParams
+						);
+					},
+					$priority,
+					$acceptedArgs
+				);
 			}
 		}
 	}

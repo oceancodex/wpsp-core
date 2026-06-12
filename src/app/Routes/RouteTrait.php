@@ -350,7 +350,7 @@ trait RouteTrait {
 	 * - Metadata injection
 	 * - Request → route parameter bridging
 	 */
-	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []) {
+	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = [], $wpParams = []) {
 		// NEW: detect closure
 		if ($callbackOrClass instanceof \Closure) {
 			$reflection = new \ReflectionFunction($callbackOrClass);
@@ -379,11 +379,19 @@ trait RouteTrait {
 			}
 		}
 
+		// Nếu nơi gọi hàm là "Actions" hoặc "Filters", tự động passed.
+		if (preg_match('/Actions|Filters$/', static::class)) {
+//			$passed = $path == $fullPath;
+			$requestPath = $fullPath;
+		}
+
 		// Kiểm tra path có khớp với request path hiện tại không?
-		if (
-			preg_match($pattern, $requestPath, $matches)
-			|| preg_match('#' . $fullPath . '#iu', $requestPath, $matches)
-			|| $fullPath == $requestPath
+		if (!$passed
+			&& (
+				preg_match($pattern, $requestPath, $matches)
+				|| preg_match('#' . $fullPath . '#iu', $requestPath, $matches)
+				|| $fullPath == $requestPath
+			)
 		) {
 			$passed = true;
 		}
@@ -445,6 +453,7 @@ trait RouteTrait {
 		// Reflection method để đọc danh sách tham số của callback
 //		$reflection = new \ReflectionMethod($class, $method);
 		$callParams = [];
+		$runtimeIndex = 0;
 
 		foreach ($reflection->getParameters() as $param) {
 			$name = $param->getName();
@@ -534,7 +543,12 @@ trait RouteTrait {
 			elseif ($param->isDefaultValueAvailable()) {
 				$value = $param->getDefaultValue();
 			}
-			// 7) else null
+			// 7) Tự động thêm WP Params.
+			elseif (isset($wpParams[$runtimeIndex])) {
+				$value = $wpParams[$runtimeIndex];
+				$runtimeIndex++;
+			}
+			// 8) else null
 
 			// Nếu là string, decode URL-encoded values (an toàn)
 			if (is_string($value)) {
@@ -584,6 +598,8 @@ trait RouteTrait {
 				return null;
 			}
 		});
+
+		dump(static::class, $callParams);
 
 		return $callParams;
 	}
@@ -653,7 +669,7 @@ trait RouteTrait {
 		$container = $this->funcs->getApplication();
 
 		if (!$call) {
-			return function() use ($container, $callback, $callParams) {
+			return function(...$wpParams) use ($container, $callback, $callParams) {
 				return $container->call($callback, $callParams);
 			};
 		}
