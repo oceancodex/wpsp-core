@@ -370,22 +370,29 @@ trait RouteTrait {
 
 		$passed = false;
 
-		// Nếu nơi gọi hàm này là route "Ajaxs" với method POST, check action và match path.
+		// Nếu nơi gọi hàm này là route "Ajaxs" với method POST, check match action và path.
 		if (preg_match('/Ajaxs$/', static::class)) {
 			$httpMethod = $this->request->getMethod();
 			if ($httpMethod === 'POST') {
 				$params = $this->request->all();
-				$passed = isset($params['action']) && $params['action'] === $path;
+				$passed = isset($params['action']) && $params['action'] === $fullPath;
 			}
 		}
 
-		// Nếu nơi gọi hàm là "Actions" hoặc "Filters", tự động passed.
+		/**
+		 * Nếu nơi gọi hàm là "Actions" hoặc "Filters", tự động passed.\
+		 * Bởi vì add_action và add_filter không có request.
+		 */
 		if (preg_match('/Actions|Filters$/', static::class)) {
 //			$passed = $path == $fullPath;
 			$requestPath = $fullPath;
 		}
 
-		// Kiểm tra path có khớp với request path hiện tại không?
+		/**
+		 * Kiểm tra $path có khớp với request path hiện tại không?\
+		 * Mục đích để chỉ thực sự chạy khi đang truy cập trực tiếp $path/$fullPath\
+		 * Tránh tình trạng đang ở URL khác lại thực thi các code bên dưới là không cần thiết.
+		 */
 		if (!$passed
 			&& (
 				preg_match($pattern, $requestPath, $matches)
@@ -598,8 +605,6 @@ trait RouteTrait {
 				return null;
 			}
 		});
-
-		dump(static::class, $callParams);
 
 		return $callParams;
 	}

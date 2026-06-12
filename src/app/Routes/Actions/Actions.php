@@ -60,9 +60,46 @@ class Actions extends BaseRoute {
 				 * 4. Gọi callback.
 				 */
 				$callback = $this->prepareRouteCallback($callback, $constructParams);
-				$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
-				$callback = $this->resolveCallback($callback, $callParams);
-				add_action($fullPath, $callback, $priority, $acceptedArgs);
+//				$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
+//				$callback = $this->resolveCallback($callback, $callParams);
+//				add_action($fullPath, $callback, $priority, $acceptedArgs);
+
+				/**
+				 * Xử lý như thế này để có thể DI callback.\
+				 * Ví dụ: add_action('save_post'); sẽ có 3 đối số: $post_id, $post, $update
+				 *
+				 * Tuy nhiên callback:\
+				 * updatePost($post_id, $post, $update, Request $request, TestService $testService)
+				 *
+				 * Nếu DI như thông thường thì sẽ 3 đối số của WordPress sẽ null.\
+				 * Vì vậy, cần phải truyền $wpParams vào thêm để xử lý callback params (DI).
+				 *
+				 * Lúc này có thể viết Callback như sau:
+				 *
+				 * - updatePost($post_id, $post, $update, Request $request, TestService $testService)
+				 * - updatePost(TestService $testService, $post_id, $post, $update, Request $request)
+				 */
+				add_action(
+					$fullPath,
+					function(...$wpParams) use ($path, $fullPath, $requestPath, $callback, $route) {
+						$callParams = $this->getCallParams(
+							$path,
+							$fullPath,
+							$requestPath,
+							$callback[0],
+							$callback[1],
+							['route' => $route],
+							$wpParams
+						);
+
+						return $this->resolveAndCall(
+							$callback,
+							$callParams
+						);
+					},
+					$priority,
+					$acceptedArgs
+				);
 			}
 		}
 	}
