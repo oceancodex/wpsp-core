@@ -15,7 +15,7 @@ abstract class BasePostTypeColumn extends BaseInstances {
 	public 	$column_name             = null;
 	public 	$column_title            = null;
 	public 	$column_add_priority     = 10;
-	public 	$column_content_priority = 0;
+	public 	$column_content_priority = 1;
 	public 	$post_types              = ['post'];
 	public 	$before_column           = [];
 	public 	$after_column            = [];

@@ -9,8 +9,8 @@ abstract class BaseUserMetaBox extends BaseInstances {
 	public  $id                   = null;
 	public  $title                = null;
 
-	public  $update_priority      = 10;
-	public  $update_accepted_args = 1;
+	public  $update_priority      = null;
+	public  $update_accepted_args = null;
 
 	public  $callback_function    = null;
 
@@ -86,8 +86,8 @@ abstract class BaseUserMetaBox extends BaseInstances {
 			return $this->autoResolveAndCall($this->path, $this->id, $requestPath, $this, 'update', ['user_id' => $user_id]);
 		};
 
-		add_action('personal_options_update', $callback, $this->update_priority ?? $this->extraParams['priority'] ?? 10, $this->update_accepted_args ?? $this->extraParams['accepted_args'] ?? 1);
-		add_action('edit_user_profile_update', $callback, $this->update_priority ?? $this->extraParams['priority'] ?? 10, $this->update_accepted_args ?? $this->extraParams['accepted_args'] ?? 1);
+		add_action('personal_options_update', $callback, $this->update_priority ?? $this->extraParams['update_priority'] ?? 10, $this->update_accepted_args ?? $this->extraParams['update_accepted_args'] ?? 1);
+		add_action('edit_user_profile_update', $callback, $this->update_priority ?? $this->extraParams['update_priority'] ?? 10, $this->update_accepted_args ?? $this->extraParams['update_accepted_args'] ?? 1);
 	}
 
 	private function isUserEditPage($type = null) {

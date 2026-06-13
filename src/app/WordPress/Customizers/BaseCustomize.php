@@ -58,7 +58,7 @@ abstract class BaseCustomize extends BaseInstances {
 			$this->sections($wpCustomizeManager);
 			$this->settings($wpCustomizeManager);
 			$this->controls($wpCustomizeManager);
-		}, 9999999999);
+		}, $this->extraParams['priority'] ?? 10, $this->extraParams['accepted_args'] ?? 1);
 
 		// Custom hooks.
 		$this->hooks();

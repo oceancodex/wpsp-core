@@ -474,29 +474,30 @@ trait RouteTrait {
 				// Nếu type là Eloquent Model => tự binding
 				if (is_subclass_of($className, \Illuminate\Database\Eloquent\Model::class)) {
 					// Lấy id từ path / query
-					$id = null;
+					$modelId = null;
 
 					// Ưu tiên named group (?P<user_id>)
 					if (array_key_exists($name, $named)) {
-						$id = $named[$name];
+						$modelId = $named[$name];
 					}
 					elseif (array_key_exists($name, $query)) {
-						$id = $query[$name];
+						$modelId = $query[$name];
 					}
 					elseif (array_key_exists($name, $post)) {
-						$id = $post[$name];
+						$modelId = $post[$name];
 					}
 					elseif (array_key_exists($name, $args)) {
-						$id = $args[$name];
+						$modelId = $args[$name];
 					}
 
 					// Nếu có ID → binding
-					if (!empty($id)) {
+					if (!empty($modelId)) {
 						try {
-							$callParams[$name] = $className::query()->findOrFail($id);
+							$callParams[$name] = $className::query()->findOrFail($modelId);
 						}
-						catch (\Exception $e) {
-							wp_die($e->getMessage(), $e->getMessage(), [
+						catch (\Exception $exception) {
+							do_action($this->funcs->_getAppShortName() . '_model_not_found', $className, $modelId, $exception);
+							wp_die($exception->getMessage(), $exception->getMessage(), [
 								'back_link' => true,
 							]);
 						}

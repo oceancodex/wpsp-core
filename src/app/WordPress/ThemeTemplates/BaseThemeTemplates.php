@@ -90,7 +90,7 @@ abstract class BaseThemeTemplates extends BaseInstances {
 			}
 			$templates[$name] = $this->label ?? $this->funcs->_config('app.short_name') . ' - Custom template';
 			return $templates;
-		});
+		}, $this->extraParams['priority'] ?? 10);
 	}
 
 	/*
@@ -130,7 +130,7 @@ abstract class BaseThemeTemplates extends BaseInstances {
 					}
 				}
 				return $template;
-			});
+			}, 9999999999);
 		}
 	}
 

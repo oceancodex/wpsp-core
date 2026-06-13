@@ -6,11 +6,11 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseDashboardWidget extends BaseInstances {
 
-	public $widget_id         = null;
-	public $widget_name       = null;
-	public $callback_args     = null;
-	public $context           = 'normal';
-	public $priority          = 'core';
+	public $widget_id     = null;
+	public $widget_name   = null;
+	public $callback_args = null;
+	public $context       = 'normal';
+	public $priority      = 'core';
 
 	public $callback_function = null;
 
