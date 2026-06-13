@@ -39,9 +39,9 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
+		$this->forceInit();
 		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideMenuSlug($this->extraParams['full_path'] ?? null);
-		$this->forceInit();
 
 		if (!$this->screenOptionsKey) {
 			$this->screenOptionsKey = $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
@@ -68,6 +68,10 @@ abstract class BaseAdminPage extends BaseInstances {
 	private function overrideMenuSlug($menu_slug = null) {
 		if ($menu_slug && !$this->menu_slug) {
 			$this->menu_slug = $menu_slug;
+		}
+
+		if ($this->forceInit && $this->forceInitSlug) {
+			$this->menu_slug = $this->forceInitSlug;
 		}
 	}
 
