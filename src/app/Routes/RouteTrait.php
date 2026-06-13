@@ -383,7 +383,7 @@ trait RouteTrait {
 		 * Nếu nơi gọi hàm là "Actions" hoặc "Filters", tự động passed.\
 		 * Bởi vì add_action và add_filter không có request.
 		 */
-		if (preg_match('/Actions|Filters$/', static::class)) {
+		if (preg_match('/Actions$|Filters$/', static::class)) {
 //			$passed = $path == $fullPath;
 			$requestPath = $fullPath;
 		}
