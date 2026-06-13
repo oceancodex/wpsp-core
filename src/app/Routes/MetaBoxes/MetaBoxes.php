@@ -52,15 +52,21 @@ class MetaBoxes extends BaseRoute {
 			$constructParams[3]['route'] = $route;
 
 			/**
-			 * Hợp nhất contructParams với args được truyền từ route vào nhau.\
+			 * Hợp nhất contructParams[3] (gọi là extraParams) với args được truyền từ route vào nhau.\
 			 * Mục đích để callback Class có thể sử dụng được.
 			 */
-			$constructParams = array_merge($constructParams, $route->args);
+			$constructParams[3] = array_merge($constructParams[3], $route->args);
 
+			/**
+			 * Thực hiện các công việc với Callback.
+			 * 1. Chuẩn bị callback.
+			 * 2. Chuẩn bị parameters mà callback sử dụng.
+			 * 3. Xử lý callback với parameters (DI).
+			 * 4. Gọi callback.
+			 */
 //			$callback        = $this->prepareRouteCallback($callback, $constructParams);
 //			$callback[1]     = 'init';
 //			add_action('add_meta_boxes', $callback, $priority, $acceptedArgs);
-
 			$callback   = $this->prepareRouteCallback($callback, $constructParams);
 			$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 			$this->resolveAndCall($callback, $callParams);

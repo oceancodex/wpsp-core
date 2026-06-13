@@ -550,7 +550,7 @@ trait RouteTrait {
 			elseif ($param->isDefaultValueAvailable()) {
 				$value = $param->getDefaultValue();
 			}
-			// 7) Tự động thêm WP Params.
+			// 7) Tự động thêm WP Params. Ví dụ add_action('save_post') có 3 đối số mà WP cho phép dùng: $post_id, $post, $update. Tại đây sẽ đưa các đối số đó vào $callParams để DI.
 			elseif (isset($wpParams[$runtimeIndex])) {
 				$value = $wpParams[$runtimeIndex];
 				$runtimeIndex++;

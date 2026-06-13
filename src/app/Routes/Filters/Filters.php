@@ -64,6 +64,21 @@ class Filters extends BaseRoute {
 //				$callback   = $this->resolveCallback($callback, $callParams);
 //				add_filter($fullPath, $callback, $priority, $acceptedArgs);
 
+				/**
+				 * Xử lý như thế này để có thể DI callback.\
+				 * Ví dụ: add_filter('the_post'); sẽ có 1 đối số: $content
+				 *
+				 * Tuy nhiên callback:\
+				 * theContent($content, Request $request, TestService $testService)
+				 *
+				 * Nếu DI như thông thường thì 1 đối số của WordPress sẽ null.\
+				 * Vì vậy, cần phải truyền $wpParams vào thêm để xử lý callback params (DI).
+				 *
+				 * Lúc này có thể viết Callback như sau:
+				 *
+				 * - theContent($content, Request $request, TestService $testService)
+				 * - theContent(TestService $testService, $content, Request $request)
+				 */
 				add_filter(
 					$fullPath,
 					function(...$wpParams) use ($path, $fullPath, $requestPath, $callback, $route) {

@@ -64,7 +64,7 @@ abstract class BaseDashboardWidget extends BaseInstances {
 				$this->context,
 				$this->priority
 			);
-		});
+		}, $this->extraParams['priority'] ?? 10, $this->extraParams['accepted_args'] ?? 1);
 	}
 
 }

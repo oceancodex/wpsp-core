@@ -71,7 +71,7 @@ class Actions extends BaseRoute {
 				 * Tuy nhiên callback:\
 				 * updatePost($post_id, $post, $update, Request $request, TestService $testService)
 				 *
-				 * Nếu DI như thông thường thì sẽ 3 đối số của WordPress sẽ null.\
+				 * Nếu DI như thông thường thì 3 đối số của WordPress sẽ null.\
 				 * Vì vậy, cần phải truyền $wpParams vào thêm để xử lý callback params (DI).
 				 *
 				 * Lúc này có thể viết Callback như sau:
