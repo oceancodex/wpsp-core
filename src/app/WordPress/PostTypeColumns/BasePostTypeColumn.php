@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\App\WordPress\UserMetaBoxes\PostTypeColumns;
+namespace WPSPCORE\App\WordPress\PostTypeColumns;
 
 use WPSPCORE\App\Traits\ObjectToArrayTrait;
 use WPSPCORE\BaseInstances;
