@@ -350,7 +350,7 @@ trait RouteTrait {
 	 * - Metadata injection
 	 * - Request → route parameter bridging
 	 */
-	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []) {
+	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = [], $wpParams = []) {
 		// NEW: detect closure
 		if ($callbackOrClass instanceof \Closure) {
 			$reflection = new \ReflectionFunction($callbackOrClass);
@@ -370,20 +370,35 @@ trait RouteTrait {
 
 		$passed = false;
 
-		// Nếu nơi gọi hàm này là route "Ajaxs" với method POST, check action và match path.
+		// Nếu nơi gọi hàm này là route "Ajaxs" với method POST, check match action và path.
 		if (preg_match('/Ajaxs$/', static::class)) {
 			$httpMethod = $this->request->getMethod();
 			if ($httpMethod === 'POST') {
 				$params = $this->request->all();
-				$passed = isset($params['action']) && $params['action'] === $path;
+				$passed = isset($params['action']) && $params['action'] === $fullPath;
 			}
 		}
 
-		// Kiểm tra path có khớp với request path hiện tại không?
-		if (
-			preg_match($pattern, $requestPath, $matches)
-			|| preg_match('#' . $fullPath . '#iu', $requestPath, $matches)
-			|| $fullPath == $requestPath
+		/**
+		 * Nếu nơi gọi hàm là "Actions" hoặc "Filters", tự động passed.\
+		 * Bởi vì add_action và add_filter không có request.
+		 */
+		if (preg_match('/Actions|Filters$/', static::class)) {
+//			$passed = $path == $fullPath;
+			$requestPath = $fullPath;
+		}
+
+		/**
+		 * Kiểm tra $path có khớp với request path hiện tại không?\
+		 * Mục đích để chỉ thực sự chạy khi đang truy cập trực tiếp $path/$fullPath\
+		 * Tránh tình trạng đang ở URL khác lại thực thi các code bên dưới là không cần thiết.
+		 */
+		if (!$passed
+			&& (
+				preg_match($pattern, $requestPath, $matches)
+				|| preg_match('#' . $fullPath . '#iu', $requestPath, $matches)
+				|| $fullPath == $requestPath
+			)
 		) {
 			$passed = true;
 		}
@@ -445,6 +460,7 @@ trait RouteTrait {
 		// Reflection method để đọc danh sách tham số của callback
 //		$reflection = new \ReflectionMethod($class, $method);
 		$callParams = [];
+		$runtimeIndex = 0;
 
 		foreach ($reflection->getParameters() as $param) {
 			$name = $param->getName();
@@ -458,29 +474,30 @@ trait RouteTrait {
 				// Nếu type là Eloquent Model => tự binding
 				if (is_subclass_of($className, \Illuminate\Database\Eloquent\Model::class)) {
 					// Lấy id từ path / query
-					$id = null;
+					$modelId = null;
 
 					// Ưu tiên named group (?P<user_id>)
 					if (array_key_exists($name, $named)) {
-						$id = $named[$name];
+						$modelId = $named[$name];
 					}
 					elseif (array_key_exists($name, $query)) {
-						$id = $query[$name];
+						$modelId = $query[$name];
 					}
 					elseif (array_key_exists($name, $post)) {
-						$id = $post[$name];
+						$modelId = $post[$name];
 					}
 					elseif (array_key_exists($name, $args)) {
-						$id = $args[$name];
+						$modelId = $args[$name];
 					}
 
 					// Nếu có ID → binding
-					if (!empty($id)) {
+					if (!empty($modelId)) {
 						try {
-							$callParams[$name] = $className::query()->findOrFail($id);
+							$callParams[$name] = $className::query()->findOrFail($modelId);
 						}
-						catch (\Exception $e) {
-							wp_die($e->getMessage(), $e->getMessage(), [
+						catch (\Exception $exception) {
+							do_action($this->funcs->_getAppShortName() . '_model_not_found', $className, $modelId, $exception);
+							wp_die($exception->getMessage(), $exception->getMessage(), [
 								'back_link' => true,
 							]);
 						}
@@ -534,7 +551,12 @@ trait RouteTrait {
 			elseif ($param->isDefaultValueAvailable()) {
 				$value = $param->getDefaultValue();
 			}
-			// 7) else null
+			// 7) Tự động thêm WP Params. Ví dụ add_action('save_post') có 3 đối số mà WP cho phép dùng: $post_id, $post, $update. Tại đây sẽ đưa các đối số đó vào $callParams để DI.
+			elseif (isset($wpParams[$runtimeIndex])) {
+				$value = $wpParams[$runtimeIndex];
+				$runtimeIndex++;
+			}
+			// 8) else null
 
 			// Nếu là string, decode URL-encoded values (an toàn)
 			if (is_string($value)) {
@@ -653,7 +675,7 @@ trait RouteTrait {
 		$container = $this->funcs->getApplication();
 
 		if (!$call) {
-			return function() use ($container, $callback, $callParams) {
+			return function(...$wpParams) use ($container, $callback, $callParams) {
 				return $container->call($callback, $callParams);
 			};
 		}

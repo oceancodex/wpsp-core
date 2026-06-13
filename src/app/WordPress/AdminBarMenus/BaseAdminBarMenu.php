@@ -56,7 +56,7 @@ abstract class BaseAdminBarMenu extends BaseInstances {
 					'meta'   => $this->meta,
 					'parent' => $this->parent,
 				]);
-			}, 999);
+			}, $this->extraParams['priority'] ?? 999);
 		}
 	}
 

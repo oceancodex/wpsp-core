@@ -15,7 +15,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 	public 	$column_name             = null;
 	public 	$column_title            = null;
 	public 	$column_add_priority     = 10;
-	public 	$column_content_priority = 0;
+	public 	$column_content_priority = 1;
 	public 	$taxonomies              = ['category'];
 	public 	$before_column           = [];
 	public 	$after_column            = [];
@@ -124,7 +124,7 @@ abstract class BaseTaxonomyColumn extends BaseInstances {
 					}
 
 					return $new_columns;
-				}, $this->column_add_priority);
+				}, $this->extraParams['priority'] ?? $this->column_add_priority);
 
 				/**
 				 * The column content.

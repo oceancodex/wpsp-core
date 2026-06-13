@@ -72,7 +72,7 @@ abstract class BaseMetaBox extends BaseInstances {
 						$this->priority,
 						array_merge($this->callback_args ?? [], ['id' => $id, 'metabox_id' => $metabox_id])
 					);
-				});
+				}, $this->extraParams['priority'] ?? 10, $this->extraParams['accepted_args'] ?? 1);
 			}
 			else {
 				add_action('add_meta_boxes', function($metabox_id) use ($id) {
@@ -98,7 +98,7 @@ abstract class BaseMetaBox extends BaseInstances {
 						$this->priority,
 						array_merge($this->callback_args ?? [], ['id' => $id, 'metabox_id' => $metabox_id])
 					);
-				});
+				}, $this->extraParams['priority'] ?? 10, $this->extraParams['accepted_args'] ?? 1);
 			}
 		}
 	}
