@@ -13,7 +13,9 @@ class {{ class_name }} extends BaseUserMetaBox {
 
 //	public $id       = '{{ id }}';
 	public $title    = 'Custom user meta box: {{ id }}';
-//	public $priority = 10;
+
+//	public $update_priority      = 10;
+//	public $update_accepted_args = 1;
 
 	/*
 	 *

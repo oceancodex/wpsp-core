@@ -32,7 +32,7 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public  $callback_function     	= null;
 
-	private $calledAssets          	= false;
+//	private $calledAssets          	= false;
 
 	/*
 	 *
@@ -181,7 +181,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			});
 
 			$this->afterLoadAdminPage($adminPage);
-		});
+		}, $this->extraParams['priority'] ?? 10, $this->extraParams['accepted_args'] ?? 1);
 
 		/**
 		 * Khi menu có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính ở vị trí đầu tiên.\
@@ -342,7 +342,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	public function assets() {
-		if ($this->calledAssets) return;
+//		if ($this->calledAssets) return;
 
 		add_action('admin_enqueue_scripts', function() {
 			/**
@@ -355,7 +355,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->localizeScripts();
 		}, 9999999999);
 
-		$this->calledAssets = true;
+//		$this->calledAssets = true;
 	}
 
 	public function styles() {}

@@ -83,6 +83,28 @@ class AdminPages extends BaseRoute {
 						'callback_function' => $callback[1],
 					],
 				];
+
+				/**
+				 * Vì thế, DI tại đây được triển khai với method "init".\
+				 * Thành ra method "index" khi gọi trong "init" sẽ không có DI.\
+				 * Cần phải truyền thêm "route" vào "extraParams" trong "constructParams"\
+				 * để DI hoạt động được với method "index".
+				 */
+				$constructParams[3]['route'] = $route;
+
+				/**
+				 * Hợp nhất contructParams[3] (gọi là extraParams) với args được truyền từ route vào nhau.\
+				 * Mục đích để callback Class có thể sử dụng được.
+				 */
+				$constructParams[3] = array_merge($constructParams[3], $route->args);
+
+				/**
+				 * Thực hiện các công việc với Callback.
+				 * 1. Chuẩn bị callback.
+				 * 2. Chuẩn bị parameters mà callback sử dụng.
+				 * 3. Xử lý callback với parameters (DI).
+				 * 4. Gọi callback.
+				 */
 				$callback        = $this->prepareRouteCallback($callback, $constructParams);
 				$callParams      = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 				$this->resolveAndCall($callback, $callParams);
@@ -138,6 +160,21 @@ class AdminPages extends BaseRoute {
 						],
 					];
 
+					/**
+					 * Vì thế, DI tại đây được triển khai với method "init".\
+					 * Thành ra method "index" khi gọi trong "init" sẽ không có DI.\
+					 * Cần phải truyền thêm "route" vào "extraParams" trong "constructParams"\
+					 * để DI hoạt động được với method "index".
+					 */
+					$constructParams[3]['route'] = $route;
+
+					/**
+					 * Hợp nhất contructParams[3] (gọi là extraParams) với args được truyền từ route vào nhau.\
+					 * Mục đích để callback Class có thể sử dụng được.
+					 */
+					$constructParams[3] = array_merge($constructParams[3], $route->args);
+
+					// Nếu callback là Closure
 					if ($callback instanceof \Closure) {
 						add_action('admin_menu', function() use ($fullPath, $callback) {
 							if (is_array($callback)) {
@@ -182,29 +219,40 @@ class AdminPages extends BaseRoute {
 							}
 						});
 					}
+
+					// Nếu callback KHÔNG phải Closure
 					else {
+						// Nếu method của callback không phải index, hoặc không force_init, đây không phải route khởi tạo admin page.
 						if ((isset($callback[1]) && is_string($callback[1]) && $callback[1] !== 'index') && (!isset($route->args['force_init']))) {
 							if (preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
+								/**
+								 * Thực hiện các công việc với Callback.
+								 * 1. Chuẩn bị callback.
+								 * 2. Chuẩn bị parameters mà callback sử dụng.
+								 * 3. Xử lý callback với parameters (DI).
+								 * 4. Gọi callback.
+								 */
 								$callback   = $this->prepareRouteCallback($callback, $constructParams);
 								$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 								$this->resolveAndCall($callback, $callParams);
 							}
 						}
+
+						// Nếu không, đây chính là route khởi tạo admin page.
 						else {
 							/**
-							 * Khi callback có method là "index", thì sẽ thay đổi method thành "init".\
+							 * Khi callback có method là "index", thay đổi method thành "init".\
 							 * Mục đích sẽ gọi method "init" trong Base để khởi tạo Admin menu page.
 							 */
 							if (isset($callback[1]) && $callback[1] == 'index' || !isset($callback[1]) || isset($route->args['force_init'])) $callback[1] = 'init';
 
 							/**
-							 * Vì thế, DI tại đây được triển khai với method "init".\
-							 * Thành ra method "index" khi gọi trong "init" sẽ không có DI.\
-							 * Cần phải truyền thêm "route" vào "extraParams" trong "constructParams"\
-							 * để DI hoạt động được với method "index".
+							 * Thực hiện các công việc với Callback.
+							 * 1. Chuẩn bị callback.
+							 * 2. Chuẩn bị parameters mà callback sử dụng.
+							 * 3. Xử lý callback với parameters (DI).
+							 * 4. Gọi callback.
 							 */
-							$constructParams[3]['route'] = $route;
-
 							$callback   = $this->prepareRouteCallback($callback, $constructParams);
 							$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 							$this->resolveAndCall($callback, $callParams);

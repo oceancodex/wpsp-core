@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\App\WordPress\AdminBarMenus;
+namespace WPSPCORE\App\WordPress\UserMetaBoxes\PostTypeColumns;
 
 use WPSPCORE\App\Traits\ObjectToArrayTrait;
 use WPSPCORE\BaseInstances;
@@ -56,7 +56,7 @@ abstract class BaseAdminBarMenu extends BaseInstances {
 					'meta'   => $this->meta,
 					'parent' => $this->parent,
 				]);
-			}, 999);
+			}, $this->extraParams['priority'] ?? 999);
 		}
 	}
 
