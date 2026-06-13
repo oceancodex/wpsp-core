@@ -6,13 +6,15 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseUserMetaBox extends BaseInstances {
 
-	public  $id                = null;
-	public  $title             = null;
-	public  $priority          = 10;
+	public  $id                   = null;
+	public  $title                = null;
 
-	public  $callback_function = null;
+	public  $update_priority      = null;
+	public  $update_accepted_args = null;
 
-	private $path              = null;
+	public  $callback_function    = null;
+
+	private $path                 = null;
 
 	/*
 	 *
@@ -21,7 +23,6 @@ abstract class BaseUserMetaBox extends BaseInstances {
 	public function afterConstruct() {
 		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideId($this->extraParams['full_path'] ?? null);
-		$this->overridePriority($this->extraParams['priority'] ?? null);
 		$this->path = $this->extraParams['path'] ?? null;
 
 		// Update meta boxes.
@@ -53,12 +54,6 @@ abstract class BaseUserMetaBox extends BaseInstances {
 		}
 	}
 
-	private function overridePriority($priority = null) {
-		if ($priority && !$this->priority) {
-			$this->priority = $priority;
-		}
-	}
-
 	/*
 	 *
 	 */
@@ -76,8 +71,8 @@ abstract class BaseUserMetaBox extends BaseInstances {
 				]);
 			};
 
-			add_action('show_user_profile', $callback, $this->priority);
-			add_action('edit_user_profile', $callback, $this->priority);
+			add_action('show_user_profile', $callback, $this->extraParams['priority'] ?? 10, $this->extraParams['accepted_args'] ?? 1);
+			add_action('edit_user_profile', $callback, $this->extraParams['priority'] ?? 10, $this->extraParams['accepted_args'] ?? 1);
 		}
 	}
 
@@ -91,8 +86,8 @@ abstract class BaseUserMetaBox extends BaseInstances {
 			return $this->autoResolveAndCall($this->path, $this->id, $requestPath, $this, 'update', ['user_id' => $user_id]);
 		};
 
-		add_action('personal_options_update', $callback);
-		add_action('edit_user_profile_update', $callback);
+		add_action('personal_options_update', $callback, $this->update_priority ?? $this->extraParams['update_priority'] ?? 10, $this->update_accepted_args ?? $this->extraParams['update_accepted_args'] ?? 1);
+		add_action('edit_user_profile_update', $callback, $this->update_priority ?? $this->extraParams['update_priority'] ?? 10, $this->update_accepted_args ?? $this->extraParams['update_accepted_args'] ?? 1);
 	}
 
 	private function isUserEditPage($type = null) {

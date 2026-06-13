@@ -142,9 +142,11 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 					unset($wp->query_vars['attachment']);
 					unset($wp->query_vars['page']);
 					unset($wp->query_vars['name']);
+					unset($wp->query_vars['error']);
 
 					$wp->query_vars['is_rewrite'] = true;
 //					$wp->query_vars['page']       = $this->rewriteFrontPageSlug;
+
 					// ép WP hiểu đây là page hợp lệ
 					$wp->query_vars['pagename']   = $this->rewriteFrontPageSlug;
 					$wp->query_vars['post_type']  = $this->rewriteFrontPagePostType;
@@ -154,7 +156,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 						if ($k === 0) continue;
 						$wp->query_vars[$appShortName . '_rewrite_group_' . $k] = $v;
 					}
-				}, 100);
+				}, 9999999999);
 
 				/**
 				 * -----------------------------
@@ -169,12 +171,15 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 						$query->set('post_type', 'page');
 						$query->set('pagename', $this->rewriteFrontPageSlug);
 						// ép WP hiểu đúng context
-						$query->is_page = true;
-						$query->is_singular = true;
-						$query->is_home = false;
-						$query->is_404 = false;
+						$query->is_page              = true;
+						$query->is_singular          = true;
+						$query->is_home              = false;
+						$query->is_404               = false;
+						$query->is_archive           = false;
+						$query->is_single            = false;
+						$query->is_post_type_archive = false;
 					}
-				}, 1);
+				}, 9999999999);
 
 				/**
 				 * ----------------------------------
@@ -189,13 +194,16 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 						global $wp_query;
 
 						if ($wp_query->is_404) {
-							$wp_query->is_404 = false;
-							$wp_query->is_page = true;
-							$wp_query->is_singular = true;
-							$wp_query->is_home = false;
+							$wp_query->is_page              = true;
+							$wp_query->is_singular          = true;
+							$wp_query->is_home              = false;
+							$wp_query->is_404               = false;
+							$wp_query->is_archive           = false;
+							$wp_query->is_single            = false;
+							$wp_query->is_post_type_archive = false;
 						}
 					}
-				}, 1);
+				}, 9999999999);
 
 				/**
 				 * ----------------------------------
@@ -210,7 +218,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 						return false;
 					}
 					return $redirect;
-				}, 10, 2);
+				}, 9999999999, 2);
 
 				/**
 				 * ----------------------------------
@@ -223,9 +231,10 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 				 */
 				add_action('wp', function() use ($path, $fullPath, $requestPath) {
 					$this->maybeNoTemplate();
-					$callback = $this->prepareCallbackFunction($this->callback_function, $path, $fullPath);
-					$this->resolveAndCall($callback);
-				});
+//					$callback = $this->prepareCallbackFunction($this->callback_function, $path, $fullPath);
+//					$this->resolveAndCall($callback);
+					$this->autoResolveAndCall($path, $fullPath, $requestPath, $this, $this->callback_function);
+				}, 9999999999);
 			}
 		}
 	}
@@ -238,7 +247,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 		if (!$this->useTemplate) {
 			add_filter('template_include', function($template) {
 				return $this->funcs->_getResourcesPath('/views/rewrite-front-pages/layout/base.blade.php');
-			});
+			}, 9999999999);
 		}
 	}
 

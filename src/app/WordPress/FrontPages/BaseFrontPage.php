@@ -89,7 +89,7 @@ abstract class BaseFrontPage extends BaseInstances {
 
 					$callback = $this->prepareCallbackFunction($this->callback_function, $path, $fullPath);
 					$this->resolveAndCall($callback);
-				});
+				}, $this->extraParams['priority'] ?? 10, $this->extraParams['accepted_args'] ?? 1);
 			}
 		}
 	}
