@@ -42,9 +42,9 @@ abstract class BaseListTable extends \WP_List_Table {
 		global $current_screen;
 
 //		add_action('current_screen', function(\WP_Screen $current_screen) {
-			$screenId          = $current_screen->id;
-			$showScreenOptions = $current_screen->show_screen_options ?? false;
-			if ($showScreenOptions) {
+			$screenId          = $current_screen?->id ?? null;
+			$showScreenOptions = $current_screen?->show_screen_options ?? false;
+			if ($screenId && $showScreenOptions) {
 				// Nếu screen ID hiện tại không khớp với screenOptionsKey của list table, không khởi tạo sreen option columns và items per page.
 				if (is_array($this->screenOptionsKey)) {
 					if (!in_array($screenId, $this->screenOptionsKey)) return;
