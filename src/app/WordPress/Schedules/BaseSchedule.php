@@ -67,7 +67,7 @@ abstract class BaseSchedule extends BaseInstances {
 //			'interval' => $interval,
 //		]);
 //		add_action($hook, $callback);
-		add_action($hook, [$this, $this->callback_function . '!']);
+		add_action($hook, [$this, $this->callback_function . '!'], $this->extraParams['priority'] ?? 10, $this->extraParams['accepted_args'] ?? 1);
 
 		// Xóa schedule khi plugin bị hủy kích hoạt
 		register_deactivation_hook($this->funcs->_getMainFilePath(), function() use ($hook) {
