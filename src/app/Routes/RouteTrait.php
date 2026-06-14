@@ -393,12 +393,10 @@ trait RouteTrait {
 		 * Mục đích để chỉ thực sự chạy khi đang truy cập trực tiếp $path/$fullPath\
 		 * Tránh tình trạng đang ở URL khác lại thực thi các code bên dưới là không cần thiết.
 		 */
-		if (!$passed
-			&& (
-				preg_match($pattern, $requestPath, $matches)
-				|| preg_match('#' . $fullPath . '#iu', $requestPath, $matches)
-				|| $fullPath == $requestPath
-			)
+		if (
+			preg_match($pattern, $requestPath, $matches)
+			|| preg_match('#' . $fullPath . '#iu', $requestPath, $matches)
+			|| $fullPath == $requestPath
 		) {
 			$passed = true;
 		}
