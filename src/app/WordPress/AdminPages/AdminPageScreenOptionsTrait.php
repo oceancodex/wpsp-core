@@ -24,7 +24,7 @@ trait AdminPageScreenOptionsTrait {
 			// Show screen options.
 			add_filter('screen_options_show_screen', function() {
 				return true;
-			});
+			}, 9999999999);
 
 			// Thêm tùy chọn chia layout trên screen options panel.
 			add_action('current_screen', function(\WP_Screen $screen) {
