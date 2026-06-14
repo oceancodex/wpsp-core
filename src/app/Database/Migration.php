@@ -96,25 +96,25 @@ class Migration extends BaseInstances {
 	 * Lấy danh sách bảng được định nghĩa trong file migration
 	 */
 	public function getDefinedDatabaseTables($database = null) {
-//		$fs      = new Filesystem();
-//		$defined = [];
+		$fs      = new Filesystem();
+		$defined = [];
 
-//		if (!$fs->isDirectory($this->migrationPath)) {
-//			return $defined;
-//		}
+		if (!$fs->isDirectory($this->migrationPath)) {
+			return $defined;
+		}
 
-//		$files = $fs->files($this->migrationPath);
+		$files = $fs->files($this->migrationPath);
 
-//		foreach ($files as $file) {
-//			$content = $fs->get($file->getPathname());
-//			if (preg_match_all("/Schema::create\(['\"](.*?)['\"]/", $content, $matches)) {
-//				foreach ($matches[1] as $table) {
-//					$defined[] = $table;
-//				}
-//			}
-//		}
+		foreach ($files as $file) {
+			$content = $fs->get($file->getPathname());
+			if (preg_match_all('/(?:->|::)create\s*\(\s*[\'"]([^\'"]+)[\'"]/i', $content, $matches)) {
+				foreach ($matches[1] as $table) {
+					$defined[] = $table;
+				}
+			}
+		}
 
-//		return array_unique($defined);
+		return array_unique($defined);
 
 		/**
 		 * V2:\
@@ -122,33 +122,44 @@ class Migration extends BaseInstances {
 		 * bằng cách sử dụng "information_schema.tables"
 		 */
 
-		$app     	= $this->funcs->getApplication();
-		$db      	= $app->make('db');
-		$connection = $db->connection($database ?? $this->funcs->_config('database.default'));
-		$dbName 	= $connection->getDatabaseName();
-		$prefix     = $connection->getTablePrefix();
+//		$app     	= $this->funcs->getApplication();
+//		$db      	= $app->make('db');
+//		$connection = $db->connection($database ?? $this->funcs->_config('database.default'));
+//		$dbName 	= $connection->getDatabaseName();
+//		$prefix     = $connection->getTablePrefix();
+//
+//		if (empty($prefix)) {
+//			// No prefix configured for connection. Aborting to protect WordPress tables.
+//			return [];
+//		}
+//
+//		// Lấy danh sách bảng từ "information_schema.tables".
+//		$tables = $connection->select("
+//			SELECT table_name
+//			FROM information_schema.tables
+//			WHERE table_schema = ?
+//			  AND table_name LIKE ?
+//		", [$dbName, $prefix.'%']);
+//
+//		// Tạo danh sách tên bảng không có prefix.
+//		$tableNames = array_map(function ($t) use ($prefix) {
+//			return str_starts_with($t->table_name, $prefix)
+//				? substr($t->table_name, strlen($prefix))
+//				: $t->table_name;
+//		}, $tables);
+//
+//		return $tableNames;
 
-		if (empty($prefix)) {
-			// No prefix configured for connection. Aborting to protect WordPress tables.
-			return [];
-		}
-
-		// Lấy danh sách bảng từ "information_schema.tables".
-		$tables = $connection->select("
-			SELECT table_name
-			FROM information_schema.tables
-			WHERE table_schema = ?
-			  AND table_name LIKE ?
-		", [$dbName, $prefix.'%']);
-
-		// Tạo danh sách tên bảng không có prefix.
-		$tableNames = array_map(function ($t) use ($prefix) {
-			return str_starts_with($t->table_name, $prefix)
-				? substr($t->table_name, strlen($prefix))
-				: $t->table_name;
-		}, $tables);
-
-		return $tableNames;
+		/**
+		 * V3. Sử dụng getTableListing().
+		 */
+//		$app     	= $this->funcs->getApplication();
+//		$db      	= $app->make('db');
+//		$connection = $db->connection($database ?? $this->funcs->_config('database.default'));
+//		$dbName 	= $connection->getDatabaseName();
+//		$prefix     = $connection->getTablePrefix();
+//		$tables 	= $connection->getSchemaBuilder()->getTableListing();
+//		return $tables;
 	}
 
 	/**
@@ -215,6 +226,7 @@ class Migration extends BaseInstances {
 		$schema = $app['db']->connection()->getSchemaBuilder();
 
 		$definedTables = $this->getDefinedDatabaseTables();
+		dump($definedTables);
 		$missing       = [];
 
 		foreach ($definedTables as $table) {
