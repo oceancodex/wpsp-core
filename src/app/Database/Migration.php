@@ -226,7 +226,6 @@ class Migration extends BaseInstances {
 		$schema = $app['db']->connection()->getSchemaBuilder();
 
 		$definedTables = $this->getDefinedDatabaseTables();
-		dump($definedTables);
 		$missing       = [];
 
 		foreach ($definedTables as $table) {
@@ -259,12 +258,18 @@ class Migration extends BaseInstances {
 	 * Xóa toàn bộ bảng.
 	 */
 	public function dropAllDatabaseTables($extraDropDatabaseTables = [], $output = null) {
+		$app                   = $this->funcs->getApplication();
+		$schema                = $app['db']->connection()->getSchemaBuilder();
 		$tz                    = function_exists('wp_timezone') ? wp_timezone() : new \DateTimeZone('Asia/Ho_Chi_Minh');
 		$dt                    = new \DateTime('now', $tz);
 		$timestamp             = '[' . $dt->format('Y-m-d H:i:s') . ']';
 		$definedDatabaseTables = $this->getDefinedDatabaseTables();
+		$currentDatabaseTables = $schema->getTableListing();
+		$definedDatabaseTables = array_merge($definedDatabaseTables, $currentDatabaseTables);
 		$definedDatabaseTables = array_merge($definedDatabaseTables, ['migrations']);
 		$definedDatabaseTables = array_merge($definedDatabaseTables, $extraDropDatabaseTables);
+		$definedDatabaseTables = array_unique($definedDatabaseTables);
+
 		foreach ($definedDatabaseTables as $definedDatabaseTable) {
 			$tableDropped = $this->dropDatabaseTable($definedDatabaseTable);
 			if ($output) {
