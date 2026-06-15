@@ -37,7 +37,7 @@ abstract class Password extends BaseInstances {
 	}
 
 	public function setPassword() {
-		$this->password = $this->funcs->getApplication('auth.password');
+		$this->password = $this->funcs->_getApplication('auth.password');
 	}
 
 	/*

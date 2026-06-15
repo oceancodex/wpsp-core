@@ -26,7 +26,7 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function getWPSP() {
+	public function _getWPSP() {
 		try {
 			return $this->WPSPClass::instance();
 		}
@@ -35,16 +35,16 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function getWPSPClass() {
+	public function _getWPSPClass() {
 		return $this->WPSPClass;
 	}
 
-	public function getApplication($abstract = null, $parameters = []) {
+	public function _getApplication($abstract = null, $parameters = []) {
 		try {
 			if ($abstract) {
-				return $this->getWPSP()->getApplication()->make($abstract, $parameters);
+				return $this->_getWPSP()->getApplication()->make($abstract, $parameters);
 			}
-			return $this->getWPSP()->getApplication();
+			return $this->_getWPSP()->getApplication();
 		}
 		catch (\Throwable $e) {
 			return null;
@@ -54,7 +54,7 @@ class Funcs extends BaseInstances {
 	/**
 	 * @return \WPSPCORE\App\Routes\RouteMap
 	 */
-	public function getRouteMap() {
+	public function _getRouteMap() {
 		try {
 			return $this->routeMapClass::instance();
 		}
@@ -66,7 +66,7 @@ class Funcs extends BaseInstances {
 	/**
 	 * @return \WPSPCORE\App\Routes\RouteManager
 	 */
-	public function getRouteManager() {
+	public function _getRouteManager() {
 		try {
 			return $this->routeManagerClass::instance();
 		}
@@ -96,7 +96,7 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function _getBearerToken($request = null) {
-		$request = $request ?? $this->getApplication('request') ?? null;
+		$request = $request ?? $this->_getApplication('request') ?? null;
 
 		// --- Lấy raw header ---
 		if ($request && method_exists($request, 'headers')) {
@@ -410,7 +410,7 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function _app($abstract, $parameters = []) {
-		return $this->getApplication($abstract, $parameters);
+		return $this->_getApplication($abstract, $parameters);
 	}
 
 	public function _env($var, $addPrefix = false, $default = null) {
@@ -429,7 +429,7 @@ class Funcs extends BaseInstances {
 
 	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
 		/** @var \Illuminate\View\Factory $blade */
-		$blade = $this->getApplication('view');
+		$blade = $this->_getApplication('view');
 		try {
 			if (!$viewName && $instance) {
 				return $blade ?? null;
@@ -640,7 +640,7 @@ class Funcs extends BaseInstances {
 			}
 			else {
 				/** @var \Illuminate\Translation\Translator $translation */
-				$translation = $this->getApplication('translator');
+				$translation = $this->_getApplication('translator');
 				return $translation->has($string) ? $translation->get($string, $replaces) : $translation->get($string, $replaces, $this->_config('app.fallback_locale'));
 			}
 		}
@@ -651,7 +651,7 @@ class Funcs extends BaseInstances {
 
 	public function _config($key = null, $default = null) {
 		try {
-			$config = $this->getApplication('config');
+			$config = $this->_getApplication('config');
 			return $config->get($key);
 		}
 		catch (\Throwable $e) {
@@ -961,7 +961,7 @@ class Funcs extends BaseInstances {
 
 	public function _slugParams($params = [], $separator = '_') {
 		// Lấy toàn bộ query string từ URL
-		$request = $this->request ?? $this->getApplication('request');
+		$request = $this->request ?? $this->_getApplication('request');
 		$queryParams = $request->query->all();
 
 		$selectedParts = [];
@@ -1278,6 +1278,26 @@ class Funcs extends BaseInstances {
 			$results[$key] = $value;
 		}
 		return $results;
+	}
+
+	/*
+	 *
+	 */
+
+	public static function __callStatic($method, $parameters) {
+		$method = '_' . $method;
+
+		if (!method_exists(static::instance(), $method)) {
+			throw new \BadMethodCallException(
+				sprintf(
+					'Call to undefined method %s::%s',
+					static::class,
+					$method
+				)
+			);
+		}
+
+		return static::instance()->$method(...$parameters);
 	}
 
 }

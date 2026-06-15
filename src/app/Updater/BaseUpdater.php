@@ -6,9 +6,12 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseUpdater extends BaseInstances {
 
-	public $sslVerify            = true;
-	public $checkForUpdatesLabel = null;
-	public $packageUrl           = null;
+	public $sslVerify            = true;	// Whether to verify SSL certificates.
+	public $checkForUpdatesLabel = null;	// The label "Check fo updates" in Plugin list page.
+	public $packageUrl           = null;	// The URL of the metadata file, a GitHub repository, or another supported update source.
+	public $checkPeriod          = 6;		// How often to check for updates (in hours).
+	public $optionName           = '';		// Where to store bookkeeping info about update checks.
+	public $muPluginFile		 = '';		// The plugin filename relative to the mu-plugins directory.
 
 	/*
 	 *
@@ -35,6 +38,9 @@ abstract class BaseUpdater extends BaseInstances {
 				$this->packageUrl ?: $this->funcs->_config('updater.package_url') ?: $this->funcs->_getPublicUrl() . '/plugin.json',
 				$this->funcs->_getMainFilePath(),
 				$this->funcs->_getTextDomain(),
+				$this->checkPeriod,
+				$this->optionName,
+				$this->muPluginFile,
 			);
 
 //			return $updateChecker->requestInfo();

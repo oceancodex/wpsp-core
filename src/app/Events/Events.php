@@ -21,7 +21,7 @@ abstract class Events extends BaseInstances {
 	}
 
 	public function setEvents() {
-		$this->events = $this->funcs->getApplication('events');
+		$this->events = $this->funcs->_getApplication('events');
 	}
 
 	/*

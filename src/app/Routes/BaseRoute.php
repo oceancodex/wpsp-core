@@ -175,7 +175,7 @@ abstract class BaseRoute extends BaseInstances {
 			}
 
 			// Push toàn bộ thuộc tính group vào RouteManager
-			$this->funcs->getRouteManager()?->pushGroupAttributes($attrs);
+			$this->funcs->_getRouteManager()?->pushGroupAttributes($attrs);
 
 			// reset pending để không ảnh hưởng route khác
 			$this->pending = [];
@@ -190,7 +190,7 @@ abstract class BaseRoute extends BaseInstances {
 			}
 
 			// pop group attributes khỏi stack
-			$this->funcs->getRouteManager()?->popGroupAttributes();
+			$this->funcs->_getRouteManager()?->popGroupAttributes();
 
 			return $this;
 		}
@@ -233,7 +233,7 @@ abstract class BaseRoute extends BaseInstances {
 		 * Lấy attributes của tất cả group đang active.\
 		 * Truyền $type vào để thực hiện một số công việc cụ thể.
 		 */
-		$group = $this->funcs->getRouteManager()?->currentGroupAttributes($type);
+		$group = $this->funcs->_getRouteManager()?->currentGroupAttributes($type);
 
 		/**
 		 * Hợp nhất prefix tạm (chỉ có tác dụng cho route này)
@@ -355,7 +355,7 @@ abstract class BaseRoute extends BaseInstances {
 		}
 
 		// Lưu route vào RouteManager.
-		$this->funcs->getRouteManager()?->addRoute($route);
+		$this->funcs->_getRouteManager()?->addRoute($route);
 
 		// Reset pending sau khi tạo route.
 		$this->pending = [];

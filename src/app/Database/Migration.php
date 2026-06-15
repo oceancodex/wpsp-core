@@ -16,7 +16,7 @@ class Migration extends BaseInstances {
 	protected $migrationPath;
 
 	public function afterConstruct() {
-		$app                 = $this->funcs->getApplication();
+		$app                 = $this->funcs->_getApplication();
 		$this->migrationPath = $app->basePath('database/migrations');
 	}
 
@@ -34,7 +34,7 @@ class Migration extends BaseInstances {
 	 * Tạo bảng migration nếu thiếu
 	 */
 	public function repair() {
-		$app    = $this->funcs->getApplication();
+		$app    = $this->funcs->_getApplication();
 		$schema = $app['db']->connection()->getSchemaBuilder();
 		$result = [];
 
@@ -54,7 +54,7 @@ class Migration extends BaseInstances {
 	 * Chạy migrate()
 	 */
 	public function migrate() {
-		$app     = $this->funcs->getApplication();
+		$app     = $this->funcs->_getApplication();
 		$artisan = $app->make(ArtisanKernel::class);
 
 		$missing = $this->getMissingMigrationVersions();
@@ -80,7 +80,7 @@ class Migration extends BaseInstances {
 	 * Xóa toàn bộ bản ghi migration
 	 */
 	public function deleteAllMigrations() {
-		$app    = $this->funcs->getApplication();
+		$app    = $this->funcs->_getApplication();
 		$schema = $app['db']->connection()->getSchemaBuilder();
 		$db     = $app['db'];
 
@@ -122,7 +122,7 @@ class Migration extends BaseInstances {
 		 * bằng cách sử dụng "information_schema.tables"
 		 */
 
-//		$app     	= $this->funcs->getApplication();
+//		$app     	= $this->funcs->_getApplication();
 //		$db      	= $app->make('db');
 //		$connection = $db->connection($database ?? $this->funcs->_config('database.default'));
 //		$dbName 	= $connection->getDatabaseName();
@@ -153,7 +153,7 @@ class Migration extends BaseInstances {
 		/**
 		 * V3. Sử dụng getTableListing().
 		 */
-//		$app     	= $this->funcs->getApplication();
+//		$app     	= $this->funcs->_getApplication();
 //		$db      	= $app->make('db');
 //		$connection = $db->connection($database ?? $this->funcs->_config('database.default'));
 //		$dbName 	= $connection->getDatabaseName();
@@ -180,7 +180,7 @@ class Migration extends BaseInstances {
 	 * Database đã ở version mới nhất chưa?
 	 */
 	public function checkDatabaseVersionNewest() {
-		$app    = $this->funcs->getApplication();
+		$app    = $this->funcs->_getApplication();
 		$schema = $app['db']->connection()->getSchemaBuilder();
 
 		if (!$schema->hasTable($this->migrationTable)) {
@@ -222,7 +222,7 @@ class Migration extends BaseInstances {
 	 * DB có đầy đủ bảng không
 	 */
 	public function checkAllDatabaseTableExists() {
-		$app    = $this->funcs->getApplication();
+		$app    = $this->funcs->_getApplication();
 		$schema = $app['db']->connection()->getSchemaBuilder();
 
 		$definedTables = $this->getDefinedDatabaseTables();
@@ -246,7 +246,7 @@ class Migration extends BaseInstances {
 	 */
 	public function dropDatabaseTable($tableName) {
 		// PHP 8.1+
-		$app           = $this->funcs->getApplication('db');
+		$app           = $this->funcs->_getApplication('db');
 		$schemaBuilder = $app->connection()->getSchemaBuilder();
 		$schemaBuilder->withoutForeignKeyConstraints(function() use ($tableName, $schemaBuilder) {
 			$schemaBuilder->dropIfExists($tableName);
@@ -258,7 +258,7 @@ class Migration extends BaseInstances {
 	 * Xóa toàn bộ bảng.
 	 */
 	public function dropAllDatabaseTables($extraDropDatabaseTables = [], $output = null) {
-		$app                   = $this->funcs->getApplication();
+		$app                   = $this->funcs->_getApplication();
 		$schema                = $app['db']->connection()->getSchemaBuilder();
 		$tz                    = function_exists('wp_timezone') ? wp_timezone() : new \DateTimeZone('Asia/Ho_Chi_Minh');
 		$dt                    = new \DateTime('now', $tz);
@@ -287,7 +287,7 @@ class Migration extends BaseInstances {
 	 * Danh sách bảng chưa tồn tại
 	 */
 	protected function getMissingTables() {
-		$app    = $this->funcs->getApplication();
+		$app    = $this->funcs->_getApplication();
 		$schema = $app['db']->connection()->getSchemaBuilder();
 
 		$defined = $this->getDefinedDatabaseTables();
@@ -306,7 +306,7 @@ class Migration extends BaseInstances {
 	 * Lấy danh sách file migration chưa có trong DB
 	 */
 	protected function getMissingMigrationVersions() {
-		$app    = $this->funcs->getApplication();
+		$app    = $this->funcs->_getApplication();
 		$schema = $app['db']->connection()->getSchemaBuilder();
 		$db     = $app['db'];
 		$fs     = new Filesystem();
