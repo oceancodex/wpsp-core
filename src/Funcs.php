@@ -136,7 +136,8 @@ class Funcs extends BaseInstances {
 
 	public function _getWPSP() {
 		try {
-			return $this->WPSPClass::instance();
+			$WPSP = $this->WPSPClass::instance();
+			return $WPSP;
 		}
 		catch (\Throwable $e) {
 			return null;
