@@ -116,9 +116,12 @@ use NumberFormatter;
  */
 class Funcs extends BaseInstances {
 
-	public $WPSPClass;
-	public $routeMapClass;
-	public $routeManagerClass;
+	public static 	$WPSP;
+	public 			$WPSPClass;
+	public static 	$routeMap;
+	public 			$routeMapClass;
+	public static 	$routeManager;
+	public 			$routeManagerClass;
 
 	/*
 	 *
@@ -136,7 +139,12 @@ class Funcs extends BaseInstances {
 
 	public function _getWPSP() {
 		try {
-			$WPSP = $this->WPSPClass::instance();
+			if (static::$WPSP) {
+				return static::$WPSP;
+			}
+
+			$WPSP         = $this->WPSPClass::instance();
+			static::$WPSP = $WPSP;
 			return $WPSP;
 		}
 		catch (\Throwable $e) {
@@ -150,10 +158,13 @@ class Funcs extends BaseInstances {
 
 	public function _getApplication($abstract = null, $parameters = []) {
 		try {
+			$app = static::$WPSP ? static::$WPSP->getApplication() :  $this->_getWPSP()->getApplication();
+
 			if ($abstract) {
-				return $this->_getWPSP()->getApplication()->make($abstract, $parameters);
+				return $app->make($abstract, $parameters);
 			}
-			return $this->_getWPSP()->getApplication();
+
+			return $app;
 		}
 		catch (\Throwable $e) {
 			return null;
@@ -165,7 +176,13 @@ class Funcs extends BaseInstances {
 	 */
 	public function _getRouteMap() {
 		try {
-			return $this->routeMapClass::instance();
+			if (static::$routeMap) {
+				return static::$routeMap;
+			}
+
+			$routeMap         = $this->routeMapClass::instance();
+			static::$routeMap = $routeMap;
+			return $routeMap;
 		}
 		catch (\Throwable $e) {
 			return null;
@@ -177,7 +194,13 @@ class Funcs extends BaseInstances {
 	 */
 	public function _getRouteManager() {
 		try {
-			return $this->routeManagerClass::instance();
+			if (static::$routeManager) {
+				return static::$routeManager;
+			}
+
+			$routeManager         = $this->routeManagerClass::instance();
+			static::$routeManager = $routeManager;
+			return $routeManager;
 		}
 		catch (\Throwable $e) {
 			return null;
