@@ -22,7 +22,7 @@ abstract class DB extends BaseInstances {
 	}
 
 	public function setDB() {
-		$this->db = $this->funcs->getApplication('db');
+		$this->db = $this->funcs->_getApplication('db');
 	}
 
 	/*

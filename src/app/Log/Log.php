@@ -22,7 +22,7 @@ abstract class Log extends BaseInstances {
 	}
 
 	public function setLog() {
-		$this->log = $this->funcs->getApplication('log');
+		$this->log = $this->funcs->_getApplication('log');
 	}
 
 	/*

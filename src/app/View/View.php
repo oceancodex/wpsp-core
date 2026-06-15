@@ -21,7 +21,7 @@ abstract class View extends BaseInstances {
 	}
 
 	public function setView() {
-		$this->view = $this->funcs->getApplication('view');
+		$this->view = $this->funcs->_getApplication('view');
 	}
 
 	/*
