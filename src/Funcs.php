@@ -123,6 +123,8 @@ class Funcs extends BaseInstances {
 	public static 	$routeManager;
 	public 			$routeManagerClass;
 
+	public static 	$app;
+
 	/*
 	 *
 	 */
@@ -158,7 +160,17 @@ class Funcs extends BaseInstances {
 
 	public function _getApplication($abstract = null, $parameters = []) {
 		try {
+			if (static::$app) {
+				if ($abstract) {
+					return static::$app->make($abstract, $parameters);
+				}
+				else {
+					return static::$app;
+				}
+			}
+
 			$app = static::$WPSP ? static::$WPSP->getApplication() :  $this->_getWPSP()->getApplication();
+			static::$app = $app;
 
 			if ($abstract) {
 				return $app->make($abstract, $parameters);
