@@ -371,16 +371,29 @@ class Funcs extends BaseInstances {
 
 	public function _getAllClassesInDir($namespace = __NAMESPACE__, $path = __DIR__) {
 		$finder = new \Symfony\Component\Finder\Finder();
-		$finder->files()->in($path)->name('*.php');
+		$finder->files()->in($path)->name('*.php'); // Finder tự động recursive
+
 		foreach ($finder as $file) {
-			$className = rtrim($namespace, '\\') . '\\' . $file->getFilenameWithoutExtension();
-			if (class_exists($className) && $className !== __CLASS__) {
-				try {
+			// Tính relative path từ $path đến file để build đúng namespace
+			$relativePath = $file->getRelativePath(); // vd: "SubDir/ChildDir"
+
+			if ($relativePath) {
+				$subNamespace = str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
+				$className = rtrim($namespace, '\\') . '\\' . $subNamespace . '\\' . $file->getFilenameWithoutExtension();
+			} else {
+				$className = rtrim($namespace, '\\') . '\\' . $file->getFilenameWithoutExtension();
+			}
+
+			try {
+				if (class_exists($className) && $className !== __CLASS__) {
 					$classes[] = $className;
 				}
-				catch (\Throwable $e) {
+				else {
 					continue;
 				}
+			}
+			catch (\Throwable $e) {
+				continue;
 			}
 		}
 
