@@ -6,6 +6,114 @@ use Carbon\Carbon;
 use Illuminate\View\View;
 use NumberFormatter;
 
+/**
+ * @method static mixed getWPSP()
+ * @method static string getWPSPClass()
+ * @method static mixed getApplication($abstract = null, array $parameters = [])
+ * @method static \WPSPCORE\App\Routes\RouteMap|null getRouteMap()
+ * @method static \WPSPCORE\App\Routes\RouteManager|null getRouteManager()
+ *
+ * @method static string getMainPath($path = null)
+ * @method static string getRootNamespace()
+ * @method static string getPrefixEnv()
+ * @method static string|null getBearerToken($request = null)
+ *
+ * @method static string getAppShortName()
+ * @method static string getMainBaseName()
+ * @method static string getSitePath($appendPath = null)
+ * @method static string getMainFilePath()
+ * @method static string getAppPath($path = null)
+ * @method static string getControllerPath($path = null)
+ * @method static string getConfigPath($path = null)
+ * @method static string getRoutesPath($path = null)
+ * @method static string getResourcesPath($path = null)
+ * @method static string getStoragePath($path = null)
+ * @method static string getDatabasePath($path = null)
+ * @method static string getMigrationPath($path = null)
+ *
+ * @method static string|null getMainUrl()
+ * @method static string getPublicUrl($path = null)
+ * @method static string getPublicPath($path = null)
+ *
+ * @method static array getPluginData()
+ * @method static string getVersion()
+ * @method static string getTextDomain()
+ * @method static string getRequiresPhp()
+ *
+ * @method static array getAllFilesInFolder(string $path)
+ * @method static string getDBTablePrefix(bool $withWpdbPrefix = true)
+ * @method static string getDBCustomMigrationTablePrefix()
+ * @method static string getDBTableName(string $name)
+ * @method static string getDBCustomMigrationTableName(string $name)
+ *
+ * @method static string getPathFromDir(string $targetDir, string $path)
+ * @method static array getAllClassesInDir(string $namespace = __NAMESPACE__, string $path = __DIR__)
+ *
+ * @method static mixed getArrItemByKeyDots(array $array, string $key)
+ * @method static mixed getArrItemByKeyValue(array $arr, string $key, $value = null, string $operator = 'equals', bool $single = true)
+ *
+ * @method static string getPluginDirName()
+ * @method static array getWPConfig(string $file = null)
+ *
+ * @method static mixed app($abstract, array $parameters = [])
+ * @method static mixed env(string $var, bool $addPrefix = false, $default = null)
+ * @method static \Illuminate\View\View|string|null view($viewName = null, array $data = [], array $mergeData = [], bool $instance = false)
+ *
+ * @method static void debug($message = '', bool $print = false, bool $varDump = false)
+ * @method static string|null asset(string $path, $secure = null)
+ *
+ * @method static string route($routeMap, $routeClass, $routeName, array $args = [], bool $buildURL = false, bool $sanitize = true)
+ * @method static string trans(string $string, array $replaces = [], bool $wordpress = false)
+ * @method static mixed config($key = null, $default = null)
+ * @method static string locale()
+ *
+ * @method static void notice(string $message = '', string $type = 'info', bool $echo = false, bool $wrap = false, $class = null, bool $dismiss = true)
+ * @method static array response(bool $success = false, array $data = [], string $message = '')
+ *
+ * @method static mixed viewInject($views, $data)
+ * @method static mixed viewDetect($viewName = null)
+ * @method static \Illuminate\View\Factory|null viewInstance()
+ *
+ * @method static bool isDebug()
+ * @method static bool isWPDebug()
+ * @method static bool isWPDebugLog()
+ * @method static bool isWPDebugDisplay()
+ * @method static bool isDev()
+ * @method static bool isLocal()
+ * @method static bool isProduction()
+ * @method static bool wantsJson()
+ * @method static bool expectsJson()
+ *
+ * @method static bool folderExists($path = null)
+ * @method static bool vendorFolderExists($package = null)
+ * @method static bool hasQueryParams($queryString = null, $targetParams = null, string $relation = 'or')
+ * @method static bool onlyHasQueryParams($queryString = null, $allowedParams = null)
+ *
+ * @method static string buildUrl($baseUrl = null, array $args = [])
+ * @method static string nonceName($name = null)
+ * @method static string slugParams(array $params = [], string $separator = '_')
+ *
+ * @method static string regexPath(string $pattern, bool $forceRegex = false, bool $pregQuote = true, string $delimiter = '/')
+ * @method static string pregQuoteKeepGroups(string $pattern, string $delimiter = '/')
+ *
+ * @method static string sanitizeURL(string $url = null)
+ * @method static string normalizeURL(string $url = null)
+ *
+ * @method static array commentTokens()
+ * @method static string trailingslash(string $path)
+ * @method static string trailingslashit(string $path)
+ * @method static string untrailingslashit(string $path)
+ *
+ * @method static string|null numberFormat($value, int $precision = 0, bool $endWithZeros = true, string $locale = 'vi', string $currencyCode = 'vnd', int $style = \NumberFormatter::DECIMAL, bool $groupingUsed = true)
+ * @method static int|float unNumberFormat($value, string $locale = 'vi')
+ *
+ * @method static \DateTimeInterface normalizeDateTime($value)
+ * @method static string dateDiffForHumans($dateString, string $format = 'H:i:s - d/m/Y')
+ *
+ * @method static array explodeToNestedArray(string $delimiter, string $key, $value)
+ * @method static array prefixArrayKeys(array $array, string $prefix = null)
+ * @method static array removePrefixArrayKeys(array $array, string $prefix = null)
+ */
 class Funcs extends BaseInstances {
 
 	public $WPSPClass;
@@ -26,7 +134,7 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function getWPSP() {
+	public function _getWPSP() {
 		try {
 			return $this->WPSPClass::instance();
 		}
@@ -35,16 +143,16 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function getWPSPClass() {
+	public function _getWPSPClass() {
 		return $this->WPSPClass;
 	}
 
-	public function getApplication($abstract = null, $parameters = []) {
+	public function _getApplication($abstract = null, $parameters = []) {
 		try {
 			if ($abstract) {
-				return $this->getWPSP()->getApplication()->make($abstract, $parameters);
+				return $this->_getWPSP()->getApplication()->make($abstract, $parameters);
 			}
-			return $this->getWPSP()->getApplication();
+			return $this->_getWPSP()->getApplication();
 		}
 		catch (\Throwable $e) {
 			return null;
@@ -54,7 +162,7 @@ class Funcs extends BaseInstances {
 	/**
 	 * @return \WPSPCORE\App\Routes\RouteMap
 	 */
-	public function getRouteMap() {
+	public function _getRouteMap() {
 		try {
 			return $this->routeMapClass::instance();
 		}
@@ -66,7 +174,7 @@ class Funcs extends BaseInstances {
 	/**
 	 * @return \WPSPCORE\App\Routes\RouteManager
 	 */
-	public function getRouteManager() {
+	public function _getRouteManager() {
 		try {
 			return $this->routeManagerClass::instance();
 		}
@@ -96,7 +204,7 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function _getBearerToken($request = null) {
-		$request = $request ?? $this->getApplication('request') ?? null;
+		$request = $request ?? $this->_getApplication('request') ?? null;
 
 		// --- Lấy raw header ---
 		if ($request && method_exists($request, 'headers')) {
@@ -263,16 +371,29 @@ class Funcs extends BaseInstances {
 
 	public function _getAllClassesInDir($namespace = __NAMESPACE__, $path = __DIR__) {
 		$finder = new \Symfony\Component\Finder\Finder();
-		$finder->files()->in($path)->name('*.php');
+		$finder->files()->in($path)->name('*.php'); // Finder tự động recursive
+
 		foreach ($finder as $file) {
-			$className = rtrim($namespace, '\\') . '\\' . $file->getFilenameWithoutExtension();
-			if (class_exists($className) && $className !== __CLASS__) {
-				try {
+			// Tính relative path từ $path đến file để build đúng namespace
+			$relativePath = $file->getRelativePath(); // vd: "SubDir/ChildDir"
+
+			if ($relativePath) {
+				$subNamespace = str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
+				$className = rtrim($namespace, '\\') . '\\' . $subNamespace . '\\' . $file->getFilenameWithoutExtension();
+			} else {
+				$className = rtrim($namespace, '\\') . '\\' . $file->getFilenameWithoutExtension();
+			}
+
+			try {
+				if (class_exists($className) && $className !== __CLASS__) {
 					$classes[] = $className;
 				}
-				catch (\Throwable $e) {
+				else {
 					continue;
 				}
+			}
+			catch (\Throwable $e) {
+				continue;
 			}
 		}
 
@@ -410,7 +531,7 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function _app($abstract, $parameters = []) {
-		return $this->getApplication($abstract, $parameters);
+		return $this->_getApplication($abstract, $parameters);
 	}
 
 	public function _env($var, $addPrefix = false, $default = null) {
@@ -429,7 +550,7 @@ class Funcs extends BaseInstances {
 
 	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
 		/** @var \Illuminate\View\Factory $blade */
-		$blade = $this->getApplication('view');
+		$blade = $this->_getApplication('view');
 		try {
 			if (!$viewName && $instance) {
 				return $blade ?? null;
@@ -640,7 +761,7 @@ class Funcs extends BaseInstances {
 			}
 			else {
 				/** @var \Illuminate\Translation\Translator $translation */
-				$translation = $this->getApplication('translator');
+				$translation = $this->_getApplication('translator');
 				return $translation->has($string) ? $translation->get($string, $replaces) : $translation->get($string, $replaces, $this->_config('app.fallback_locale'));
 			}
 		}
@@ -651,7 +772,7 @@ class Funcs extends BaseInstances {
 
 	public function _config($key = null, $default = null) {
 		try {
-			$config = $this->getApplication('config');
+			$config = $this->_getApplication('config');
 			return $config->get($key);
 		}
 		catch (\Throwable $e) {
@@ -961,7 +1082,7 @@ class Funcs extends BaseInstances {
 
 	public function _slugParams($params = [], $separator = '_') {
 		// Lấy toàn bộ query string từ URL
-		$request = $this->request ?? $this->getApplication('request');
+		$request = $this->request ?? $this->_getApplication('request');
 		$queryParams = $request->query->all();
 
 		$selectedParts = [];
@@ -1278,6 +1399,26 @@ class Funcs extends BaseInstances {
 			$results[$key] = $value;
 		}
 		return $results;
+	}
+
+	/*
+	 *
+	 */
+
+	public static function __callStatic($method, $parameters) {
+		$method = '_' . $method;
+
+		if (!method_exists(static::instance(), $method)) {
+			throw new \BadMethodCallException(
+				sprintf(
+					'Call to undefined method %s::%s',
+					static::class,
+					$method
+				)
+			);
+		}
+
+		return static::instance()->$method(...$parameters);
 	}
 
 }

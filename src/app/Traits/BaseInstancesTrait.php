@@ -84,7 +84,7 @@ trait BaseInstancesTrait {
 				$this->request = $funcs::$request;
 			}
 			else {
-				$this->request = $this->funcs->getApplication('request');
+				$this->request = $this->funcs->_getApplication('request');
 			}
 		}
 		else {

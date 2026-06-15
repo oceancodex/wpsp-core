@@ -23,9 +23,9 @@ abstract class Storage extends BaseInstances {
 	}
 
 	public function setStorage() {
-		$this->storage = $this->funcs->getApplication('filesystem');
-//		$this->storage = $this->funcs->getApplication('storage');
-//		$this->storage = $this->funcs->getApplication(FilesystemManager::class);
+		$this->storage = $this->funcs->_getApplication('filesystem');
+//		$this->storage = $this->funcs->_getApplication('storage');
+//		$this->storage = $this->funcs->_getApplication(FilesystemManager::class);
 	}
 
 	/*

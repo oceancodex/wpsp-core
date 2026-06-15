@@ -81,7 +81,7 @@ class adminpagemetaboxes extends BaseDirective {
 
 				/** @var \WPSPCORE\Funcs|\WPSP\Funcs $funcs */
 				$funcs = '\\' . $rootNamespace . '\\Funcs';
-				$routeMap = $funcs::instance()->getRouteMap();
+				$routeMap = $funcs::instance()->_getRouteMap();
 				$route = $routeMap->getRoute('AdminPageMetaBoxes', $adminPageMetaBoxName);
 
 				if ($route) {

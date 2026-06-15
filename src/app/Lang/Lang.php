@@ -18,12 +18,12 @@ abstract class Lang extends BaseInstances {
 	 */
 
 	public function getLang(): Translator {
-//		return $this->funcs->getApplication('translator');
+//		return $this->funcs->_getApplication('translator');
 		return $this->lang;
 	}
 
 	public function setLang() {
-		$this->lang = $this->funcs->getApplication('translator');
+		$this->lang = $this->funcs->_getApplication('translator');
 	}
 
 	/*
