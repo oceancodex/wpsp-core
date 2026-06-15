@@ -108,7 +108,7 @@ class RouteData {
 		$this->name = $prefix . $name;
 
 		// Add route map khi có name.
-		$this->funcs->getRouteMap()->add($this);
+		$this->funcs->_getRouteMap()->add($this);
 
 		return $this;
 	}

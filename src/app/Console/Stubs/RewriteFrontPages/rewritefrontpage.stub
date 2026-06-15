@@ -5,8 +5,8 @@ namespace {{ root_namespace }}\App\WordPress\RewriteFrontPages;
 use Illuminate\Http\Request;
 use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
 use {{ root_namespace }}\Funcs;
-use {{ core_namespace }}\App\WordPress\Integration\RankmathSEO;
-use {{ core_namespace }}\App\WordPress\Integration\YoastSEO;
+use {{ root_namespace }}\App\WordPress\Integrations\RankmathSEO\RankmathSEO;
+use {{ root_namespace }}\App\WordPress\Integrations\YoastSEO\YoastSEO;
 use {{ core_namespace }}\App\WordPress\RewriteFrontPages\BaseRewriteFrontPage;
 
 class {{ class_name }} extends BaseRewriteFrontPage {

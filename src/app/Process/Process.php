@@ -22,7 +22,7 @@ abstract class Process extends BaseInstances {
 	}
 
 	public function setProcess() {
-		$this->process = $this->funcs->getApplication('process');
+		$this->process = $this->funcs->_getApplication('process');
 	}
 
 	/*

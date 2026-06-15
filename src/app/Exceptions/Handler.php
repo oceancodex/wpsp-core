@@ -131,7 +131,7 @@ class Handler extends BaseInstances {
 	}
 
 	public function fallbackToIgnition(\Throwable $e) {
-		$app = $this->funcs->getApplication();
+		$app = $this->funcs->_getApplication();
 
 		// 1) Nếu Laravel 12+ Renderer class tồn tại và container có thể make nó
 		if (class_exists(\Illuminate\Foundation\Exceptions\Renderer\Renderer::class) && $app && $app->bound(\Illuminate\Foundation\Exceptions\Renderer\Renderer::class)) {

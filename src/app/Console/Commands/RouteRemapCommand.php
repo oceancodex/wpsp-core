@@ -76,7 +76,7 @@ class RouteRemapCommand extends Command {
 				return 0;
 			}
 
-			$routeMap = $this->funcs->getRouteMap()->getMap() ?? [];
+			$routeMap = $this->funcs->_getRouteMap()->getMap() ?? [];
 			if (empty($routeMap)) {
 				$this->error('No routes found! Ensure the database server is running.');
 				return 0;
