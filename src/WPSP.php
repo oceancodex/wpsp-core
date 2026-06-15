@@ -112,7 +112,12 @@ abstract class WPSP extends BaseInstances {
 			__DIR__ . '/app/Console/Commands/Extends'
 		);
 
-		$commands = array_merge($commands, $extendCommands);
+		$integrationCommands = $this->funcs->_getAllClassesInDir(
+			$this->funcs->_getRootNamespace() . '\App\Widen\Commands',
+			$this->funcs->_getAppPath('/Widen/Commands')
+		);
+
+		$commands = array_merge($commands, $extendCommands, $integrationCommands);
 
 		return $commands;
 	}

@@ -174,7 +174,7 @@ trait RouteTrait {
 			// 3. Hàm chạy từng middleware
 			// -----------------------------
 			/** @var \Illuminate\Foundation\Application $app */
-			$app     = $this->funcs->getApplication();
+			$app     = $this->funcs->_getApplication();
 			$request = $request ?? $this->request ?? $app->make('request');
 
 			$runOne = function($mw) use ($app, $request) {
@@ -433,7 +433,7 @@ trait RouteTrait {
 		}
 
 		// Lấy container / request
-		$app = $this->funcs->getApplication();
+		$app = $this->funcs->_getApplication();
 		if (!$app) {
 			throw new \RuntimeException('Container instance not found when building call params.');
 		}
@@ -670,7 +670,7 @@ trait RouteTrait {
 	 */
 	public function resolveAndCall($callback, $callParams = [], $call = true) {
 		/** @var \Illuminate\Container\Container $container */
-		$container = $this->funcs->getApplication();
+		$container = $this->funcs->_getApplication();
 
 		if (!$call) {
 			return function(...$wpParams) use ($container, $callback, $callParams) {

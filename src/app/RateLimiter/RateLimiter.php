@@ -19,7 +19,7 @@ abstract class RateLimiter extends BaseInstances {
 
 	public function setRateLimiter() {
 		/** @var CacheManager $cacheManager */
-		$cacheManager      = $this->funcs->getApplication('cache');
+		$cacheManager      = $this->funcs->_getApplication('cache');
 		$cacheStore        = $cacheManager->store();
 		$this->rateLimiter = new \Illuminate\Cache\RateLimiter($cacheStore);
 	}

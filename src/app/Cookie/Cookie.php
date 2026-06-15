@@ -22,7 +22,7 @@ abstract class Cookie extends BaseInstances {
 	}
 
 	public function setCookie() {
-		$this->cookie = $this->funcs->getApplication('cookie');
+		$this->cookie = $this->funcs->_getApplication('cookie');
 	}
 
 	/*

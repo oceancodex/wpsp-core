@@ -18,7 +18,7 @@ abstract class Auth extends BaseInstances {
 	 */
 
 	public function setAuth() {
-		$this->auth = $this->funcs->getApplication('auth');
+		$this->auth = $this->funcs->_getApplication('auth');
 	}
 
 	public function getAuth(): AuthManager {
@@ -72,7 +72,7 @@ abstract class Auth extends BaseInstances {
 
 	protected function saveSessionsAndCookies() {
 		// Save session.
-		$session       = $this->funcs->getApplication('session');
+		$session       = $this->funcs->_getApplication('session');
 		$clientSession = $_COOKIE[$this->funcs->_config('session.cookie')] ?? null;
 		if ($clientSession) {
 			$session->setId($clientSession);
@@ -80,7 +80,7 @@ abstract class Auth extends BaseInstances {
 		}
 
 		// Save cookies.
-		$queued = $this->funcs->getApplication('cookie')->getQueuedCookies();
+		$queued = $this->funcs->_getApplication('cookie')->getQueuedCookies();
 		foreach ($queued as $cookie) {
 			setcookie(
 				$cookie->getName(),
@@ -98,7 +98,7 @@ abstract class Auth extends BaseInstances {
 	}
 
 	protected function cleanupOldSessionsForUser($userId) {
-		$db = $this->funcs->getApplication('db'); // hoặc DB::connection()
+		$db = $this->funcs->_getApplication('db'); // hoặc DB::connection()
 
 		// Xóa tất cả session cùng user_id trước đó.
 		$db->table('sessions')
