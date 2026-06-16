@@ -238,7 +238,7 @@ abstract class WPSP extends BaseInstances {
 
 	public function afterHandleRequest() {
 		// Share flash data to view.
-		add_action('template_redirect', function() {
+//		add_action('template_redirect', function() {
 //			$this->application->make('view')->share('errors', session('errors'));
 			$this->application->booted(function ($app) {
 				$session = $app['session.store'];
@@ -248,7 +248,7 @@ abstract class WPSP extends BaseInstances {
 					$view->share($key, $session->get($key));
 				}
 			});
-		});
+//		});
 	}
 
 	/*

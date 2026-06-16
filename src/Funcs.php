@@ -116,14 +116,9 @@ use NumberFormatter;
  */
 class Funcs extends BaseInstances {
 
-	public static 	$WPSP;
-	public 			$WPSPClass;
-	public static 	$routeMap;
-	public 			$routeMapClass;
-	public static 	$routeManager;
-	public 			$routeManagerClass;
-
-	public static 	$app;
+	public $WPSPClass;
+	public $routeMapClass;
+	public $routeManagerClass;
 
 	/*
 	 *
@@ -141,12 +136,7 @@ class Funcs extends BaseInstances {
 
 	public function _getWPSP() {
 		try {
-			if (static::$WPSP) {
-				return static::$WPSP;
-			}
-
-			$WPSP         = $this->WPSPClass::instance();
-			static::$WPSP = $WPSP;
+			$WPSP = $this->WPSPClass::instance();
 			return $WPSP;
 		}
 		catch (\Throwable $e) {
@@ -160,17 +150,7 @@ class Funcs extends BaseInstances {
 
 	public function _getApplication($abstract = null, $parameters = []) {
 		try {
-			if (static::$app) {
-				if ($abstract) {
-					return static::$app->make($abstract, $parameters);
-				}
-				else {
-					return static::$app;
-				}
-			}
-
-			$app = static::$WPSP ? static::$WPSP->getApplication() :  $this->_getWPSP()->getApplication();
-			static::$app = $app;
+			$app = $this->_getWPSP()->getApplication();
 
 			if ($abstract) {
 				return $app->make($abstract, $parameters);
@@ -188,12 +168,7 @@ class Funcs extends BaseInstances {
 	 */
 	public function _getRouteMap() {
 		try {
-			if (static::$routeMap) {
-				return static::$routeMap;
-			}
-
-			$routeMap         = $this->routeMapClass::instance();
-			static::$routeMap = $routeMap;
+			$routeMap = $this->routeMapClass::instance();
 			return $routeMap;
 		}
 		catch (\Throwable $e) {
@@ -206,12 +181,7 @@ class Funcs extends BaseInstances {
 	 */
 	public function _getRouteManager() {
 		try {
-			if (static::$routeManager) {
-				return static::$routeManager;
-			}
-
-			$routeManager         = $this->routeManagerClass::instance();
-			static::$routeManager = $routeManager;
+			$routeManager = $this->routeManagerClass::instance();
 			return $routeManager;
 		}
 		catch (\Throwable $e) {
@@ -645,7 +615,9 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _route($routeMap, $routeClass, $routeName, $args = [], $buildURL = false, $sanitize = true) {
+	public function _route($routeClass, $routeName, $args = [], $buildURL = false, $sanitize = true, $routeMap = null) {
+		if (!$routeMap) return '';
+
 		// Normalize
 		if (preg_match('/\\\\/', $routeClass)) {
 			$parts = explode('\\', trim($routeClass, '\\'));
