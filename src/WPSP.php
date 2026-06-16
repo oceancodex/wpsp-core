@@ -14,6 +14,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Process\Factory;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Timebox;
 use WPSPCORE\App\Http\Middleware\StartSessionIfAuthenticated;
 use WPSPCORE\App\View\Directives\adminpagemetaboxes;
@@ -42,6 +43,7 @@ abstract class WPSP extends BaseInstances {
 			)
 			->withMiddleware(function(Middleware $middleware) {
 				$middleware->append(StartSessionIfAuthenticated::class); // Start session trước mọi code (bao gồm cả view share).
+//				$middleware->append(StartSession::class);
 			})
 			->withExceptions(function(Exceptions $exceptions) {})
 			->withProviders($providers)
@@ -232,6 +234,7 @@ abstract class WPSP extends BaseInstances {
 		/** @var \Illuminate\Foundation\Http\Kernel $kernel */
 		$kernel         = $this->application->make(Kernel::class);
 		$this->response = $kernel->handle($this->request);
+//		$this->response->send();
 		$kernel->terminate($this->request, $this->response);
 		$this->afterHandleRequest();
 	}
