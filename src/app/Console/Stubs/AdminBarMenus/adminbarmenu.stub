@@ -10,7 +10,7 @@ class {{ class_name }} extends BaseAdminBarMenu {
 	use InstancesTrait;
 
 	// Args.
-	public $name   = '{{ name }}';
+	public $id     = '{{ name }}';
 	public $title  = '{{ name }}';
 	public $href   = '/wp-admin/admin.php?page=wpsp';
 	public $parent = {{ parent }};
@@ -22,7 +22,7 @@ class {{ class_name }} extends BaseAdminBarMenu {
 	 */
 
 	public function customProperties() {
-//		$this->$name = '{{ name }}';
+//		$this->$id   = '{{ name }}';
 //		$this->title = '{{ name }}';
 	}
 

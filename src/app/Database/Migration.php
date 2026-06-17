@@ -15,10 +15,22 @@ class Migration extends BaseInstances {
 	protected $migrationTable = 'migrations';
 	protected $migrationPath;
 
+	/*
+	 *
+	 */
+
 	public function afterConstruct() {
 		$app                 = $this->funcs->_getApplication();
 		$this->migrationPath = $app->basePath('database/migrations');
+
+		// Set lại Container và Facades.
+//		Container::setInstance($app);
+//		Facade::setFacadeApplication($app);
 	}
+
+	/*
+	 *
+	 */
 
 	/**
 	 * So sánh migration file và DB
@@ -53,10 +65,9 @@ class Migration extends BaseInstances {
 	/**
 	 * Chạy migrate()
 	 */
-	public function migrate() {
+	public function migrate($seed = false) {
 		$app     = $this->funcs->_getApplication();
 		$artisan = $app->make(ArtisanKernel::class);
-
 		$missing = $this->getMissingMigrationVersions();
 
 		if (empty($missing)) {
@@ -65,11 +76,14 @@ class Migration extends BaseInstances {
 
 		try {
 			$artisan->call('migrate', [
-				'--path'  => 'database/migrations',
-				'--force' => true,
+//				'--path'     => $this->migrationPath,
+//				'--realpath' => true,
+				'--path'     => 'database/migrations',
+				'--force'    => true,
+				'--seed'     => $seed ? true : ''
 			]);
 
-			return ['success' => true, 'data' => null, 'message' => 'Migrate database successfully!'];
+			return ['success' => true, 'data' => null, 'message' => 'Migrate database' . ($seed ? ' and seeding data ' : '') . 'successfully!'];
 		}
 		catch (\Throwable $e) {
 			return ['success' => false, 'data' => null, 'message' => $e->getMessage()];
@@ -259,13 +273,13 @@ class Migration extends BaseInstances {
 	 */
 	public function dropAllDatabaseTables($extraDropDatabaseTables = [], $output = null) {
 		$app                   = $this->funcs->_getApplication();
-		$schema                = $app['db']->connection()->getSchemaBuilder();
+//		$schema                = $app['db']->connection()->getSchemaBuilder();
 		$tz                    = function_exists('wp_timezone') ? wp_timezone() : new \DateTimeZone('Asia/Ho_Chi_Minh');
 		$dt                    = new \DateTime('now', $tz);
 		$timestamp             = '[' . $dt->format('Y-m-d H:i:s') . ']';
 		$definedDatabaseTables = $this->getDefinedDatabaseTables();
-		$currentDatabaseTables = $schema->getTableListing();
-		$definedDatabaseTables = array_merge($definedDatabaseTables, $currentDatabaseTables);
+//		$currentDatabaseTables = $schema->getTableListing();
+//		$definedDatabaseTables = array_merge($definedDatabaseTables, $currentDatabaseTables);
 		$definedDatabaseTables = array_merge($definedDatabaseTables, ['migrations']);
 		$definedDatabaseTables = array_merge($definedDatabaseTables, $extraDropDatabaseTables);
 		$definedDatabaseTables = array_unique($definedDatabaseTables);

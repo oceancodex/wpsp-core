@@ -2,7 +2,10 @@
 
 namespace WPSPCORE\App\Routes;
 
+use Illuminate\Container\Container;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Facade;
 use Symfony\Component\HttpFoundation\Response;
 
 trait RouteTrait {
@@ -315,7 +318,6 @@ trait RouteTrait {
 	 */
 	public function prepareCallbackFunction($method, $path, $fullPath, $class = null, $args = []): \Closure {
 		return function() use ($method, $path, $fullPath, $class, $args) {
-
 			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
 			// build callback [instance, method]
@@ -669,8 +671,14 @@ trait RouteTrait {
 	 * "callParams" có thể được chuẩn bị bằng method getCallParams().
 	 */
 	public function resolveAndCall($callback, $callParams = [], $call = true) {
-		/** @var \Illuminate\Container\Container $container */
+		/** @var \Illuminate\Container\Container|\Illuminate\Foundation\Application $container */
 		$container = $this->funcs->_getApplication();
+
+		// Set container và facade theo mỗi lần gọi callback.
+		Container::setInstance($container);
+		Facade::setFacadeApplication($container);
+		Model::setConnectionResolver($container['db']);
+		Model::setEventDispatcher($container['events']);
 
 		if (!$call) {
 			return function(...$wpParams) use ($container, $callback, $callParams) {
