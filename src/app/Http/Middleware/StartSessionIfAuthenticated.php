@@ -30,7 +30,7 @@ class StartSessionIfAuthenticated {
 		$sessionCookieName = $session->getName();
 		$clientSessionId   = $request->cookie($sessionCookieName);
 
-		if ($clientSessionId) {
+		if ($clientSessionId && $session->getHandler()->read($clientSessionId)) {
 			$session->setId($clientSessionId);
 			if (!$session->isStarted()) {
 				$session->start();

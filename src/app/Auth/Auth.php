@@ -7,6 +7,9 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use WPSPCORE\BaseInstances;
 
 /**
+ * @method static saveSessionsAndCookies
+ * @method static cleanupOldSessionsForUser
+ *
  * @mixin \Illuminate\Support\Facades\Auth
  */
 abstract class Auth extends BaseInstances {
@@ -32,7 +35,7 @@ abstract class Auth extends BaseInstances {
 	public function _login(AuthenticatableContract $user, $remember = false) {
 		try {
 			$this->auth->login($user, $remember);
-			$this->saveSessionsAndCookies();
+			$this->_saveSessionsAndCookies();
 		}
 		catch (\Exception $e) {
 
@@ -46,11 +49,11 @@ abstract class Auth extends BaseInstances {
 			if ($attempt) {
 				$user = $this->auth->user();
 				if ($user) {
-					$this->cleanupOldSessionsForUser($user->getAuthIdentifier());
+					$this->_cleanupOldSessionsForUser($user->getAuthIdentifier());
 				}
 			}
 
-			$this->saveSessionsAndCookies();
+			$this->_saveSessionsAndCookies();
 			return $attempt;
 		}
 		catch (\Exception $e) {
@@ -61,7 +64,7 @@ abstract class Auth extends BaseInstances {
 	public function _logout() {
 		try {
 			$this->auth->logout();
-			$this->saveSessionsAndCookies();
+			$this->_saveSessionsAndCookies();
 		}
 		catch (\Exception $e) {}
 	}
@@ -70,7 +73,7 @@ abstract class Auth extends BaseInstances {
 	 *
 	 */
 
-	protected function saveSessionsAndCookies() {
+	public function _saveSessionsAndCookies() {
 		// Save session.
 		$session       = $this->funcs->_getApplication('session');
 		$clientSession = $_COOKIE[$this->funcs->_config('session.cookie')] ?? null;
@@ -97,7 +100,7 @@ abstract class Auth extends BaseInstances {
 		}
 	}
 
-	protected function cleanupOldSessionsForUser($userId) {
+	public function _cleanupOldSessionsForUser($userId) {
 		$db = $this->funcs->_getApplication('db'); // hoặc DB::connection()
 
 		// Xóa tất cả session cùng user_id trước đó.

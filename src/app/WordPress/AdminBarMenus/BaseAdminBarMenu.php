@@ -9,7 +9,7 @@ abstract class BaseAdminBarMenu extends BaseInstances {
 
 	use ObjectToArrayTrait;
 
-	public $name              = null;
+	public $id                = null;
 	public $title             = null;
 	public $href              = null;
 	public $parent            = '';
@@ -23,7 +23,7 @@ abstract class BaseAdminBarMenu extends BaseInstances {
 
 	public function afterConstruct() {
 		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
-		$this->overrideName($this->extraParams['full_path'] ?? null);
+		$this->overrideId($this->extraParams['full_path'] ?? null);
 	}
 
 	/*
@@ -36,9 +36,9 @@ abstract class BaseAdminBarMenu extends BaseInstances {
 		}
 	}
 
-	private function overrideName($name = null) {
-		if ($name && !$this->name) {
-			$this->name = $name;
+	private function overrideId($id = null) {
+		if ($id && !$this->id) {
+			$this->id = $id;
 		}
 	}
 
@@ -46,12 +46,14 @@ abstract class BaseAdminBarMenu extends BaseInstances {
 	 *
 	 */
 
-	public function init($name = null) {
-		if ($this->name) {
-			add_action('admin_bar_menu', function($wp_admin_bar) {
+	public function init($id = null) {
+		$id = $this->id ?? $id;
+
+		if ($id) {
+			add_action('admin_bar_menu', function($wp_admin_bar) use ($id) {
 				$wp_admin_bar->add_node([
-					'id'     => $this->name,
-					'title'  => $this->title ?? $this->name,
+					'id'     => $id,
+					'title'  => $this->title ?? $this->id,
 					'href'   => $this->href,
 					'meta'   => $this->meta,
 					'parent' => $this->parent,
