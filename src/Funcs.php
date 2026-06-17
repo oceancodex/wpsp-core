@@ -136,7 +136,8 @@ class Funcs extends BaseInstances {
 
 	public function _getWPSP() {
 		try {
-			return $this->WPSPClass::instance();
+			$WPSP = $this->WPSPClass::instance();
+			return $WPSP;
 		}
 		catch (\Throwable $e) {
 			return null;
@@ -149,10 +150,13 @@ class Funcs extends BaseInstances {
 
 	public function _getApplication($abstract = null, $parameters = []) {
 		try {
+			$app = $this->_getWPSP()->getApplication();
+
 			if ($abstract) {
-				return $this->_getWPSP()->getApplication()->make($abstract, $parameters);
+				return $app->make($abstract, $parameters);
 			}
-			return $this->_getWPSP()->getApplication();
+
+			return $app;
 		}
 		catch (\Throwable $e) {
 			return null;
@@ -164,7 +168,8 @@ class Funcs extends BaseInstances {
 	 */
 	public function _getRouteMap() {
 		try {
-			return $this->routeMapClass::instance();
+			$routeMap = $this->routeMapClass::instance();
+			return $routeMap;
 		}
 		catch (\Throwable $e) {
 			return null;
@@ -176,7 +181,8 @@ class Funcs extends BaseInstances {
 	 */
 	public function _getRouteManager() {
 		try {
-			return $this->routeManagerClass::instance();
+			$routeManager = $this->routeManagerClass::instance();
+			return $routeManager;
 		}
 		catch (\Throwable $e) {
 			return null;
@@ -609,7 +615,9 @@ class Funcs extends BaseInstances {
 		}
 	}
 
-	public function _route($routeMap, $routeClass, $routeName, $args = [], $buildURL = false, $sanitize = true) {
+	public function _route($routeClass, $routeName, $args = [], $buildURL = false, $sanitize = true, $routeMap = null) {
+		if (!$routeMap) return '';
+
 		// Normalize
 		if (preg_match('/\\\\/', $routeClass)) {
 			$parts = explode('\\', trim($routeClass, '\\'));
