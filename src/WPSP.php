@@ -3,6 +3,7 @@
 namespace WPSPCORE;
 
 use Illuminate\Auth\AuthManager;
+use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Foundation\Application;
@@ -13,6 +14,9 @@ use Illuminate\Foundation\Bootstrap\RegisterProviders;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Http\Response;
 use Illuminate\Process\Factory;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Timebox;
@@ -21,7 +25,7 @@ use WPSPCORE\App\View\Directives\adminpagemetaboxes;
 
 abstract class WPSP extends BaseInstances {
 
-	/** @var null|Application */
+	/** @var null|Application|Container */
 	public $application = null;
 	public $response    = null;
 
@@ -44,6 +48,7 @@ abstract class WPSP extends BaseInstances {
 			->withMiddleware(function(Middleware $middleware) {
 				$middleware->append(StartSessionIfAuthenticated::class); // Start session trước mọi code (bao gồm cả view share).
 //				$middleware->append(StartSession::class);
+//				$middleware->append(PreventRequestForgery::class);
 			})
 			->withExceptions(function(Exceptions $exceptions) {})
 			->withProviders($providers)
@@ -82,8 +87,8 @@ abstract class WPSP extends BaseInstances {
 			->withCommands($commands)
 			->create();
 
+		$this->setPaths();
 		$this->bootstrapConsole();
-		$this->extendsConsole();
 		$this->bindingsConsole();
 		$this->extendsConsole();
 
@@ -177,20 +182,13 @@ abstract class WPSP extends BaseInstances {
 		(new RegisterProviders)->bootstrap($this->application);
 	}
 
-	public function extends() {
-		// Override SessionGuard để thay đổi remember_web_* thành wpsp_remember_web_*
-		$this->overrideRememberCookieName();
-	}
-
-	public function extendsConsole() {}
-
 	public function bindings() {
 		$this->application->instance('files', new Filesystem());
 		$this->application->instance('request', $this->request);
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
 
-		// Bind "storage" dưới dạn alias để sử dụng được cả "filesystem".
+		// Bind "storage" dưới dạng alias để sử dụng được cả "filesystem".
 //		$this->application->singleton('storage', function ($app) { return new FilesystemManager($app); });
 		$this->application->singleton('filesystem', function ($app) { return new FilesystemManager($app); });
 		$this->application->alias('filesystem', 'storage');
@@ -209,11 +207,18 @@ abstract class WPSP extends BaseInstances {
 		$this->application->alias('filesystem', FilesystemManager::class);
 	}
 
+	public function extends() {
+		// Override SessionGuard để thay đổi remember_web_* thành wpsp_remember_web_*
+		$this->overrideRememberCookieName();
+	}
+
+	public function extendsConsole() {}
+
 	public function registerBladeDirectives() {
 		$bladeCompiler = $this->application->make('blade.compiler');
 
 		$directiveClasses = [
-			adminpagemetaboxes::class
+			adminpagemetaboxes::class,
 		];
 
 		foreach ($directiveClasses as $directiveClass) {
@@ -231,11 +236,14 @@ abstract class WPSP extends BaseInstances {
 	 */
 
 	public function handleRequest() {
+		// Start session.
+		$this->startSessionIfAuthenticated();
+
 		/** @var \Illuminate\Foundation\Http\Kernel $kernel */
-		$kernel         = $this->application->make(Kernel::class);
-		$this->response = $kernel->handle($this->request);
+//		$kernel         = $this->application->make(Kernel::class);
+//		$this->response = $kernel->handle($this->request);
 //		$this->response->send();
-		$kernel->terminate($this->request, $this->response);
+//		$kernel->terminate($this->request, $this->response);
 		$this->afterHandleRequest();
 	}
 
@@ -257,6 +265,16 @@ abstract class WPSP extends BaseInstances {
 	/*
 	 *
 	 */
+
+	/**
+	 * Start session.
+	 */
+	public function startSessionIfAuthenticated() {
+		$middleware = $this->application->make(StartSessionIfAuthenticated::class);
+		$middleware->handle($this->request, function($request) {
+			return $request;
+		});
+	}
 
 	/**
 	 * Override SessionGuard để thay đổi remember_web_* thành wpsp_remember_web_*
