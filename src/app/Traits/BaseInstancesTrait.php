@@ -49,8 +49,8 @@ trait BaseInstancesTrait {
 
 	public function baseInstanceCall($method) {
 		if ($this->funcs && $this->request) {
-			$path        = $this->extraParams['path'] ?? null;
-			$fullPath    = $this->extraParams['full_path'] ?? null;
+			$path        = $this->extraParams['path'] ?? '';
+			$fullPath    = $this->extraParams['full_path'] ?? '';
 			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 			return $this->autoResolveAndCall($path, $fullPath, $requestPath, $this, $method);
 		}
