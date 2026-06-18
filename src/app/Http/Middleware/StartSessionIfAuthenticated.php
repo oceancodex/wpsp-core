@@ -3,9 +3,11 @@
 namespace WPSPCORE\App\Http\Middleware;
 
 use Closure;
+use Illuminate\Cookie\CookieValuePrefix;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
 use Illuminate\Session\SessionManager;
-use Illuminate\Contracts\Auth\Factory as AuthFactory;
 
 class StartSessionIfAuthenticated {
 
@@ -14,16 +16,30 @@ class StartSessionIfAuthenticated {
 	 */
 	protected $sessionManager;
 
-	public function __construct(SessionManager $sessionManager) {
+	/** @var Encrypter */
+	protected $encrypter;
+
+	/*
+	 *
+	 */
+
+	public function __construct(SessionManager $sessionManager, Encrypter $encrypter) {
 		$this->sessionManager = $sessionManager;
+		$this->encrypter      = $encrypter;
 	}
+
+	/*
+	 *
+	 */
 
 	/**
 	 * Start session and attach to request, then set request to auth factory.
 	 * This middleware is safe to run for REST/API requests.
 	 */
-	public function handle(Request $request, Closure $next) {
+	public function handle(Request $request, Closure $next, $args = []) {
 		try {
+			$config = $args['funcs']->_config('session');
+
 			/** @var \Illuminate\Session\Store $session */
 			$session       = $this->sessionManager->driver();
 			$sessionConfig = $this->sessionManager->getSessionConfig();
@@ -53,12 +69,16 @@ class StartSessionIfAuthenticated {
 						}
 
 						$session->save();
+
+						/**
+						 * Tạo cookie session và gửi về Client.
+						 */
 						$cookie = cookie(
 							$session->getName(),
 							$session->getId(),
 							$sessionConfig['lifetime'],
-							'/',
-							null,
+							$config['path'],
+							$config['domain'],
 							true,
 							true,
 							false,
@@ -70,6 +90,26 @@ class StartSessionIfAuthenticated {
 			}
 
 			$request->setLaravelSession($session);
+
+			/**
+			 * Tạo cookie XSRF-TOKEN và gửi về Client.
+			 */
+			$xsrfName   = $session->getName() . '-XSRF-TOKEN';
+			$xsrfPrefix = CookieValuePrefix::create($xsrfName, $this->encrypter->getKey());
+			$xsrfToken  = $this->encrypter->encrypt($xsrfPrefix . $session->token(), EncryptCookies::serialized('XSRF-TOKEN'));
+
+			$xsrfCookie = cookie(
+				$xsrfName,
+				$xsrfToken,
+				$sessionConfig['lifetime'],
+				$config['path'],
+				$config['domain'],
+				$config['secure'],
+				false,
+				false,
+				$sessionConfig['same_site']
+			);
+			header('Set-Cookie: ' . $xsrfCookie, false);
 
 			return $next($request);
 		}

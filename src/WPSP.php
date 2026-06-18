@@ -46,7 +46,7 @@ abstract class WPSP extends BaseInstances {
 //				apiPrefix: 'api/admin',
 			)
 			->withMiddleware(function(Middleware $middleware) {
-				$middleware->append(StartSessionIfAuthenticated::class); // Start session trước mọi code (bao gồm cả view share).
+//				$middleware->append(StartSessionIfAuthenticated::class); // Start session trước mọi code (bao gồm cả view share).
 //				$middleware->append(StartSession::class);
 //				$middleware->append(PreventRequestForgery::class);
 			})
@@ -244,6 +244,7 @@ abstract class WPSP extends BaseInstances {
 //		$this->response = $kernel->handle($this->request);
 //		$this->response->send();
 //		$kernel->terminate($this->request, $this->response);
+
 		$this->afterHandleRequest();
 	}
 
@@ -273,7 +274,7 @@ abstract class WPSP extends BaseInstances {
 		$middleware = $this->application->make(StartSessionIfAuthenticated::class);
 		$middleware->handle($this->request, function($request) {
 			return $request;
-		});
+		}, ['funcs' => $this->funcs]);
 	}
 
 	/**
