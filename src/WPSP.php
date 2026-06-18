@@ -49,6 +49,7 @@ abstract class WPSP extends BaseInstances {
 //				$middleware->append(StartSessionIfAuthenticated::class); // Start session trước mọi code (bao gồm cả view share).
 //				$middleware->append(StartSession::class);
 //				$middleware->append(PreventRequestForgery::class);
+//				$middleware->append(VerifyCsrfToken::class);
 			})
 			->withExceptions(function(Exceptions $exceptions) {})
 			->withProviders($providers)
