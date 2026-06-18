@@ -148,6 +148,9 @@ class Funcs extends BaseInstances {
 		return $this->WPSPClass;
 	}
 
+	/**
+	 * @return \Illuminate\Foundation\Application|\Illuminate\Container\Container|mixed
+	 */
 	public function _getApplication($abstract = null, $parameters = []) {
 		try {
 			$app = $this->_getWPSP()->getApplication();
