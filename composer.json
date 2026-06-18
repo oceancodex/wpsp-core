@@ -7,7 +7,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": "^8.3",
-		"laravel/framework": "^v13.8",
+		"laravel/framework": "^v13.16",
 		"laravel/tinker": "^v3.0",
 		"yahnis-elsts/plugin-update-checker": "^v5.6"
 	},
