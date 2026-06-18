@@ -71,7 +71,7 @@ abstract class BaseTaxonomy extends BaseInstances {
 	public $default_term               = [];		// ['name','slug', 'description']
 	public $sort                       = false;
 
-	public $query_var                  = null;		// Not for general use. Warning: This attribute can affect article viewing beyond the frontend.
+	public $query_var                  = false;		// Not for general use. Warning: This attribute can affect article viewing beyond the frontend.
 	public $_builtin                   = false;		// Not for general use
 
 	public $callback_function		   = null;
