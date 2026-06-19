@@ -16,8 +16,9 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Process\Factory;
+use Illuminate\Process\Factory as ProcessFactory;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Timebox;
 use WPSPCORE\App\Http\Middleware\StartSessionIfAuthenticated;
@@ -57,8 +58,11 @@ abstract class WPSP extends BaseInstances {
 			->create();
 
 		$this->setPaths();
+		$this->afterSetPaths();
 		$this->bootstrap();
+		$this->afterBoostrap();
 		$this->bindings();
+		$this->afterBindings();
 		$this->extends();
 
 //		$this->registerBladeDirectives();
@@ -89,8 +93,11 @@ abstract class WPSP extends BaseInstances {
 			->create();
 
 		$this->setPaths();
+		$this->afterSetPaths();
 		$this->bootstrapConsole();
+		$this->afterBoostrapConsole();
 		$this->bindingsConsole();
+		$this->afterBindingsConsole();
 		$this->extendsConsole();
 
 		$this->application->boot();
@@ -155,6 +162,10 @@ abstract class WPSP extends BaseInstances {
 		$this->application->useEnvironmentPath($this->mainPath);
 	}
 
+	/*
+	 *
+	 */
+
 	public function bootstrap() {
 		// Environment variables.
 		(new LoadEnvironmentVariables)->bootstrap($this->application);
@@ -184,26 +195,37 @@ abstract class WPSP extends BaseInstances {
 	}
 
 	public function bindings() {
-		$this->application->instance('files', new Filesystem());
+		// Request.
+		$this->application->instance(Request::class, $this->request);
 		$this->application->instance('request', $this->request);
-		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
-		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
 
-		// Bind "storage" dưới dạng alias để sử dụng được cả "filesystem".
-//		$this->application->singleton('storage', function ($app) { return new FilesystemManager($app); });
+		// Funcs.
+		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
+
+		// Files.
+		$this->application->singleton('files', function () { return new Filesystem(); });
+
+		// Process.
+		$this->application->singleton('process', function ($app) { return $app->make(ProcessFactory::class); });
+
+		// Storage và Filesystem.
 		$this->application->singleton('filesystem', function ($app) { return new FilesystemManager($app); });
 		$this->application->alias('filesystem', 'storage');
 		$this->application->alias('filesystem', FilesystemManager::class);
 	}
 
 	public function bindingsConsole() {
-		$this->application->instance('files', new Filesystem());
+		// Funcs.
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
-		$this->application->singleton('process', function ($app) { return $app->make(Factory::class); });
 
-		// Bind "storage" dưới dạn alias để sử dụng được cả "filesystem".
-//		$this->application->singleton('storage', function ($app) { return new FilesystemManager($app); });
-		$this->application->singleton('filesystem', function ($app) { return new FilesystemManager($app); });
+		// Files.
+		$this->application->instance('files', new Filesystem());
+
+		// Process.
+		$this->application->singleton('process', function($app) { return $app->make(ProcessFactory::class); });
+
+		// Storage và Filesystem.
+		$this->application->singleton('filesystem', function($app) { return new FilesystemManager($app); });
 		$this->application->alias('filesystem', 'storage');
 		$this->application->alias('filesystem', FilesystemManager::class);
 	}
@@ -214,6 +236,24 @@ abstract class WPSP extends BaseInstances {
 	}
 
 	public function extendsConsole() {}
+
+	/*
+	 *
+	 */
+
+	public function afterSetPaths() {}
+
+	public function afterBoostrap() {}
+
+	public function afterBoostrapConsole() {}
+
+	public function afterBindings() {}
+
+	public function afterBindingsConsole() {}
+
+	/*
+	 *
+	 */
 
 	public function registerBladeDirectives() {
 		$bladeCompiler = $this->application->make('blade.compiler');
