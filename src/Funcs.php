@@ -300,6 +300,10 @@ class Funcs extends BaseInstances {
 		return $this->_getDatabasePath() . '/migrations' . ($path ? '/' . ltrim($path, '/\\') : '');
 	}
 
+	public function _getWidenPath($path = null) {
+		return $this->_getAppPath() . '/Widen' . ($path ? '/' . ltrim($path, '/\\') : '');
+	}
+
 	public function _getMainUrl() {
 		try {
 			if (!function_exists('plugin_dir_url')) {
@@ -767,7 +771,7 @@ class Funcs extends BaseInstances {
 
 	public function _trans($string, $replaces = [], $wordpress = false) {
 		try {
-			if ($wordpress) {
+			if ($wordpress || !class_exists('Illuminate\Translation\Translator')) {
 				return __($string, $this->_getTextDomain());
 			}
 			else {
