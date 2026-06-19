@@ -203,13 +203,13 @@ abstract class WPSP extends BaseInstances {
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 
 		// Files.
-		$this->application->singleton('files', function () { return new Filesystem(); });
+		$this->application->singleton('files', function() { return new Filesystem(); });
 
 		// Process.
-		$this->application->singleton('process', function ($app) { return $app->make(ProcessFactory::class); });
+		$this->application->singleton('process', function($app) { return $app->make(ProcessFactory::class); });
 
 		// Storage và Filesystem.
-		$this->application->singleton('filesystem', function ($app) { return new FilesystemManager($app); });
+		$this->application->singleton('filesystem', function($app) { return new FilesystemManager($app); });
 		$this->application->alias('filesystem', 'storage');
 		$this->application->alias('filesystem', FilesystemManager::class);
 	}
@@ -219,7 +219,7 @@ abstract class WPSP extends BaseInstances {
 		$this->application->instance('funcs', $this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams));
 
 		// Files.
-		$this->application->instance('files', new Filesystem());
+		$this->application->singleton('files', function() { return new Filesystem(); });
 
 		// Process.
 		$this->application->singleton('process', function($app) { return $app->make(ProcessFactory::class); });
@@ -293,7 +293,7 @@ abstract class WPSP extends BaseInstances {
 		// Share flash data to view.
 //		add_action('template_redirect', function() {
 //			$this->application->make('view')->share('errors', session('errors'));
-			$this->application->booted(function ($app) {
+			$this->application->booted(function($app) {
 				$session = $app['session.store'];
 				$view    = $app['view'];
 
