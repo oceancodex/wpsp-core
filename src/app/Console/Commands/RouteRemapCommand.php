@@ -90,7 +90,8 @@ class RouteRemapCommand extends Command {
 			];
 
 			$json = json_encode($prepareMap, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-			File::put($app->basePath('.wpsp-routes.json'), $json);
+//			File::put($app->basePath('.wpsp-routes.json'), $json);
+			File::put($this->funcs->_getMainPath('.wpsp-routes.json'), $json);
 
 			// IDE auto-reload
 			$ide = strtolower($this->option('ide') ?? '');
