@@ -4,23 +4,23 @@ namespace WPSPCORE\App\Routes;
 
 class RouteData {
 
-	public $type          = null;     // Loại route.
-	public $route         = null;     // Class của Route trong WPSP: \WPSP\App\Instances\Routes\Apis
-	public $parentRoute   = null;     // Class cha của Route trong WPSPCORE: \WPSPCORE\Routes\Apis\Apis
-	public $method        = null;     // HTTP method (GET, POST, ...)
-	public $path          = null;     // Path của route
-	public $fullPath      = null;     // Full path sau khi áp dụng prefix
-	public $pathRegex     = null;     // Path của route
-	public $fullPathRegex = null;     // Full path sau khi áp dụng prefix
-	public $namespace     = null;
-	public $version       = null;
-	public $callback      = null;     // Controller action hoặc Closure
+	public $type          = null;		// Loại route.
+	public $route         = null;		// Class của Route trong WPSP: \WPSP\App\Instances\Routes\Apis
+	public $parentRoute   = null;		// Class cha của Route trong WPSPCORE: \WPSPCORE\Routes\Apis\Apis
+	public $method        = null;		// HTTP method (GET, POST, ...)
+	public $path          = null;		// Path của route
+	public $fullPath      = null;		// Full path sau khi áp dụng prefix
+	public $pathRegex     = null;		// Path của route
+	public $fullPathRegex = null;		// Full path sau khi áp dụng prefix
+	public $namespace     = null;		// Namespace của route (sử dụng với Route APIs)
+	public $version       = null;		// Version của route (sử dụng với Route APIs)
+	public $callback      = null;		// Controller action hoặc Closure
 	public $args          = [];
 	public $attributes    = [];
 	public $parameters    = [];
-	public $name          = null;     // Tên route đầy đủ sau khi gọi ->name()
-	public $middlewares   = [];       // Danh sách middleware áp dụng cho route
-	public $funcs         = null;     // Funcs.
+	public $name          = null;		// Tên route đầy đủ sau khi gọi ->name()
+	public $middlewares   = [];			// Danh sách middleware áp dụng cho route
+	public $funcs         = null;		// Funcs.
 
 	/**
 	 * Lưu stack các tên group (name prefix) theo thứ tự.\
@@ -300,6 +300,18 @@ class RouteData {
 
 		// fallback: trả nguyên giá trị
 		return $middleware;
+	}
+
+	/*
+	 *
+	 */
+
+	public function getName() {
+		return $this->name;
+	}
+
+	public function getActionName() {
+		return ($this->callback[0] ?? '') . '@' . ($this->callback[1] ?? '');
 	}
 
 }
