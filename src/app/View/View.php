@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class View extends BaseInstances {
 
-	private \Illuminate\View\Factory $view;
+	private ?\Illuminate\View\Factory $view;
 
 	/*
 	 *
 	 */
 
-	public function getView(): \Illuminate\View\Factory {
+	public function getView(): ?\Illuminate\View\Factory {
 		return $this->view;
 	}
 
@@ -40,7 +40,7 @@ abstract class View extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getView()->$method(...$arguments);
+		return $instance->getView()?->$method(...$arguments);
 	}
 
 }
