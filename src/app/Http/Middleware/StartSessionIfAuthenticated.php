@@ -37,6 +37,14 @@ class StartSessionIfAuthenticated {
 	 * This middleware is safe to run for REST/API requests.
 	 */
 	public function handle(Request $request, Closure $next, $args = []) {
+		if (
+			(defined('DOING_CRON') && DOING_CRON)
+			|| defined('WP_CLI')
+			|| php_sapi_name() === 'cli'
+		) {
+			return $next($request);
+		}
+
 		try {
 			$config = $args['funcs']->_config('session');
 
@@ -84,7 +92,7 @@ class StartSessionIfAuthenticated {
 							false,
 							$sessionConfig['same_site']
 						);
-						header('Set-Cookie: ' . $cookie, false);
+						@header('Set-Cookie: ' . $cookie, false);
 					}
 				}
 			}
@@ -109,7 +117,7 @@ class StartSessionIfAuthenticated {
 				false,
 				$sessionConfig['same_site']
 			);
-			header('Set-Cookie: ' . $xsrfCookie, false);
+			@header('Set-Cookie: ' . $xsrfCookie, false);
 
 			return $next($request);
 		}
