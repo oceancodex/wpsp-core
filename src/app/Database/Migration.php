@@ -207,7 +207,7 @@ class Migration extends BaseInstances {
 			];
 		}
 
-		$missing = $this->getMissingMigrationVersions();
+		$missing = $this->getMissingMigrationVersions(true);
 
 		return [
 			'result'           => empty($missing),
@@ -321,7 +321,7 @@ class Migration extends BaseInstances {
 	/**
 	 * Lấy danh sách file migration chưa có trong DB
 	 */
-	protected function getMissingMigrationVersions() {
+	protected function getMissingMigrationVersions($hasMigrationsTable = false) {
 		$app    = $this->funcs->_getApplication();
 		$schema = $app['db']->connection()->getSchemaBuilder();
 		$db     = $app['db'];
@@ -334,7 +334,7 @@ class Migration extends BaseInstances {
 			}
 		}
 
-		if (!$schema->hasTable($this->migrationTable)) {
+		if (!$hasMigrationsTable && !$schema->hasTable($this->migrationTable)) {
 			$executed = [];
 		}
 		else {
