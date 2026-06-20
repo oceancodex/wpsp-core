@@ -677,8 +677,11 @@ trait RouteTrait {
 		// Set container và facade theo mỗi lần gọi callback.
 		Container::setInstance($container);
 		Facade::setFacadeApplication($container);
-		Model::setConnectionResolver($container['db']);
-		Model::setEventDispatcher($container['events']);
+
+		if (class_exists('Illuminate\Foundation\Application')) {
+			Model::setConnectionResolver($container['db']);
+			Model::setEventDispatcher($container['events']);
+		}
 
 		if (!$call) {
 			return function(...$wpParams) use ($container, $callback, $callParams) {
