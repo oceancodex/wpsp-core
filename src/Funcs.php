@@ -827,10 +827,10 @@ class Funcs extends BaseInstances {
 
 	public function _viewInject($views, $data) {
 		if ($data instanceof \Closure) {
-			return $this->_viewInstance()->composer($views, $data);
+			return $this->_viewInstance()?->composer($views, $data);
 		}
 		elseif (is_array($data)) {
-			return $this->_viewInstance()->composer($views, function(View $view) use ($data) {
+			return $this->_viewInstance()?->composer($views, function(View $view) use ($data) {
 				foreach ($data as $key => $value) {
 					$view->with($key, $value);
 				}
