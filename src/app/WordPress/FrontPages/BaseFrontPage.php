@@ -66,7 +66,7 @@ abstract class BaseFrontPage extends BaseInstances {
 		$regexPath   = !str_ends_with($regexPath, $regexSuffix) ? $regexPath . $regexSuffix : $regexPath;
 
 		$fullPathEx = !str_starts_with($fullPath, $regexPrefix) ? $regexPrefix . $fullPath : $fullPath;
-		$fullPathEx = !str_ends_with($fullPathEx, $regexSuffix) ? $regexPath . $fullPathEx : $fullPathEx;
+		$fullPathEx = !str_ends_with($fullPathEx, $regexSuffix) ? $fullPathEx . $regexSuffix : $fullPathEx;
 
 		if ($path && $fullPath) {
 			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
