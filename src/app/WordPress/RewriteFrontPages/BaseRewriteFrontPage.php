@@ -70,7 +70,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 		$regexPath   = !str_ends_with($regexPath, $regexSuffix) ? $regexPath . $regexSuffix : $regexPath;
 
 		$fullPathEx = !str_starts_with($fullPath, $regexPrefix) ? $regexPrefix . $fullPath : $fullPath;
-		$fullPathEx = !str_ends_with($fullPathEx, $regexSuffix) ? $regexPath . $fullPathEx : $fullPathEx;
+		$fullPathEx = !str_ends_with($fullPathEx, $regexSuffix) ? $fullPathEx . $regexSuffix : $fullPathEx;
 
 		$appShortName = $this->funcs->_config('app.short_name');
 
