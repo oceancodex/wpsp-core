@@ -353,6 +353,8 @@ trait RouteTrait {
 	 * - Request → route parameter bridging
 	 */
 	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = [], $wpParams = []) {
+		$originalRequestPath = $requestPath;
+
 		// NEW: detect closure
 		if ($callbackOrClass instanceof \Closure) {
 			$reflection = new \ReflectionFunction($callbackOrClass);
@@ -600,15 +602,23 @@ trait RouteTrait {
 		 * ㅤ\$id = $request->route('id');\
 		 * }
 		 */
-		$this->request->setRouteResolver(function() use (&$args, $callParams) {
-			if (isset($args['route'])) {
-				$args['route']->parameters = $callParams;
-				return $args['route'];
-			}
-			else {
-				return null;
-			}
-		});
+		if (
+			!empty($regexPath) &&
+			(
+				preg_match($pattern, $originalRequestPath, $matches)
+				|| preg_match('#' . $fullPath . '#iu', $originalRequestPath, $matches)
+			)
+		) {
+			$this->request->setRouteResolver(function() use (&$args, $callParams) {
+				if (isset($args['route'])) {
+					$args['route']->parameters = $callParams;
+					return $args['route'];
+				}
+				else {
+					return null;
+				}
+			});
+		}
 
 		return $callParams;
 	}
