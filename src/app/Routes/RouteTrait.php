@@ -396,9 +396,12 @@ trait RouteTrait {
 		 * Tránh tình trạng đang ở URL khác lại thực thi các code bên dưới là không cần thiết.
 		 */
 		if (
-			preg_match($pattern, $requestPath, $matches)
-			|| preg_match('#' . $fullPath . '#iu', $requestPath, $matches)
-			|| $fullPath == $requestPath
+			!empty($regexPath) &&
+			(
+				preg_match($pattern, $requestPath, $matches)
+				|| preg_match('#' . $fullPath . '#iu', $requestPath, $matches)
+				|| $fullPath == $requestPath
+			)
 		) {
 			$passed = true;
 		}
@@ -597,7 +600,7 @@ trait RouteTrait {
 		 * ㅤ\$id = $request->route('id');\
 		 * }
 		 */
-		$this->request->setRouteResolver(function() use ($args, $callParams) {
+		$this->request->setRouteResolver(function() use (&$args, $callParams) {
 			if (isset($args['route'])) {
 				$args['route']->parameters = $callParams;
 				return $args['route'];
