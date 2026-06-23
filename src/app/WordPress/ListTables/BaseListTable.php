@@ -11,6 +11,7 @@ abstract class BaseListTable extends \WP_List_Table {
 	public $args             = [];
 	public $screenIds        = null;
 	public $screenOptionsKey = null;
+	public $bulkEditAssets	 = true;
 
 	/*
 	 *
@@ -33,6 +34,8 @@ abstract class BaseListTable extends \WP_List_Table {
 
 		// Tự động đăng ký các checkboxes để ẩn/hiện cột cho Custom List Table trên Screen Options panel.
 		$this->autoScreenOptionColumns();
+		
+		$this->maybeBulkEdit();
 	}
 
 	/**
@@ -93,6 +96,19 @@ abstract class BaseListTable extends \WP_List_Table {
 
 			wp_safe_redirect($url);
 			exit;
+		}
+	}
+	
+	public function maybeBulkEdit() {
+		if (method_exists($this, 'bulk_edit') && $this->bulkEditAssets) {
+			wp_register_script('wpsp-bulk-edit',
+				$this->funcs->asset('widen/custom/js/bulk-edit.js'),
+				['jquery'],
+				$this->funcs->_getVersion(),
+				['in_footer' => true]);
+			add_action('admin_enqueue_scripts', function() {
+				wp_enqueue_script('wpsp-bulk-edit');
+			});
 		}
 	}
 
