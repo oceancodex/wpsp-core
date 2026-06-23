@@ -25,6 +25,12 @@ class {{ class_name }} extends BaseListTable {
 //	public $screenOptionsKey = null;
 
 	/**
+	 * Đặt là true để enqueue JS cho bulk edit.\
+	 * Đặt là false để tự custom JS cho bulk edit.
+	 */
+//	public $bulkEditAssets = true;
+
+	/**
 	 * Request parameters.\
 	 * Lấy từ URL thông qua helper Request riêng của hệ thống.
 	 */
@@ -176,6 +182,14 @@ class {{ class_name }} extends BaseListTable {
 		// Chuyển hướng, loại bỏ các params thừa.
 		$this->redirectBulkActions(['items'], ['saved' => true]);
 	}
+
+	/*
+	 * Bulk edit form.
+	 */
+
+//	public function bulk_edit() {
+//		echo Funcs::view('admin-pages.wpsp.users.bulk-edit');
+//	}
 
 	/*
 	 * Extra table nav.
