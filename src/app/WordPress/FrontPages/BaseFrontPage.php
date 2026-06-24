@@ -76,9 +76,9 @@ abstract class BaseFrontPage extends BaseInstances {
 				// Cần phải hook vào 'wp' để có thể truy cập được global $post.
 				add_action('wp', function() use ($path, $fullPath, $regexPath, $fullPathEx, $requestPath) {
 					try {
-						$matched = preg_match('/' . $regexPath . '/iu', $requestPath, $matches);
+						$matched = @preg_match('/' . $regexPath . '/iu', $requestPath, $matches);
 						if (!$matched) {
-							$matched = preg_match('/' . $fullPathEx . '/iu', $requestPath, $matches);
+							$matched = @preg_match('/' . $fullPathEx . '/iu', $requestPath, $matches);
 						}
 					}
 					catch (\Throwable $e) {
