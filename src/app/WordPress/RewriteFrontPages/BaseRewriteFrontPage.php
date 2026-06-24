@@ -79,7 +79,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			 * Parse tất cả capture group (...) trong regex
 			 * để map sang query vars: _rewrite_group_1, _rewrite_group_2, ...
 			 */
-			preg_match_all('/\(.+?\)/iu', $regexPath, $groupMatches);
+			@preg_match_all('/\(.+?\)/iu', $regexPath, $groupMatches);
 
 			$stringMatches = '';
 
@@ -115,9 +115,9 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			 * (tránh hook không cần thiết)
 			 */
 			try {
-				$matched = preg_match('/' . $regexPath . '/iu', $requestPath, $matches);
+				$matched = @preg_match('/' . $regexPath . '/iu', $requestPath, $matches);
 				if (!$matched) {
-					$matched = preg_match('/' . $fullPathEx . '/iu', $requestPath, $matches);
+					$matched = @preg_match('/' . $fullPathEx . '/iu', $requestPath, $matches);
 				}
 			}
 			catch (\Throwable $e) {

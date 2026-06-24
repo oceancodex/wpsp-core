@@ -64,7 +64,7 @@ class StartSessionIfAuthenticated {
 			else {
 				if (!$session->isStarted()) {
 					$userAgent = $request->userAgent();
-					if ($userAgent && !preg_match('/WordPress\//', $userAgent)) {
+					if ($userAgent && !@preg_match('/WordPress\//', $userAgent)) {
 						$session->start();
 						$newSessionId = $session->getId();
 
