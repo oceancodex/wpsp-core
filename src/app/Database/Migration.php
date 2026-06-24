@@ -123,7 +123,7 @@ class Migration extends BaseInstances {
 
 		foreach ($files as $file) {
 			$content = $fs->get($file->getPathname());
-			if (preg_match_all('/(?:->|::)create\s*\(\s*[\'"]([^\'"]+)[\'"]/i', $content, $matches)) {
+			if (@preg_match_all('/(?:->|::)create\s*\(\s*[\'"]([^\'"]+)[\'"]/i', $content, $matches)) {
 				foreach ($matches[1] as $table) {
 					$defined[] = $table;
 				}

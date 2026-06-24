@@ -34,7 +34,7 @@ class FrontPages extends BaseRoute {
 			if (
 				$this->request->method() == strtoupper($method)
 				&& (
-					preg_match('/' . $this->funcs->_regexPath($fullPath) . '/iu', $requestPath)
+					@preg_match('/' . $this->funcs->_regexPath($fullPath) . '/iu', $requestPath)
 					|| @preg_match('/' . $fullPath . '/iu', $requestPath)
 				)
 				&& $this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])
