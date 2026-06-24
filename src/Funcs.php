@@ -233,7 +233,7 @@ class Funcs extends BaseInstances {
 		}
 
 		// --- Parse Bearer token ---
-		if (preg_match('/Bearer\s+(\S+)/i', trim($authHeader), $matches)) {
+		if (@preg_match('/Bearer\s+(\S+)/i', trim($authHeader), $matches)) {
 			return trim($matches[1]);
 		}
 
@@ -440,7 +440,7 @@ class Funcs extends BaseInstances {
 						}
 					}
 					elseif ($operator == 'contains') {
-						if (isset($item[$key]) && preg_match('/' . $value . '/iu', $item[$key])) {
+						if (isset($item[$key]) && @preg_match('/' . $value . '/iu', $item[$key])) {
 							if ($single) {
 								$result = $item;
 								break;
@@ -626,7 +626,7 @@ class Funcs extends BaseInstances {
 		if (!$routeMap) return '';
 
 		// Normalize
-		if (preg_match('/\\\\/', $routeClass)) {
+		if (@preg_match('/\\\\/', $routeClass)) {
 			$parts = explode('\\', trim($routeClass, '\\'));
 			$routeClass = end($parts);
 		}
@@ -646,7 +646,7 @@ class Funcs extends BaseInstances {
 		$finalUrl = $routeUrl;
 
 		// Xử lý param dạng param={key} và param={key?}
-		if (preg_match_all('/(\w+)=\{(\w+)(\?)?}/', $finalUrl, $m)) {
+		if (@preg_match_all('/(\w+)=\{(\w+)(\?)?}/', $finalUrl, $m)) {
 			foreach ($m[1] as $i => $paramKey) {
 				$paramName = $m[2][$i];
 				$fullTag   = $m[0][$i];
@@ -664,7 +664,7 @@ class Funcs extends BaseInstances {
 		}
 
 		// Xử lý placeholder dạng {key} và {key?}
-		if (preg_match_all('/\{(\w+)(\?)?}/', $finalUrl, $pm)) {
+		if (@preg_match_all('/\{(\w+)(\?)?}/', $finalUrl, $pm)) {
 			foreach ($pm[1] as $i => $name) {
 				$fullTag = $pm[0][$i];
 
@@ -681,14 +681,14 @@ class Funcs extends BaseInstances {
 		}
 
 		// Xử lý non-capture group dạng (?: ... (?P<name>regex) ...)?
-		if (preg_match_all('/\(\?:([^()]*?\(\?P<([^>]+)>[^)]+\)[^()]*?)\)\?/', $finalUrl, $nm)) {
+		if (@preg_match_all('/\(\?:([^()]*?\(\?P<([^>]+)>[^)]+\)[^()]*?)\)\?/', $finalUrl, $nm)) {
 			foreach ($nm[2] as $i => $name) {
 				$fullGroup = $nm[0][$i]; // toàn bộ (?: ... )?
 				$inner     = $nm[1][$i]; // phần bên trong
 
 				if (is_array($args) && array_key_exists($name, $args)) {
 					// Extract the regex inside (?P<name>regex)
-					if (preg_match('/\??\(\?P<' . $name . '>([^)]+)\)\??/', $inner, $im)) {
+					if (@preg_match('/\??\(\?P<' . $name . '>([^)]+)\)\??/', $inner, $im)) {
 						$value = rawurlencode($args[$name]);
 						// replace non capture block with actual inserted value
 						$replacement = str_replace($im[0], $value, $inner);
@@ -704,7 +704,7 @@ class Funcs extends BaseInstances {
 		}
 
 		// Xử lý group PATH dạng (?P<key>regex) và (?P<key>regex)?
-		if (preg_match_all('/\??\(\?P<([^>]+)>([^)]+)\)\??/', $finalUrl, $gm)) {
+		if (@preg_match_all('/\??\(\?P<([^>]+)>([^)]+)\)\??/', $finalUrl, $gm)) {
 			foreach ($gm[1] as $i => $name) {
 				$fullGroup = $gm[0][$i];
 

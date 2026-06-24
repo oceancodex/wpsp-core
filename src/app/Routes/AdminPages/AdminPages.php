@@ -67,9 +67,9 @@ class AdminPages extends BaseRoute {
 			)
 			&&
 			(
-				($request->get('page') == $fullPath && preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath))
-				|| preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
-				|| preg_match('/' . $fullPath . '/iu', $requestPath)
+				($request->get('page') == $fullPath && @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath))
+				|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
+				|| @preg_match('/' . $fullPath . '/iu', $requestPath)
 			)
 		) {
 			if ($this->isPassedMiddleware($middlewares, $request, ['route' => $route])) {
@@ -143,8 +143,8 @@ class AdminPages extends BaseRoute {
 						|| $callback[1] == 'index'
 						|| (isset($route->args['force_init']) && $route->args['force_init'])
 						|| $request->get('page') == $fullPath
-						|| preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
-						|| preg_match('/' . $fullPath . '/iu', $requestPath)
+						|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
+						|| @preg_match('/' . $fullPath . '/iu', $requestPath)
 					)
 				)
 			) {
@@ -224,7 +224,7 @@ class AdminPages extends BaseRoute {
 					else {
 						// Nếu method của callback không phải index, hoặc không force_init, đây không phải route khởi tạo admin page.
 						if ((isset($callback[1]) && is_string($callback[1]) && $callback[1] !== 'index') && (!isset($route->args['force_init']))) {
-							if (preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
+							if (@preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
 								/**
 								 * Thực hiện các công việc với Callback.
 								 * 1. Chuẩn bị callback.
@@ -259,7 +259,7 @@ class AdminPages extends BaseRoute {
 						}
 					}
 				}
-				elseif (preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
+				elseif (@preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
 					wp_die(
 						'<h1>ERROR: 403 - Access denied</h1>' .
 						'<p>You are not allowed to access this page.</p>',

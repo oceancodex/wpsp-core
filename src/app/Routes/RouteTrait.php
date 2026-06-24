@@ -375,7 +375,7 @@ trait RouteTrait {
 		$passed = false;
 
 		// Nếu nơi gọi hàm này là route "Ajaxs" với method POST, check match action và path.
-		if (preg_match('/Ajaxs$/', static::class)) {
+		if (@preg_match('/Ajaxs$/', static::class)) {
 			$httpMethod = $this->request->getMethod();
 			if ($httpMethod === 'POST') {
 				$params = $this->request->all();
@@ -387,7 +387,7 @@ trait RouteTrait {
 		 * Nếu nơi gọi hàm là "Actions" hoặc "Filters", tự động passed.\
 		 * Bởi vì add_action và add_filter không có request.
 		 */
-		if (preg_match('/Actions$|Filters$/', static::class)) {
+		if (@preg_match('/Actions$|Filters$/', static::class)) {
 //			$passed = $path == $fullPath;
 			$requestPath = $fullPath;
 		}
@@ -400,8 +400,8 @@ trait RouteTrait {
 		if (
 			!empty($regexPath) &&
 			(
-				preg_match($pattern, $requestPath, $matches)
-				|| preg_match('#' . $fullPath . '#iu', $requestPath, $matches)
+				@preg_match($pattern, $requestPath, $matches)
+				|| @preg_match('#' . $fullPath . '#iu', $requestPath, $matches)
 				|| $fullPath == $requestPath
 			)
 		) {
@@ -605,8 +605,8 @@ trait RouteTrait {
 		if (
 			!empty($regexPath) &&
 			(
-				preg_match($pattern, $originalRequestPath, $matches)
-				|| preg_match('#' . $fullPath . '#iu', $originalRequestPath, $matches)
+				@preg_match($pattern, $originalRequestPath, $matches)
+				|| @preg_match('#' . $fullPath . '#iu', $originalRequestPath, $matches)
 			)
 		) {
 			$this->request->setRouteResolver(function() use (&$args, $callParams) {
