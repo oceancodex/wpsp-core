@@ -15,7 +15,7 @@ class {{ class_name }} extends BaseController {
 
         // Remove slashes at the end of URL and redirect to new URL.
 //		$uri = $this->request->getRequestUri();
-//		if (preg_match('/\/$/iu', $uri)) {
+//		if (@preg_match('/\/$/iu', $uri)) {
 //			$uri = rtrim($uri, '/');
 //			$response = new RedirectResponse(home_url($uri));
 //			$response->send();

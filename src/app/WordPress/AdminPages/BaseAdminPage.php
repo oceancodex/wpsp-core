@@ -230,7 +230,7 @@ abstract class BaseAdminPage extends BaseInstances {
 				if (!str_starts_with($urlMatchHighlightMenu, '/')) {
 					$urlMatchHighlightMenu = '/' . $this->funcs->_regexPath($urlMatchHighlightMenu) . '/iu';
 				}
-				if (preg_match($urlMatchHighlightMenu, $currentRequest)) {
+				if (@preg_match($urlMatchHighlightMenu, $currentRequest)) {
 					add_filter('parent_file', function($parent_file) {
 						return $this->parent_slug;
 					});
@@ -262,7 +262,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		 * Khi truy cập submenu, highlight nó.
 		 */
 		else {
-			if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
+			if (@preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
 				add_filter('submenu_file', function($submenu_file) {
 					return $this->menu_slug;
 				});
@@ -288,7 +288,7 @@ abstract class BaseAdminPage extends BaseInstances {
 					$urlMatchCurrentAccess = '/' . $this->funcs->_regexPath($urlMatchCurrentAccess) . '/iu';
 				}
 
-				if (preg_match($urlMatchCurrentAccess, $currentRequest)) {
+				if (@preg_match($urlMatchCurrentAccess, $currentRequest)) {
 					$this->assets();
 					if ($this->screenOptionsPageNow) $this->overrideScreenOptionsPageNow();
 					$this->matchedCurrentAccess();
@@ -308,7 +308,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		 * Chạy hàm "screenOptions" và "matchedCurrentAccess".
 		 */
 		else {
-			if (preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
+			if (@preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
 				$this->assets();
 				if ($this->screenOptionsPageNow) $this->overrideScreenOptionsPageNow();
 				$this->matchedCurrentAccess();
