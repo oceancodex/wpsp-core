@@ -202,6 +202,11 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
+	/**
+	 * Mặc định khi "add_menu_page" hay "add_submenu_page" với slug tiêu chuẩn và callback "index"\
+	 * thì callback sẽ được gọi bình thường. Tuy nhiên, khi thêm admin menu page mà slug chứa dấu "&" thì callback sẽ không được gọi.
+	 * Hàm này sẽ gọi method "index" để thực thi callback theo đúng format bình thường.
+	 */
 	private function maybeCallIndexMethod() {
 		if (
 			!$this->forceInit

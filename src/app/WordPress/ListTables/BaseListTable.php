@@ -35,6 +35,7 @@ abstract class BaseListTable extends \WP_List_Table {
 		// Tự động đăng ký các checkboxes để ẩn/hiện cột cho Custom List Table trên Screen Options panel.
 		$this->autoScreenOptionColumns();
 		
+		// List table này có bulk edit hay không.
 		$this->maybeBulkEdit();
 	}
 
@@ -98,7 +99,16 @@ abstract class BaseListTable extends \WP_List_Table {
 			exit;
 		}
 	}
-	
+
+	/**
+	 * Kiểm tra và đăng ký assets cho chức năng bulk edit nếu list table hỗ trợ.
+	 *
+	 * Method này sẽ tự động đăng ký và enqueue script bulk-edit.js nếu:
+	 * - List table có method bulk_edit() được định nghĩa
+	 * - Thuộc tính bulkEditAssets được set là true
+	 *
+	 * @return void
+	 */
 	public function maybeBulkEdit() {
 		if (method_exists($this, 'bulk_edit') && $this->bulkEditAssets) {
 			wp_register_script('wpsp-bulk-edit',
