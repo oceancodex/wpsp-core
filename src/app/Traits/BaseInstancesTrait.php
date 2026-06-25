@@ -11,6 +11,7 @@ use WPSPCORE\App\Routes\RouteTrait;
  * @property \WPSPCORE\Funcs          $funcs
  * @property \Illuminate\Http\Request $request
  * @method $this __wpspConstruct
+ * @method $this __instanceConstruct
  * @method $this customProperties
  * @method $this afterCustomProperties
  * @method $this afterInstanceConstruct
@@ -37,6 +38,7 @@ trait BaseInstancesTrait {
 		$this->prepareRequest();
 		$this->afterConstruct();
 		$this->baseInstanceCall('__wpspConstruct');
+		$this->baseInstanceCall('__instanceConstruct');
 		$this->baseInstanceCall('customProperties');
 		$this->baseInstanceCall('afterCustomProperties');
 		$this->baseInstanceCall('afterInstanceConstruct');

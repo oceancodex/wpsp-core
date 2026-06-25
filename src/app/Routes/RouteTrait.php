@@ -472,10 +472,22 @@ trait RouteTrait {
 			$type = $param->getType();
 
 			/**
-			 * Model binding.
+			 * Model binding & auto define class properties with DI.
 			 */
 			$className = $this->getClassFromType($type);
 			if ($className) {
+
+				/**
+				 * Nếu method đang xử lý là "__wpspConstruct" và type của param\
+				 * là một class hợp lệ, tự động tạo properties cho class đang xử lý.
+				 */
+				if ($method == '__wpspConstruct' && $name && class_exists($className)) {
+					try {
+						@$this->{$name} = $app->make($className);
+					}
+					catch (\Exception $e) {}
+				}
+
 				// Nếu type là Eloquent Model => tự binding
 				if (is_subclass_of($className, \Illuminate\Database\Eloquent\Model::class)) {
 					// Lấy id từ path / query
@@ -525,6 +537,7 @@ trait RouteTrait {
 
 					continue; // xong param model-binding
 				}
+				// Còn lại hãy xử lý param tiếp theo.
 				else {
 					continue;
 				}
@@ -717,7 +730,7 @@ trait RouteTrait {
 	public function autoResolveAndCall($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = [], $call = true) {
 		$class    = is_array($callbackOrClass) ? $callbackOrClass[0] : $callbackOrClass;
 		$method   = $method ?? (is_array($callbackOrClass) ? ($callbackOrClass[1] ?? null) : null);
-		$method   = $method ?? '__wpspConstruct';
+		$method   = $method ?? '__instanceConstruct';
 
 		if ($class && $method && method_exists($class, $method)) {
 			$callback = $this->prepareCallbackFunction($method, $path, $fullPath, $class, $args);
