@@ -294,18 +294,18 @@ abstract class WPSP extends BaseInstances {
 	}
 
 	public function afterHandleRequest() {
-		// Share flash data to view.
-//		add_action('template_redirect', function() {
-//			$this->application->make('view')->share('errors', session('errors'));
-			$this->application->booted(function($app) {
-				$session = $app['session.store'];
-				$view    = $app['view'];
+		// Share flash data to all views.
+		add_action('shutdown', function() {
+			if ($this->application->bound('session.store')) {
+				$this->application['session.store']->save();
+			}
+		}, 9999999999);
 
-				foreach ($session->get('_flash.new', []) as $key) {
-					$view->share($key, $session->get($key));
-				}
-			});
-//		});
+		// Share errors to all views.
+		if ($this->application->bound('view')) {
+			$errors = $this->application['session.store']->get('errors', new \Illuminate\Support\ViewErrorBag());
+			$this->application['view']->share('errors', $errors);
+		}
 	}
 
 	/*
