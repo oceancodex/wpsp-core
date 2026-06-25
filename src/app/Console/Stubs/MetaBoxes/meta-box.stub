@@ -21,7 +21,13 @@ class {{ class_name }} extends BaseMetaBox {
 	 *
 	 */
 
-//	public function __wpspConstruct(Request $request) {}
+	/**
+	 * Trong "__wpspConstruct", tất cả params với type là Class hợp lệ\
+	 * đều được sử dụng để tạo properties tự động.
+	 */
+//	public function __wpspConstruct() {}
+
+//	public function __instanceConstruct(Request $request) {}
 
 	/*
 	 *
