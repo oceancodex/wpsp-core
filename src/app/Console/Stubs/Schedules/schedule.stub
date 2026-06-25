@@ -16,8 +16,14 @@ class {{ class_name }} extends BaseSchedule {
 	 *
 	 */
 
-//	public function __wpspConstruct() {
-//		error_log('Schedule "{{ hook }}" __wpspConstruct!');
+	/**
+	 * Trong "__wpspConstruct", tất cả params với type là Class hợp lệ\
+	 * đều được sử dụng để tạo properties tự động.
+	 */
+//	public function __wpspConstruct() {}
+
+//	public function __instanceConstruct() {
+//		error_log('Schedule "{{ hook }}" __instanceConstruct!');
 //	}
 
 	/*
