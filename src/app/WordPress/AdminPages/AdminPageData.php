@@ -14,6 +14,10 @@ class AdminPageData {
 	private $isSubAdminPage = false;
 	private $parentSlug     = null;
 
+	/*
+	 *
+	 */
+
 	public function getMenuTitle() {
 		return $this->menuTitle;
 	}
