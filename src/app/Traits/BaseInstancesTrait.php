@@ -50,7 +50,7 @@ trait BaseInstancesTrait {
 	 */
 
 	public function baseInstanceCall($method) {
-		if ($this->funcs && $this->request) {
+		if (($this->funcs && $this->request) || is_subclass_of($this, \WP_List_Table::class)) {
 			$path        = $this->extraParams['path'] ?? '';
 			$fullPath    = $this->extraParams['full_path'] ?? '';
 			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
