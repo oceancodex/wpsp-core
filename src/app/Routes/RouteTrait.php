@@ -414,10 +414,22 @@ trait RouteTrait {
 			$callParams = [];
 
 			foreach ($reflection->getParameters() as $param) {
+				$name = $param->getName();
 				$type = $param->getType();
 
 				// Nếu type là class → container sẽ inject sau
-				if ($this->getClassFromType($type)) {
+				if ($className = $this->getClassFromType($type)) {
+					/**
+					 * Nếu method đang xử lý là "__wpspConstruct" và type của param\
+					 * là một class hợp lệ, tự động tạo properties cho class đang xử lý.
+					 */
+					if ($method == '__wpspConstruct' && $name && class_exists($className)) {
+						try {
+							$nextClass = new $className($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams);
+							@$this->{$name} = $nextClass;
+						}
+						catch (\Exception $e) {}
+					}
 					continue;
 				}
 
