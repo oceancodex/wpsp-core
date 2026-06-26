@@ -296,15 +296,27 @@ abstract class WPSP extends BaseInstances {
 	public function afterHandleRequest() {
 		// Share flash data to all views.
 		add_action('shutdown', function() {
-			if ($this->application->bound('session.store')) {
-				$this->application['session.store']->save();
+			try {
+				if ($this->application->bound('session.store')) {
+					$this->application['session.store']->save();
+				}
+			}
+			catch (\Throwable $e) {
+				if ($this->funcs->_getApplication()->isLocal()) {
+					error_log($e->getMessage());
+				}
 			}
 		}, 9999999999);
 
 		// Share errors to all views.
-		if ($this->application->bound('view')) {
-			$errors = $this->application['session.store']->get('errors', new \Illuminate\Support\ViewErrorBag());
-			$this->application['view']->share('errors', $errors);
+		try {
+			if ($this->application->bound('view') && $this->application->bound('session.store')) {
+				$errors = $this->application['session.store']->get('errors', new \Illuminate\Support\ViewErrorBag());
+				$this->application['view']->share('errors', $errors);
+			}
+		}
+		catch (\Throwable $e) {
+			error_log($e->getMessage());
 		}
 	}
 
