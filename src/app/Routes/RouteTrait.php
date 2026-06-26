@@ -483,8 +483,8 @@ trait RouteTrait {
 				 */
 				if ($method == '__wpspConstruct' && $name && class_exists($className)) {
 					try {
-//						$propertyClass = $this->autoResolveCallback($path, $fullPath, $requestPath, $this, $method, $args);
-						@$this->{$name} = $app->make($className);
+						$nextClass = new $className($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams);
+						@$this->{$name} = $nextClass;
 					}
 					catch (\Exception $e) {}
 				}
