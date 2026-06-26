@@ -302,7 +302,7 @@ abstract class WPSP extends BaseInstances {
 				}
 			}
 			catch (\Throwable $e) {
-				if ($this->funcs->_getApplication()->isLocal()) {
+				if ($this->application->isLocal()) {
 					error_log($e->getMessage());
 				}
 			}
@@ -316,7 +316,9 @@ abstract class WPSP extends BaseInstances {
 			}
 		}
 		catch (\Throwable $e) {
-			error_log($e->getMessage());
+			if ($this->application->isLocal()) {
+				error_log($e->getMessage());
+			}
 		}
 	}
 
