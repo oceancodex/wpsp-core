@@ -12,9 +12,10 @@ class MakeTaxonomyColumnCommand extends Command {
 	use CommandsTrait;
 
 	protected $signature = 'make:taxonomy-column
-        {name? : The name of the taxonomy column.}';
+        {name? : The name of the taxonomy column.}
+        {--view : Create a view file for this taxonomy column.}';
 
-	protected $description = 'Create a new taxonomy column. | Eg: php artisan make:taxonomy-column custom_tax_column';
+	protected $description = 'Create a new taxonomy column. | Eg: php artisan make:taxonomy-column custom_tax_column --view';
 
 	protected $help = 'This command allows you to create a custom column for taxonomy list table.';
 
@@ -43,6 +44,9 @@ class MakeTaxonomyColumnCommand extends Command {
 				$this->error('Missing name for the taxonomy column. Please try again.');
 				exit;
 			}
+
+			// Nếu có câu trả lời, hãy tiếp tục hỏi.
+			$createView = $this->confirm('Do you want to create view files for this taxonomy column?', false);
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
@@ -50,9 +54,11 @@ class MakeTaxonomyColumnCommand extends Command {
 
 		// Chuẩn bị thêm các biến để sử dụng.
 		$className = Str::slug($name, '_');
+		$createView = $createView ?? $this->option('view') ?: false;
 
 		// Kiểm tra tồn tại.
 		$classPath = $mainPath . '/app/WordPress/TaxonomyColumns/' . $className . '.php';
+		$viewPath  = $mainPath . '/resources/views/taxonomy-columns/' . $name . '.blade.php';
 
 		if (File::exists($classPath)) {
 			$this->error('Taxonomy column: "' . $name . '" already exists! Please try again.');
@@ -64,7 +70,28 @@ class MakeTaxonomyColumnCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$stub = File::get(__DIR__ . '/../Stubs/TaxonomyColumns/taxonomy-column.stub');
+		if ($createView) {
+			File::ensureDirectoryExists(dirname($viewPath));
+
+			/**
+			 * ---
+			 * Create view files.
+			 */
+			$view = File::get(__DIR__ . '/../Views/TaxonomyColumns/taxonomy-column.view');
+			$view = str_replace(
+				['{{ name }}', '{{ class_name }}'],
+				[$name, $className],
+				$view
+			);
+
+			File::put($viewPath, $view);
+
+			$stub = File::get(__DIR__ . '/../Stubs/TaxonomyColumns/taxonomy-column-view.stub');
+		}
+		else {
+			$stub = File::get(__DIR__ . '/../Stubs/TaxonomyColumns/taxonomy-column.stub');
+		}
+
 		$stub = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],
