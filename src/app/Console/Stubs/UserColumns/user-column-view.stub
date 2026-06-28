@@ -30,9 +30,9 @@ class {{ class_name }} extends BaseUserColumn {
 	 */
 
 	public function index($column_name, $user_id, Request $request) {
-//		echo $user_id . ' - ' . $testService->test() . ' > ' . $testService->subTestService->subTest();
-//		echo $user_id;
-        echo Funcs::view('user-columns.{{ name }}');
+//		return $user_id . ' - ' . $testService->test() . ' > ' . $testService->subTestService->subTest();
+//		return $user_id;
+        return Funcs::view('user-columns.{{ name }}');
 	}
 
 	/*

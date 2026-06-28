@@ -141,7 +141,7 @@ abstract class BaseUserColumn extends BaseInstances {
 						]
 					);
 				}
-				return null;
+				return $output;
 			}, $this->column_content_priority, 3);
 
 			/**

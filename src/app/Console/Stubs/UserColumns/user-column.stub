@@ -29,8 +29,8 @@ class {{ class_name }} extends BaseUserColumn {
 	 */
 
 	public function index($output, $column_name, $user_id, Request $request) {
-//		echo $user_id . ' - ' . $testService->test() . ' > ' . $testService->subTestService->subTest();
-		echo $user_id;
+//		return $user_id . ' - ' . $testService->test() . ' > ' . $testService->subTestService->subTest();
+		return $user_id;
 	}
 
 	/*
