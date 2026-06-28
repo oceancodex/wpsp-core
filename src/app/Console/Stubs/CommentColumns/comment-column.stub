@@ -1,0 +1,54 @@
+<?php
+namespace {{ root_namespace }}\App\WordPress\CommentColumns;
+
+use Illuminate\Http\Request;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ core_namespace }}\App\WordPress\CommentColumns\BaseCommentColumn;
+
+class {{ class_name }} extends BaseCommentColumn {
+
+	use InstancesTrait;
+
+//	public $column_name             = '{{ name }}';
+	public $column_title            = '{{ name }}';
+	public $column_add_priority     = 9999;
+	public $column_content_priority = 9999;
+//	public $before_column           = [];
+//	public $after_column            = ['name'];
+//	public $position                = 2;
+	public $sortable                = true;
+
+	/*
+	 *
+	 */
+
+	public function customProperties() {}
+
+	/*
+	 *
+	 */
+
+	public function index($column_name, $post_id, Request $request) {
+//		echo $post_id . ' - ' . $testService->test() . ' > ' . $testService->subTestService->subTest();
+		echo $post_id;
+	}
+
+	/*
+	 *
+	 */
+
+	public function sort($query) {
+		if (!is_admin()) return;
+
+		$orderby = $query->query_vars['orderby'] ?? null;
+
+		if ($orderby === 'custom_column') {
+			// Sort theo meta key.
+//			$query->query_vars['meta_key'] = 'icon';
+//			$query->query_vars['orderby'] = 'meta_value';
+
+			$query->query_vars['orderby'] = 'term_id';
+		}
+	}
+
+}
