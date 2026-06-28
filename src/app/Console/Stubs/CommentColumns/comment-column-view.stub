@@ -29,9 +29,9 @@ class {{ class_name }} extends BaseCommentColumn {
 	 *
 	 */
 
-	public function index($column_name, $post_id, Request $request) {
-//		echo $post_id . ' - ' . $testService->test() . ' > ' . $testService->subTestService->subTest();
-//		echo $post_id;
+	public function index($column_name, $comment_id, Request $request) {
+//		echo $comment_id . ' - ' . $testService->test() . ' > ' . $testService->subTestService->subTest();
+//		echo $comment_id;
         echo Funcs::view('comment-columns.{{ name }}');
 	}
 
