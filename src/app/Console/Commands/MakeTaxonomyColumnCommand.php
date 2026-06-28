@@ -52,9 +52,9 @@ class MakeTaxonomyColumnCommand extends Command {
 		$className = Str::slug($name, '_');
 
 		// Kiểm tra tồn tại.
-		$path = $mainPath . '/app/WordPress/TaxonomyColumns/' . $className . '.php';
+		$classPath = $mainPath . '/app/WordPress/TaxonomyColumns/' . $className . '.php';
 
-		if (File::exists($path)) {
+		if (File::exists($classPath)) {
 			$this->error('Taxonomy column: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
@@ -64,7 +64,7 @@ class MakeTaxonomyColumnCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$stub = File::get(__DIR__ . '/../Stubs/TaxonomyColumns/taxonomy_column.stub');
+		$stub = File::get(__DIR__ . '/../Stubs/TaxonomyColumns/taxonomy-column.stub');
 		$stub = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],
@@ -72,15 +72,15 @@ class MakeTaxonomyColumnCommand extends Command {
 		);
 		$stub = $this->replaceNamespaces($stub);
 
-		File::ensureDirectoryExists(dirname($path));
-		File::put($path, $stub);
+		File::ensureDirectoryExists(dirname($classPath));
+		File::put($classPath, $stub);
 
 		/**
 		 * ---
 		 * Function.
 		 * ---
 		 */
-		$func = File::get(__DIR__ . '/../Funcs/TaxonomyColumns/taxonomy_column.func');
+		$func = File::get(__DIR__ . '/../Funcs/TaxonomyColumns/taxonomy-column.func');
 		$func = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],
@@ -92,7 +92,7 @@ class MakeTaxonomyColumnCommand extends Command {
 		 * Use.
 		 * ---
 		 */
-		$use = File::get(__DIR__ . '/../Uses/TaxonomyColumns/taxonomy_column.use');
+		$use = File::get(__DIR__ . '/../Uses/TaxonomyColumns/taxonomy-column.use');
 		$use = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],

@@ -53,8 +53,8 @@ class MakeShortcodeCommand extends Command {
 		$this->validateSlug($name);
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className   = Str::slug($name, '_');
-		$createView  = $createView ?? $this->option('view');
+		$className  = Str::slug($name, '_');
+		$createView = $createView ?? $this->option('view');
 
 		// Kiểm tra tồn tại.
 		$classPath = $mainPath . '/app/WordPress/Shortcodes/' . $className . '.php';

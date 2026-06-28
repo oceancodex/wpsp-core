@@ -64,7 +64,7 @@ class MakeNavLocationCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$content = File::get(__DIR__ . '/../Stubs/NavigationMenus/Locations/navlocation.stub');
+		$content = File::get(__DIR__ . '/../Stubs/NavigationMenus/Locations/nav-location.stub');
 		$content = str_replace(
 			['{{ location }}', '{{ class_name }}'],
 			[$location, $className],
@@ -80,7 +80,7 @@ class MakeNavLocationCommand extends Command {
 		 * Function.
 		 * ---
 		 */
-		$func = File::get(__DIR__ . '/../Funcs/NavigationMenus/Locations/navlocation.func');
+		$func = File::get(__DIR__ . '/../Funcs/NavigationMenus/Locations/nav-location.func');
 		$func = str_replace(
 			['{{ location }}', '{{ class_name }}'],
 			[$location, $className],
@@ -92,7 +92,7 @@ class MakeNavLocationCommand extends Command {
 		 * Use.
 		 * ---
 		 */
-		$use = File::get(__DIR__ . '/../Uses/NavigationMenus/Locations/navlocation.use');
+		$use = File::get(__DIR__ . '/../Uses/NavigationMenus/Locations/nav-location.use');
 		$use = str_replace(
 			['{{ location }}', '{{ class_name }}'],
 			[$location, $className],

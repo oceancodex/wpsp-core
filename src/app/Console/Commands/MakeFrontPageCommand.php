@@ -47,11 +47,11 @@ class MakeFrontPageCommand extends Command {
 			}
 
 			// Nếu có câu trả lời, hãy hỏi tiếp.
-			$method = $this->ask('Please enter the HTTP method for the front page', 'GET');
+			$method     = $this->ask('Please enter the HTTP method for the front page', 'GET');
 			$createView = $this->confirm('Do you want to create view files for this front page?', false);
 		}
 		else {
-			$method = $this->option('method');
+			$method     = $this->option('method');
 			$createView = $this->option('view');
 		}
 
@@ -63,10 +63,10 @@ class MakeFrontPageCommand extends Command {
 		$method    = strtolower($method ?: 'GET');
 
 		// Kiểm tra tồn tại.
-		$componentPath = $mainPath . '/app/WordPress/FrontPages/' . $className . '.php';
-		$viewPath      = $mainPath . '/resources/views/front-pages/' . $path . '.blade.php';
+		$classPath = $mainPath . '/app/WordPress/FrontPages/' . $className . '.php';
+		$viewPath  = $mainPath . '/resources/views/front-pages/' . $path . '.blade.php';
 
-		if (File::exists($componentPath) || File::exists($viewPath)) {
+		if (File::exists($classPath) || File::exists($viewPath)) {
 			$this->error('Front page: "' . $path . '" already exists! Please try again.');
 			exit;
 		}
@@ -79,7 +79,7 @@ class MakeFrontPageCommand extends Command {
 		if ($createView) {
 			File::ensureDirectoryExists(dirname($viewPath));
 
-			$view = File::get(__DIR__ . '/../Views/FrontPages/frontpage.view');
+			$view = File::get(__DIR__ . '/../Views/FrontPages/front-page.view');
 			$view = str_replace(
 				['{{ class_name }}', '{{ path }}', '{{ method }}'],
 				[$className, $path, $method],
@@ -88,28 +88,28 @@ class MakeFrontPageCommand extends Command {
 
 			File::put($viewPath, $view);
 
-			$content = File::get(__DIR__ . '/../Stubs/FrontPages/frontpage-view.stub');
+			$stub = File::get(__DIR__ . '/../Stubs/FrontPages/front-page-view.stub');
 		}
 		else {
-			$content = File::get(__DIR__ . '/../Stubs/FrontPages/frontpage.stub');
+			$stub = File::get(__DIR__ . '/../Stubs/FrontPages/front-page.stub');
 		}
 
-		$content = str_replace(
+		$stub = str_replace(
 			['{{ class_name }}', '{{ path }}', '{{ method }}'],
 			[$className, $path, $method],
-			$content
+			$stub
 		);
-		$content = $this->replaceNamespaces($content);
+		$stub = $this->replaceNamespaces($stub);
 
-		File::ensureDirectoryExists(dirname($componentPath));
-		File::put($componentPath, $content);
+		File::ensureDirectoryExists(dirname($classPath));
+		File::put($classPath, $stub);
 
 		/**
 		 * ---
 		 * Function.
 		 * ---
 		 */
-		$func = File::get(__DIR__ . '/../Funcs/FrontPages/frontpage.func');
+		$func = File::get(__DIR__ . '/../Funcs/FrontPages/front-page.func');
 		$func = str_replace(
 			['{{ class_name }}', '{{ path }}', '{{ method }}'],
 			[$className, $path, $method],
@@ -121,7 +121,7 @@ class MakeFrontPageCommand extends Command {
 		 * Use.
 		 * ---
 		 */
-		$use = File::get(__DIR__ . '/../Uses/FrontPages/frontpage.use');
+		$use = File::get(__DIR__ . '/../Uses/FrontPages/front-page.use');
 		$use = str_replace(
 			['{{ class_name }}', '{{ path }}', '{{ method }}'],
 			[$className, $path, $method],

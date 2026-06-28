@@ -57,10 +57,10 @@ class MakePostTypeColumnCommand extends Command {
 		$createView = $createView ?? $this->option('view') ?: false;
 
 		// Kiểm tra tồn tại.
-		$path     = $mainPath . '/app/WordPress/PostTypeColumns/' . $className . '.php';
-		$viewPath = $mainPath . '/resources/views/meta-boxes/' . $name . '.blade.php';
+		$classPath = $mainPath . '/app/WordPress/PostTypeColumns/' . $className . '.php';
+		$viewPath  = $mainPath . '/resources/views/post-type-columns/' . $name . '.blade.php';
 
-		if (File::exists($path)) {
+		if (File::exists($classPath)) {
 			$this->error('Post type column: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
@@ -73,7 +73,7 @@ class MakePostTypeColumnCommand extends Command {
 		if ($createView) {
 			File::ensureDirectoryExists(dirname($viewPath));
 
-			$view = File::get(__DIR__ . '/../Views/MetaBoxes/meta-box.view');
+			$view = File::get(__DIR__ . '/../Views/PostTypeColumns/post-type-column.view');
 			$view = str_replace(
 				['{{ name }}', '{{ class_name }}'],
 				[$name, $className],
@@ -82,11 +82,12 @@ class MakePostTypeColumnCommand extends Command {
 
 			File::put($viewPath, $view);
 
-			$stub = File::get(__DIR__ . '/../Stubs/PostTypeColumns/post_type-column-view.stub');
+			$stub = File::get(__DIR__ . '/../Stubs/PostTypeColumns/post-type-column-view.stub');
 		}
 		else {
-			$stub = File::get(__DIR__ . '/../Stubs/PostTypeColumns/post_type_column.stub');
+			$stub = File::get(__DIR__ . '/../Stubs/PostTypeColumns/post-type-column.stub');
 		}
+
 		$stub = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],
@@ -94,15 +95,15 @@ class MakePostTypeColumnCommand extends Command {
 		);
 		$stub = $this->replaceNamespaces($stub);
 
-		File::ensureDirectoryExists(dirname($path));
-		File::put($path, $stub);
+		File::ensureDirectoryExists(dirname($classPath));
+		File::put($classPath, $stub);
 
 		/**
 		 * ---
 		 * Function.
 		 * ---
 		 */
-		$func = File::get(__DIR__ . '/../Funcs/PostTypeColumns/post_type_column.func');
+		$func = File::get(__DIR__ . '/../Funcs/PostTypeColumns/post-type-column.func');
 		$func = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],
@@ -114,7 +115,7 @@ class MakePostTypeColumnCommand extends Command {
 		 * Use.
 		 * ---
 		 */
-		$use = File::get(__DIR__ . '/../Uses/PostTypeColumns/post_type_column.use');
+		$use = File::get(__DIR__ . '/../Uses/PostTypeColumns/post-type-column.use');
 		$use = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],

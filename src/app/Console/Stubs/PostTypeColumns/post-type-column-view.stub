@@ -1,0 +1,75 @@
+<?php
+namespace {{ root_namespace }}\App\WordPress\PostTypeColumns;
+
+use Illuminate\Http\Request;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ core_namespace }}\App\WordPress\PostTypeColumns\BasePostTypeColumn;
+
+class {{ class_name }} extends BasePostTypeColumn {
+
+	use InstancesTrait;
+
+//	public $column_name             = '{{ name }}';
+	public $column_title            = '{{ name }}';
+	public $column_add_priority     = 9999;
+	public $column_content_priority = 9999;
+	public $post_types              = ['post', 'wpsp_content'];
+//	public $before_column           = [];
+//	public $after_column            = [];
+//	public $position                = null;
+	public $sortable                = true;
+
+	/*
+	 *
+	 */
+
+	/**
+	 * Trong "__wpspConstruct", tất cả params với type là Class hợp lệ\
+	 * đều được sử dụng để tạo properties tự động.
+	 */
+//	public function __wpspConstruct() {}
+
+//	public function __instanceConstruct(Request $request) {}
+
+	/*
+	 *
+	 */
+
+//	public function customProperties(Request $request) {}
+
+	/*
+	 *
+	 */
+
+	public function index($column_name, $post_id, Request $request) {
+//		echo $post_id;
+        echo Funcs::view('post-type-columns.{{ name }}');
+	}
+
+	/*
+	 *
+	 */
+
+	public function sort($query) {
+		if (!is_admin() || !$query->is_main_query()) return;
+
+		$orderby = $query->get('orderby');
+
+		if ($orderby === $this->column_name) {
+			// Sort theo meta key.
+			// $query->set('meta_key', 'your_meta_key');
+			// $query->set('orderby', 'meta_value_num');
+
+			$query->set('orderby', 'ID');
+		}
+	}
+
+	/*
+	 *
+	 */
+
+	public function afterInit() {
+		// TODO: Implement afterInit() method.
+	}
+
+}
