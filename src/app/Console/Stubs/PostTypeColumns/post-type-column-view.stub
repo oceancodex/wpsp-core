@@ -3,6 +3,7 @@ namespace {{ root_namespace }}\App\WordPress\PostTypeColumns;
 
 use Illuminate\Http\Request;
 use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
 use {{ core_namespace }}\App\WordPress\PostTypeColumns\BasePostTypeColumn;
 
 class {{ class_name }} extends BasePostTypeColumn {
