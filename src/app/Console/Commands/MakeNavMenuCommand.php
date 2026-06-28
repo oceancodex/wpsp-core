@@ -64,7 +64,7 @@ class MakeNavMenuCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$content = File::get(__DIR__ . '/../Stubs/NavigationMenus/Menus/navmenu.stub');
+		$content = File::get(__DIR__ . '/../Stubs/NavigationMenus/Menus/nav-menu.stub');
 		$content = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],

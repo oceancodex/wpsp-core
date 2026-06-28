@@ -71,21 +71,21 @@ class MakeUserMetaBoxCommand extends Command {
 		 * ---
 		 */
 		if ($createView) {
-			$content = File::get(__DIR__ . '/../Stubs/UserMetaBoxes/user-meta-box-view.stub');
+			$stub = File::get(__DIR__ . '/../Stubs/UserMetaBoxes/user-meta-box-view.stub');
 		}
 		else {
-			$content = File::get(__DIR__ . '/../Stubs/UserMetaBoxes/user-meta-box.stub');
+			$stub = File::get(__DIR__ . '/../Stubs/UserMetaBoxes/user-meta-box.stub');
 		}
 
-		$content = str_replace(
+		$stub = str_replace(
 			['{{ class_name }}', '{{ id }}'],
 			[$className, $id],
-			$content
+			$stub
 		);
-		$content = $this->replaceNamespaces($content);
+		$stub = $this->replaceNamespaces($stub);
 
 		File::ensureDirectoryExists(dirname($classPath));
-		File::put($classPath, $content);
+		File::put($classPath, $stub);
 
 		/**
 		 * ---

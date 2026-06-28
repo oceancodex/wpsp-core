@@ -1,11 +1,11 @@
 <?php
-namespace {{ root_namespace }}\App\WordPress\TaxonomyColumns;
+namespace {{ root_namespace }}\App\WordPress\CommentColumns;
 
 use Illuminate\Http\Request;
 use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
-use {{ core_namespace }}\App\WordPress\TaxonomyColumns\BaseTaxonomyColumn;
+use {{ core_namespace }}\App\WordPress\CommentColumns\BaseCommentColumn;
 
-class {{ class_name }} extends BaseTaxonomyColumn {
+class {{ class_name }} extends BaseCommentColumn {
 
 	use InstancesTrait;
 
@@ -13,7 +13,6 @@ class {{ class_name }} extends BaseTaxonomyColumn {
 	public $column_title            = '{{ name }}';
 	public $column_add_priority     = 9999;
 	public $column_content_priority = 9999;
-	public $taxonomies              = ['category'];
 //	public $before_column           = [];
 //	public $after_column            = ['name'];
 //	public $position                = 2;
@@ -29,9 +28,9 @@ class {{ class_name }} extends BaseTaxonomyColumn {
 	 *
 	 */
 
-	public function index($content, $column_name, $term_id, Request $request) {
-//		echo $term_id . ' - ' . $testService->test() . ' > ' . $testService->subTestService->subTest();
-		echo $term_id;
+	public function index($column_name, $comment_id, Request $request) {
+//		echo $comment_id . ' - ' . $testService->test() . ' > ' . $testService->subTestService->subTest();
+		echo $comment_id;
 	}
 
 	/*

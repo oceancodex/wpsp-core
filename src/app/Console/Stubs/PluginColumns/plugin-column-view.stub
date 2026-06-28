@@ -1,0 +1,37 @@
+<?php
+namespace {{ root_namespace }}\App\WordPress\PluginColumns;
+
+use Illuminate\Http\Request;
+use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
+use {{ root_namespace }}\Funcs;
+use {{ core_namespace }}\App\WordPress\PluginColumns\BasePluginColumn;
+
+class {{ class_name }} extends BasePluginColumn {
+
+	use InstancesTrait;
+
+//	public $column_name             = '{{ name }}';
+	public $column_title            = '{{ name }}';
+	public $column_add_priority     = 9999;
+	public $column_content_priority = 9999;
+//	public $before_column           = [];
+//	public $after_column            = ['name'];
+//	public $position                = 2;
+
+	/*
+	 *
+	 */
+
+	public function customProperties() {}
+
+	/*
+	 *
+	 */
+
+	public function index($column_name, $plugin_file, $plugin_data, Request $request) {
+//		echo $plugin_file . ' - ' . $testService->test() . ' > ' . $testService->subTestService->subTest();
+//		echo $plugin_file;
+        echo Funcs::view('plugin-columns.{{ name }}');
+	}
+
+}
