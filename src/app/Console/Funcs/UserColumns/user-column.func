@@ -1,0 +1,1 @@
+		Route::column('{{ name }}', [{{ class_name }}::class, 'index']);

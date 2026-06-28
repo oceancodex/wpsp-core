@@ -57,9 +57,9 @@ class MakeWidgetCommand extends Command {
 		$createView = $createView ?? $this->option('view');
 
 		// Kiểm tra tồn tại.
-		$classPath = $mainPath . '/app/WordPress/Widgets/' . $className . '.php';
-		$formViewPath  = $mainPath . '/resources/views/widgets/' . $id_base . '/form.blade.php';
-		$widgetViewPath  = $mainPath . '/resources/views/widgets/' . $id_base . '/widget.blade.php';
+		$classPath      = $mainPath . '/app/WordPress/Widgets/' . $className . '.php';
+		$formViewPath   = $mainPath . '/resources/views/widgets/' . $id_base . '/form.blade.php';
+		$widgetViewPath = $mainPath . '/resources/views/widgets/' . $id_base . '/widget.blade.php';
 
 		if (File::exists($classPath)) {
 			$this->error('Widget: "' . $id_base . '" already exists! Please try again.');

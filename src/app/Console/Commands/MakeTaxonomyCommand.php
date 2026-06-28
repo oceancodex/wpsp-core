@@ -49,9 +49,9 @@ class MakeTaxonomyCommand extends Command {
 		$this->validateClassName($name);
 
 		// Kiểm tra tồn tại.
-		$path = $mainPath . '/app/WordPress/Taxonomies/' . $name . '.php';
+		$classPath = $mainPath . '/app/WordPress/Taxonomies/' . $name . '.php';
 
-		if (File::exists($path)) {
+		if (File::exists($classPath)) {
 			$this->error('Taxonomy: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
@@ -61,16 +61,16 @@ class MakeTaxonomyCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$content = File::get(__DIR__ . '/../Stubs/Taxonomies/taxonomy.stub');
-		$content = str_replace(
+		$stub = File::get(__DIR__ . '/../Stubs/Taxonomies/taxonomy.stub');
+		$stub = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$name, $name],
-			$content
+			$stub
 		);
-		$content = $this->replaceNamespaces($content);
+		$stub = $this->replaceNamespaces($stub);
 
-		File::ensureDirectoryExists(dirname($path));
-		File::put($path, $content);
+		File::ensureDirectoryExists(dirname($classPath));
+		File::put($classPath, $stub);
 
 		/**
 		 * ---

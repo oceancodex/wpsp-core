@@ -69,16 +69,16 @@ class MakeThemeTemplateCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$content = File::get(__DIR__ . '/../Stubs/ThemeTemplates/theme-template.stub');
-		$content = str_replace(
+		$stub = File::get(__DIR__ . '/../Stubs/ThemeTemplates/theme-template.stub');
+		$stub = str_replace(
 			['{{ class_name }}', '{{ name }}', '{{ post_type }}'],
 			[$className, $name, $postType],
-			$content
+			$stub
 		);
-		$content = $this->replaceNamespaces($content);
+		$stub = $this->replaceNamespaces($stub);
 
 		File::ensureDirectoryExists(dirname($classPath));
-		File::put($classPath, $content);
+		File::put($classPath, $stub);
 
 		/**
 		 * ---

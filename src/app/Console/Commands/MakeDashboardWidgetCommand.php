@@ -57,8 +57,8 @@ class MakeDashboardWidgetCommand extends Command {
 //		$this->validateClassName($className);
 
 		// Kiểm tra tồn tại.
-		$classPath = $mainPath . '/app/WordPress/DashboardWidgets/' . $className . '.php';
-		$widgetViewPath  = $mainPath . '/resources/views/dashboard-widgets/' . $widget_id . '.blade.php';
+		$classPath      = $mainPath . '/app/WordPress/DashboardWidgets/' . $className . '.php';
+		$widgetViewPath = $mainPath . '/resources/views/dashboard-widgets/' . $widget_id . '.blade.php';
 
 		if (File::exists($classPath)) {
 			$this->error('Widget: "' . $widget_id . '" already exists! Please try again.');
@@ -79,7 +79,6 @@ class MakeDashboardWidgetCommand extends Command {
 			);
 
 			File::ensureDirectoryExists(dirname($widgetViewPath));
-
 			File::put($widgetViewPath, $widgetView);
 
 			$stub = File::get(__DIR__ . '/../Stubs/DashboardWidgets/dashboard-widget-view.stub');

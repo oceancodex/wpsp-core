@@ -56,9 +56,9 @@ class MakeAdminBarMenuCommand extends Command {
 		$parent    = $parent ? "'$parent'" : "''";
 
 		// Kiểm tra tồn tại.
-		$path = $mainPath . '/app/WordPress/AdminBarMenus/' . $className . '.php';
+		$classPath = $mainPath . '/app/WordPress/AdminBarMenus/' . $className . '.php';
 
-		if (File::exists($path) || File::exists($path)) {
+		if (File::exists($classPath) || File::exists($classPath)) {
 			$this->error('Admin bar menu: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
@@ -68,21 +68,21 @@ class MakeAdminBarMenuCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$content = File::get(__DIR__ . '/../Stubs/AdminBarMenus/adminbarmenu.stub');
+		$content = File::get(__DIR__ . '/../Stubs/AdminBarMenus/admin-bar-menu.stub');
 		$content = str_replace('{{ class_name }}', $className, $content);
 		$content = str_replace('{{ name }}', $name, $content);
 		$content = str_replace('{{ parent }}', $parent, $content);
 		$content = $this->replaceNamespaces($content);
 
-		File::ensureDirectoryExists(dirname($path));
-		File::put($path, $content);
+		File::ensureDirectoryExists(dirname($classPath));
+		File::put($classPath, $content);
 
 		/**
 		 * ---
 		 * Function.
 		 * ---
 		 */
-		$func = File::get(__DIR__ . '/../Funcs/AdminBarMenus/adminbarmenu.func');
+		$func = File::get(__DIR__ . '/../Funcs/AdminBarMenus/admin-bar-menu.func');
 		$func = str_replace(['{{ class_name }}', '{{ name }}'], [$className, $name], $func);
 
 		/**
@@ -90,7 +90,7 @@ class MakeAdminBarMenuCommand extends Command {
 		 * Use.
 		 * ---
 		 */
-		$use = File::get(__DIR__ . '/../Uses/AdminBarMenus/adminbarmenu.use');
+		$use = File::get(__DIR__ . '/../Uses/AdminBarMenus/admin-bar-menu.use');
 		$use = str_replace(['{{ class_name }}', '{{ name }}'], [$className, $name], $use);
 		$use = $this->replaceNamespaces($use);
 

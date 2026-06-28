@@ -12,9 +12,10 @@ class MakeMediaColumnCommand extends Command {
 	use CommandsTrait;
 
 	protected $signature = 'make:media-column
-        {name? : The name of the media column.}';
+        {name? : The name of the media column.}
+        {--view : Create a view file for this media column.}';
 
-	protected $description = 'Create a new media column. | Eg: php artisan make:media-column custom_media_column';
+	protected $description = 'Create a new media column. | Eg: php artisan make:media-column custom_media_column --view';
 
 	protected $help = 'This command allows you to create a custom column for media list table.';
 
@@ -43,6 +44,9 @@ class MakeMediaColumnCommand extends Command {
 				$this->error('Missing name for the media column. Please try again.');
 				exit;
 			}
+
+			// Nếu có câu trả lời, hãy tiếp tục hỏi.
+			$createView = $this->confirm('Do you want to create view files for this media column?', false);
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
@@ -50,11 +54,13 @@ class MakeMediaColumnCommand extends Command {
 
 		// Chuẩn bị thêm các biến để sử dụng.
 		$className = Str::slug($name, '_');
+		$createView = $createView ?? $this->option('view') ?: false;
 
 		// Kiểm tra tồn tại.
-		$path = $mainPath . '/app/WordPress/MediaColumns/' . $className . '.php';
+		$classPath = $mainPath . '/app/WordPress/MediaColumns/' . $className . '.php';
+		$viewPath  = $mainPath . '/resources/views/media-columns/' . $name . '.blade.php';
 
-		if (File::exists($path)) {
+		if (File::exists($classPath)) {
 			$this->error('Media column: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
@@ -64,7 +70,28 @@ class MakeMediaColumnCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$stub = File::get(__DIR__ . '/../Stubs/MediaColumns/media_column.stub');
+		if ($createView) {
+			File::ensureDirectoryExists(dirname($viewPath));
+
+			/**
+			 * ---
+			 * Create view files.
+			 */
+			$view = File::get(__DIR__ . '/../Views/MediaColumns/media-column.view');
+			$view = str_replace(
+				['{{ name }}', '{{ class_name }}'],
+				[$name, $className],
+				$view
+			);
+
+			File::put($viewPath, $view);
+
+			$stub = File::get(__DIR__ . '/../Stubs/MediaColumns/media-column-view.stub');
+		}
+		else {
+			$stub = File::get(__DIR__ . '/../Stubs/MediaColumns/media-column.stub');
+		}
+
 		$stub = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],
@@ -72,15 +99,15 @@ class MakeMediaColumnCommand extends Command {
 		);
 		$stub = $this->replaceNamespaces($stub);
 
-		File::ensureDirectoryExists(dirname($path));
-		File::put($path, $stub);
+		File::ensureDirectoryExists(dirname($classPath));
+		File::put($classPath, $stub);
 
 		/**
 		 * ---
 		 * Function.
 		 * ---
 		 */
-		$func = File::get(__DIR__ . '/../Funcs/MediaColumns/media_column.func');
+		$func = File::get(__DIR__ . '/../Funcs/MediaColumns/media-column.func');
 		$func = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],
@@ -92,7 +119,7 @@ class MakeMediaColumnCommand extends Command {
 		 * Use.
 		 * ---
 		 */
-		$use = File::get(__DIR__ . '/../Uses/MediaColumns/media_column.use');
+		$use = File::get(__DIR__ . '/../Uses/MediaColumns/media-column.use');
 		$use = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],
