@@ -57,7 +57,7 @@ class MakeUserColumnCommand extends Command {
 		$createView = $createView ?? $this->option('view') ?: false;
 
 		// Kiểm tra tồn tại.
-		$classPath = $mainPath . '/app/WordPress/CommentColumns/' . $className . '.php';
+		$classPath = $mainPath . '/app/WordPress/UserColumns/' . $className . '.php';
 		$viewPath  = $mainPath . '/resources/views/user-columns/' . $name . '.blade.php';
 
 		if (File::exists($classPath)) {
@@ -77,7 +77,7 @@ class MakeUserColumnCommand extends Command {
 			 * ---
 			 * Create view files.
 			 */
-			$view = File::get(__DIR__ . '/../Views/CommentColumns/user-column.view');
+			$view = File::get(__DIR__ . '/../Views/UserColumns/user-column.view');
 			$view = str_replace(
 				['{{ name }}', '{{ class_name }}'],
 				[$name, $className],
@@ -86,10 +86,10 @@ class MakeUserColumnCommand extends Command {
 
 			File::put($viewPath, $view);
 
-			$stub = File::get(__DIR__ . '/../Stubs/CommentColumns/user-column-view.stub');
+			$stub = File::get(__DIR__ . '/../Stubs/UserColumns/user-column-view.stub');
 		}
 		else {
-			$stub = File::get(__DIR__ . '/../Stubs/CommentColumns/user-column.stub');
+			$stub = File::get(__DIR__ . '/../Stubs/UserColumns/user-column.stub');
 		}
 
 		$stub = str_replace(
@@ -107,7 +107,7 @@ class MakeUserColumnCommand extends Command {
 		 * Function.
 		 * ---
 		 */
-		$func = File::get(__DIR__ . '/../Funcs/CommentColumns/user-column.func');
+		$func = File::get(__DIR__ . '/../Funcs/UserColumns/user-column.func');
 		$func = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],
@@ -119,7 +119,7 @@ class MakeUserColumnCommand extends Command {
 		 * Use.
 		 * ---
 		 */
-		$use = File::get(__DIR__ . '/../Uses/CommentColumns/user-column.use');
+		$use = File::get(__DIR__ . '/../Uses/UserColumns/user-column.use');
 		$use = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],
@@ -132,7 +132,7 @@ class MakeUserColumnCommand extends Command {
 		 * Thêm class vào route.
 		 * ---
 		 */
-		$this->addClassToRoute('CommentColumns', 'user_columns', $func, $use);
+		$this->addClassToRoute('UserColumns', 'user_columns', $func, $use);
 
 		// Done.
 		$this->info('Created new user column: "' . $name . '"');
