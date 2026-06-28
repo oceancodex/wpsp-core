@@ -60,10 +60,10 @@ class MakeAdminPageCommand extends Command {
 		$createView = $createView ?? $this->option('view') ?: false;
 
 		// Kiểm tra tồn tại.
-		$adminClassPath = $mainPath . '/app/WordPress/AdminPages/' . $className . '.php';
-		$viewDirPath    = $mainPath . '/resources/views/admin-pages/' . $path;
+		$classPath   = $mainPath . '/app/WordPress/AdminPages/' . $className . '.php';
+		$viewDirPath = $mainPath . '/resources/views/admin-pages/' . $path;
 
-		if (File::exists($adminClassPath) || File::exists($viewDirPath)) {
+		if (File::exists($classPath) || File::exists($viewDirPath)) {
 			$this->error('Admin page: "' . $path . '" already exists! Please try again.');
 			exit;
 		}
@@ -74,10 +74,10 @@ class MakeAdminPageCommand extends Command {
 		 * ---
 		 */
 		if ($createView) {
-			$content = File::get(__DIR__ . '/../Stubs/AdminPages/adminpage-view.stub');
+			$content = File::get(__DIR__ . '/../Stubs/AdminPages/admin-page-view.stub');
 		}
 		else {
-			$content = File::get(__DIR__ . '/../Stubs/AdminPages/adminpage.stub');
+			$content = File::get(__DIR__ . '/../Stubs/AdminPages/admin-page.stub');
 		}
 
 		$content = str_replace(
@@ -87,8 +87,8 @@ class MakeAdminPageCommand extends Command {
 		);
 		$content = $this->replaceNamespaces($content);
 
-		File::ensureDirectoryExists(dirname($adminClassPath));
-		File::put($adminClassPath, $content);
+		File::ensureDirectoryExists(dirname($classPath));
+		File::put($classPath, $content);
 
 		/**
 		 * ---
@@ -102,7 +102,7 @@ class MakeAdminPageCommand extends Command {
 			File::ensureDirectoryExists($viewDirPath);
 
 			$viewFiles = [
-				'main'       => 'adminpage.view',
+				'main'       => 'admin-page.view',
 				'dashboard'  => 'dashboard.view',
 				'tab-1'      => 'tab-1.view',
 				'navigation' => 'navigation.view',
@@ -126,7 +126,7 @@ class MakeAdminPageCommand extends Command {
 		 * Function.
 		 * ---
 		 */
-		$func = File::get(__DIR__ . '/../Funcs/AdminPages/adminpage.func');
+		$func = File::get(__DIR__ . '/../Funcs/AdminPages/admin-page.func');
 		$func = str_replace(
 			['{{ class_name }}', '{{ path }}', '{{ parent }}', '{{ child }}'],
 			[$className, $path, $parent, $child],
@@ -138,7 +138,7 @@ class MakeAdminPageCommand extends Command {
 		 * Use.
 		 * ---
 		 */
-		$use = File::get(__DIR__ . '/../Uses/AdminPages/adminpage.use');
+		$use = File::get(__DIR__ . '/../Uses/AdminPages/admin-page.use');
 		$use = str_replace(
 			['{{ class_name }}', '{{ path }}', '{{ parent }}', '{{ child }}'],
 			[$className, $path, $parent, $child],
