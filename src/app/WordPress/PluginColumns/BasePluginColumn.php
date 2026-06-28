@@ -5,9 +5,6 @@ namespace WPSPCORE\App\WordPress\PluginColumns;
 use WPSPCORE\App\Traits\ObjectToArrayTrait;
 use WPSPCORE\BaseInstances;
 
-/**
- * @method void sort($query)
- */
 abstract class BasePluginColumn extends BaseInstances {
 
 	use ObjectToArrayTrait;
@@ -19,7 +16,6 @@ abstract class BasePluginColumn extends BaseInstances {
 	public 	$before_column           = [];
 	public 	$after_column            = [];
 	public 	$position                = null;
-	public 	$sortable                = false;
 
 	public 	$callback_function       = null;
 
