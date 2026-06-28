@@ -53,11 +53,11 @@ class MakePostTypeColumnCommand extends Command {
 		$this->validateSlug($name);
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className = Str::slug($name, '_');
+		$className  = Str::slug($name, '_');
 		$createView = $createView ?? $this->option('view') ?: false;
 
 		// Kiểm tra tồn tại.
-		$path = $mainPath . '/app/WordPress/PostTypeColumns/' . $className . '.php';
+		$path     = $mainPath . '/app/WordPress/PostTypeColumns/' . $className . '.php';
 		$viewPath = $mainPath . '/resources/views/meta-boxes/' . $name . '.blade.php';
 
 		if (File::exists($path)) {
@@ -70,7 +70,23 @@ class MakePostTypeColumnCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$stub = File::get(__DIR__ . '/../Stubs/PostTypeColumns/post_type_column.stub');
+		if ($createView) {
+			File::ensureDirectoryExists(dirname($viewPath));
+
+			$view = File::get(__DIR__ . '/../Views/MetaBoxes/meta-box.view');
+			$view = str_replace(
+				['{{ name }}', '{{ class_name }}'],
+				[$name, $className],
+				$view
+			);
+
+			File::put($viewPath, $view);
+
+			$stub = File::get(__DIR__ . '/../Stubs/PostTypeColumns/post_type-column-view.stub');
+		}
+		else {
+			$stub = File::get(__DIR__ . '/../Stubs/PostTypeColumns/post_type_column.stub');
+		}
 		$stub = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],
