@@ -25,7 +25,7 @@ class MakeAPICommand extends Command {
 		 * Funcs.
 		 * ---
 		 */
-		$this->funcs = $this->getLaravel()->make('funcs');
+		$this->funcs  = $this->getLaravel()->make('funcs');
 		$appShortName = $this->funcs->_getAppShortName();
 
 		/**

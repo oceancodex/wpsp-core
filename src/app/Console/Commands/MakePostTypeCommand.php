@@ -52,9 +52,9 @@ class MakePostTypeCommand extends Command {
 		$className = Str::slug($name, '_');
 
 		// Kiểm tra tồn tại.
-		$path = $mainPath . '/app/WordPress/PostTypes/' . $className . '.php';
+		$classPath = $mainPath . '/app/WordPress/PostTypes/' . $className . '.php';
 
-		if (File::exists($path)) {
+		if (File::exists($classPath)) {
 			$this->error('Post type: "' . $name . '" already exists! Please try again.');
 			exit;
 		}
@@ -64,23 +64,23 @@ class MakePostTypeCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$content = File::get(__DIR__ . '/../Stubs/PostTypes/posttype.stub');
-		$content = str_replace(
+		$stub = File::get(__DIR__ . '/../Stubs/PostTypes/post-type.stub');
+		$stub = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],
-			$content
+			$stub
 		);
-		$content = $this->replaceNamespaces($content);
+		$stub = $this->replaceNamespaces($stub);
 
-		File::ensureDirectoryExists(dirname($path));
-		File::put($path, $content);
+		File::ensureDirectoryExists(dirname($classPath));
+		File::put($classPath, $stub);
 
 		/**
 		 * ---
 		 * Function.
 		 * ---
 		 */
-		$func = File::get(__DIR__ . '/../Funcs/PostTypes/posttype.func');
+		$func = File::get(__DIR__ . '/../Funcs/PostTypes/post-type.func');
 		$func = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],
@@ -92,7 +92,7 @@ class MakePostTypeCommand extends Command {
 		 * Use.
 		 * ---
 		 */
-		$use = File::get(__DIR__ . '/../Uses/PostTypes/posttype.use');
+		$use = File::get(__DIR__ . '/../Uses/PostTypes/post-type.use');
 		$use = str_replace(
 			['{{ class_name }}', '{{ name }}'],
 			[$className, $name],

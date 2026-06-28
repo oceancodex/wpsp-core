@@ -79,7 +79,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		 * Class.
 		 * ---
 		 */
-		$content = File::get(__DIR__ . '/../Stubs/RewriteFrontPages/rewritefrontpage' . ($useTemplate ? '-template' : '') . '.stub');
+		$content = File::get(__DIR__ . '/../Stubs/RewriteFrontPages/rewrite-front-page' . ($useTemplate ? '-template' : '') . '.stub');
 		$content = str_replace(
 			['{{ class_name }}', '{{ path }}', '{{ method }}', '{{ post_type }}', '{{ page_slug }}', '{{ use_template }}'],
 			[$className, $path, $method, $rewritePagePostType, $rewritePageSlug, $useTemplate ? 'true' : 'false'],
@@ -97,8 +97,8 @@ class MakeRewriteFrontPageCommand extends Command {
 		 * ---
 		 */
 		$viewStubPath = $useTemplate
-			? __DIR__ . '/../Views/RewriteFrontPages/rewritefrontpage.view'
-			: __DIR__ . '/../Views/RewriteFrontPages/rewritefrontpage-no-template.view';
+			? __DIR__ . '/../Views/RewriteFrontPages/rewrite-front-page.view'
+			: __DIR__ . '/../Views/RewriteFrontPages/rewrite-front-page-no-template.view';
 
 		$view = File::get($viewStubPath);
 		$view = str_replace(
@@ -115,7 +115,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		 * Function.
 		 * ---
 		 */
-		$func = File::get(__DIR__ . '/../Funcs/RewriteFrontPages/rewritefrontpage.func');
+		$func = File::get(__DIR__ . '/../Funcs/RewriteFrontPages/rewrite-front-page.func');
 		$func = str_replace(
 			['{{ class_name }}', '{{ path }}', '{{ method }}', '{{ post_type }}', '{{ page_slug }}', '{{ use_template }}'],
 			[$className, $path, $method, $rewritePagePostType, $rewritePageSlug, $useTemplate ? 'true' : 'false'],
@@ -127,7 +127,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		 * Use.
 		 * ---
 		 */
-		$use = File::get(__DIR__ . '/../Uses/RewriteFrontPages/rewritefrontpage.use');
+		$use = File::get(__DIR__ . '/../Uses/RewriteFrontPages/rewrite-front-page.use');
 		$use = str_replace(
 			['{{ class_name }}', '{{ path }}', '{{ method }}', '{{ post_type }}', '{{ page_slug }}', '{{ use_template }}'],
 			[$className, $path, $method, $rewritePagePostType, $rewritePageSlug, $useTemplate ? 'true' : 'false'],

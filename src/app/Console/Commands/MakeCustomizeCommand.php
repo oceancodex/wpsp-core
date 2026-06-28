@@ -57,9 +57,9 @@ class MakeCustomizeCommand extends Command {
 		$createView  = $createView ?? $this->option('view');
 
 		// Kiểm tra tồn tại.
-		$classPath = $mainPath . '/app/WordPress/Customizers/' . $className . '/' . $className . '.php';
+		$classPath               = $mainPath . '/app/WordPress/Customizers/' . $className . '/' . $className . '.php';
 		$exampleControlViewPath  = $mainPath . '/resources/views/customizers/' . $className . '/controls/example-control.blade.php';
-		$exampleControlClassPath  = $mainPath . '/app/WordPress/Customizers/' . $className . '/Controls/ExampleControl.php';
+		$exampleControlClassPath = $mainPath . '/app/WordPress/Customizers/' . $className . '/Controls/ExampleControl.php';
 
 		if (File::exists($classPath)) {
 			$this->error('Customize: "' . $name . '" already exists! Please try again.');
