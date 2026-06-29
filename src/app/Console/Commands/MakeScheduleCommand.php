@@ -52,7 +52,7 @@ class MakeScheduleCommand extends Command {
 		}
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className = Str::slug($hook, '_');
+		$className = preg_replace('/[^A-Za-z0-9_]/', '_', $hook);
 		$type      = $type ?? $this->option('type') ?: 'wordpress';
 		$interval  = $interval ?? $this->argument('interval') ?: 'everyMinute';
 
