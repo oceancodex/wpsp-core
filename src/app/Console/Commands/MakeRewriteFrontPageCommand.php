@@ -59,7 +59,7 @@ class MakeRewriteFrontPageCommand extends Command {
 		$this->validateSlug($path, 'path');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className           = Str::slug($path, '_');
+		$className           = preg_replace('/[^A-Za-z0-9_]/', '_', $path);
 		$method              = strtolower($method ?? $this->option('method') ?: 'GET');
 		$rewritePagePostType = $rewritePagePostType ?? $this->option('post-type') ?: 'page';
 		$rewritePageSlug     = $rewritePageSlug ?? $this->option('page-slug') ?: 'rewrite-front-pages';
