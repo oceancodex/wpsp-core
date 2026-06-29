@@ -50,7 +50,7 @@ class MakeDashboardWidgetCommand extends Command {
 		}
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className  = Str::slug($widget_id, '_');
+		$className  = preg_replace('/[^A-Za-z0-9_]/', '_', $widget_id);
 		$createView = $createView ?? $this->option('view');
 
 		// Kiểm tra chuỗi hợp lệ.

@@ -52,7 +52,7 @@ class MakeThemeTemplateCommand extends Command {
 		$this->validateSlug($name);
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className = Str::slug($name, '_');
+		$className = preg_replace('/[^A-Za-z0-9_]/', '_', $name);
 		$postType  = $postType ?? $this->option('post-type') ?: 'page';
 
 		// Kiểm tra tồn tại.

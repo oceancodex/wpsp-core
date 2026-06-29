@@ -49,7 +49,7 @@ class MakeNavLocationCommand extends Command {
 		$this->validateSlug($location);
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className = Str::slug($location, '_');
+		$className = preg_replace('/[^A-Za-z0-9_]/', '_', $location);
 
 		// Kiểm tra tồn tại.
 		$path = $mainPath . '/app/WordPress/NavigationMenus/Locations/' . $className . '.php';
