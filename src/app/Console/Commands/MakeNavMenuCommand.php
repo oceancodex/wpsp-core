@@ -49,7 +49,7 @@ class MakeNavMenuCommand extends Command {
 		$this->validateSlug($name);
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className = Str::slug($name, '_');
+		$className = preg_replace('/[^A-Za-z0-9_]/', '_', $name);
 
 		// Kiểm tra tồn tại.
 		$path = $mainPath . '/app/WordPress/NavigationMenus/Menus/' . $className . '.php';

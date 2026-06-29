@@ -59,7 +59,7 @@ class MakeFrontPageCommand extends Command {
 		$this->validateSlug($path, 'path');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className = Str::slug($path, '_');
+		$className = preg_replace('/[^A-Za-z0-9_]/', '_', $path);
 		$method    = strtolower($method ?: 'GET');
 
 		// Kiểm tra tồn tại.

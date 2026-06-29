@@ -53,7 +53,7 @@ class MakeAdminPageCommand extends Command {
 		$this->validateSlug($path, 'path');
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className  = Str::slug($path, '_');
+		$className  = preg_replace('/[^A-Za-z0-9_]/', '_', $path);
 		$parent     = $parent ?? $this->option('parent') ?: null;
 		$child      = $parent ? 'true' : 'false';
 		$parent     = $parent ? "'$parent'" : 'null';
