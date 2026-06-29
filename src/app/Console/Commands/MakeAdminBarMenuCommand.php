@@ -51,7 +51,7 @@ class MakeAdminBarMenuCommand extends Command {
 		// Kiểm tra chuỗi hợp lệ.
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className = Str::slug($name, '_');
+		$className = preg_replace('/[^A-Za-z0-9_]/', '_', $name);
 		$parent    = $parent ?? $this->option('parent') ?: null;
 		$parent    = $parent ? "'$parent'" : "''";
 

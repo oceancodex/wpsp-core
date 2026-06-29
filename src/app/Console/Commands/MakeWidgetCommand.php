@@ -53,7 +53,7 @@ class MakeWidgetCommand extends Command {
 		$this->validateSlug($id_base);
 
 		// Chuẩn bị thêm các biến để sử dụng.
-		$className  = Str::slug($id_base, '_');
+		$className  = preg_replace('/[^A-Za-z0-9_]/', '_', $id_base);
 		$createView = $createView ?? $this->option('view');
 
 		// Kiểm tra tồn tại.
