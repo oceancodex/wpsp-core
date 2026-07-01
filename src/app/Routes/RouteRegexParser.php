@@ -4,28 +4,31 @@ namespace WPSPCORE\App\Routes;
 
 class RouteRegexParser {
 
-	protected string $regex;
-	protected bool   $sanitize;
-	protected int    $length;
-	protected int    $pos = 0;
+	protected $regex;
+	protected $sanitize;
+	protected $length;
+	protected $pos = 0;
 
-	public function __construct(string $regex, $sanitize = true) {
+	public function __construct($regex, $sanitize = true) {
 		$this->regex    = $regex;
 		$this->sanitize = $sanitize;
 		$this->length   = strlen($regex);
 	}
 
-	public function build(array &$params): string {
+	public function build(&$params) {
+		if (![$params]) {
+			$params = [];
+		}
+
 		$this->pos = 0;
 
 		return $this->parse($params);
 	}
 
-	protected function parse(array &$params, string $until = null): string {
+	protected function parse(&$params, $until = null) {
 		$result = '';
 
 		while ($this->pos < $this->length) {
-
 			if ($until !== null &&
 				substr($this->regex, $this->pos, strlen($until)) === $until) {
 
@@ -76,7 +79,7 @@ class RouteRegexParser {
 		return $result;
 	}
 
-	protected function parseCapture(array &$params): string {
+	protected function parseCapture(&$params) {
 		$this->pos += 4;
 
 		$name = '';
@@ -91,7 +94,6 @@ class RouteRegexParser {
 		$depth = 1;
 
 		while ($this->pos < $this->length && $depth) {
-
 			if ($this->regex[$this->pos] == '\\') {
 				$this->pos += 2;
 				continue;
@@ -113,7 +115,7 @@ class RouteRegexParser {
 		return $this->sanitize ? rawurlencode($value) : $value;
 	}
 
-	protected function parseOptional(array &$params): string {
+	protected function parseOptional(&$params) {
 		$this->pos += 3;
 
 		$start = $this->pos;
@@ -158,7 +160,7 @@ class RouteRegexParser {
 		return $parser->build($params);
 	}
 
-	protected function skipGroup(): void {
+	protected function skipGroup() {
 		$depth = 1;
 
 		$this->pos++;
