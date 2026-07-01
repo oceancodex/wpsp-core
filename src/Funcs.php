@@ -5,6 +5,7 @@ namespace WPSPCORE;
 use Carbon\Carbon;
 use Illuminate\View\View;
 use NumberFormatter;
+use WPSPCORE\App\Routes\RouteRegexParser;
 
 /**
  * @method static mixed getWPSP()
@@ -636,10 +637,10 @@ class Funcs extends BaseInstances {
 
 		switch ($routeClass) {
 			case 'Apis':
-				$routeUrl = $map['namespace'] . '/' . $map['version'] . '/' . $map['full_path'];
+				$routeUrl = $map['namespace'] . '\/' . $map['version'] . '\/' . $map['full_path_regex'];
 				break;
 			default:
-				$routeUrl = $map['full_path'];
+				$routeUrl = $map['full_path_regex'];
 		}
 
 		// ❗ Plain version (dùng cho xây URL)
@@ -680,46 +681,49 @@ class Funcs extends BaseInstances {
 			}
 		}
 
-		// Xử lý non-capture group dạng (?: ... (?P<name>regex) ...)?
-		if (@preg_match_all('/\(\?:([^()]*?\(\?P<([^>]+)>[^)]+\)[^()]*?)\)\?/', $finalUrl, $nm)) {
-			foreach ($nm[2] as $i => $name) {
-				$fullGroup = $nm[0][$i]; // toàn bộ (?: ... )?
-				$inner     = $nm[1][$i]; // phần bên trong
+		$parser   = new RouteRegexParser($routeUrl, $sanitize);
+		$finalUrl = $parser->build($args);
 
-				if (is_array($args) && array_key_exists($name, $args)) {
-					// Extract the regex inside (?P<name>regex)
-					if (@preg_match('/\??\(\?P<' . $name . '>([^)]+)\)\??/', $inner, $im)) {
-						$value = rawurlencode($args[$name]);
-						// replace non capture block with actual inserted value
-						$replacement = str_replace($im[0], $value, $inner);
-						$replacement = ltrim($replacement, '/\\');
-						$finalUrl = str_replace($fullGroup, '/' . $replacement, $finalUrl);
-					}
-					unset($args[$name]);
-				} else {
-					// Không có tham số → xóa toàn bộ block
-					$finalUrl = str_replace($fullGroup, '', $finalUrl);
-				}
-			}
-		}
+		// Xử lý non-capture group dạng (?: ... (?P<name>regex) ...)?
+//		if (@preg_match_all('/\(\?:([^()]*?\(\?P<([^>]+)>[^)]+\)[^()]*?)\)\?/', $finalUrl, $nm)) {
+//			foreach ($nm[2] as $i => $name) {
+//				$fullGroup = $nm[0][$i]; // toàn bộ (?: ... )?
+//				$inner     = $nm[1][$i]; // phần bên trong
+//
+//				if (is_array($args) && array_key_exists($name, $args)) {
+//					// Extract the regex inside (?P<name>regex)
+//					if (@preg_match('/\??\(\?P<' . $name . '>([^)]+)\)\??/', $inner, $im)) {
+//						$value = rawurlencode($args[$name]);
+//						// replace non capture block with actual inserted value
+//						$replacement = str_replace($im[0], $value, $inner);
+//						$replacement = ltrim($replacement, '/\\');
+//						$finalUrl = str_replace($fullGroup, '/' . $replacement, $finalUrl);
+//					}
+//					unset($args[$name]);
+//				} else {
+//					// Không có tham số → xóa toàn bộ block
+//					$finalUrl = str_replace($fullGroup, '', $finalUrl);
+//				}
+//			}
+//		}
 
 		// Xử lý group PATH dạng (?P<key>regex) và (?P<key>regex)?
-		if (@preg_match_all('/\??\(\?P<([^>]+)>([^)]+)\)\??/', $finalUrl, $gm)) {
-			foreach ($gm[1] as $i => $name) {
-				$fullGroup = $gm[0][$i];
-
-				if (is_array($args) && array_key_exists($name, $args)) {
-					$value = rawurlencode($args[$name]);
-				} else {
-					$value = ''; // Không có value → rỗng
-				}
-
-				// Thay group bằng value
-				$finalUrl = str_replace($fullGroup, $value, $finalUrl);
-
-				unset($args[$name]); // Đã dùng, xoá tránh append query
-			}
-		}
+//		if (@preg_match_all('/\??\(\?P<([^>]+)>([^)]+)\)\??/', $finalUrl, $gm)) {
+//			foreach ($gm[1] as $i => $name) {
+//				$fullGroup = $gm[0][$i];
+//
+//				if (is_array($args) && array_key_exists($name, $args)) {
+//					$value = rawurlencode($args[$name]);
+//				} else {
+//					$value = ''; // Không có value → rỗng
+//				}
+//
+//				// Thay group bằng value
+//				$finalUrl = str_replace($fullGroup, $value, $finalUrl);
+//
+//				unset($args[$name]); // Đã dùng, xoá tránh append query
+//			}
+//		}
 
 		// Xóa tag nhóm regex nếu còn sót.
 //		$finalUrl = preg_replace('/\((.*?)\)/', '', $finalUrl);
