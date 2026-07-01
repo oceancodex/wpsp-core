@@ -26,26 +26,30 @@ class RouteMap extends BaseInstances {
 	 */
 
 	public function add($route) {
-		$type      = $route->type;
-		$name      = $route->name;
-		$path      = $route->path;
-		$fullPath  = $route->fullPath;
-		$namespace = $route->namespace;
-		$version   = $route->version;
+		$type          = $route->type;
+		$name          = $route->name;
+		$path          = $route->path;
+		$pathRegex     = $route->pathRegex;
+		$fullPathRegex = $route->fullPathRegex;
+		$fullPath      = $route->fullPath;
+		$namespace     = $route->namespace;
+		$version       = $route->version;
 
 		if (!isset($this->map[$type])) {
 			$this->map[$type] = [];
 		}
 
 		$this->map[$type][$name] = [
-			'name'       => $name,
-			'file'       => 'routes/' . $type . '.php',
-			'line'       => (new \Exception())->getTrace()[1]['line'] ?? 0,
-			'namespace'  => $namespace,
-			'version'    => $version,
-			'path'       => $path,
-			'full_path'  => $fullPath,
-			'route_data' => $route,
+			'name'            => $name,
+			'file'            => 'routes/' . $type . '.php',
+			'line'            => (new \Exception())->getTrace()[1]['line'] ?? 0,
+			'namespace'       => $namespace,
+			'version'         => $version,
+			'path'            => $path,
+			'path_regex'      => $pathRegex,
+			'full_path'       => $fullPath,
+			'full_path_regex' => $fullPathRegex,
+			'route_data'      => $route,
 		];
 	}
 
