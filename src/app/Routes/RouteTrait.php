@@ -114,9 +114,14 @@ trait RouteTrait {
 	 * @return bool Trả về true nếu toàn bộ middleware đều PASS, ngược lại false.
 	 */
 	public function isPassedMiddleware($middlewares = [], $request = null, $args = []) {
+		// Set route resolver.
 		$this->request->setRouteResolver(function() use (&$args) {
 			return $args['route'] ?? null;
 		});
+
+		/** @var \Illuminate\Foundation\Application $app */
+		$app     = $this->funcs->_getApplication();
+		$request = $request ?? $this->request ?? $app->make('request');
 
 		// Không có middleware → pass
 		if (empty($middlewares)) {
@@ -126,7 +131,6 @@ trait RouteTrait {
 		// Mỗi phần tử trong $middlewares là 1 "middleware block"
 		// Route PASS khi TẤT CẢ block PASS
 		foreach ($middlewares as $blockMiddleware) {
-
 			// Đưa thêm block đang xử lý vào args để truyền vào middleware.
 			// Trong handle của middleware, có thể dùng $args['block_middleware'] để lấy block đang xử lý.
 			$args['current_block_middleware'] = $blockMiddleware;
@@ -203,10 +207,6 @@ trait RouteTrait {
 			// -----------------------------
 			// 3. Hàm chạy từng middleware
 			// -----------------------------
-			/** @var \Illuminate\Foundation\Application $app */
-			$app     = $this->funcs->_getApplication();
-			$request = $request ?? $this->request ?? $app->make('request');
-
 			$runOne = function($mw) use ($app, $request) {
 				$next = function() {
 					return new Response('OK', 200);
@@ -235,50 +235,48 @@ trait RouteTrait {
 				};
 
 				// Chỗ này không cần try-catch, vì middleware sẽ có thể throw Exception.
-//				try {
-					if ($mw['type'] === 'throttle') {
-						$res = $runThrottle(
-							$mw,
-							$request
-						);
+				// Xử lý các loại middleware
+				if ($mw['type'] === 'throttle') {
+					$res = $runThrottle(
+						$mw,
+						$request
+					);
+				}
+				elseif ($mw['type'] === 'closure') {
+					$res = call_user_func($mw['closure'], $request, $next);
+				}
+				else {
+					$class  = $mw['class'];
+					$method = $mw['method'];
+
+					if (!class_exists($class)) {
+						return false;
 					}
-					elseif ($mw['type'] === 'closure') {
-						$res = call_user_func($mw['closure'], $request, $next);
-					}
-					else {
-						$class  = $mw['class'];
-						$method = $mw['method'];
 
-						if (!class_exists($class)) {
-							return false;
-						}
+					$instance = $app->make($class);
 
-						$instance = $app->make($class);
-
-						// Ép method là handle nếu không có method chỉ định.
-						// Nếu không có method handle thì sẽ xảy ra lỗi, có thể bắt lỗi trong Exception Handler.
-						if (!method_exists($instance, $method)) {
+					// Ép method là handle nếu không có method chỉ định.
+					// Nếu không có method handle thì sẽ xảy ra lỗi, có thể bắt lỗi trong Exception Handler.
+					if (!method_exists($instance, $method)) {
 //							if (method_exists($instance, 'handle')) {
-								$method = 'handle';
+							$method = 'handle';
 //							}
 //							else {
 //								return false;
 //							}
-						}
+					}
 
 //						$res = $instance->$method($request, $next, $mw['args'] ?? null);
-						$res = $app->call([$instance, $method], [
-							'request' => $request,
-							'next'    => $next,
-							'args'    => $mw['args'] ?? null,
-						]);
-					}
-//				}
-//				catch (\Throwable $e) {
-//					error_log(print_r($e, true));
-//					return false;
-//				}
+					$res = $app->call([$instance, $method], [
+						'request' => $request,
+						'next'    => $next,
+						'args'    => $mw['args'] ?? null,
+					]);
+				}
 
+				/**
+				 * Trả về kết quả của middleware.
+				 */
 				if ($res instanceof Response) {
 					return $res->getStatusCode() < 400;
 				}
