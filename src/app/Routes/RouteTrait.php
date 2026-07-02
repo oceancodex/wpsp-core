@@ -114,6 +114,10 @@ trait RouteTrait {
 	 * @return bool Trả về true nếu toàn bộ middleware đều PASS, ngược lại false.
 	 */
 	public function isPassedMiddleware($middlewares = [], $request = null, $args = []) {
+		$this->request->setRouteResolver(function() use (&$args) {
+			return $args['route'] ?? null;
+		});
+
 		// Không có middleware → pass
 		if (empty($middlewares)) {
 			return true;
@@ -147,28 +151,51 @@ trait RouteTrait {
 						'closure' => $mw,
 						'args'    => $args,
 					];
+
 					continue;
 				}
 
 				// [Class, method]
 				if (is_array($mw) && isset($mw[0]) && is_string($mw[0])) {
+					if (str_starts_with($mw[0], 'throttle')) {
+						$normalized[] = [
+							'type'  => 'throttle',
+							'value' => $mw[0],
+							'args'  => $args,
+						];
+
+						continue;
+					}
+
 					$normalized[] = [
 						'type'   => 'class',
 						'class'  => $mw[0],
 						'method' => $mw[1] ?? 'handle',
 						'args'   => $args,
 					];
+
 					continue;
 				}
 
 				// Class string
 				if (is_string($mw)) {
+					if (str_starts_with($mw, 'throttle')) {
+						$normalized[] = [
+							'type'  => 'throttle',
+							'value' => $mw,
+							'args'  => $args,
+						];
+
+						continue;
+					}
+
 					$normalized[] = [
 						'type'   => 'class',
 						'class'  => $mw,
 						'method' => 'handle',
 						'args'   => $args,
 					];
+
 					continue;
 				}
 			}
@@ -181,14 +208,41 @@ trait RouteTrait {
 			$request = $request ?? $this->request ?? $app->make('request');
 
 			$runOne = function($mw) use ($app, $request) {
-
 				$next = function() {
-					return new Response('', 200);
+					return new Response('OK', 200);
+				};
+
+				/**
+				 * Run throttle middleware.
+				 */
+				$runThrottle = function($mw, $request) use ($app, $next) {
+					$middleware = $app->make(
+						\Illuminate\Routing\Middleware\ThrottleRequests::class
+					);
+
+					$parts = explode(':', $mw['value'], 2);
+
+					$parameters = [];
+					if (isset($parts[1])) {
+						$parameters = explode(',', $parts[1]);
+					}
+
+					return $middleware->handle(
+						$request,
+						$next,
+						...$parameters
+					);
 				};
 
 				// Chỗ này không cần try-catch, vì middleware sẽ có thể throw Exception.
 //				try {
-					if ($mw['type'] === 'closure') {
+					if ($mw['type'] === 'throttle') {
+						$res = $runThrottle(
+							$mw,
+							$request
+						);
+					}
+					elseif ($mw['type'] === 'closure') {
 						$res = call_user_func($mw['closure'], $request, $next);
 					}
 					else {
@@ -221,6 +275,7 @@ trait RouteTrait {
 					}
 //				}
 //				catch (\Throwable $e) {
+//					error_log(print_r($e, true));
 //					return false;
 //				}
 

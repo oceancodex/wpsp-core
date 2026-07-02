@@ -314,4 +314,8 @@ class RouteData {
 		return ($this->callback[0] ?? '') . '@' . ($this->callback[1] ?? '');
 	}
 
+	public function getDomain() {
+		return parse_url($this->funcs->config('app.url'), PHP_URL_HOST);
+	}
+
 }
