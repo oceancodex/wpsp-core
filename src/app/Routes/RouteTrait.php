@@ -4,9 +4,11 @@ namespace WPSPCORE\App\Routes;
 
 use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Facade;
 use Symfony\Component\HttpFoundation\Response;
+use WPSP\App\Exceptions\HttpException;
 
 trait RouteTrait {
 
@@ -135,18 +137,20 @@ trait RouteTrait {
 			// Trong handle của middleware, có thể dùng $args['block_middleware'] để lấy block đang xử lý.
 			$args['current_block_middleware'] = $blockMiddleware;
 
-			// -----------------------------
-			// 1. Đọc relation của block
-			// -----------------------------
+			/**
+			 * ---
+			 * 1. Đọc relation của block
+			 */
 			$relation = 'AND';
 			if (isset($blockMiddleware['relation'])) {
 				$relation = strtoupper($blockMiddleware['relation']);
 				unset($blockMiddleware['relation']);
 			}
 
-			// -----------------------------
-			// 2. Chuẩn hoá middleware trong block
-			// -----------------------------
+			/**
+			 * ---
+			 * 2. Chuẩn hoá middleware trong block
+			 */
 			$normalized = [];
 			foreach ($blockMiddleware as $mw) {
 				if ($mw instanceof \Closure) {
@@ -204,9 +208,10 @@ trait RouteTrait {
 				}
 			}
 
-			// -----------------------------
-			// 3. Hàm chạy từng middleware
-			// -----------------------------
+			/**
+			 * ---
+			 * 3. Hàm chạy từng middleware
+			 */
 			$runOne = function($mw) use ($app, $request) {
 				$next = function() {
 					return new Response('OK', 200);
@@ -227,11 +232,37 @@ trait RouteTrait {
 						$parameters = explode(',', $parts[1]);
 					}
 
-					return $middleware->handle(
-						$request,
-						$next,
-						...$parameters
-					);
+					try {
+						return $middleware->handle(
+							$request,
+							$next,
+							...$parameters
+						);
+					}
+					catch (\Illuminate\Http\Exceptions\ThrottleRequestsException $e) {
+						if ($this->funcs->_wantsJson()) {
+							$response = $this->funcs->_response(false, $e->getMessage(), 429);
+							$response = new JsonResponse($response, 429);
+							return $response->send();
+						}
+
+						wp_die($e->getMessage(), '429 - Too Many Requests.', [
+							'back_link' => true,
+							'response'  => 429,
+						]);
+					}
+					catch (\Exception $e) {
+						if ($this->funcs->_wantsJson()) {
+							$response = $this->funcs->_response(false, $e->getMessage(), 500);
+							$response = new JsonResponse($response, 500);
+							return $response->send();
+						}
+
+						wp_die($e->getMessage(), '500 - Internal Server Error.', [
+							'back_link' => true,
+							'response'  => 500,
+						]);
+					}
 				};
 
 				// Chỗ này không cần try-catch, vì middleware sẽ có thể throw Exception.
@@ -286,10 +317,10 @@ trait RouteTrait {
 				return true;
 			};
 
-			// -----------------------------
-			// 4. Evaluate block theo relation
-			// -----------------------------
-
+			/**
+			 * ---
+			 * 4. Evaluate block theo relation
+			 */
 			if ($relation === 'OR') {
 				$pass = false;
 				foreach ($normalized as $mw) {
