@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Schedule extends BaseInstances {
 
-	private \Illuminate\Console\Scheduling\Schedule $schedule;
+	private ?\Illuminate\Console\Scheduling\Schedule $schedule;
 
 	/*
 	 *
 	 */
 
-	public function getSchedule(): \Illuminate\Console\Scheduling\Schedule {
+	public function getSchedule(): ?\Illuminate\Console\Scheduling\Schedule {
 		return $this->funcs->_getApplication(\Illuminate\Console\Scheduling\Schedule::class);
 //		return $this->schedule;
 	}
@@ -41,7 +41,7 @@ abstract class Schedule extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getSchedule()->$method(...$arguments);
+		return $instance->getSchedule()?->$method(...$arguments);
 	}
 
 }

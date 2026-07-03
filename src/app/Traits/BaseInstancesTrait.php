@@ -37,7 +37,7 @@ trait BaseInstancesTrait {
 		$this->prepareFuncs();
 		$this->prepareRequest();
 		$this->afterConstruct();
-		$this->baseInstanceCall('__wpspConstruct');
+		$this->baseInstanceCall('__wpspConstruct'); // Mọi params sẽ tự động tạo thành properties cho class.
 		$this->baseInstanceCall('__instanceConstruct');
 		$this->baseInstanceCall('customProperties');
 		$this->baseInstanceCall('afterCustomProperties');

@@ -11,13 +11,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Cache extends BaseInstances {
 
-	private CacheManager $cache;
+	private ?CacheManager $cache;
 
 	/*
 	 *
 	 */
 
-	public function getCache(): CacheManager {
+	public function getCache(): ?CacheManager {
 		return $this->cache;
 	}
 
@@ -41,7 +41,7 @@ abstract class Cache extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getCache()->$method(...$arguments);
+		return $instance->getCache()?->$method(...$arguments);
 	}
 
 }

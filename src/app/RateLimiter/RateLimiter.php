@@ -7,13 +7,13 @@ use WPSPCORE\BaseInstances;
 
 abstract class RateLimiter extends BaseInstances {
 
-	private \Illuminate\Cache\RateLimiter $rateLimiter;
+	private ?\Illuminate\Cache\RateLimiter $rateLimiter;
 
 	/*
 	 *
 	 */
 
-	public function getRateLimiter(): \Illuminate\Cache\RateLimiter {
+	public function getRateLimiter(): ?\Illuminate\Cache\RateLimiter {
 		return $this->rateLimiter;
 	}
 
@@ -35,7 +35,7 @@ abstract class RateLimiter extends BaseInstances {
 			return static::instance()->$method(...$arguments);
 		}
 		else {
-			return static::instance()->getRateLimiter()->$method(...$arguments);
+			return static::instance()->getRateLimiter()?->$method(...$arguments);
 		}
 	}
 

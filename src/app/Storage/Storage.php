@@ -12,13 +12,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Storage extends BaseInstances {
 
-	private FilesystemManager $storage;
+	private ?FilesystemManager $storage;
 
 	/*
 	 *
 	 */
 
-	public function getStorage(): FilesystemManager {
+	public function getStorage(): ?FilesystemManager {
 		return $this->storage;
 	}
 
@@ -44,7 +44,7 @@ abstract class Storage extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getStorage()->$method(...$arguments);
+		return $instance->getStorage()?->$method(...$arguments);
 	}
 
 }
