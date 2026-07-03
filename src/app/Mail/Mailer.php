@@ -9,13 +9,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Mailer extends BaseInstances {
 
-	private \Illuminate\Mail\Mailer $mail;
+	private ?\Illuminate\Mail\Mailer $mail;
 
 	/*
 	 *
 	 */
 
-	public function getMail(): \Illuminate\Mail\Mailer {
+	public function getMail(): ?\Illuminate\Mail\Mailer {
 		return $this->mail;
 	}
 
@@ -39,7 +39,7 @@ abstract class Mailer extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getMail()->$method(...$arguments);
+		return $instance->getMail()?->$method(...$arguments);
 	}
 
 }
