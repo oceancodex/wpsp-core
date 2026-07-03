@@ -56,7 +56,7 @@ abstract class Password extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getPassword()->$method(...$arguments);
+		return $instance->getPassword()?->$method(...$arguments);
 	}
 
 }

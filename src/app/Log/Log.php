@@ -11,13 +11,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Log extends BaseInstances {
 
-	private LogManager $log;
+	private ?LogManager $log;
 
 	/*
 	 *
 	 */
 
-	public function getLog(): LogManager {
+	public function getLog(): ?LogManager {
 		return $this->log;
 	}
 
@@ -41,7 +41,7 @@ abstract class Log extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getLog()->$method(...$arguments);
+		return $instance->getLog()?->$method(...$arguments);
 	}
 
 }

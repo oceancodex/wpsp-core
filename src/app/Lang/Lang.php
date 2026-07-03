@@ -11,13 +11,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Lang extends BaseInstances {
 
-	private Translator $lang;
+	private ?Translator $lang;
 
 	/*
 	 *
 	 */
 
-	public function getLang(): Translator {
+	public function getLang(): ?Translator {
 //		return $this->funcs->_getApplication('translator');
 		return $this->lang;
 	}
@@ -42,7 +42,7 @@ abstract class Lang extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getLang()->$method(...$arguments);
+		return $instance->getLang()?->$method(...$arguments);
 	}
 
 }

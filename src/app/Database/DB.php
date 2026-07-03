@@ -11,13 +11,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class DB extends BaseInstances {
 
-	private DatabaseManager $db;
+	private ?DatabaseManager $db;
 
 	/*
 	 *
 	 */
 
-	public function getDB(): DatabaseManager {
+	public function getDB(): ?DatabaseManager {
 		return $this->db;
 	}
 
@@ -41,7 +41,7 @@ abstract class DB extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getDB()->$method(...$arguments);
+		return $instance->getDB()?->$method(...$arguments);
 	}
 
 }
