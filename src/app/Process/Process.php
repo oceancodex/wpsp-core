@@ -11,13 +11,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Process extends BaseInstances {
 
-	private Factory $process;
+	private ?Factory $process;
 
 	/*
 	 *
 	 */
 
-	public function getProcess(): Factory {
+	public function getProcess(): ?Factory {
 		return $this->process;
 	}
 
@@ -41,7 +41,7 @@ abstract class Process extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getProcess()->$method(...$arguments);
+		return $instance->getProcess()?->$method(...$arguments);
 	}
 
 }

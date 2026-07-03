@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Events extends BaseInstances {
 
-	private EventsDispatcher $events;
+	private ?EventsDispatcher $events;
 
 	/*
 	 *
 	 */
 
-	public function getEvents(): EventsDispatcher {
+	public function getEvents(): ?EventsDispatcher {
 		return $this->events;
 	}
 
@@ -40,7 +40,7 @@ abstract class Events extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getEvents()->$method(...$arguments);
+		return $instance->getEvents()?->$method(...$arguments);
 	}
 
 }
