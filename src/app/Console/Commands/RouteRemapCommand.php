@@ -68,10 +68,19 @@ class RouteRemapCommand extends Command {
 			}
 
 			try {
-				if ($socket) {
-					$host = explode(':', $host)[0];
-				}
-				else {
+				// Thử explode host để xem có chứa port hay socket không.
+				$hostAndPortOrSocket = explode(':', $host);
+
+				// Nếu host chứa post hoặc socket, xử lý.
+				if (isset($hostAndPortOrSocket[1]) && $portOrSocket = $hostAndPortOrSocket[1]) {
+					// Nếu là số, ghi đè port.
+					if (is_numeric($portOrSocket)) {
+						$port = $portOrSocket;
+					}
+					// Nếu không, ghi đè socket.
+					else {
+						$socket = $portOrSocket;
+					}
 				}
 
 				$test = @mysqli_connect($host, $user, $password, $database, $port, $socket);
@@ -192,21 +201,22 @@ class RouteRemapCommand extends Command {
 			$database = $wpConfig['DB_NAME'] ?? null;
 			$socket   = $wpConfig['DB_SOCKET'] ?? null;
 
+			// Thử explode host để xem có chứa port hay socket không.
 			$hostAndPortOrSocket = explode(':', $host);
 
+			// Nếu host chứa post hoặc socket, xử lý.
 			if (isset($hostAndPortOrSocket[1]) && $portOrSocket = $hostAndPortOrSocket[1]) {
+				// Nếu là số, ghi đè port.
 				if (is_numeric($portOrSocket)) {
 					$port = $portOrSocket;
-					$mysqli = @new \mysqli($host, $user, $password, $database, $port);
 				}
+				// Nếu không, ghi đè socket.
 				else {
 					$socket = $portOrSocket;
-					$mysqli = @new \mysqli($host, $user, $password, $database, $port, $socket);
 				}
 			}
-			else {
-				$mysqli = @new \mysqli($host, $user, $password, $database, $port);
-			}
+
+			$mysqli = @new \mysqli($host, $user, $password, $database, $port, $socket);
 
 			if ($mysqli->connect_error) return false;
 
