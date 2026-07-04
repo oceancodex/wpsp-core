@@ -104,15 +104,19 @@ trait AdminPageTrait {
 					return;
 				}
 
-				foreach ($submenu[$this->forceInitSlug] as $index => &$item) {
-					if ($item[2] === $this->forceInitSlug) {
-						$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $this->firstSubmenuClasses);
+				if (isset($submenu[$this->forceInitSlug])) {
+					foreach ($submenu[$this->forceInitSlug] as $index => &$item) {
+						if ($item[2] === $this->forceInitSlug) {
+							$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $this->firstSubmenuClasses);
+						}
 					}
 				}
 
-				foreach ($submenu[$this->menu_slug] as $index => &$item) {
-					if ($item[2] === $this->menu_slug) {
-						$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $this->firstSubmenuClasses);
+				if (isset($submenu[$this->menu_slug])) {
+					foreach ($submenu[$this->menu_slug] as $index => &$item) {
+						if ($item[2] === $this->menu_slug) {
+							$item[4] = $this->prepareAdminMenuClasses($item[4] ?? '', $this->firstSubmenuClasses);
+						}
 					}
 				}
 			}, 9999999999);
