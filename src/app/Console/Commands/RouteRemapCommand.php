@@ -56,7 +56,10 @@ class RouteRemapCommand extends Command {
 			// Chuẩn bị các thông tin kết nối database.
 			$wpConfig = $this->funcs->_getWPConfig();
 			$host     = $wpConfig['DB_HOST'] ?? $this->funcs->_env('DB_HOST', true) ?? null;
-			$user     = $wpConfig['DB_USER'] ?? $this->funcs->_env('WPSP_DB_USERNAME', true) ?? null;
+			$port     = $wpConfig['DB_PORT'] ?? $this->funcs->_env('DB_PORT', true) ?? null;
+			$socket   = $wpConfig['DB_SOCKET'] ?? $this->funcs->_env('DB_SOCKET', true) ?? null;
+			$database = $wpConfig['DB_NAME'] ?? $this->funcs->_env('DB_DATABASE', true) ?? null;
+			$user     = $wpConfig['DB_USER'] ?? $this->funcs->_env('DB_USERNAME', true) ?? null;
 			$password = $wpConfig['DB_PASSWORD'] ?? $this->funcs->_env('DB_PASSWORD', true) ?? null;
 
 			if (!$host) {
@@ -65,7 +68,14 @@ class RouteRemapCommand extends Command {
 			}
 
 			try {
-				$test = @mysqli_connect($host, $user, $password);
+				if ($socket) {
+					$host = explode(':', $host)[0];
+				}
+				else {
+				}
+
+				$test = @mysqli_connect($host, $user, $password, $database, $port, $socket);
+
 				if (!$test) {
 					$this->error('Unable to connect to database. Check wp-config.php or .env.');
 					return 0;
@@ -176,11 +186,28 @@ class RouteRemapCommand extends Command {
 			$wpConfig = $this->funcs->_getWPConfig();
 			$prefix   = $wpConfig['table_prefix'] ?? 'wp_';
 			$host     = $wpConfig['DB_HOST'] ?? null;
+			$port     = $wpConfig['DB_PORT'] ?? null;
 			$user     = $wpConfig['DB_USER'] ?? null;
 			$password = $wpConfig['DB_PASSWORD'] ?? null;
 			$database = $wpConfig['DB_NAME'] ?? null;
+			$socket   = $wpConfig['DB_SOCKET'] ?? null;
 
-			$mysqli = @new \mysqli($host, $user, $password, $database);
+			$hostAndPortOrSocket = explode(':', $host);
+
+			if (isset($hostAndPortOrSocket[1]) && $portOrSocket = $hostAndPortOrSocket[1]) {
+				if (is_numeric($portOrSocket)) {
+					$port = $portOrSocket;
+					$mysqli = @new \mysqli($host, $user, $password, $database, $port);
+				}
+				else {
+					$socket = $portOrSocket;
+					$mysqli = @new \mysqli($host, $user, $password, $database, $port, $socket);
+				}
+			}
+			else {
+				$mysqli = @new \mysqli($host, $user, $password, $database, $port);
+			}
+
 			if ($mysqli->connect_error) return false;
 
 			$result = $mysqli->query("SELECT option_value FROM {$prefix}options WHERE option_name='active_plugins' LIMIT 1");
