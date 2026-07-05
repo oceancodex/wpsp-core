@@ -220,7 +220,7 @@ abstract class BaseRoute extends BaseInstances {
 	public function buildRoute($method, $arguments): RouteData {
 		$path     = $arguments[0];
 		$callback = $arguments[1] ?? null;
-		$args     = $arguments[2] ?? [];
+		$args     = $arguments[2] ?? []; // "args" là tham số thứ 3 trong Route. Ví dụ: Route::get(name, callback, args)
 
 		/**
 		 * Lấy ra class "as Route" trong "Widen".\
