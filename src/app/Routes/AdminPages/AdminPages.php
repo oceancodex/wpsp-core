@@ -43,10 +43,12 @@ class AdminPages extends BaseRoute {
 	public function executeMethod($route) {
 		$request = $this->request;
 
-		$path        = $route->path;
-		$fullPath    = $route->fullPath;
-		$callback    = $route->callback;
-		$middlewares = $route->middlewares;
+		$path          = $route->path;
+		$pathRegex     = $route->pathRegex;
+		$fullPath      = $route->fullPath;
+		$fullPathRegex = $route->fullPathRegex;
+		$callback      = $route->callback;
+		$middlewares   = $route->middlewares;
 
 
 		$screenOptions = $request->get('wp_screen_options');
@@ -55,6 +57,7 @@ class AdminPages extends BaseRoute {
 		}
 
 		$requestPath = ltrim($request->getRequestUri(), '/\\');
+
 		if (
 			(
 				($callback instanceof \Closure)
@@ -70,6 +73,7 @@ class AdminPages extends BaseRoute {
 				($request->get('page') == $fullPath && @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath))
 				|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
 				|| @preg_match('/' . $fullPath . '/iu', $requestPath)
+				|| @preg_match($fullPathRegex, $requestPath)
 			)
 		) {
 			if ($this->isPassedMiddleware($middlewares, $request, ['route' => $route])) {
