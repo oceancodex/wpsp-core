@@ -12,6 +12,45 @@ use WPSP\App\Exceptions\HttpException;
 
 trait RouteTrait {
 
+	protected function normalizeMiddlewareBlocks(array $middlewares): array {
+		if ($middlewares === []) {
+			return [];
+		}
+
+		$blocks = [];
+
+		foreach ($middlewares as $middleware) {
+			/*
+			 * Block:
+			 * [
+			 *     'relation' => 'OR',
+			 *     'throttle:3rpm',
+			 *     EditorCapability::class,
+			 * ]
+			 */
+			if (is_array($middleware)
+				&& (
+					isset($middleware['relation'])
+					|| array_is_list($middleware)
+				)
+			) {
+				$blocks[] = $middleware;
+				continue;
+			}
+
+			/*
+			 * Middleware đơn lẻ
+			 * => tự wrap thành block AND
+			 */
+			$blocks[] = [
+				'relation' => 'AND',
+				$middleware,
+			];
+		}
+
+		return $blocks;
+	}
+
 	/**
 	 * Kiểm tra middleware hiện tại có phải là middleware cuối cùng trong pipeline hay không.
 	 *
@@ -129,6 +168,9 @@ trait RouteTrait {
 		if (empty($middlewares)) {
 			return true;
 		}
+
+		// Chuẩn hóa middlewares
+		$middlewares = $this->normalizeMiddlewareBlocks($middlewares);
 
 		// Mỗi phần tử trong $middlewares là 1 "middleware block"
 		// Route PASS khi TẤT CẢ block PASS
