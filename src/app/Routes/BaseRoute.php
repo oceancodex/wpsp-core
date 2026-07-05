@@ -88,61 +88,17 @@ abstract class BaseRoute extends BaseInstances {
 					$raw = $raw[0];
 				}
 
-				$middlewares = [];
-				$relation = null;
-
-				foreach ($raw as $key => $item) {
-
-					// Nếu là relation
-					if ($key === 'relation' || $item === 'relation' || $key === 0 && is_string($item) && str_starts_with($item, 'relation')) {
-						$relation = is_array($raw) && isset($raw['relation'])
-							? $raw['relation']
-							: (is_string($item) ? $item : null);
-						continue;
-					}
-
-					// Nếu là class string: Namespace\Class
-					if (is_string($item)) {
-						$middlewares[] = [$item, 'handle'];
-						continue;
-					}
-
-					// Nếu là [class, method]
-					if (is_array($item)) {
-						// item[0] = class
-						// item[1] = method (optional)
-						$class = $item[0] ?? null;
-						$method = $item[1] ?? 'handle';
-
-						if ($class) {
-							$middlewares[] = [$class, $method];
-						}
-						continue;
-					}
-
-					// Nếu dạng không hợp lệ → bỏ qua
-				}
-
-				// Ghép lại đầy đủ format mong muốn
-				$final = [];
-
-				if ($relation !== null) {
-					$final['relation'] = $relation;
-				}
-
-				foreach ($middlewares as $mw) {
-					$final[] = $mw;
-				}
-
 				/**
-				 * ---
-				 * Áp dụng chỗ này để tạo ra mảng middleware blocks.\
-				 * Group cha có middlewares: a, b, c\
-				 * Group con nằm trong group cha có middlewares: d, e, f\
-				 * Route nằm trong group con.
-				 * Thì Route sẽ trải qua block middleware: a, b, c trước rồi mới đến block middleware: d, e, f.\
-				 * Như vậy việc thực thi middlewares cho route sẽ lần lượt từ trên xuống dưới trong group lồng nhau.
+				 * Build block middleware, hỗ trợ đệ quy các block con lồng nhau. Ví dụ:
+				 *
+				 * Route::middleware([
+				 *     'relation' => 'OR',
+				 *     ['relation' => 'OR', 'throttle:3rpm', EditorCapability::class],
+				 *     ['relation' => 'AND', AdministratorCapability::class, TestMiddleware::class],
+				 * ])->get(...)
 				 */
+				$final = $this->buildMiddlewareBlock($raw);
+
 				$this->pending['middlewares'][][] = $final;
 
 				return $this;
@@ -215,6 +171,63 @@ abstract class BaseRoute extends BaseInstances {
 	 */
 
 	/**
+	 * Chuẩn hoá 1 phần tử middleware (lá hoặc block lồng nhau).\
+	 * - Closure                          → giữ nguyên
+	 * - string ("Class::class"/"throttle:..") → [string, 'handle']
+	 * - [class, method]                  → bổ sung 'handle' nếu thiếu method
+	 * - block lồng nhau (có key 'relation') → đệ quy build lại thành block con
+	 */
+	private function normalizeMiddlewareItem($item) {
+		if ($item instanceof \Closure) {
+			return $item;
+		}
+
+		if (is_string($item)) {
+			return [$item, 'handle'];
+		}
+
+		if (is_array($item)) {
+			// Block lồng nhau: có key 'relation' → đệ quy.
+			if (array_key_exists('relation', $item)) {
+				return $this->buildMiddlewareBlock($item);
+			}
+
+			// Dạng [class, method]
+			$class      = $item[0] ?? null;
+			$itemMethod = $item[1] ?? 'handle';
+
+			if ($class) {
+				return [$class, $itemMethod];
+			}
+		}
+
+		return $item;
+	}
+
+	/**
+	 * Build 1 block middleware, hỗ trợ các block con lồng nhau bên trong.
+	 */
+	private function buildMiddlewareBlock($raw) {
+		$relation = null;
+
+		if (array_key_exists('relation', $raw)) {
+			$relation = $raw['relation'];
+			unset($raw['relation']);
+		}
+
+		$final = [];
+		if ($relation !== null) {
+			$final['relation'] = $relation;
+		}
+
+		foreach ($raw as $item) {
+			$final[] = $this->normalizeMiddlewareItem($item);
+		}
+
+		return $final;
+	}
+
+	/**
 	 * Tạo đối tượng RouteData và lưu vào RouteManager.
 	 */
 	public function buildRoute($method, $arguments): RouteData {
@@ -241,7 +254,7 @@ abstract class BaseRoute extends BaseInstances {
 		 *     Route::prefix('x')->get(...)
 		 */
 		if (!empty($this->pending['prefix'])) {
-			$group['prefix'] .= rtrim($this->pending['prefix'], '/') . '/';
+			$group['prefix'] .= rtrim($this->pending['prefix'], '/').'/';
 		}
 
 		/**
@@ -272,34 +285,35 @@ abstract class BaseRoute extends BaseInstances {
 			foreach ($merged as $mw) {
 				// String -> dùng chính string làm key
 				if (is_string($mw)) {
-					$hash = 'str:' . $mw;
+					$hash = 'str:'.$mw;
 					if (!isset($seen[$hash])) {
 						$seen[$hash] = true;
-						$unique[] = $mw;
+						$unique[]    = $mw;
 					}
 					continue;
 				}
 
 				// Array -> serialize để tạo key (an toàn cho nested arrays)
 				if (is_array($mw)) {
-					$hash = 'arr:' . serialize($mw);
+					$hash = 'arr:'.serialize($mw);
 					if (!isset($seen[$hash])) {
 						$seen[$hash] = true;
-						$unique[] = $mw;
+						$unique[]    = $mw;
 					}
 					continue;
 				}
 
 				// Khác (object/number...) -> cast sang string làm fallback key
-				$hash = 'oth:' . @serialize($mw);
+				$hash = 'oth:'.@serialize($mw);
 				if (!isset($seen[$hash])) {
 					$seen[$hash] = true;
-					$unique[] = $mw;
+					$unique[]    = $mw;
 				}
 			}
 
 			$group['middlewares'] = array_values($unique);
-		} else {
+		}
+		else {
 			// Nếu pending rỗng thì giữ nguyên group middlewares (hoặc đảm bảo key tồn tại)
 			$group['middlewares'] = $groupMiddlewares;
 		}
@@ -309,8 +323,9 @@ abstract class BaseRoute extends BaseInstances {
 		 */
 		if (array_key_exists('namespace', $this->pending)) {
 			$group['namespace'] = $this->pending['namespace'];
-		} elseif (!empty($group['namespace'])) {
-			$group['namespace'] = $group['namespace'] . '';
+		}
+		elseif (!empty($group['namespace'])) {
+			$group['namespace'] = $group['namespace'].'';
 		}
 		else {
 			$group['namespace'] = $this->defaultNamespace ?? $this->funcs->_getRootNamespace() ?? null;
@@ -321,8 +336,9 @@ abstract class BaseRoute extends BaseInstances {
 		 */
 		if (array_key_exists('version', $this->pending)) {
 			$group['version'] = $this->pending['version'];
-		} elseif (!empty($group['version'])) {
-			$group['version'] = $group['version'] . '';
+		}
+		elseif (!empty($group['version'])) {
+			$group['version'] = $group['version'].'';
 		}
 		else {
 			$group['version'] = $this->defaultVersion ?? null;
