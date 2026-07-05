@@ -438,6 +438,8 @@ trait RouteTrait {
 	 */
 	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = [], $wpParams = []) {
 		$originalRequestPath = $requestPath;
+		$httpMethod          = $this->request->getMethod();
+		$params              = $this->request->all();
 
 		// NEW: detect closure
 		if ($callbackOrClass instanceof \Closure) {
@@ -460,9 +462,7 @@ trait RouteTrait {
 
 		// Nếu nơi gọi hàm này là route "Ajaxs" với method POST, check match action và path.
 		if (@preg_match('/Ajaxs$/', static::class)) {
-			$httpMethod = $this->request->getMethod();
 			if ($httpMethod === 'POST') {
-				$params = $this->request->all();
 				$passed = isset($params['action']) && $params['action'] === $fullPath;
 			}
 		}
@@ -478,7 +478,7 @@ trait RouteTrait {
 
 		/**
 		 * Kiểm tra $path có khớp với request path hiện tại không?\
-		 * Mục đích để chỉ thực sự chạy khi đang truy cập trực tiếp $path/$fullPath\
+		 * Mục đích để chỉ thực sự chạy khi đang truy cập trực tiếp "path" hoặc "fullPath"\
 		 * Tránh tình trạng đang ở URL khác lại thực thi các code bên dưới là không cần thiết.
 		 */
 		if (
@@ -537,10 +537,6 @@ trait RouteTrait {
 
 		// Lấy container / request
 		$app = $this->funcs->_getApplication();
-		if (!$app) {
-			throw new \RuntimeException('Container instance not found when building call params.');
-		}
-//		$baseRequest = $app->bound('request') ? $app->make('request') : ($this->request ?? Request::capture());
 		$baseRequest = $this->request ?? ($app->bound('request') ? $app->make('request') : Request::capture());
 
 		// Named groups: keys là tên (PHP returns associative entries for named groups)
@@ -719,15 +715,22 @@ trait RouteTrait {
 				|| @preg_match('#' . $fullPath . '#iu', $originalRequestPath, $matches)
 			)
 		) {
-			$this->request->setRouteResolver(function() use (&$args, $callParams) {
-				if (isset($args['route'])) {
-					$args['route']->parameters = $callParams;
+			if (
+				$path !== 'wpsp' &&
+				isset($args['route'])
+				&& $httpMethod == strtoupper($args['route']->method)
+				&& (
+					@preg_match('/' . $args['route']->fullPathRegex . '$/iu', $originalRequestPath)
+					|| @preg_match('/' . $args['route']->fullPathRegex . '/iu', $originalRequestPath)
+					|| @preg_match('/' . $args['route']->fullPath . '/iu', $originalRequestPath)
+					|| @preg_match($args['route']->fullPathRegex, $originalRequestPath)
+				)
+			) {
+				$args['route']->parameters = $callParams;
+				$this->request->setRouteResolver(function() use ($args) {
 					return $args['route'];
-				}
-				else {
-					return null;
-				}
-			});
+				});
+			}
 		}
 
 		return $callParams;

@@ -10,8 +10,10 @@ class RouteManager extends BaseInstances {
 	 * Danh sách toàn bộ route đã được tạo.
 	 * Mỗi phần tử là một đối tượng RouteData.
 	 */
-	private $routes = [];
+	private $routes       = [];
 	private $routeByTypes = [];
+
+	public ?RouteData $currentRoute = null;
 
 	/**
 	 * Stack chứa các group attributes (prefix, name, middlewares)\
@@ -175,22 +177,24 @@ class RouteManager extends BaseInstances {
 	/**
 	 * Thực thi một route đã được xác định.
 	 *
-	 * @param object $routeItem Đối tượng chứa thông tin về route cần thực thi, bao gồm loại route, phương thức,
+	 * @param ?RouteData $routeItem Đối tượng chứa thông tin về route cần thực thi, bao gồm loại route, phương thức,
 	 *                          và các thông tin khác liên quan đến route như tên, middlewares, callback, v.v.
 	 *
 	 * @return void
 	 */
 	public function executeRoute($routeItem) {
-		$type        = $routeItem->type;
-		$route       = $routeItem->route;
-//		$parentRoute = '\\' . trim($routeItem->parentRoute, '\\');
-		$method      = $routeItem->method;
-//		$path        = $routeItem->path;
-//		$fullPath    = $routeItem->fullPath;
-//		$callback    = $routeItem->callback;
-//		$args        = $routeItem->args;
-//		$name        = $routeItem->name;
-//		$middlewares = $routeItem->middlewares;
+		$type          = $routeItem->type;
+		$route         = $routeItem->route;
+//		$parentRoute   = '\\' . trim($routeItem->parentRoute, '\\');
+		$method        = $routeItem->method;
+		$path          = $routeItem->path;
+		$pathRegex     = $routeItem->pathRegex;
+		$fullPath      = $routeItem->fullPath;
+		$fullPathRegex = $routeItem->fullPathRegex;
+//		$callback      = $routeItem->callback;
+//		$args          = $routeItem->args;
+//		$name          = $routeItem->name;
+//		$middlewares   = $routeItem->middlewares;
 
 		/**
 		 * Nếu route là Actions hoặc Filters thì method sẽ là "action" và "filter".\
@@ -205,6 +209,25 @@ class RouteManager extends BaseInstances {
 			$route::instance()->remove_hook($routeItem);
 		}
 		else {
+			// Set "currentRoute" là route đang truy cập thực sự qua URL.
+			if (in_array($type, ['AdminPages', 'Apis', 'FrontPages', 'RewriteFrontPages'])) {
+				$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+				$requestMethod = $this->request->method();
+
+				if (
+					$requestMethod == strtoupper($method)
+					&& (
+						@preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
+						|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '/iu', $requestPath)
+						|| @preg_match('/' . $fullPath . '/iu', $requestPath)
+						|| @preg_match($fullPathRegex, $requestPath)
+					)
+				) {
+					$this->currentRoute = $routeItem;
+				}
+			}
+
+			// Chạy route.
 			$route::instance()->execute($routeItem);
 		}
 	}
@@ -233,6 +256,14 @@ class RouteManager extends BaseInstances {
 				$this->executeRoute($routeItem);
 			}
 		}
+	}
+
+	/*
+	 *
+	 */
+
+	public function currentRoute(): ?RouteData {
+		return $this->currentRoute;
 	}
 
 }
