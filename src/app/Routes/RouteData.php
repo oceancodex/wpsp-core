@@ -41,6 +41,7 @@ class RouteData {
 	 * @param string $path            Đường dẫn gốc (chưa có prefix)
 	 * @param mixed  $callback        Controller + method hoặc Closure
 	 * @param array  $groupAttributes Các thuộc tính gộp từ tất cả group (prefix, name, middleware)
+	 * @param array  $args            Tham số thứ 3 trong Route. Ví dụ: Route::get(name, callback, args)
 	 */
 	public function __construct($type, $route, $method, $path, $callback, $args, $groupAttributes, $funcs = null) {
 		// Loại bỏ một số properties từ $funcs để gọn gàng hơn.
