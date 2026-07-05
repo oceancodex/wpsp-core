@@ -13,6 +13,7 @@ class RouteManager extends BaseInstances {
 	private $routes       = [];
 	private $routeByTypes = [];
 
+	public $matchedRoutes 			= [];
 	public ?RouteData $currentRoute = null;
 
 	/**
@@ -223,7 +224,7 @@ class RouteManager extends BaseInstances {
 						|| @preg_match($fullPathRegex, $requestPath)
 					)
 				) {
-					$this->currentRoute = $routeItem;
+					$this->addMatchedRoute($routeItem);
 				}
 			}
 
@@ -262,8 +263,31 @@ class RouteManager extends BaseInstances {
 	 *
 	 */
 
+	public function addMatchedRoute(?RouteData $route) {
+		$key = md5(
+			$route->type . '|' .
+			$route->method . '|' .
+			$route->fullPath . '|' .
+			$route->name
+		);
+
+//		$this->matchedRoutes[]     = $route;
+		$this->matchedRoutes[$key] = $route;
+		$this->currentRoute        = $route;
+	}
+
+	public function clearMatchedRoutes() {
+		$this->matchedRoutes = [];
+		$this->currentRoute  = null;
+	}
+
 	public function currentRoute(): ?RouteData {
 		return $this->currentRoute;
+	}
+
+	public function matchedRoutes() {
+//		return $this->matchedRoutes;
+		return array_values($this->matchedRoutes);
 	}
 
 }
