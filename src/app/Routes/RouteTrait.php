@@ -11,46 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 use WPSP\App\Exceptions\HttpException;
 
 trait RouteTrait {
-
-	protected function normalizeMiddlewareBlocks(array $middlewares): array {
-		if ($middlewares === []) {
-			return [];
-		}
-
-		$blocks = [];
-
-		foreach ($middlewares as $middleware) {
-			/*
-			 * Block:
-			 * [
-			 *     'relation' => 'OR',
-			 *     'throttle:3rpm',
-			 *     EditorCapability::class,
-			 * ]
-			 */
-			if (is_array($middleware)
-				&& (
-					isset($middleware['relation'])
-					|| array_is_list($middleware)
-				)
-			) {
-				$blocks[] = $middleware;
-				continue;
-			}
-
-			/*
-			 * Middleware đơn lẻ
-			 * => tự wrap thành block AND
-			 */
-			$blocks[] = [
-				'relation' => 'AND',
-				$middleware,
-			];
-		}
-
-		return $blocks;
-	}
-
 	/**
 	 * Kiểm tra middleware hiện tại có phải là middleware cuối cùng trong pipeline hay không.
 	 *
@@ -169,221 +129,176 @@ trait RouteTrait {
 			return true;
 		}
 
-		// Chuẩn hóa middlewares
-		$middlewares = $this->normalizeMiddlewareBlocks($middlewares);
-
-		// Mỗi phần tử trong $middlewares là 1 "middleware block"
-		// Route PASS khi TẤT CẢ block PASS
-		foreach ($middlewares as $blockMiddleware) {
-			// Đưa thêm block đang xử lý vào args để truyền vào middleware.
-			// Trong handle của middleware, có thể dùng $args['block_middleware'] để lấy block đang xử lý.
-			$args['current_block_middleware'] = $blockMiddleware;
-
-			/**
-			 * ---
-			 * 1. Đọc relation của block
-			 */
-			$relation = 'AND';
-			if (isset($blockMiddleware['relation'])) {
-				$relation = strtoupper($blockMiddleware['relation']);
-				unset($blockMiddleware['relation']);
+		/**
+		 * Chuẩn hoá 1 middleware "lá" (Closure / string / [class, method]) thành dạng runtime.
+		 */
+		$normalizeLeaf = function($mw, $args) {
+			if ($mw instanceof \Closure) {
+				return ['type' => 'closure', 'closure' => $mw, 'args' => $args];
 			}
 
-			/**
-			 * ---
-			 * 2. Chuẩn hoá middleware trong block
-			 */
-			$normalized = [];
-			foreach ($blockMiddleware as $mw) {
-				if ($mw instanceof \Closure) {
-					$normalized[] = [
-						'type'    => 'closure',
-						'closure' => $mw,
-						'args'    => $args,
-					];
-
-					continue;
+			if (is_array($mw) && isset($mw[0]) && is_string($mw[0])) {
+				if (str_starts_with($mw[0], 'throttle')) {
+					return ['type' => 'throttle', 'value' => $mw[0], 'args' => $args];
 				}
-
-				// [Class, method]
-				if (is_array($mw) && isset($mw[0]) && is_string($mw[0])) {
-					if (str_starts_with($mw[0], 'throttle')) {
-						$normalized[] = [
-							'type'  => 'throttle',
-							'value' => $mw[0],
-							'args'  => $args,
-						];
-
-						continue;
-					}
-
-					$normalized[] = [
-						'type'   => 'class',
-						'class'  => $mw[0],
-						'method' => $mw[1] ?? 'handle',
-						'args'   => $args,
-					];
-
-					continue;
-				}
-
-				// Class string
-				if (is_string($mw)) {
-					if (str_starts_with($mw, 'throttle')) {
-						$normalized[] = [
-							'type'  => 'throttle',
-							'value' => $mw,
-							'args'  => $args,
-						];
-
-						continue;
-					}
-
-					$normalized[] = [
-						'type'   => 'class',
-						'class'  => $mw,
-						'method' => 'handle',
-						'args'   => $args,
-					];
-
-					continue;
-				}
+				return ['type' => 'class', 'class' => $mw[0], 'method' => $mw[1] ?? 'handle', 'args' => $args];
 			}
 
-			/**
-			 * ---
-			 * 3. Hàm chạy từng middleware
-			 */
-			$runOne = function($mw) use ($app, $request) {
-				$next = function() {
-					return new Response('OK', 200);
-				};
-
-				/**
-				 * Run throttle middleware.
-				 */
-				$runThrottle = function($mw, $request) use ($app, $next) {
-					$middleware = $app->make(
-						\Illuminate\Routing\Middleware\ThrottleRequests::class
-					);
-
-					$parts = explode(':', $mw['value'], 2);
-
-					$parameters = [];
-					if (isset($parts[1])) {
-						$parameters = explode(',', $parts[1]);
-					}
-
-					try {
-						return $middleware->handle(
-							$request,
-							$next,
-							...$parameters
-						);
-					}
-					catch (\Illuminate\Http\Exceptions\ThrottleRequestsException $e) {
-						if ($this->funcs->_wantsJson()) {
-							$response = $this->funcs->_response(false, $e->getMessage(), 429);
-							$response = new JsonResponse($response, 429);
-							return $response->send();
-						}
-
-						wp_die($e->getMessage(), '429 - Too Many Requests.', [
-							'back_link' => true,
-							'response'  => 429,
-						]);
-					}
-					catch (\Exception $e) {
-						if ($this->funcs->_wantsJson()) {
-							$response = $this->funcs->_response(false, $e->getMessage(), 500);
-							$response = new JsonResponse($response, 500);
-							return $response->send();
-						}
-
-						wp_die($e->getMessage(), '500 - Internal Server Error.', [
-							'back_link' => true,
-							'response'  => 500,
-						]);
-					}
-				};
-
-				// Chỗ này không cần try-catch, vì middleware sẽ có thể throw Exception.
-				// Xử lý các loại middleware
-				if ($mw['type'] === 'throttle') {
-					$res = $runThrottle(
-						$mw,
-						$request
-					);
+			if (is_string($mw)) {
+				if (str_starts_with($mw, 'throttle')) {
+					return ['type' => 'throttle', 'value' => $mw, 'args' => $args];
 				}
-				elseif ($mw['type'] === 'closure') {
-					$res = call_user_func($mw['closure'], $request, $next);
-				}
-				else {
-					$class  = $mw['class'];
-					$method = $mw['method'];
+				return ['type' => 'class', 'class' => $mw, 'method' => 'handle', 'args' => $args];
+			}
 
-					if (!class_exists($class)) {
-						return false;
-					}
+			return null;
+		};
 
-					$instance = $app->make($class);
-
-					// Ép method là handle nếu không có method chỉ định.
-					// Nếu không có method handle thì sẽ xảy ra lỗi, có thể bắt lỗi trong Exception Handler.
-					if (!method_exists($instance, $method)) {
-//							if (method_exists($instance, 'handle')) {
-							$method = 'handle';
-//							}
-//							else {
-//								return false;
-//							}
-					}
-
-//						$res = $instance->$method($request, $next, $mw['args'] ?? null);
-					$res = $app->call([$instance, $method], [
-						'request' => $request,
-						'next'    => $next,
-						'args'    => $mw['args'] ?? null,
-					]);
-				}
-
-				/**
-				 * Trả về kết quả của middleware.
-				 */
-				if ($res instanceof Response) {
-					return $res->getStatusCode() < 400;
-				}
-
-				if (is_bool($res)) return $res;
-
-				return true;
+		/**
+		 * Chạy 1 middleware đã normalize, trả về true (PASS) / false (FAIL).
+		 */
+		$runOne = function($mw) use ($app, $request) {
+			$next = function() {
+				return new Response('OK', 200);
 			};
 
-			/**
-			 * ---
-			 * 4. Evaluate block theo relation
-			 */
-			if ($relation === 'OR') {
-				$pass = false;
-				foreach ($normalized as $mw) {
-					if ($runOne($mw)) {
-						$pass = true;
-						break;
-					}
+			$runThrottle = function($mw, $request) use ($app, $next) {
+				$middleware = $app->make(
+					\Illuminate\Routing\Middleware\ThrottleRequests::class
+				);
+
+				$parts = explode(':', $mw['value'], 2);
+
+				$parameters = [];
+				if (isset($parts[1])) {
+					$parameters = explode(',', $parts[1]);
 				}
-				if (!$pass) return false;
+
+				try {
+					return $middleware->handle($request, $next, ...$parameters);
+				}
+				catch (\Illuminate\Http\Exceptions\ThrottleRequestsException $e) {
+					if ($this->funcs->_wantsJson()) {
+						$response = $this->funcs->_response(false, $e->getMessage(), 429);
+						$response = new JsonResponse($response, 429);
+						return $response->send();
+					}
+					wp_die($e->getMessage(), '429 - Too Many Requests.', [
+						'back_link' => true,
+						'response'  => 429,
+					]);
+				}
+				catch (\Exception $e) {
+					if ($this->funcs->_wantsJson()) {
+						$response = $this->funcs->_response(false, $e->getMessage(), 500);
+						$response = new JsonResponse($response, 500);
+						return $response->send();
+					}
+					wp_die($e->getMessage(), '500 - Internal Server Error.', [
+						'back_link' => true,
+						'response'  => 500,
+					]);
+				}
+			};
+
+			if ($mw['type'] === 'throttle') {
+				$res = $runThrottle($mw, $request);
+			}
+			elseif ($mw['type'] === 'closure') {
+				$res = call_user_func($mw['closure'], $request, $next);
+			}
+			else {
+				$class  = $mw['class'];
+				$method = $mw['method'];
+
+				if (!class_exists($class)) {
+					return false;
+				}
+
+				$instance = $app->make($class);
+
+				if (!method_exists($instance, $method)) {
+					$method = 'handle';
+				}
+
+				$res = $app->call([$instance, $method], [
+					'request' => $request,
+					'next'    => $next,
+					'args'    => $mw['args'] ?? null,
+				]);
 			}
 
-			if ($relation === 'AND') {
-				foreach ($normalized as $mw) {
-					if (!$runOne($mw)) {
-						return false;
-					}
+			if ($res instanceof Response) {
+				return $res->getStatusCode() < 400;
+			}
+
+			if (is_bool($res)) return $res;
+
+			return true;
+		};
+
+		/**
+		 * Đánh giá đệ quy 1 node: có thể là middleware lá, hoặc 1 block con lồng nhau
+		 * (mảng có key 'relation').
+		 */
+		$evaluateNode = function($node, $args) use (&$evaluateNode, &$evaluateBlock, $normalizeLeaf, $runOne) {
+			if (is_array($node) && array_key_exists('relation', $node)) {
+				return $evaluateBlock($node, $args);
+			}
+
+			$normalized = $normalizeLeaf($node, $args);
+
+			// Dạng không hợp lệ → bỏ qua, coi như PASS để không chặn nhầm route.
+			if ($normalized === null) {
+				return true;
+			}
+
+			return $runOne($normalized);
+		};
+
+		/**
+		 * Đánh giá 1 block theo relation (mặc định AND nếu không khai báo).\
+		 * Các phần tử con có thể là middleware lá hoặc block con lồng nhau — đệ quy vô hạn cấp.
+		 */
+		$evaluateBlock = function($block, $args) use (&$evaluateNode) {
+			$relation = 'AND';
+			if (isset($block['relation'])) {
+				$relation = strtoupper($block['relation']);
+			}
+
+			$args['current_block_middleware'] = $block;
+
+			$children = [];
+			foreach ($block as $key => $value) {
+				if ($key === 'relation') continue;
+				$children[] = $value;
+			}
+
+			if (empty($children)) {
+				return true;
+			}
+
+			if ($relation === 'OR') {
+				foreach ($children as $child) {
+					if ($evaluateNode($child, $args)) return true;
 				}
+				return false;
+			}
+
+			// AND
+			foreach ($children as $child) {
+				if (!$evaluateNode($child, $args)) return false;
+			}
+			return true;
+		};
+
+		// Mỗi phần tử trong $middlewares là 1 block top-level. Route PASS khi TẤT CẢ block PASS.
+		foreach ($middlewares as $blockMiddleware) {
+			if (!$evaluateBlock($blockMiddleware, $args)) {
+				return false;
 			}
 		}
 
-		// TẤT CẢ block đều PASS
 		return true;
 	}
 
