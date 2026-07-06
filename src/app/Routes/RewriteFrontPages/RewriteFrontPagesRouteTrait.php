@@ -27,6 +27,7 @@ trait RewriteFrontPagesRouteTrait {
 
 	public function register() {
 		$this->addQueryVars();
+		$this->rewrite_tags();
 		$this->rewrite_front_pages();
 		$this->hooks();
 	}
@@ -56,6 +57,8 @@ trait RewriteFrontPagesRouteTrait {
 	/*
      *
      */
+
+	abstract public function rewrite_tags();
 
 	abstract public function rewrite_front_pages();
 

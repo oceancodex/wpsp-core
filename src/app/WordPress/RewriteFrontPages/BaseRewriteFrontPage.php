@@ -7,6 +7,9 @@ use WPSPCORE\BaseInstances;
 abstract class BaseRewriteFrontPage extends BaseInstances {
 
 	public $permastruct              = false;
+	public $permastructName          = false;
+	public $permastructArgs			 = false;
+
 	public $path                     = null;
 	public $fullPath                 = null;
 	public $rewriteIdent             = null;
@@ -21,6 +24,7 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
+		$this->overridePermastruct($this->extraParams['permastruct'] ?? false);
 		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideFullPath($this->extraParams['full_path']);
 		$this->overridePath($this->extraParams['path']);
@@ -29,6 +33,12 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 	/*
 	 *
 	 */
+
+	private function overridePermastruct($permastruct = false) {
+		if ($permastruct && !$this->permastruct) {
+			$this->permastruct = $permastruct;
+		}
+	}
 
 	private function overrideCallbackFunction($callback_function = null) {
 		if ($callback_function && $this->callback_function === null) {
@@ -238,6 +248,12 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 				}, 9999999999);
 			}
 		}
+	}
+
+	public function initPermastruct($path = null, $fullPath = null) {
+		$path     = $this->path ?? $path;
+		$fullPath = $this->fullPath ?? $fullPath;
+		add_permastruct($this->permastructName, $fullPath, $this->permastructArgs);
 	}
 
 	/*
