@@ -6,6 +6,7 @@ use WPSPCORE\BaseInstances;
 
 abstract class BaseRewriteFrontPage extends BaseInstances {
 
+	public $permastruct              = false;
 	public $path                     = null;
 	public $fullPath                 = null;
 	public $rewriteIdent             = null;
