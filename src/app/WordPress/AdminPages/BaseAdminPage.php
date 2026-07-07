@@ -17,7 +17,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	public 	$menu_slug              = null;
 	public 	$icon_url               = null;
 	public 	$position               = null;
-	public 	$parent_slug            = 'wpsp';
+	public 	$parent_slug            = '@';
 
 	public 	$classes                = null;
 	public 	$firstSubmenuTitle      = null;
