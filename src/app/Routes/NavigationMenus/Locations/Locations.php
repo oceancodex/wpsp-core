@@ -18,9 +18,11 @@ class Locations extends BaseRoute {
 	public function execute($route) {
 		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
-		$path     = $route->path;
-		$fullPath = $route->fullPath;
-		$callback = $route->callback;
+		$path          = $route->path;
+		$pathRegex     = $route->pathRegex;
+		$fullPath      = $route->fullPath;
+		$fullPathRegex = $route->fullPathRegex;
+		$callback      = $route->callback;
 
 		$constructParams = [
 			$this->funcs->_getMainPath(),
@@ -28,7 +30,9 @@ class Locations extends BaseRoute {
 			$this->funcs->_getPrefixEnv(),
 			[
 				'path'              => $path,
+				'path_regex'        => $pathRegex,
 				'full_path'         => $fullPath,
+				'full_path_regex'   => $fullPathRegex,
 				'callback_function' => $callback[1] ?? null,
 			],
 		];
