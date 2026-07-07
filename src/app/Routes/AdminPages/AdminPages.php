@@ -83,8 +83,10 @@ class AdminPages extends BaseRoute {
 					$this->funcs->_getPrefixEnv(),
 					[
 						'path'              => $path,
+						'path_regex'        => $pathRegex,
 						'full_path'         => $fullPath,
-						'callback_function' => $callback[1],
+						'full_path_regex'   => $fullPathRegex,
+						'callback_function' => $callback[1] ?? null,
 					],
 				];
 
