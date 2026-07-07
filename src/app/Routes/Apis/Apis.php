@@ -60,7 +60,9 @@ class Apis extends BaseRoute {
 			$this->prefixEnv,
 			[
 				'path'              => $path,
+				'path_regex'        => $pathRegex,
 				'full_path'         => $fullPath,
+				'full_path_regex'   => $fullPathRegex,
 				'method'            => $method,
 				'callback_function' => $callback[1] ?? null,
 			]

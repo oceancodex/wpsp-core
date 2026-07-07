@@ -18,10 +18,12 @@ class PostTypes extends BaseRoute {
 	public function execute($route) {
 		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
-		$path        = $route->path;
-		$fullPath    = $route->fullPath;
-		$callback    = $route->callback;
-		$middlewares = $route->middlewares;
+		$path          = $route->path;
+		$pathRegex     = $route->pathRegex;
+		$fullPath      = $route->fullPath;
+		$fullPathRegex = $route->fullPathRegex;
+		$callback      = $route->callback;
+		$middlewares   = $route->middlewares;
 
 		if ($this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
 			if (is_array($callback) || is_callable($callback) || is_null($callback[1])) {
@@ -31,7 +33,9 @@ class PostTypes extends BaseRoute {
 					$this->funcs->_getPrefixEnv(),
 					[
 						'path'              => $path,
+						'path_regex'        => $pathRegex,
 						'full_path'         => $fullPath,
+						'full_path_regex'   => $fullPathRegex,
 						'callback_function' => $callback[1] ?? null,
 					],
 				];

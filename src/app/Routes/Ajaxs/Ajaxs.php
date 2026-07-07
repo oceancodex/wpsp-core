@@ -47,12 +47,14 @@ class Ajaxs extends BaseRoute {
 	public function executeMethod($hookAction, $route) {
 		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
-		$path        = $route->path;
-		$fullPath    = $route->fullPath;
-		$callback    = $route->callback;
-		$middlewares = $route->middlewares;
+		$path          = $route->path;
+		$pathRegex     = $route->pathRegex;
+		$fullPath      = $route->fullPath;
+		$fullPathRegex = $route->fullPathRegex;
+		$callback      = $route->callback;
+		$middlewares   = $route->middlewares;
 
-		add_action($hookAction, function() use ($hookAction, $route, $requestPath, $path, $fullPath, $callback, $middlewares) {
+		add_action($hookAction, function() use ($hookAction, $route, $requestPath, $path, $pathRegex, $fullPath, $fullPathRegex, $callback, $middlewares) {
 			if (!$this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
 				wp_send_json($this->funcs->_response(false, null, 'Access denied.'), 403);
 				return;
@@ -64,7 +66,9 @@ class Ajaxs extends BaseRoute {
 				$this->funcs->_getPrefixEnv(),
 				[
 					'path'              => $path,
+					'path_regex'        => $pathRegex,
 					'full_path'         => $fullPath,
+					'full_path_regex'   => $fullPathRegex,
 					'callback_function' => $callback[1] ?? null,
 				],
 			];
