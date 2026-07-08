@@ -1108,10 +1108,8 @@ class Funcs extends BaseInstances {
 
 		// Chỉ lấy những params được khai báo
 		foreach ($params as $key) {
-			if (isset($queryParams[$key])) {
-				// Ghép key và value để phân biệt
-				$selectedParts[] = $key . '=' . $queryParams[$key];
-			}
+			// Ghép key và value để phân biệt
+			$selectedParts[] = $key . '=' . ($queryParams[$key] ?? null);
 		}
 
 		// Ghép các phần lại thành một chuỗi
