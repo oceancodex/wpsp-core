@@ -49,23 +49,42 @@ abstract class BaseListTable extends \WP_List_Table {
 			$screenId          = $current_screen?->id ?? null;
 			$showScreenOptions = $current_screen?->show_screen_options ?? false;
 			if ($screenId && $showScreenOptions) {
-				// Nếu screen ID hiện tại không khớp với screenOptionsKey của list table, không khởi tạo sreen option columns và items per page.
+				/**
+				 * Kiểm tra xem screenId hiện tại có khớp với screenOptionsKey được khải báo\
+				 * trong Custom List Table không. Nếu có thì khởi tạo sreen option columns và items per page.
+				 */
+				$isScreenMatched = false;
+
+				// Nếu screenOptionsKey là mảng.
 				if (is_array($this->screenOptionsKey)) {
-					if (!in_array($screenId, $this->screenOptionsKey)) return;
+					foreach ($this->screenOptionsKey as $screenOptionsKey) {
+						// Nếu mỗi screenOptionsKey bắt đầu bằng "/", xem như đó là Regex.
+						if (str_starts_with($screenOptionsKey, '/') && preg_match($screenOptionsKey, $screenId)) {
+							$isScreenMatched = true;
+							break;
+						}
+						// Nếu không, nó là chuỗi.
+						elseif ($screenId === $screenOptionsKey) {
+							$isScreenMatched = true;
+							break;
+						}
+					}
 				}
-				elseif (is_string($this->screenOptionsKey)) {
-					if ($screenId !== $this->screenOptionsKey) return;
+				// Nếu screenOptionsKey là một chuỗi.
+				elseif (is_string($this->screenOptionsKey) && $screenId == $this->screenOptionsKey) {
+					$isScreenMatched = true;
 				}
 
+				if (!$isScreenMatched) return;
+
 				add_filter("manage_{$screenId}_columns", function($columns) {
-					$columns = array_merge($columns, $this->get_columns());
-					return $columns;
+					return array_merge($columns, $this->get_columns());
 				});
 
 				// Items per page độc lập theo "screen_options_key".
 				add_screen_option('per_page', [
 					'default' => 20,
-					'option'  => $screenId . '_items_per_page',
+					'option'  => $screenId.'_items_per_page',
 				]);
 			}
 //		}, 9999999999);
