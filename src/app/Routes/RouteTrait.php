@@ -451,7 +451,6 @@ trait RouteTrait {
 
 		if (!$passed) {
 			// Build all params as null for primitive args
-//			$reflection = new \ReflectionMethod($class, $method);
 			$callParams = [];
 
 			foreach ($reflection->getParameters() as $param) {
@@ -504,16 +503,14 @@ trait RouteTrait {
 		foreach ($matches as $k => $v) {
 			if (is_int($k) && $k > 0) $positional[] = $v;
 		}
-		$posIndex = 0;
 
 		// Request sources
 		$query = $baseRequest->query->all();      // GET params
 		$post  = $baseRequest->request->all();    // POST params
 		$attr  = $baseRequest->attributes->all(); // attributes
 
-		// Reflection method để đọc danh sách tham số của callback
-//		$reflection = new \ReflectionMethod($class, $method);
-		$callParams = [];
+		$callParams   = [];
+		$posIndex     = 0;
 		$runtimeIndex = 0;
 
 		foreach ($reflection->getParameters() as $param) {
