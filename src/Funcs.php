@@ -61,6 +61,7 @@ use WPSPCORE\App\Routes\RouteRegexParser;
  * @method static \Illuminate\View\View|string|null view($viewName = null, array $data = [], array $mergeData = [], bool $instance = false)
  *
  * @method static void debug($message = '', bool $print = false, bool $varDump = false)
+ * @method static \Fruitcake\LaravelDebugbar\LaravelDebugbar|mixed|null debugBar()
  * @method static string|null asset(string $path, $secure = null)
  *
  * @method static string route($routeMap, $routeClass, $routeName, array $args = [], bool $buildURL = false, bool $sanitize = true)
@@ -76,6 +77,7 @@ use WPSPCORE\App\Routes\RouteRegexParser;
  * @method static \Illuminate\View\Factory|null viewInstance()
  *
  * @method static bool isDebug()
+ * @method static bool isDebugBarValid()
  * @method static bool isWPDebug()
  * @method static bool isWPDebugLog()
  * @method static bool isWPDebugDisplay()
@@ -88,7 +90,7 @@ use WPSPCORE\App\Routes\RouteRegexParser;
  * @method static bool folderExists($path = null)
  * @method static bool vendorFolderExists($package = null)
  * @method static bool hasQueryParams($queryString = null, $targetParams = null, string $relation = 'or')
- * @method static bool onlyHasQueryParams($queryString = null, $allowedParams = null)
+ * @method static bool isOnlyHasQueryParams($queryString = null, $allowedParams = null)
  *
  * @method static string buildUrl($baseUrl = null, array $args = [])
  * @method static string nonceName($name = null)
@@ -205,8 +207,8 @@ class Funcs extends BaseInstances {
 		return $this->rootNamespace;
 	}
 
-	public function _getPrefixEnv() {
-		return $this->prefixEnv;
+	public function _getPrefixEnv($suffix = null) {
+		return $this->prefixEnv . $suffix;
 	}
 
 	/*
@@ -565,18 +567,59 @@ class Funcs extends BaseInstances {
 	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
 		/** @var \Illuminate\View\Factory $blade */
 		$blade = $this->_getApplication('view');
+
 		try {
+			/** @var \Fruitcake\LaravelDebugbar\LaravelDebugbar $debugbar */
+			if ($this->_isDebugBarValid()) {
+				$debugbar = $this->_getApplication('debugbar');
+			}
+
 			if (!$viewName && $instance) {
 				return $blade ?? null;
 			}
+
 			if ($blade !== null) {
-				return $blade->make($viewName, $data, $mergeData);
+				if (isset($debugbar) && $debugbar->isEnabled() && $debugbar->shouldCollect('views')) {
+					$debugbar['time']?->startMeasure('views', 'Views');
+				}
+
+				$content = $blade->make($viewName, $data, $mergeData);
+
+				if (isset($debugbar) && $debugbar->isEnabled() && $debugbar->shouldCollect('views')) {
+					$debugbar['time']?->stopMeasure('views');
+				}
+
+				return $content;
 			}
 			return null;
 		}
 		catch (\Throwable $e) {
 			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
 		}
+	}
+
+	public function _viewInject($views, $data) {
+		if ($data instanceof \Closure) {
+			return $this->_viewInstance()?->composer($views, $data);
+		}
+		elseif (is_array($data)) {
+			return $this->_viewInstance()?->composer($views, function(View $view) use ($data) {
+				foreach ($data as $key => $value) {
+					$view->with($key, $value);
+				}
+			});
+		}
+		else {
+			return false;
+		}
+	}
+
+	public function _viewDetect($viewName = null) {
+		return $viewName;
+	}
+
+	public function _viewInstance() {
+		return $this->_view(null, [], [], true);
 	}
 
 	public function _debug($message = '', $print = false, $varDump = false) {
@@ -609,6 +652,18 @@ class Funcs extends BaseInstances {
 			error_log(print_r($message, true));
 		}
 
+	}
+
+	/**
+	 * @return \Fruitcake\LaravelDebugbar\LaravelDebugbar|mixed|null
+	 */
+	public function _debugBar() {
+		if ($this->_isDebugBarValid()) {
+			return $this->_getApplication('debugbar');
+		}
+		else {
+			return null;
+		}
 	}
 
 	public function _asset($path, $secure = null) {
@@ -829,30 +884,6 @@ class Funcs extends BaseInstances {
 		];
 	}
 
-	public function _viewInject($views, $data) {
-		if ($data instanceof \Closure) {
-			return $this->_viewInstance()?->composer($views, $data);
-		}
-		elseif (is_array($data)) {
-			return $this->_viewInstance()?->composer($views, function(View $view) use ($data) {
-				foreach ($data as $key => $value) {
-					$view->with($key, $value);
-				}
-			});
-		}
-		else {
-			return false;
-		}
-	}
-
-	public function _viewDetect($viewName = null) {
-		return $viewName;
-	}
-
-	public function _viewInstance() {
-		return $this->_view(null, [], [], true);
-	}
-
 	/*
 	 *
 	 */
@@ -864,6 +895,23 @@ class Funcs extends BaseInstances {
 
 	public function _isDebug() {
 		return $this->_env('APP_DEBUG', true) == 'true';
+	}
+
+	public function _isDebugBarValid() {
+		if (
+			!$this->_getApplication()->runningInConsole()
+			&& $this->_env($this->_getPrefixEnv('APP_DEBUG_MONITOR')) === true
+			&& class_exists('\Fruitcake\LaravelDebugbar\LaravelDebugbar')
+			&& !wp_doing_ajax()
+			&& !wp_doing_cron()
+			&& !wp_is_serving_rest_request()
+			&& !defined('REST_REQUEST')
+		) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	public function _isWPDebug() {
@@ -1022,7 +1070,7 @@ class Funcs extends BaseInstances {
 		return in_array(true, $ruleResults, true);
 	}
 
-	public function _onlyHasQueryParams($queryString = null, $allowedParams = null) {
+	public function _isOnlyHasQueryParams($queryString = null, $allowedParams = null) {
 		if (!$queryString || !$allowedParams) {
 			return false;
 		}
