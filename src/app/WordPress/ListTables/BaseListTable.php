@@ -4,6 +4,9 @@ namespace WPSPCORE\App\WordPress\ListTables;
 
 use WPSPCORE\App\Traits\BaseInstancesTrait;
 
+/**
+ * @method bulk_edit_form()
+ */
 abstract class BaseListTable extends \WP_List_Table {
 
 	use BaseInstancesTrait;
@@ -36,7 +39,7 @@ abstract class BaseListTable extends \WP_List_Table {
 		$this->autoScreenOptionColumns();
 		
 		// List table này có bulk edit hay không.
-		$this->maybeBulkEdit();
+		$this->maybeEnqueueBulkEditAssets();
 	}
 
 	/**
@@ -50,8 +53,8 @@ abstract class BaseListTable extends \WP_List_Table {
 			$showScreenOptions = $current_screen?->show_screen_options ?? false;
 			if ($screenId && $showScreenOptions) {
 				/**
-				 * Kiểm tra xem screenId hiện tại có khớp với screenOptionsKey được khải báo\
-				 * trong Custom List Table không. Nếu có thì khởi tạo sreen option columns và items per page.
+				 * Kiểm tra xem "screenId" hiện tại có khớp với "screenOptionsKey" được khải báo trong Custom List Table không.
+				 * Nếu có thì kích hoạt tính năng "hidden columns" và "items per page" trên "sreen options panel".
 				 */
 				$isScreenMatched = false;
 
@@ -123,18 +126,19 @@ abstract class BaseListTable extends \WP_List_Table {
 	 * Kiểm tra và đăng ký assets cho chức năng bulk edit nếu list table hỗ trợ.
 	 *
 	 * Method này sẽ tự động đăng ký và enqueue script bulk-edit.js nếu:
-	 * - List table có method bulk_edit() được định nghĩa
+	 * - List table có method "bulk_edit_form" được định nghĩa
 	 * - Thuộc tính bulkEditAssets được set là true
 	 *
 	 * @return void
 	 */
-	public function maybeBulkEdit() {
-		if (method_exists($this, 'bulk_edit') && $this->bulkEditAssets) {
+	public function maybeEnqueueBulkEditAssets() {
+		if (method_exists($this, 'bulk_edit_form') && $this->bulkEditAssets) {
 			wp_register_script('wpsp-bulk-edit',
 				$this->funcs->asset('widen/custom/js/bulk-edit.js'),
 				['jquery'],
 				$this->funcs->_getVersion(),
-				['in_footer' => true]);
+				['in_footer' => true]
+			);
 			add_action('admin_enqueue_scripts', function() {
 				wp_enqueue_script('wpsp-bulk-edit');
 			});
