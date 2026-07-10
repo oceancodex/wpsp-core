@@ -310,6 +310,10 @@ abstract class WPSP extends BaseInstances {
 
 		// Share errors to all views.
 		try {
+			if ($this->application->bound('debugbar') && $debugbar = $this->application['debugbar']) {
+				$debugbar['messages']->addMessage('WPSPCORE', 'WPSPCORE');
+			}
+
 			if ($this->application->bound('view') && $this->application->bound('session.store')) {
 				$errors = $this->application['session.store']->get('errors', new \Illuminate\Support\ViewErrorBag());
 				$this->application['view']->share('errors', $errors);

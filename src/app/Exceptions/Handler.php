@@ -1,6 +1,7 @@
 <?php
 namespace WPSPCORE\App\Exceptions;
 
+use WPSPCORE\App\Integrations\Ignition\Contracts\ConfigManager;
 use WPSPCORE\BaseInstances;
 
 class Handler extends BaseInstances {
@@ -179,10 +180,20 @@ class Handler extends BaseInstances {
 		}
 
 		// 2) Nếu có Ignition -> dùng Ignition
-		if (class_exists('\Spatie\LaravelIgnition\Ignition')) {
+		if (class_exists('\Spatie\Ignition\Ignition')) {
 			try {
-				\Spatie\LaravelIgnition\Ignition::make()
+				// Get configs.
+				$app->singleton(
+					\Spatie\Ignition\Contracts\ConfigManager::class,
+					function() use ($app) {
+						return new ConfigManager($app);
+					}
+				);
+
+				// Render.
+				\Spatie\Ignition\Ignition::make()
 					->shouldDisplayException(true)
+					->applicationPath($app->basePath())
 					->register()
 					->renderException($e);
 				exit;
