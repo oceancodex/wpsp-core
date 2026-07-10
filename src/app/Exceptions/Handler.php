@@ -1,7 +1,6 @@
 <?php
 namespace WPSPCORE\App\Exceptions;
 
-use WPSPCORE\App\Integrations\Ignition\Contracts\ConfigManager;
 use WPSPCORE\BaseInstances;
 
 class Handler extends BaseInstances {
@@ -56,7 +55,7 @@ class Handler extends BaseInstances {
 		}
 
 		if (method_exists($e, 'report')) {
-			return $e->report();
+			$e->report();
 		}
 	}
 
@@ -135,7 +134,10 @@ class Handler extends BaseInstances {
 		$app = $this->funcs->_getApplication();
 
 		// 1) Nếu Laravel 12+ Renderer class tồn tại và container có thể make nó
-		if (class_exists(\Illuminate\Foundation\Exceptions\Renderer\Renderer::class) && $app && $app->bound(\Illuminate\Foundation\Exceptions\Renderer\Renderer::class)) {
+		if (
+			class_exists(\Illuminate\Foundation\Exceptions\Renderer\Renderer::class)
+			&& $app && $app->bound(\Illuminate\Foundation\Exceptions\Renderer\Renderer::class)
+		) {
 			try {
 				// Resolve request (nếu không có, tự tạo Request::capture())
 				$request = null;
@@ -179,32 +181,7 @@ class Handler extends BaseInstances {
 			}
 		}
 
-		// 2) Nếu có Ignition -> dùng Ignition
-		if (class_exists('\Spatie\Ignition\Ignition')) {
-			try {
-				// Get configs.
-				$app->singleton(
-					\Spatie\Ignition\Contracts\ConfigManager::class,
-					function() use ($app) {
-						return new ConfigManager($app);
-					}
-				);
-
-				// Render.
-				\Spatie\Ignition\Ignition::make()
-					->shouldDisplayException(true)
-					->applicationPath($app->basePath())
-					->register()
-					->renderException($e);
-				exit;
-			}
-			catch (\Throwable $ignEx) {
-				error_log('[WPSP] Ignition threw: ' . $ignEx->getMessage());
-				// fallthrough
-			}
-		}
-
-		// 3) Nếu tồn tại handler trước đó thì gọi lại
+		// 2) Nếu tồn tại handler trước đó thì gọi lại
 		if ($this->existsExceptionHandler && is_callable($this->existsExceptionHandler)) {
 			try {
 				call_user_func($this->existsExceptionHandler, $e);
@@ -215,7 +192,7 @@ class Handler extends BaseInstances {
 			}
 		}
 
-		// 4) Cuối cùng fallback về prepareResponse (wp_die / json)
+		// 3) Cuối cùng fallback về prepareResponse (wp_die / json)
 		$this->prepareResponse($e);
 	}
 
