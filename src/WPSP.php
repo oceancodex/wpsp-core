@@ -294,36 +294,17 @@ abstract class WPSP extends BaseInstances {
 	}
 
 	public function afterHandleRequest() {
+		if ($this->application->bound('view') && $this->application->bound('session.store')) {
+			$errors = $this->application['session.store']->get('errors', new \Illuminate\Support\ViewErrorBag());
+			$this->application['view']->share('errors', $errors);
+		}
+
 		// Share flash data to all views.
 		add_action('shutdown', function() {
-			try {
-				if ($this->application->bound('session.store')) {
-					$this->application['session.store']->save();
-				}
+			if ($this->application->bound('session.store')) {
+				$this->application['session.store']->save();
 			}
-			catch (\Throwable $e) {
-				if ($this->application->isLocal()) {
-					error_log($e->getMessage());
-				}
-			}
-		}, 9999999999);
-
-		// Share errors to all views.
-		try {
-			if ($this->application->bound('debugbar') && $debugbar = $this->application['debugbar']) {
-				$debugbar['messages']->addMessage('WPSPCORE', 'WPSPCORE');
-			}
-
-			if ($this->application->bound('view') && $this->application->bound('session.store')) {
-				$errors = $this->application['session.store']->get('errors', new \Illuminate\Support\ViewErrorBag());
-				$this->application['view']->share('errors', $errors);
-			}
-		}
-		catch (\Throwable $e) {
-			if ($this->application->isLocal()) {
-				error_log($e->getMessage());
-			}
-		}
+		}, 1);
 	}
 
 	/*
