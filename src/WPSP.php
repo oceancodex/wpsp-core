@@ -284,28 +284,30 @@ abstract class WPSP extends BaseInstances {
 		// Start session.
 		$this->startSessionIfAuthenticated();
 
-		/** @var \Illuminate\Foundation\Http\Kernel $kernel */
-//		$kernel         = $this->application->make(Kernel::class);
-//		$this->response = $kernel->handle($this->request);
-//		$this->response->send();
-//		$kernel->terminate($this->request, $this->response);
+		$this->saveFashData();
+		$this->shareErrorsToViews();
 
 		$this->afterHandleRequest();
 	}
 
-	public function afterHandleRequest() {
-		if ($this->application->bound('view') && $this->application->bound('session.store')) {
-			$errors = $this->application['session.store']->get('errors', new \Illuminate\Support\ViewErrorBag());
-			$this->application['view']->share('errors', $errors);
-		}
-
-		// Share flash data to all views.
+	public function saveFashData() {
 		add_action('shutdown', function() {
 			if ($this->application->bound('session.store')) {
 				$this->application['session.store']->save();
 			}
 		}, 1);
 	}
+
+	public function shareErrorsToViews() {
+		if ($this->application->bound('view') && $this->application->bound('session.store')) {
+//			$this->application['session.store']->flashInput($this->request->input());
+//			$this->application['session.store']->now('_old_input', $this->request->input());
+			$errors = $this->application['session.store']->get('errors', new \Illuminate\Support\ViewErrorBag());
+			$this->application['view']->share('errors', $errors);
+		}
+	}
+
+	public function afterHandleRequest() {}
 
 	/*
 	 *
