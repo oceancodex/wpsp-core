@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\App\Integrations\Debugbar\Collectors;
+namespace WPSPCORE\App\Integrations\LaravelDebugbar\Collectors;
 
 use DebugBar\DataCollector\DataCollector;
 use DebugBar\DataCollector\Renderable;
