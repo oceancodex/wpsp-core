@@ -23,12 +23,11 @@ class WPSPRequestContextProvider extends LaravelRequestContextProvider {
 
 	/** @return null|array<string, mixed> */
 	public function getRoute(): array|null {
-
 		return [
-			'route'            => '1',
-			'routeParameters'  => [],
-			'controllerAction' => 'a',
-			'middleware'       => ['a'],
+			'route'            => $this->currentRoute->getName(),
+			'routeParameters'  => $this->currentRoute->parameters(),
+			'controllerAction' => $this->currentRoute->getActionName(),
+			'middleware'       => $this->currentRoute->gatherMiddleware(),
 		];
 	}
 
