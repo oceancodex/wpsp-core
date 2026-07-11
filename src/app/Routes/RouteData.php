@@ -86,7 +86,9 @@ class RouteData {
 	 * Lấy danh sách các parameters
 	 */
 	public function parameters() {
-		return $this->parameters;
+		$parameters = $this->parameters;
+		unset($parameters['route']);
+		return $parameters;
 	}
 
 	/**
