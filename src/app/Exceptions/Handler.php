@@ -55,7 +55,7 @@ class Handler extends BaseInstances {
 		}
 
 		if (method_exists($e, 'report')) {
-			$e->report();
+			return $e->report();
 		}
 	}
 

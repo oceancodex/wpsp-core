@@ -16,11 +16,11 @@ class ConfigManager implements \Spatie\Ignition\Contracts\ConfigManager {
 	}
 
 	public function save(array $options): bool {
-		return false;
+		return function_exists('update_option') && update_option($this->app->getNamespace().'_ignition_options', $options);
 	}
 
 	public function getPersistentInfo(): array {
-		return [];
+		return function_exists('get_option') ? get_option($this->app->getNamespace() . '_ignition_options', []) : [];
 	}
 
 }
