@@ -6,10 +6,27 @@ use Illuminate\Http\Request;
 use Spatie\FlareClient\Report;
 use Spatie\Ignition\ErrorPage\Renderer;
 use Spatie\LaravelIgnition\ContextProviders\LaravelRequestContextProvider;
+use WPSPCORE\App\Integrations\LaravelIgnition\ContextProviders\WPSPRequestContextProvider;
 use WPSPCORE\App\Integrations\LaravelIgnition\ErrorPage\ErrorPageViewModel;
 
 class Ignition extends \Spatie\Ignition\Ignition {
 
+	public $app;
+	public $routeManager;
+
+	/*
+	 *
+	 */
+
+	public function __construct($flare = null, $app = null, $routeManager = null) {
+		parent::__construct($flare);
+		$this->app = $app;
+		$this->routeManager = $routeManager;
+	}
+
+	/*
+	 *
+	 */
 
 	public static function make(): static {
 		return new static();
@@ -24,7 +41,7 @@ class Ignition extends \Spatie\Ignition\Ignition {
 
 		$report ??= $this->createReport($throwable);
 
-		$report->useContext(new \WPSPCORE\App\Integrations\LaravelIgnition\ContextProviders\LaravelRequestContextProvider(Request::capture()));
+		$report->useContext(new WPSPRequestContextProvider($this->app->request, $this->routeManager));
 
 		$viewModel = new ErrorPageViewModel(
 			$throwable,
