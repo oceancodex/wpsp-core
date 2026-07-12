@@ -292,9 +292,27 @@ abstract class WPSP extends BaseInstances {
 
 	public function saveFashData() {
 		add_action('shutdown', function() {
-			if ($this->application->bound('session.store')) {
-				$this->application['session.store']->save();
+			if (!$this->application->bound('session.store')) {
+				return;
 			}
+
+			/** @var \Illuminate\Session\Store $session */
+			$session = $this->application['session.store'];
+
+			// Chỉ persist khi session đã thực sự start trong request này.
+			// Request WP internal (loopback UA "WordPress/...", cron) không start
+			// session ở middleware, nên sẽ bị bỏ qua ở đây — không tạo row rác.
+			if (!$session->isStarted()) {
+				return;
+			}
+
+			// Chặn thêm ở tầng shutdown: không lưu session cho request loopback/CLI
+			// kể cả khi vì lý do nào đó session lỡ được start.
+			if ($this->funcs->_isWPInternalRequest()) {
+				return;
+			}
+
+			$session->save();
 		}, 1);
 	}
 

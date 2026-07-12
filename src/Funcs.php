@@ -3,6 +3,7 @@
 namespace WPSPCORE;
 
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use NumberFormatter;
 use WPSPCORE\App\Routes\RouteRegexParser;
@@ -1132,6 +1133,24 @@ class Funcs extends BaseInstances {
 		}
 
 		return true;
+	}
+
+	public function _isWPInternalRequest(?Request $request = null): bool {
+		if (
+			(defined('DOING_CRON') && DOING_CRON)
+			|| (defined('WP_CLI') && WP_CLI)
+			|| php_sapi_name() === 'cli'
+		) {
+			return true;
+		}
+
+		$userAgent = $request ? $request->userAgent() : ($this->request?->userAgent() ?? null);
+
+		if ($userAgent && @preg_match('#^WordPress/#i', $userAgent)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/*

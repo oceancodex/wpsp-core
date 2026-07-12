@@ -37,11 +37,10 @@ class StartSessionIfAuthenticated {
 	 * This middleware is safe to run for REST/API requests.
 	 */
 	public function handle(Request $request, Closure $next, $args = []) {
-		if (
-			(defined('DOING_CRON') && DOING_CRON)
-			|| defined('WP_CLI')
-			|| php_sapi_name() === 'cli'
-		) {
+		// Bỏ qua hoàn toàn với CRON / CLI / WP loopback — không tạo session,
+		// không set cookie, không phát XSRF. Đây là chỗ chặn UA "WordPress/..."
+		// đang tạo row session rác trong DB.
+		if ($args['funcs']->isWPInternalRequest($request)) {
 			return $next($request);
 		}
 
@@ -55,69 +54,74 @@ class StartSessionIfAuthenticated {
 			$sessionCookieName = $session->getName();
 			$clientSessionId   = $request->cookie($sessionCookieName);
 
-			if ($clientSessionId && $session->getHandler()->read($clientSessionId)) {
+			$isNewSession = false;
+
+			if ($clientSessionId) {
+				// Đặt id từ cookie rồi start — start() đọc DB đúng 1 lần.
 				$session->setId($clientSessionId);
+
 				if (!$session->isStarted()) {
 					$session->start();
 				}
+
+				// Session trống nghĩa là row không tồn tại trong DB
+				// (bị xóa thủ công, hết hạn, hoặc id giả mạo).
+				// Cấp id mới thay vì tái dùng id "mồ côi" (chống session fixation).
+				if (empty($session->all())) {
+					$session->migrate(true);
+					$isNewSession = true;
+				}
 			}
 			else {
+				// Không có cookie và là client thật → tạo session mới.
 				if (!$session->isStarted()) {
-					$userAgent = $request->userAgent();
-					if ($userAgent && !@preg_match('/WordPress\//', $userAgent)) {
-						$session->start();
-						$newSessionId = $session->getId();
-
-						$session->save();
-						$session->setId($newSessionId);
-
-						$attributes = $session->all();
-						foreach ($attributes as $key => $value) {
-							$session->put($key, $value);
-						}
-
-						$session->save();
-
-						/**
-						 * Tạo cookie session và gửi về Client.
-						 */
-						$cookie = cookie(
-							$session->getName(),
-							$session->getId(),
-							$sessionConfig['lifetime'],
-							$config['path'],
-							$config['domain'],
-							true,
-							true,
-							false,
-							$sessionConfig['same_site']
-						);
-						@header('Set-Cookie: ' . $cookie, false);
-					}
+					$session->start();
+					$isNewSession = true;
 				}
+			}
+
+			// Chỉ ghi cookie session khi vừa tạo mới / vừa migrate id.
+			if ($isNewSession && $session->isStarted()) {
+				$session->save();
+
+				$cookie = cookie(
+					$session->getName(),
+					$session->getId(),
+					$sessionConfig['lifetime'],
+					$config['path'],
+					$config['domain'],
+					true,
+					true,
+					false,
+					$sessionConfig['same_site']
+				);
+				@header('Set-Cookie: ' . $cookie, false);
 			}
 
 			$request->setLaravelSession($session);
 
-			/**
-			 * Tạo cookie XSRF-TOKEN và gửi về Client.
-			 */
-			$xsrfName   = $session->getName() . '-XSRF-TOKEN';
-			$xsrfPrefix = CookieValuePrefix::create($xsrfName, $this->encrypter->getKey());
-			$xsrfToken  = $this->encrypter->encrypt($xsrfPrefix . $session->token(), EncryptCookies::serialized('XSRF-TOKEN'));
+			// Chỉ phát XSRF-TOKEN khi session đã thực sự start.
+			if ($session->isStarted()) {
+				$xsrfName   = $session->getName() . '-XSRF-TOKEN';
+				$xsrfPrefix = CookieValuePrefix::create($xsrfName, $this->encrypter->getKey());
+				$xsrfToken  = $this->encrypter->encrypt(
+					$xsrfPrefix . $session->token(),
+					EncryptCookies::serialized('XSRF-TOKEN')
+				);
 
-			$xsrfCookie = cookie(
-				$xsrfName,
-				$xsrfToken,
-				$sessionConfig['lifetime'],
-				$config['path'],
-				$config['domain'],
-				$config['secure'],
-				false,
-				false,
-				$sessionConfig['same_site']
-			);
-			@header('Set-Cookie: ' . $xsrfCookie, false);
+				$xsrfCookie = cookie(
+					$xsrfName,
+					$xsrfToken,
+					$sessionConfig['lifetime'],
+					$config['path'],
+					$config['domain'],
+					$config['secure'],
+					false,
+					false,
+					$sessionConfig['same_site']
+				);
+				@header('Set-Cookie: ' . $xsrfCookie, false);
+			}
 
 			return $next($request);
 		}

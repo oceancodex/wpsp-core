@@ -163,9 +163,7 @@ trait RouteTrait {
 			};
 
 			$runThrottle = function($mw, $request) use ($app, $next) {
-				$middleware = $app->make(
-					\Illuminate\Routing\Middleware\ThrottleRequests::class
-				);
+				$middleware = $app->make(\Illuminate\Routing\Middleware\ThrottleRequests::class);
 
 				$parts = explode(':', $mw['value'], 2);
 
@@ -202,7 +200,14 @@ trait RouteTrait {
 			};
 
 			if ($mw['type'] === 'throttle') {
-				$res = $runThrottle($mw, $request);
+				// Chạy throttle đúng 1 lần cho mỗi (request, signature) trong 1 vòng đời request
+				static $ran = [];
+				$sig = $mw['value'];
+				if (isset($ran[$sig])) {
+					return $ran[$sig];   // dùng lại kết quả, không increment/ghi DB lần nữa
+				}
+				$ran[$sig] = $runThrottle($mw, $request);
+				return $ran[$sig];
 			}
 			elseif ($mw['type'] === 'closure') {
 				$res = call_user_func($mw['closure'], $request, $next);
