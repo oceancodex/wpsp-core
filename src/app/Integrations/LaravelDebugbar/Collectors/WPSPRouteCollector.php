@@ -70,7 +70,7 @@ class WPSPRouteCollector extends DataCollector implements Renderable {
 	public function getWidgets(): array {
 		return [
 			'WPSP Routes' => [
-				'icon'    => 'road',
+				'icon'    => 'share-3',
 				'widget'  => 'PhpDebugBar.Widgets.HtmlVariableListWidget',
 				'map'     => 'wpsp_routes',
 				'default' => '{}',

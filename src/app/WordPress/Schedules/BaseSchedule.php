@@ -104,7 +104,7 @@ abstract class BaseSchedule extends BaseInstances {
 			];
 
 			$callback   = $this->prepareRouteCallback([$this, $this->callback_function], $constructParams);
-			$callParams = $this->getCallParams($this->hook, $this->hook, $requestPath, $this, $this->callback_function);
+			$callParams = $this->getCallParams($this->hook, $this->hook, $requestPath, $this, $this->callback_function, ['route' => $this->extraParams['route'] ?? null]);
 			$this->resolveAndCall($callback, $callParams);
 		}
 	}

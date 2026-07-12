@@ -212,6 +212,10 @@ abstract class WPSP extends BaseInstances {
 		$this->application->singleton('filesystem', function($app) { return new FilesystemManager($app); });
 		$this->application->alias('filesystem', 'storage');
 		$this->application->alias('filesystem', FilesystemManager::class);
+
+		// Exception Renderer Listener — bắt query/log/dump cho trang lỗi.
+//		$this->application->singleton(\Illuminate\Foundation\Exceptions\Renderer\Listener::class);
+		$this->application->make(\Illuminate\Foundation\Exceptions\Renderer\Listener::class)->registerListeners($this->application->make('events'));
 	}
 
 	public function bindingsConsole() {
