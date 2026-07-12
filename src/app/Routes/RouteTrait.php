@@ -482,6 +482,7 @@ trait RouteTrait {
 			$callParams['full_path_regex'] = $this->funcs->_regexPath($fullPath);
 			$callParams['request_path']    = $requestPath;
 
+			// Thêm args vào call params.
 			foreach ($args as $argKey => $argValue) {
 				$callParams[$argKey] = $argValue;
 			}
