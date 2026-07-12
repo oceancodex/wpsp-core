@@ -92,6 +92,7 @@ use WPSPCORE\App\Routes\RouteRegexParser;
  * @method static bool vendorFolderExists($package = null)
  * @method static bool hasQueryParams($queryString = null, $targetParams = null, string $relation = 'or')
  * @method static bool isOnlyHasQueryParams($queryString = null, $allowedParams = null)
+ * @method static bool isWPInternalRequest($request = null)
  *
  * @method static string buildUrl($baseUrl = null, array $args = [])
  * @method static string nonceName($name = null)
