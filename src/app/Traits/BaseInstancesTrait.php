@@ -92,6 +92,13 @@ trait BaseInstancesTrait {
 		else {
 			$this->request = Request::capture();
 		}
+
+		if ($this->funcs?->_getApplication('auth')?->user() ?? null) {
+			$this->request->setUserResolver(function() {
+				return $this->funcs->_getApplication('auth')?->user();
+			});
+		}
+
 		unset($this->extraParams['request']);
 	}
 
