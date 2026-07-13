@@ -3,13 +3,11 @@
 namespace WPSPCORE\App\Http\Middleware;
 
 use Closure;
-use Illuminate\Cookie\CookieValuePrefix;
-use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
 use Illuminate\Session\SessionManager;
 
-class StartSessionIfAuthenticated {
+class WPSPStartSession {
 
 	/**
 	 * @var \Illuminate\Session\SessionManager
@@ -45,16 +43,11 @@ class StartSessionIfAuthenticated {
 		}
 
 		try {
-			$config = $args['funcs']->_config('session');
-
 			/** @var \Illuminate\Session\Store $session */
-			$session       = $this->sessionManager->driver();
-			$sessionConfig = $this->sessionManager->getSessionConfig();
+			$session = $this->sessionManager->driver();
 
 			$sessionCookieName = $session->getName();
 			$clientSessionId   = $request->cookie($sessionCookieName);
-
-			$isNewSession = false;
 
 			if ($clientSessionId) {
 				// Đặt id từ cookie rồi start — start() đọc DB đúng 1 lần.
@@ -69,59 +62,16 @@ class StartSessionIfAuthenticated {
 				// Cấp id mới thay vì tái dùng id "mồ côi" (chống session fixation).
 				if (empty($session->all())) {
 					$session->migrate(true);
-					$isNewSession = true;
 				}
 			}
 			else {
 				// Không có cookie và là client thật → tạo session mới.
 				if (!$session->isStarted()) {
 					$session->start();
-					$isNewSession = true;
 				}
 			}
 
-			// Chỉ ghi cookie session khi vừa tạo mới / vừa migrate id.
-			if ($isNewSession && $session->isStarted()) {
-				$session->save();
-
-				$cookie = cookie(
-					$session->getName(),
-					$session->getId(),
-					$sessionConfig['lifetime'],
-					$config['path'],
-					$config['domain'],
-					true,
-					true,
-					false,
-					$sessionConfig['same_site']
-				);
-				@header('Set-Cookie: ' . $cookie, false);
-			}
-
-			$request->setLaravelSession($session);
-
-			// Chỉ phát XSRF-TOKEN khi session đã thực sự start.
-			if ($session->isStarted()) {
-				$xsrfName   = $session->getName() . '-XSRF-TOKEN';
-				$xsrfPrefix = CookieValuePrefix::create($xsrfName, $this->encrypter->getKey());
-				$xsrfToken  = $this->encrypter->encrypt(
-					$xsrfPrefix . $session->token(),
-					EncryptCookies::serialized('XSRF-TOKEN')
-				);
-
-				$xsrfCookie = cookie(
-					$xsrfName,
-					$xsrfToken,
-					$sessionConfig['lifetime'],
-					$config['path'],
-					$config['domain'],
-					$config['secure'],
-					false,
-					false,
-					$sessionConfig['same_site']
-				);
-				@header('Set-Cookie: ' . $xsrfCookie, false);
-			}
+//			$request->setLaravelSession($session);
 
 			return $next($request);
 		}

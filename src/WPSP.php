@@ -4,6 +4,9 @@ namespace WPSPCORE;
 
 use Illuminate\Auth\AuthManager;
 use Illuminate\Container\Container;
+use Illuminate\Cookie\CookieValuePrefix;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Encryption\Encrypter;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Foundation\Application;
@@ -21,7 +24,7 @@ use Illuminate\Http\Response;
 use Illuminate\Process\Factory as ProcessFactory;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Timebox;
-use WPSPCORE\App\Http\Middleware\StartSessionIfAuthenticated;
+use WPSPCORE\App\Http\Middleware\WPSPStartSession;
 use WPSPCORE\App\View\Directives\adminpagemetaboxes;
 
 abstract class WPSP extends BaseInstances {
@@ -286,16 +289,22 @@ abstract class WPSP extends BaseInstances {
 
 	public function handleRequest() {
 		// Start session.
-		$this->startSessionIfAuthenticated();
+		$this->startSession();
+		$this->saveSession();
 
-		$this->saveFashData();
 		$this->shareErrorsToViews();
 
 		$this->afterHandleRequest();
 	}
 
-	public function saveFashData() {
+	public function saveSession() {
 		add_action('shutdown', function() {
+			// Chặn thêm ở tầng shutdown: không lưu session cho request loopback/CLI
+			// kể cả khi vì lý do nào đó session lỡ được start.
+			if ($this->funcs->_isWPInternalRequest()) {
+				return;
+			}
+
 			if (!$this->application->bound('session.store')) {
 				return;
 			}
@@ -304,26 +313,64 @@ abstract class WPSP extends BaseInstances {
 			$session = $this->application['session.store'];
 
 			// Chỉ persist khi session đã thực sự start trong request này.
-			// Request WP internal (loopback UA "WordPress/...", cron) không start
-			// session ở middleware, nên sẽ bị bỏ qua ở đây — không tạo row rác.
+			// Request WP internal (loopback UA "WordPress/...", cron) không start session ở middleware, nên sẽ bị bỏ qua ở đây — không tạo row rác.
 			if (!$session->isStarted()) {
 				return;
 			}
 
-			// Chặn thêm ở tầng shutdown: không lưu session cho request loopback/CLI
-			// kể cả khi vì lý do nào đó session lỡ được start.
-			if ($this->funcs->_isWPInternalRequest()) {
-				return;
-			}
+			$sessionManager = $this->application['session'];
+			$sessionConfig  = $sessionManager->getSessionConfig();
+			$configSession  = $this->funcs->_config('session');
 
+			/**
+			 * ---
+			 * Save auth cookie session.
+			 */
 			$session->save();
+
+			$authCookie = cookie(
+				$session->getName(),
+				$session->getId(),
+				$sessionConfig['lifetime'],
+				$configSession['path'],
+				$configSession['domain'],
+				true,
+				true,
+				false,
+				$sessionConfig['same_site']
+			);
+
+			@header('Set-Cookie: ' . $authCookie, false);
+
+			/**
+			 * ---
+			 * Save XSRF token.
+			 */
+			$encrypter  = $this->application->make(Encrypter::class);
+			$xsrfName   = $session->getName().'-XSRF-TOKEN';
+			$xsrfPrefix = CookieValuePrefix::create($xsrfName, $encrypter->getKey());
+			$xsrfToken  = $encrypter->encrypt(
+				$xsrfPrefix.$session->token(),
+				EncryptCookies::serialized('XSRF-TOKEN')
+			);
+
+			$xsrfCookie = cookie(
+				$xsrfName,
+				$xsrfToken,
+				$sessionConfig['lifetime'],
+				$configSession['path'],
+				$configSession['domain'],
+				$configSession['secure'],
+				false,
+				false,
+				$sessionConfig['same_site']
+			);
+			@header('Set-Cookie: '.$xsrfCookie, false);
 		}, 1);
 	}
 
 	public function shareErrorsToViews() {
 		if ($this->application->bound('view') && $this->application->bound('session.store')) {
-//			$this->application['session.store']->flashInput($this->request->input());
-//			$this->application['session.store']->now('_old_input', $this->request->input());
 			$errors = $this->application['session.store']->get('errors', new \Illuminate\Support\ViewErrorBag());
 			$this->application['view']->share('errors', $errors);
 		}
@@ -338,8 +385,12 @@ abstract class WPSP extends BaseInstances {
 	/**
 	 * Start session.
 	 */
-	public function startSessionIfAuthenticated() {
-		$middleware = $this->application->make(StartSessionIfAuthenticated::class);
+	public function startSession() {
+		if ($this->funcs->_isWPInternalRequest()) {
+			return;
+		}
+
+		$middleware = $this->application->make(WPSPStartSession::class);
 		$middleware->handle($this->request, function($request) {
 			return $request;
 		}, ['funcs' => $this->funcs]);
