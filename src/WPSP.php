@@ -280,14 +280,14 @@ abstract class WPSP extends BaseInstances {
 		}
 
 		// Đồng bộ user mới nhất từ guard vào session store trước khi save.
-		if ($this->application->bound('auth')) {
-			try {
-				$this->application['auth']->user();
-			}
-			catch (\Exception $e) {
-				// Tránh sập trang nếu Auth cấu hình sai lệch.
-			}
-		}
+//		if ($this->application->bound('auth')) {
+//			try {
+//				$this->application['auth']->user();
+//			}
+//			catch (\Exception $e) {
+//				// Tránh sập trang nếu Auth cấu hình sai lệch.
+//			}
+//		}
 
 		// 1. Persist xuống DB (user_id đã được gán vào session data).
 		$session->save();
