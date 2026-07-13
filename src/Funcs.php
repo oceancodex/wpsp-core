@@ -218,7 +218,7 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function _getBearerToken($request = null) {
-		$request = $request ?? $this->_getApplication('request') ?? null;
+		$request = $request ?? $this->_app('request') ?? null;
 
 		// --- Lấy raw header ---
 		if ($request && method_exists($request, 'headers')) {
@@ -548,8 +548,13 @@ class Funcs extends BaseInstances {
 	 *
 	 */
 
-	public function _app($abstract, $parameters = []) {
-		return $this->_getApplication($abstract, $parameters);
+	public function _app($abstract = null, $parameters = []) {
+		if (!$abstract) {
+			return $this->_getApplication();
+		}
+		else {
+			return $this->_getApplication($abstract, $parameters);
+		}
 	}
 
 	public function _env($var, $addPrefix = false, $default = null) {
@@ -566,14 +571,26 @@ class Funcs extends BaseInstances {
 		return $result;
 	}
 
+	public function _auth($guard = null) {
+
+		/** @var \Illuminate\Support\Facades\Auth $auth */
+		$auth = $this->_app('auth');
+
+		if ($guard && $guard !== 'web') {
+			$auth->shouldUse($guard);
+		}
+
+		return $auth;
+	}
+
 	public function _view($viewName = null, $data = [], $mergeData = [], $instance = false) {
 		/** @var \Illuminate\View\Factory $blade */
-		$blade = $this->_getApplication('view');
+		$blade = $this->_app('view');
 
 		try {
 			/** @var \Fruitcake\LaravelDebugbar\LaravelDebugbar $debugbar */
 			if ($this->_isDebugBarValid()) {
-				$debugbar = $this->_getApplication('debugbar');
+				$debugbar = $this->_app('debugbar');
 			}
 
 			if (!$viewName && $instance) {
@@ -661,7 +678,7 @@ class Funcs extends BaseInstances {
 	 */
 	public function _debugBar() {
 		if ($this->_isDebugBarValid()) {
-			return $this->_getApplication('debugbar');
+			return $this->_app('debugbar');
 		}
 		else {
 			return null;
@@ -837,7 +854,7 @@ class Funcs extends BaseInstances {
 			}
 			else {
 				/** @var \Illuminate\Translation\Translator $translation */
-				$translation = $this->_getApplication('translator');
+				$translation = $this->_app('translator');
 				return $translation->has($string) ? $translation->get($string, $replaces) : $translation->get($string, $replaces, $this->_config('app.fallback_locale'));
 			}
 		}
@@ -848,7 +865,7 @@ class Funcs extends BaseInstances {
 
 	public function _config($key = null, $default = null) {
 		try {
-			$config = $this->_getApplication('config');
+			$config = $this->_app('config');
 			return $config->get($key);
 		}
 		catch (\Throwable $e) {
@@ -901,7 +918,7 @@ class Funcs extends BaseInstances {
 
 	public function _isDebugBarValid() {
 		if (
-			!$this->_getApplication()->runningInConsole()
+			!$this->_app()->runningInConsole()
 			&& $this->_env($this->_getPrefixEnv('APP_DEBUG_MONITOR')) === true
 			&& class_exists('\Fruitcake\LaravelDebugbar\LaravelDebugbar')
 			&& !wp_doing_ajax()
@@ -1169,7 +1186,7 @@ class Funcs extends BaseInstances {
 
 	public function _slugParams($params = [], $separator = '_') {
 		// Lấy toàn bộ query string từ URL
-		$request = $this->request ?? $this->_getApplication('request');
+		$request = $this->request ?? $this->_app('request');
 		$queryParams = $request->query->all();
 
 		$selectedParts = [];
