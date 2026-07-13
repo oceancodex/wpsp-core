@@ -55,9 +55,9 @@ abstract class WPSP extends BaseInstances {
 
 		$this->setPaths();
 		$this->afterSetPaths();
-		$this->bootstrap();          // logic giống hệt web, không cần bản Console riêng
+		$this->bootstrap();          // Logic giống hệt web, không cần bản Console riêng
 		$this->afterBoostrapConsole();
-		$this->bindingsBase();       // console không cần Listener của exception renderer
+		$this->bindingsBase();       // Console không cần Listener của exception renderer
 		$this->afterBindingsConsole();
 		$this->extendsConsole();
 
@@ -151,7 +151,7 @@ abstract class WPSP extends BaseInstances {
 
 		$this->application->instance(
 			'funcs',
-			$this->funcs ?? new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams)
+			$this->funcs ??= new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams)
 		);
 
 		$this->application->singleton('files', fn() => new Filesystem());
@@ -171,8 +171,7 @@ abstract class WPSP extends BaseInstances {
 		$this->bindingsBase();
 
 		// Exception Renderer Listener — bắt query/log/dump cho trang lỗi.
-		// Bind singleton TRƯỚC khi make để renderer và listener share cùng instance
-		// (nếu không, Queries tab sẽ không xuất hiện).
+		// Bind singleton TRƯỚC khi make để renderer và listener share cùng instance.
 		$this->application->singleton(ExceptionRendererListener::class);
 		$this->application->make(ExceptionRendererListener::class)
 			->registerListeners($this->application->make('events'));
@@ -274,8 +273,7 @@ abstract class WPSP extends BaseInstances {
 	}
 
 	public function saveSession() {
-		// Chặn ở tầng shutdown: không lưu session cho request loopback/CLI,
-		// kể cả khi vì lý do nào đó session lỡ được start.
+		// Chặn ở tầng shutdown: không lưu session cho request loopback/CLI.
 		$session = $this->resolveStartedSession();
 		if (!$session) {
 			return;
@@ -297,7 +295,7 @@ abstract class WPSP extends BaseInstances {
 		// 2. Gắn lại store vào request.
 		$this->request->setLaravelSession($session);
 
-		// 3. Re-emit cookie (shutdown đôi khi headers đã gửi — emitCookies tự guard).
+		// 3. Re-emit cookie (Cập nhật lại Session ID & trích xuất Remember Me Cookie từ hàng đợi).
 		$this->emitCookies($this->buildSessionCookies($session));
 	}
 
@@ -314,13 +312,9 @@ abstract class WPSP extends BaseInstances {
 
 	/**
 	 * Trả về session store nếu đã thực sự start, ngược lại null.
-	 * Gộp toàn bộ guard: WP internal, chưa bound, chưa start.
 	 */
 	private function resolveStartedSession(): ?\Illuminate\Session\Store {
-		if ($this->funcs->_isWPInternalRequest()) {
-			return null;
-		}
-		if (!$this->application->bound('session.store')) {
+		if ($this->funcs->_isWPInternalRequest() || !$this->application->bound('session.store')) {
 			return null;
 		}
 
@@ -331,9 +325,7 @@ abstract class WPSP extends BaseInstances {
 	}
 
 	/**
-	 * Dựng cả Auth cookie và XSRF cookie từ session.
-	 *
-	 * @return string[] danh sách header value đã render sẵn.
+	 * Dựng cả Auth cookie, XSRF cookie, và tự động vét các cookie hàng đợi (Remember Me) từ CookieJar.
 	 */
 	private function buildSessionCookies(\Illuminate\Session\Store $session): array {
 		$sessionConfig = $this->application['session']->getSessionConfig();
@@ -345,14 +337,16 @@ abstract class WPSP extends BaseInstances {
 		$secure   = $configSession['secure'] ?? true;
 		$sameSite = $sessionConfig['same_site'] ?? 'Lax';
 
-		// Auth cookie (httpOnly = true).
-		$authCookie = cookie(
+		$cookies = [];
+
+		// 1. Auth cookie (httpOnly = true).
+		$cookies[] = (string) cookie(
 			$session->getName(),
 			$session->getId(),
 			$lifetime, $path, $domain, $secure, true, false, $sameSite
 		);
 
-		// XSRF cookie (httpOnly = false để JS đọc được).
+		// 2. XSRF cookie (httpOnly = false để JS đọc được).
 		$encrypter  = $this->application->make(Encrypter::class);
 		$xsrfName   = $session->getName().'-XSRF-TOKEN';
 		$xsrfPrefix = CookieValuePrefix::create($xsrfName, $encrypter->getKey());
@@ -361,13 +355,39 @@ abstract class WPSP extends BaseInstances {
 			EncryptCookies::serialized('XSRF-TOKEN')
 		);
 
-		$xsrfCookie = cookie(
+		$cookies[] = (string) cookie(
 			$xsrfName,
 			$xsrfToken,
 			$lifetime, $path, $domain, $secure, false, false, $sameSite
 		);
 
-		return [(string)$authCookie, (string)$xsrfCookie];
+		// 3. Tự động kiểm tra và quét qua CookieJar để lôi Remember Me Cookie ra ngoài
+		if ($this->application->bound('cookie')) {
+			/** @var \Illuminate\Cookie\CookieJar $cookieJar */
+			$cookieJar = $this->application['cookie'];
+
+			foreach ($cookieJar->getQueuedCookies() as $queuedCookie) {
+				// Đổi timestamp hết hạn sang số phút (hàm cookie() nhận tham số $minutes)
+				$minutes = $queuedCookie->getExpiresTime() ? ($queuedCookie->getExpiresTime() - time()) / 60 : 0;
+
+				$cookies[] = (string) cookie(
+					$queuedCookie->getName(),
+					$queuedCookie->getValue(),
+					$minutes,
+					$path,
+					$domain,
+					$secure,
+					$queuedCookie->isHttpOnly(),
+					$queuedCookie->isRaw(),
+					$sameSite
+				);
+			}
+
+			// Dọn dẹp sạch hàng đợi sau khi đã lấy, tránh đẩy trùng lặp ở các hook kề sau.
+			$cookieJar->flushQueuedCookies();
+		}
+
+		return $cookies;
 	}
 
 	/**
