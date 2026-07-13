@@ -259,8 +259,20 @@ abstract class WPSP extends BaseInstances {
 			return;
 		}
 
+		// Start session middleware.
 		$middleware = $this->application->make(WPSPStartSession::class);
 		$middleware->handle($this->request, fn($request) => $request, ['funcs' => $this->funcs]);
+
+		// Save flash data.
+		if ($this->application->bound('session.store')) {
+			/** @var \Illuminate\Session\Store $session */
+			$session = $this->application['session.store'];
+
+			if ($session->isStarted()) {
+				// Gắn object Session Store vào Request hiện tại ngay lập tức
+				$this->request->setLaravelSession($session);
+			}
+		}
 	}
 
 	public function sendSessionCookiesToClient() {
