@@ -243,11 +243,11 @@ abstract class WPSP extends BaseInstances {
 		});
 
 		// 3: Dự phòng cho request thông thường kết thúc qua hook shutdown của WP.
-		if (function_exists('add_action')) {
-			add_action('shutdown', [$this, 'saveSession'], 1);
-		} else {
-			register_shutdown_function([$this, 'saveSession']);
-		}
+//		if (function_exists('add_action')) {
+//			add_action('shutdown', [$this, 'saveSession'], 1);
+//		} else {
+//			register_shutdown_function([$this, 'saveSession']);
+//		}
 
 		$this->shareErrorsToViews();
 

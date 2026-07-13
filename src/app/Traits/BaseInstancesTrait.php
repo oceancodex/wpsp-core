@@ -94,11 +94,11 @@ trait BaseInstancesTrait {
 		}
 
 		// Set user resolver.
-		if ($authUser = $this->funcs?->_auth()?->user() ?? null) {
-			$this->request->setUserResolver(function() use ($authUser) {
-				return $authUser;
-			});
-		}
+//		if ($authUser = $this->funcs?->_auth()?->user() ?? null) {
+//			$this->request->setUserResolver(function() use ($authUser) {
+//				return $authUser;
+//			});
+//		}
 
 		unset($this->extraParams['request']);
 	}
