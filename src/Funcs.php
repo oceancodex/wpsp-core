@@ -157,7 +157,7 @@ class Funcs extends BaseInstances {
 	 * @return \Illuminate\Foundation\Application|\Illuminate\Container\Container|mixed
 	 */
 	public function _getApplication($abstract = null, $parameters = []) {
-		try {
+//		try {
 			$app = $this->_getWPSP()->getApplication();
 
 			if ($abstract) {
@@ -165,10 +165,10 @@ class Funcs extends BaseInstances {
 			}
 
 			return $app;
-		}
-		catch (\Throwable $e) {
-			return null;
-		}
+//		}
+//		catch (\Throwable $e) {
+//			return null;
+//		}
 	}
 
 	/**
