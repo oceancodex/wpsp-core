@@ -406,18 +406,26 @@ abstract class BaseAdminPage extends BaseInstances {
 			 */
 			wp_enqueue_script('dashboard');
 
-			$this->styles();
-			$this->scripts();
-			$this->localizeScripts();
+			if (method_exists($this, 'styles')) {
+				$this->callAdminPageMethod('styles');
+			}
+
+			if (method_exists($this, 'scripts')) {
+				$this->callAdminPageMethod('scripts');
+			}
+
+			if (method_exists($this, 'localizeScripts')) {
+				$this->callAdminPageMethod('localizeScripts');
+			}
 		}, 9999999999);
 
 //		$this->calledAssets = true;
 	}
 
-	public function styles() {}
+//	public function styles() {}
 
-	public function scripts() {}
+//	public function scripts() {}
 
-	public function localizeScripts() {}
+//	public function localizeScripts() {}
 
 }

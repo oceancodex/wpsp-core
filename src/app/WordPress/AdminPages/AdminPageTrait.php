@@ -7,7 +7,7 @@ trait AdminPageTrait {
 	public $page_title_override = null;
 
 	/**
-	 * Ghi đè page_title.
+	 * Ghi đè page_title bằng cách sử dụng filter "admin_title".
 	 */
 	public function overridePageTitle($overrideTitle = null) {
 		$overrideTitle = $overrideTitle ?? $this->page_title_override ?? $this->page_title;
