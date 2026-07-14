@@ -32,8 +32,6 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public  $callback_function     	= null;
 
-//	private $calledAssets          	= false;
-
 	/*
 	 *
 	 */
