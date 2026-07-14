@@ -86,7 +86,9 @@ class RouteData {
 	 * Lấy danh sách các parameters
 	 */
 	public function parameters() {
-		return $this->parameters;
+		$parameters = $this->parameters;
+		unset($parameters['route']);
+		return $parameters;
 	}
 
 	/**
@@ -317,6 +319,63 @@ class RouteData {
 
 	public function getDomain() {
 		return parse_url($this->funcs->config('app.url'), PHP_URL_HOST);
+	}
+
+	/*
+	 *
+	 */
+
+	public function gatherMiddleware() {
+		$lines = [];
+
+		if (empty($this->middlewares)) {
+			return $lines;
+		}
+
+		$blocks = $this->middlewares[0] ?? [];
+
+		// Xác định $blocks là 1 block đơn hay danh sách nhiều block.
+		// Block đơn: có key 'relation', HOẶC phần tử [0] là 1 leaf ([class, method]).
+		$isSingleBlock = array_key_exists('relation', $blocks)
+			|| (isset($blocks[0][0]) && is_string($blocks[0][0]));
+
+		if ($isSingleBlock) {
+			$this->flattenMiddlewareBlock($blocks, $lines);
+		}
+		else {
+			$lines[] = 'AND';
+			foreach ($blocks as $block) {
+				$this->flattenMiddlewareBlock($block, $lines);
+			}
+		}
+
+		return $lines;
+	}
+
+	public function flattenMiddlewareBlock(array $block, array &$lines): void {
+		$relation = strtoupper($block['relation'] ?? 'AND');
+		unset($block['relation']);
+
+		$items = [];
+		foreach ($block as $leaf) {
+			$items[] = $leaf[0];
+		}
+
+		$count = count($items);
+		foreach ($items as $i => $name) {
+			if ($i === 0 && $i === $count - 1) {
+				$lines[] = '['.$relation.': '.$name.']';
+			}
+			elseif ($i === 0) {
+				$lines[] = '['.$relation.': '.$name;
+			}
+			elseif ($i === $count - 1) {
+				$lines[] = $name.']';
+			}
+			else {
+				$lines[] = $name;
+			}
+		}
 	}
 
 }
