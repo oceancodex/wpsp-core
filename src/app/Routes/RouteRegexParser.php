@@ -110,7 +110,9 @@ class RouteRegexParser {
 
 		$value = $params[$name] ?? '';
 
-		unset($params[$name]);
+		if (is_array($params)) {
+			unset($params[$name]);
+		}
 
 		return $this->sanitize ? rawurlencode($value) : $value;
 	}

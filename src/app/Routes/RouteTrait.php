@@ -115,11 +115,6 @@ trait RouteTrait {
 	 * @return bool Trả về true nếu toàn bộ middleware đều PASS, ngược lại false.
 	 */
 	public function isPassedMiddleware($middlewares = [], $request = null, $args = []) {
-		// Set route resolver.
-		$this->request->setRouteResolver(function() use (&$args) {
-			return $args['route'] ?? null;
-		});
-
 		/** @var \Illuminate\Foundation\Application $app */
 		$app     = $this->funcs->_getApplication();
 		$request = $request ?? $this->request ?? $app->make('request');
@@ -163,9 +158,7 @@ trait RouteTrait {
 			};
 
 			$runThrottle = function($mw, $request) use ($app, $next) {
-				$middleware = $app->make(
-					\Illuminate\Routing\Middleware\ThrottleRequests::class
-				);
+				$middleware = $app->make(\Illuminate\Routing\Middleware\ThrottleRequests::class);
 
 				$parts = explode(':', $mw['value'], 2);
 
@@ -202,7 +195,14 @@ trait RouteTrait {
 			};
 
 			if ($mw['type'] === 'throttle') {
-				$res = $runThrottle($mw, $request);
+				// Chạy throttle đúng 1 lần cho mỗi (request, signature) trong 1 vòng đời request
+				static $ran = [];
+				$sig = $mw['value'];
+				if (isset($ran[$sig])) {
+					return $ran[$sig];   // dùng lại kết quả, không increment/ghi DB lần nữa
+				}
+				$ran[$sig] = $runThrottle($mw, $request);
+				return $ran[$sig];
 			}
 			elseif ($mw['type'] === 'closure') {
 				$res = call_user_func($mw['closure'], $request, $next);
@@ -394,9 +394,8 @@ trait RouteTrait {
 	 * - Request → route parameter bridging
 	 */
 	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = [], $wpParams = []) {
-		$originalRequestPath = $requestPath;
-		$httpMethod          = $this->request->getMethod();
-		$params              = $this->request->all();
+		$httpMethod    = $this->request->getMethod();
+		$requestParams = $this->request->all();
 
 		// NEW: detect closure
 		if ($callbackOrClass instanceof \Closure) {
@@ -420,7 +419,7 @@ trait RouteTrait {
 		// Nếu nơi gọi hàm này là route "Ajaxs" với method POST, check match action và path.
 		if (@preg_match('/Ajaxs$/', static::class)) {
 			if ($httpMethod === 'POST') {
-				$passed = isset($params['action']) && $params['action'] === $fullPath;
+				$passed = isset($requestParams['action']) && $requestParams['action'] === $fullPath;
 			}
 		}
 
@@ -429,7 +428,6 @@ trait RouteTrait {
 		 * Bởi vì add_action và add_filter không có request.
 		 */
 		if (@preg_match('/Actions$|Filters$/', static::class)) {
-//			$passed = $path == $fullPath;
 			$requestPath = $fullPath;
 		}
 
@@ -484,6 +482,7 @@ trait RouteTrait {
 			$callParams['full_path_regex'] = $this->funcs->_regexPath($fullPath);
 			$callParams['request_path']    = $requestPath;
 
+			// Thêm args vào call params.
 			foreach ($args as $argKey => $argValue) {
 				$callParams[$argKey] = $argValue;
 			}
@@ -638,6 +637,7 @@ trait RouteTrait {
 		$callParams['full_path_regex'] = $this->funcs->_regexPath($fullPath);
 		$callParams['request_path']    = $requestPath;
 
+		// Thêm args vào call params.
 		foreach ($args as $argKey => $argValue) {
 			if (!isset($callParams[$argKey])) $callParams[$argKey] = $argValue;
 		}
@@ -651,43 +651,63 @@ trait RouteTrait {
 			}
 		}
 
-		/**
-		 * Đưa tham số route vào request để có thể truyền vào callback.\
-		 * Ví dụ:
-		 * - /wpsp/posts/{id}
-		 *
-		 * Tronng callback có thể gọi:
-		 *
-		 * public function posts(Request \$request) {\
-		 * ㅤ\$id = $request->route('id');\
-		 * }
-		 */
+		// Set parameters for route.
+		if (isset($args['route']) && $args['route'] instanceof RouteData) {
+			$routeParameters = $callParams;
+
+			unset($routeParameters['route']);
+
+			$args['route']->parameters = $routeParameters;
+		}
+
+		return $callParams;
+	}
+
+	/**
+	 * Đưa tham số route vào request để có thể truyền vào callback.\
+	 * Ví dụ:
+	 * - /wpsp/posts/{id}
+	 *
+	 * Trong callback có thể gọi:
+	 *
+	 * public function posts(Request \$request) {\
+	 * ㅤ\$id = $request->route('id');\
+	 * }
+	 */
+	public function setRouteResolver() {
+		$route = $this->funcs->_getRouteManager()->currentRoute() ?? null;
+
+		if (!in_array($route?->type, ['AdminPages', 'Apis', 'FrontPages', 'RewriteFrontPages'])) return;
+
+		$httpMethod          = $this->request->getMethod();
+		$originalRequestPath = ltrim($this->request->getRequestUri(), '/\\');
+		$forceRegex          = $route->args['force_regex'] ?? false;
+		$fullPath            = $route->fullPath;
+		$regexPath           = $this->funcs->_regexPath($fullPath, $forceRegex);
+		$pattern             = '#'.$regexPath.'#iu';
+
 		if (
-			!empty($regexPath) &&
-			(
+			!empty($route)
+			&& !empty($regexPath)
+			&& (
 				@preg_match($pattern, $originalRequestPath, $matches)
 				|| @preg_match('#' . $fullPath . '#iu', $originalRequestPath, $matches)
 			)
 		) {
 			if (
-				$path !== 'wpsp' &&
-				isset($args['route'])
-				&& $httpMethod == strtoupper($args['route']->method)
+				$httpMethod == strtoupper($route->method)
 				&& (
-					@preg_match('/' . $args['route']->fullPathRegex . '$/iu', $originalRequestPath)
-					|| @preg_match('/' . $args['route']->fullPathRegex . '/iu', $originalRequestPath)
-					|| @preg_match('/' . $args['route']->fullPath . '/iu', $originalRequestPath)
-					|| @preg_match($args['route']->fullPathRegex, $originalRequestPath)
+					@preg_match('/' . $route->fullPathRegex . '$/iu', $originalRequestPath)
+					|| @preg_match('/' . $route->fullPathRegex . '/iu', $originalRequestPath)
+					|| @preg_match('/' . $route->fullPath . '/iu', $originalRequestPath)
+					|| @preg_match($route->fullPathRegex, $originalRequestPath)
 				)
 			) {
-				$args['route']->parameters = $callParams;
-				$this->request->setRouteResolver(function() use ($args) {
-					return $args['route'];
+				$this->request->setRouteResolver(function() use ($route) {
+					return $route;
 				});
 			}
 		}
-
-		return $callParams;
 	}
 
 	/**
@@ -751,6 +771,9 @@ trait RouteTrait {
 	 * "callParams" có thể được chuẩn bị bằng method getCallParams().
 	 */
 	public function resolveAndCall($callback, $callParams = [], $call = true) {
+		// Set route resolver.
+		$this->setRouteResolver();
+
 		/** @var \Illuminate\Container\Container|\Illuminate\Foundation\Application $container */
 		$container = $this->funcs->_getApplication();
 
@@ -782,14 +805,14 @@ trait RouteTrait {
 	 * Tự động hoàn toàn.
 	 */
 	public function autoResolveAndCall($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = [], $call = true) {
-		$class    = is_array($callbackOrClass) ? $callbackOrClass[0] : $callbackOrClass;
-		$method   = $method ?? (is_array($callbackOrClass) ? ($callbackOrClass[1] ?? null) : null);
-		$method   = $method ?? '__instanceConstruct';
+		$class  = is_array($callbackOrClass) ? $callbackOrClass[0] : $callbackOrClass;
+		$method = $method ?? (is_array($callbackOrClass) ? ($callbackOrClass[1] ?? null) : null);
+		$method = $method ?? '__instanceConstruct';
 
 		if ($class && $method && method_exists($class, $method)) {
-			$callback = $this->prepareCallbackFunction($method, $path, $fullPath, $class, $args);
-			$params   = $this->getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method, $args);
-			return $this->resolveAndCall($callback, $params, $call);
+			$callback   = $this->prepareCallbackFunction($method, $path, $fullPath, $class, $args);
+			$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method, $args);
+			return $this->resolveAndCall($callback, $callParams, $call);
 		}
 		return null;
 	}

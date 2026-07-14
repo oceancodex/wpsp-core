@@ -34,6 +34,7 @@ trait HookRunnerTrait {
 			'method'      => $method,
 			'path'        => $path,
 			'middlewares' => $middlewares,
+			'route'       => $route,
 		])) {
 			$constructParams = [
 				[
@@ -50,7 +51,7 @@ trait HookRunnerTrait {
 
 			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 			$callback    = $this->prepareRouteCallback($callback, $constructParams);
-			$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback);
+			$callParams  = $this->getCallParams($path, $fullPath, $requestPath, $callback, $method, ['route' => $route]);
 			$callback    = $this->resolveCallback($callback, $callParams);
 			if ($method == 'action') {
 				add_action($path, $callback, $priority, $acceptedArgs);
@@ -73,6 +74,7 @@ trait HookRunnerTrait {
 			'method'      => $method,
 			'path'        => $path,
 			'middlewares' => $middlewares,
+			'route'       => $route,
 		])) {
 			$constructParams = [
 				[
