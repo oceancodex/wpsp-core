@@ -20,9 +20,9 @@ class {{ class_name }} extends BaseListTable {
 	 * - List table này chỉ khai báo: **wpsp_page_wpsp_tab_list_users**\
 	 *
 	 * Như vậy không khớp, screen option columns và items per page sẽ không được khởi tạo.\
-	 * Mặc định "screenOptionsKey" được đăng ký với URL param: "page".
+	 * Mặc định "screenId" được đăng ký với URL param: "page".
 	 */
-//	public $screenOptionsKey = null;
+//	public $screenId = null;
 
 	/**
 	 * Đặt là true để enqueue JS cho bulk edit.\
@@ -54,7 +54,7 @@ class {{ class_name }} extends BaseListTable {
 	 */
 	public function customProperties() {
 		/**
-		 * Tùy chỉnh "screenOptionsKey". Có thể khai báo string hoặc array.\
+		 * Tùy chỉnh "screenId". Có thể khai báo string hoặc array.\
 		 * Mục đích để ép List Table này chỉ hiển thị ở những màn hình (screenId) cụ thể.\
 		 * Ví dụ:\
 		 * - Admin page có screen id: **wpsp_page_wpsp_tab_roles**\
@@ -62,7 +62,7 @@ class {{ class_name }} extends BaseListTable {
 		 *
 		 * Như vậy không khớp, screen option columns và items per page sẽ không được khởi tạo.
 		 */
-//		$this->screenOptionsKey = [
+//		$this->screenId = [
 //			$this->funcs->_getAppShortName() . '_page_wpsp_tab_settings',
 //			$this->funcs->_getAppShortName() . '_page_wpsp_tab_table',
 //		];

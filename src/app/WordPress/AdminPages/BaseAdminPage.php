@@ -43,8 +43,8 @@ abstract class BaseAdminPage extends BaseInstances {
 		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideMenuSlug($this->extraParams['full_path'] ?? null);
 
-		if (!$this->screenOptionsKey) {
-			$this->screenOptionsKey = $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
+		if (!$this->screenId) {
+			$this->screenId = $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
 		}
 	}
 
@@ -296,6 +296,10 @@ abstract class BaseAdminPage extends BaseInstances {
 				if (@preg_match($urlMatchCurrentAccess, $currentRequest)) {
 					$this->assets();
 
+					if ($this->screenId) {
+						$this->overrideCurrentScreen();
+					}
+
 					if ($this->pagenow) {
 						$this->overridePageNow();
 					}
@@ -323,6 +327,10 @@ abstract class BaseAdminPage extends BaseInstances {
 		else {
 			if (@preg_match('/'.$this->funcs->_regexPath($this->menu_slug).'$/iu', $currentRequest)) {
 				$this->assets();
+
+				if ($this->screenId) {
+					$this->overrideCurrentScreen();
+				}
 
 				if ($this->pagenow) {
 					$this->overridePageNow();
