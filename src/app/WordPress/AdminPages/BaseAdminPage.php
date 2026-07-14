@@ -53,7 +53,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	/**
-	 * Cần phải override callback function để xử lý vấn đề maybeCallIndexMethod().\
+	 * Cần phải override "callback_function" để xử lý vấn đề maybeCallIndexMethod().\
 	 * Tình huống xảy ra với AdminPages/wpsp_tab_tools.php\
 	 * Khi callback của metabox là index(). Thì index() sẽ được gọi 2 lần.\
 	 * Một lần ở maybeCallIndexMethod() và một lần ở callback của metabox.\
@@ -90,12 +90,18 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	public function init() {
-		$this->beforeInit();
+		if (method_exists($this, 'beforeInit'))  {
+			$this->callAdminPageMethod('beforeInit');
+		}
+
 		$this->addAdminMenuPage();
 		$this->handleAdminMenuClasses();
 		$this->matchHighlightMenu();
 		$this->matchCurrentAccess();
-		$this->afterInit();
+
+		if (method_exists($this, 'afterInit'))  {
+			$this->callAdminPageMethod('afterInit');
+		}
 	}
 
 	/*
@@ -166,25 +172,37 @@ abstract class BaseAdminPage extends BaseInstances {
 			$adminPage = $this->isSubmenuPage ? $this->addSubMenuPage() : $this->addMenuPage();
 
 			// Hook sau khi add admin menu page hoặc submenu page.
-			$this->afterAddAdminPage($adminPage);
+			if (method_exists($this, 'afterAddAdminPage')) {
+				$this->callAdminPageMethod('afterAddAdminPage', ['adminPage' => $adminPage]);
+			}
 
-			// Hook sau trước khi load admin page.
-			$this->beforeLoadAdminPage($adminPage);
+			// Hook chạy trước khi load admin page.
+			if (method_exists($this, 'beforeLoadAdminPage')) {
+				$this->callAdminPageMethod('beforeLoadAdminPage', ['adminPage' => $adminPage]);
+			}
 
 			/**
 			 * Action "load-{admin_page}" chỉ hoạt động với admin menu page được register với slug chuẩn WordPress. Ví dụ: "edit.php", "post-new.php", hoặc "my_custom_page".\
 			 * Với các dạng slug khác như: "wpsp&tab=tab-1", action này không hoạt động.
 			 */
 			add_action('load-' . $adminPage, function() use ($adminPage) {
-				$this->beforeInLoadAdminPage($adminPage);
+				if (method_exists($this, 'beforeInLoadAdminPage')) {
+					$this->callAdminPageMethod('beforeInLoadAdminPage', ['adminPage' => $adminPage]);
+				}
 
 				// Enqueue assets.
 				$this->assets();
 
-				$this->afterInLoadAdminPage($adminPage);
+				// Hook chạy trong khi load admin page.
+				if (method_exists($this, 'afterInLoadAdminPage')) {
+					$this->callAdminPageMethod('afterInLoadAdminPage', ['adminPage' => $adminPage]);
+				}
 			});
 
-			$this->afterLoadAdminPage($adminPage);
+			// Hook chạy sau khi load admin page.
+			if (method_exists($this, 'afterLoadAdminPage')) {
+				$this->callAdminPageMethod('afterLoadAdminPage', ['adminPage' => $adminPage]);
+			}
 		}, $this->extraParams['priority'] ?? 10, $this->extraParams['accepted_args'] ?? 1);
 
 		/**
@@ -254,7 +272,10 @@ abstract class BaseAdminPage extends BaseInstances {
 						$this->handleAdminMenuClasses('wp-menu-open wp-has-current-submenu');
 					}
 
-					$this->matchedHighLightMenu();
+					if (method_exists($this, 'matchedHighLightMenu')) {
+						$this->callAdminPageMethod('matchedHighLightMenu');
+					}
+
 					break;
 				}
 			}
@@ -283,8 +304,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		 * Tùy chọn khớp với request hiện tại.
 		 * ---
 		 * Xử lý "urlsMatchCurrentAccess".\
-		 * Nếu có một trong các url khớp với request hiện tại,\
-		 * thì chạy hàm "screenOptions", "matchedCurrentAccess".
+		 * Nếu có một trong các url khớp với request hiện tại, thì chạy các code bên trong.
 		 */
 		if (!empty($this->urlsMatchCurrentAccess) && is_array($this->urlsMatchCurrentAccess)) {
 			foreach ($this->urlsMatchCurrentAccess as $urlMatchCurrentAccess) {
@@ -304,9 +324,12 @@ abstract class BaseAdminPage extends BaseInstances {
 						$this->overridePageNow();
 					}
 
-					$this->matchedCurrentAccess();
-					$this->maybeCallIndexMethod();
 					$this->overridePageTitle();
+					$this->maybeCallIndexMethod();
+
+					if (method_exists($this, 'matchedCurrentAccess')) {
+						$this->callAdminPageMethod('matchedCurrentAccess');
+					}
 
 					if ($this->showScreenOptions) {
 						$this->showScreenOptions();
@@ -322,7 +345,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		 * Tự động khớp với request hiện tại.
 		 * ---
 		 * Khi $this->menu_slug khớp với request hiện tại => đang truy cập vào menu_slug này.\
-		 * Chạy hàm "screenOptions" và "matchedCurrentAccess".
+		 * Chạy các code bên trong.
 		 */
 		else {
 			if (@preg_match('/'.$this->funcs->_regexPath($this->menu_slug).'$/iu', $currentRequest)) {
@@ -336,9 +359,12 @@ abstract class BaseAdminPage extends BaseInstances {
 					$this->overridePageNow();
 				}
 
-				$this->matchedCurrentAccess();
-				$this->maybeCallIndexMethod();
 				$this->overridePageTitle();
+				$this->maybeCallIndexMethod();
+
+				if (method_exists($this, 'matchedCurrentAccess')) {
+					$this->callAdminPageMethod('matchedCurrentAccess');
+				}
 
 				if ($this->showScreenOptions) {
 					$this->showScreenOptions();
@@ -351,23 +377,23 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	public function beforeInit() {}
+//	public function beforeInit() {}
 
-	public function afterAddAdminPage($adminPage) {}
+//	public function afterAddAdminPage($adminPage) {}
 
-	public function beforeLoadAdminPage($adminPage) {}
+//	public function beforeLoadAdminPage($adminPage) {}
 
-	public function beforeInLoadAdminPage($adminPage) {}
+//	public function beforeInLoadAdminPage($adminPage) {}
 
-	public function afterInLoadAdminPage($adminPage) {}
+//	public function afterInLoadAdminPage($adminPage) {}
 
-	public function afterLoadAdminPage($adminPage) {}
+//	public function afterLoadAdminPage($adminPage) {}
 
-	public function matchedHighLightMenu() {}
+//	public function matchedHighLightMenu() {}
 
-	public function matchedCurrentAccess() {}
+//	public function matchedCurrentAccess() {}
 
-	public function afterInit() {}
+//	public function afterInit() {}
 
 	/*
 	 *
