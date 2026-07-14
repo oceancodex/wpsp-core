@@ -12,6 +12,7 @@ abstract class BaseListTable extends \WP_List_Table {
 	use BaseInstancesTrait;
 
 	public $args             = [];
+
 	public $allowScreenIds   = null;
 	public $itemsPerPageKey  = null;
 	public $bulkEditAssets	 = true;
@@ -24,16 +25,13 @@ abstract class BaseListTable extends \WP_List_Table {
 
 	public function __construct($args = [], $allowScreenIds = null, $mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 		global $current_screen;
-		$this->currentScreen = $current_screen;
 
+		$this->currentScreen  = $current_screen;
 		$this->args           = $args;
 		$this->allowScreenIds = $allowScreenIds ?? $this->allowScreenIds;
 
 		// Cần gọi __construct của parent trước.
 		parent::__construct($this->args);
-
-		// Khởi tạo các thuộc tính cơ bản.
-		$this->baseInstanceConstruct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
 
 		// Chuẩn hóa "allowScreenIds".
 		if (!$this->allowScreenIds) {
@@ -45,6 +43,9 @@ abstract class BaseListTable extends \WP_List_Table {
 			$this->itemsPerPageKey = $this->currentScreen?->id ?? $this->funcs?->_getAppShortName() ?? 'wpsp';
 			$this->itemsPerPageKey .= '_items_per_page';
 		}
+
+		// Khởi tạo các thuộc tính cơ bản.
+		$this->baseInstanceConstruct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
 
 		// Tự động đăng ký các checkboxes để ẩn/hiện cột cho Custom List Table trên Screen Options panel.
 		$this->autoScreenOptionColumns();

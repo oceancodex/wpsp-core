@@ -137,44 +137,31 @@ class Handler extends BaseInstances {
 		$app = $this->funcs->_getApplication();
 
 		// 1) Ưu tiên dùng Exception Handler của Laravel 12+.
-		if ($app && class_exists(WPSPRenderer::class)) {
-//			try {
-				$request  = $this->request ?? $app->make('request') ?? \Illuminate\Http\Request::capture();
-				$renderer = $app->make(WPSPRenderer::class, ['basePath' => $this->funcs->_getMainPath()]);
-				$response = $renderer->render($request, $e, $this->funcs->_getRouteManager());
+		if ($app && $this->funcs->_config('app.debug') && class_exists(WPSPRenderer::class)) {
+			$request  = $this->request ?? $app->make('request') ?? \Illuminate\Http\Request::capture();
+			$renderer = $app->make(WPSPRenderer::class, ['basePath' => $this->funcs->_getMainPath()]);
+			$response = $renderer->render($request, $e, $this->funcs->_getRouteManager());
 
-				if (is_object($response) && method_exists($response, 'getContent')) {
-					$content = $response->getContent();
-					$status  = method_exists($response, 'getStatusCode') ? $response->getStatusCode() : 500;
+			if (is_object($response) && method_exists($response, 'getContent')) {
+				$content = $response->getContent();
+				$status  = method_exists($response, 'getStatusCode') ? $response->getStatusCode() : 500;
 
-					if (trim((string)$content) !== '') {
-						@http_response_code($status);
-						echo $content;
-						exit;
-					}
-					else {
-						error_log('[WPSP] Renderer returned empty content for exception: '.get_class($e).': '.$e->getMessage());
-					}
-				}
-				elseif (is_string($response) && trim($response) !== '') {
-					echo $response;
+				if (trim((string)$content) !== '') {
+					@http_response_code($status);
+					echo $content;
 					exit;
 				}
-//			}
-//			catch (\Throwable $renderEx) {
-//				error_log('[WPSP] Renderer threw: '.$renderEx->getMessage());
-//			}
+			}
+			elseif (is_string($response) && trim($response) !== '') {
+				echo $response;
+				exit;
+			}
 		}
 
 		// 2) Nếu tồn tại handler trước đó thì gọi lại.
 		if ($this->existsExceptionHandler && is_callable($this->existsExceptionHandler)) {
-			try {
-				call_user_func($this->existsExceptionHandler, $e);
-				return;
-			}
-			catch (\Throwable $hEx) {
-				error_log('[WPSP] Previous exception handler threw: '.$hEx->getMessage());
-			}
+			call_user_func($this->existsExceptionHandler, $e);
+			return;
 		}
 
 		// 3) Nếu không có handler nào, fallback về "wp_die" hoặc JSON response.
