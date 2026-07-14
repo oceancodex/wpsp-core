@@ -290,16 +290,24 @@ abstract class BaseAdminPage extends BaseInstances {
 			foreach ($this->urlsMatchCurrentAccess as $urlMatchCurrentAccess) {
 				// Nếu URL không phải regex, hãy chuyển nó thành regex.
 				if (!str_starts_with($urlMatchCurrentAccess, '/')) {
-					$urlMatchCurrentAccess = '/' . $this->funcs->_regexPath($urlMatchCurrentAccess) . '/iu';
+					$urlMatchCurrentAccess = '/'.$this->funcs->_regexPath($urlMatchCurrentAccess).'/iu';
 				}
 
 				if (@preg_match($urlMatchCurrentAccess, $currentRequest)) {
 					$this->assets();
-					if ($this->screenOptionsPageNow) $this->overrideScreenOptionsPageNow();
+
+					if ($this->pagenow) {
+						$this->overridePageNow();
+					}
+
 					$this->matchedCurrentAccess();
 					$this->maybeCallIndexMethod();
 					$this->overridePageTitle();
-					$this->showScreenOptions();
+
+					if ($this->showScreenOptions) {
+						$this->showScreenOptions();
+					}
+
 					break;
 				}
 			}
@@ -313,13 +321,20 @@ abstract class BaseAdminPage extends BaseInstances {
 		 * Chạy hàm "screenOptions" và "matchedCurrentAccess".
 		 */
 		else {
-			if (@preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
+			if (@preg_match('/'.$this->funcs->_regexPath($this->menu_slug).'$/iu', $currentRequest)) {
 				$this->assets();
-				if ($this->screenOptionsPageNow) $this->overrideScreenOptionsPageNow();
+
+				if ($this->pagenow) {
+					$this->overridePageNow();
+				}
+
 				$this->matchedCurrentAccess();
 				$this->maybeCallIndexMethod();
 				$this->overridePageTitle();
-				$this->showScreenOptions();
+
+				if ($this->showScreenOptions) {
+					$this->showScreenOptions();
+				}
 			}
 		}
 	}

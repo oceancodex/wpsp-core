@@ -4,9 +4,12 @@ namespace WPSPCORE\App\WordPress\AdminPages;
 
 trait AdminPageScreenOptionsTrait {
 
-	public $showScreenOptions    = false;
-	public $screenOptionsKey     = null;
-	public $screenOptionsPageNow = null;
+	public $screenBase        = null;
+	public $screenId          = null;
+	public $pagenow           = null;
+
+	public $showScreenOptions = false;
+	public $itemsPerPageKey   = null;
 
 	/*
 	 *
@@ -31,29 +34,23 @@ trait AdminPageScreenOptionsTrait {
 				add_screen_option('layout_columns', ['max' => 2, 'default' => 2]);
 			}, 9999999999);
 
-			// Ghi đè "screen id" và "screen base".
-			// Mục đích để screen options hoạt động độc lập theo "screenOptionsKey".
+			// Truyền thêm "show_screen_options" vào current screen để List Table có thể gọi ra.
 			add_action('current_screen', function($screen) {
-				if (!$this->screenOptionsPageNow && $this->screenOptionsKey) {
-					$screen->id   = $this->screenOptionsKey;
-					$screen->base = $this->screenOptionsKey;
-				}
-
-				// Truyền thêm property này vào current screen để List Table có thể gọi ra.
 				$screen->show_screen_options = true;
 			}, 2);
 
-			if (!$this->screenOptionsPageNow && $this->screenOptionsKey) {
-				add_action('admin_head', function() {
-					echo '<script> var pagenow = "' . $this->screenOptionsKey . '"; </script>';
-				}, 9999999999);
+			// Chuẩn hóa "itemsPerPageKey".
+			if (!$this->itemsPerPageKey) {
+				$this->itemsPerPageKey = $this->screenId ?? $this->funcs?->_getAppShortName() ?? 'wpsp';
+				$this->itemsPerPageKey .= '_items_per_page';
 			}
 
-			// Save items per page option.
-			add_filter('set_screen_option_' . $this->screenOptionsKey . '_items_per_page', function($default, $option, $value) {
+			// Lưu giá trị items per page.
+			add_filter('set_screen_option_'.$this->itemsPerPageKey, function($default, $option, $value) {
 				return $value;
 			}, 9999999999, 3);
 		}
+
 		/**
 		 * Nếu không, ẩn hoàn toàn screen options.\
 		 * Vì nếu menu hiện tại có chứa Custom List Table, screen options sẽ tự động hiển thị.
@@ -65,21 +62,23 @@ trait AdminPageScreenOptionsTrait {
 		}
 	}
 
+	public function overrideCurrentScreen() {
+		if ($this->screenBase || $this->screenId) {
+			add_action('current_screen', function($screen) {
+				$screen->id   = $this->screenId;
+				$screen->base = $this->screenBase ?? $this->screenId;
+			}, 1);
+		}
+	}
+
 	/**
 	 * Ghi đè "pagenow" trong JavaScript để gửi Ajax sắp xếp metaboxes.
 	 */
-	public function overrideScreenOptionsPageNow() {
-		if ($this->screenOptionsPageNow) {
+	public function overridePageNow() {
+		if ($this->pagenow) {
 			add_action('admin_head', function() {
-				echo '<script> var pagenow = "' . $this->screenOptionsPageNow . '"; </script>';
+				echo '<script> var pagenow = "'.$this->pagenow.'"; </script>';
 			}, 9999999999);
-
-			// Ghi đè "screen id" và "screen base".
-			// Mục đích để screen options hoạt động độc lập theo "screenOptionsPageNow".
-			add_action('current_screen', function($screen) {
-				$screen->id   = $this->screenOptionsPageNow;
-				$screen->base = $this->screenOptionsPageNow;
-			}, 1);
 		}
 	}
 
@@ -87,7 +86,7 @@ trait AdminPageScreenOptionsTrait {
 	 * Lấy screen layout columns.
 	 */
 	public function getScreenColumns() {
-		$screenColumns = get_user_option('screen_layout_' . ($this->screenOptionsPageNow ?? $this->screenOptionsKey)) ?: 2;
+		$screenColumns = get_user_option('screen_layout_'.($this->pagenow ?? $this->screenId)) ?: 2;
 		return $screenColumns;
 	}
 
