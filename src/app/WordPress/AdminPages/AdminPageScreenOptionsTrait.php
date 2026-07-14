@@ -62,6 +62,9 @@ trait AdminPageScreenOptionsTrait {
 		}
 	}
 
+	/**
+	 * Ghi đè "current screen".
+	 */
 	public function overrideCurrentScreen() {
 		if ($this->screenBase || $this->screenId) {
 			add_action('current_screen', function($screen) {
