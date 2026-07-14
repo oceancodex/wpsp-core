@@ -105,8 +105,8 @@ trait BaseInstancesTrait {
 		}
 
 		// Set user resolver.
-		if (!$this->request->getUserResolver()) {
-			$this->request->setUserResolver(function() {
+		if (!$this->request?->getUserResolver()) {
+			$this->request?->setUserResolver(function() {
 				if (!$this->funcs->_getApplication()->bound('session.store')) {
 					return null;
 				}
