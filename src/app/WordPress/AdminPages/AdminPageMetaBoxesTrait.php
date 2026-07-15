@@ -10,7 +10,7 @@ trait AdminPageMetaBoxesTrait {
 	 * Lấy danh sách admin page metaboxes theo thứ tự đã lưu trong user meta.
 	 */
 	public function getSortedAdminPageMetaBoxes() {
-		$pageNow                  = $this->screenOptionsPageNow ?? $this->screenOptionsKey ?? null;
+		$pageNow                  = $this->pagenow ?? $this->screenId ?? null;
 		$metaboxes                = $this->adminPageMetaBoxes ?? [];
 		$sortedAdminPageMetaBoxes = ['side' => [], 'normal' => [], 'advanced' => [], 'closed' => [], 'hidden' => []];
 

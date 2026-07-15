@@ -17,7 +17,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	public 	$menu_slug              = null;
 	public 	$icon_url               = null;
 	public 	$position               = null;
-	public 	$parent_slug            = '@';
+	public 	$parent_slug            = '';
 
 	public 	$classes                = null;
 	public 	$firstSubmenuTitle      = null;
@@ -32,8 +32,6 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	public  $callback_function     	= null;
 
-//	private $calledAssets          	= false;
-
 	/*
 	 *
 	 */
@@ -43,8 +41,8 @@ abstract class BaseAdminPage extends BaseInstances {
 		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideMenuSlug($this->extraParams['full_path'] ?? null);
 
-		if (!$this->screenOptionsKey) {
-			$this->screenOptionsKey = $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
+		if (!$this->screenId) {
+			$this->screenId = $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
 		}
 	}
 
@@ -53,7 +51,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	/**
-	 * Cần phải override callback function để xử lý vấn đề maybeCallIndexMethod().\
+	 * Cần phải override "callback_function" để xử lý vấn đề maybeCallIndexMethod().\
 	 * Tình huống xảy ra với AdminPages/wpsp_tab_tools.php\
 	 * Khi callback của metabox là index(). Thì index() sẽ được gọi 2 lần.\
 	 * Một lần ở maybeCallIndexMethod() và một lần ở callback của metabox.\
@@ -90,12 +88,18 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	public function init() {
-		$this->beforeInit();
+		if (method_exists($this, 'beforeInit'))  {
+			$this->callAdminPageMethod('beforeInit');
+		}
+
 		$this->addAdminMenuPage();
 		$this->handleAdminMenuClasses();
 		$this->matchHighlightMenu();
 		$this->matchCurrentAccess();
-		$this->afterInit();
+
+		if (method_exists($this, 'afterInit'))  {
+			$this->callAdminPageMethod('afterInit');
+		}
 	}
 
 	/*
@@ -166,25 +170,37 @@ abstract class BaseAdminPage extends BaseInstances {
 			$adminPage = $this->isSubmenuPage ? $this->addSubMenuPage() : $this->addMenuPage();
 
 			// Hook sau khi add admin menu page hoặc submenu page.
-			$this->afterAddAdminPage($adminPage);
+			if (method_exists($this, 'afterAddAdminPage')) {
+				$this->callAdminPageMethod('afterAddAdminPage', ['adminPage' => $adminPage]);
+			}
 
-			// Hook sau trước khi load admin page.
-			$this->beforeLoadAdminPage($adminPage);
+			// Hook chạy trước khi load admin page.
+			if (method_exists($this, 'beforeLoadAdminPage')) {
+				$this->callAdminPageMethod('beforeLoadAdminPage', ['adminPage' => $adminPage]);
+			}
 
 			/**
 			 * Action "load-{admin_page}" chỉ hoạt động với admin menu page được register với slug chuẩn WordPress. Ví dụ: "edit.php", "post-new.php", hoặc "my_custom_page".\
 			 * Với các dạng slug khác như: "wpsp&tab=tab-1", action này không hoạt động.
 			 */
 			add_action('load-' . $adminPage, function() use ($adminPage) {
-				$this->beforeInLoadAdminPage($adminPage);
+				if (method_exists($this, 'beforeInLoadAdminPage')) {
+					$this->callAdminPageMethod('beforeInLoadAdminPage', ['adminPage' => $adminPage]);
+				}
 
 				// Enqueue assets.
 				$this->assets();
 
-				$this->afterInLoadAdminPage($adminPage);
+				// Hook chạy trong khi load admin page.
+				if (method_exists($this, 'afterInLoadAdminPage')) {
+					$this->callAdminPageMethod('afterInLoadAdminPage', ['adminPage' => $adminPage]);
+				}
 			});
 
-			$this->afterLoadAdminPage($adminPage);
+			// Hook chạy sau khi load admin page.
+			if (method_exists($this, 'afterLoadAdminPage')) {
+				$this->callAdminPageMethod('afterLoadAdminPage', ['adminPage' => $adminPage]);
+			}
 		}, $this->extraParams['priority'] ?? 10, $this->extraParams['accepted_args'] ?? 1);
 
 		/**
@@ -254,7 +270,10 @@ abstract class BaseAdminPage extends BaseInstances {
 						$this->handleAdminMenuClasses('wp-menu-open wp-has-current-submenu');
 					}
 
-					$this->matchedHighLightMenu();
+					if (method_exists($this, 'matchedHighLightMenu')) {
+						$this->callAdminPageMethod('matchedHighLightMenu');
+					}
+
 					break;
 				}
 			}
@@ -283,23 +302,37 @@ abstract class BaseAdminPage extends BaseInstances {
 		 * Tùy chọn khớp với request hiện tại.
 		 * ---
 		 * Xử lý "urlsMatchCurrentAccess".\
-		 * Nếu có một trong các url khớp với request hiện tại,\
-		 * thì chạy hàm "screenOptions", "matchedCurrentAccess".
+		 * Nếu có một trong các url khớp với request hiện tại, thì chạy các code bên trong.
 		 */
 		if (!empty($this->urlsMatchCurrentAccess) && is_array($this->urlsMatchCurrentAccess)) {
 			foreach ($this->urlsMatchCurrentAccess as $urlMatchCurrentAccess) {
 				// Nếu URL không phải regex, hãy chuyển nó thành regex.
 				if (!str_starts_with($urlMatchCurrentAccess, '/')) {
-					$urlMatchCurrentAccess = '/' . $this->funcs->_regexPath($urlMatchCurrentAccess) . '/iu';
+					$urlMatchCurrentAccess = '/'.$this->funcs->_regexPath($urlMatchCurrentAccess).'/iu';
 				}
 
 				if (@preg_match($urlMatchCurrentAccess, $currentRequest)) {
 					$this->assets();
-					if ($this->screenOptionsPageNow) $this->overrideScreenOptionsPageNow();
-					$this->matchedCurrentAccess();
-					$this->maybeCallIndexMethod();
+
+					if ($this->screenId) {
+						$this->overrideCurrentScreen();
+					}
+
+					if ($this->pagenow) {
+						$this->overridePageNow();
+					}
+
 					$this->overridePageTitle();
-					$this->showScreenOptions();
+					$this->maybeCallIndexMethod();
+
+					if (method_exists($this, 'matchedCurrentAccess')) {
+						$this->callAdminPageMethod('matchedCurrentAccess');
+					}
+
+					if ($this->showScreenOptions) {
+						$this->showScreenOptions();
+					}
+
 					break;
 				}
 			}
@@ -310,16 +343,30 @@ abstract class BaseAdminPage extends BaseInstances {
 		 * Tự động khớp với request hiện tại.
 		 * ---
 		 * Khi $this->menu_slug khớp với request hiện tại => đang truy cập vào menu_slug này.\
-		 * Chạy hàm "screenOptions" và "matchedCurrentAccess".
+		 * Chạy các code bên trong.
 		 */
 		else {
-			if (@preg_match('/' . $this->funcs->_regexPath($this->menu_slug) . '$/iu', $currentRequest)) {
+			if (@preg_match('/'.$this->funcs->_regexPath($this->menu_slug).'$/iu', $currentRequest)) {
 				$this->assets();
-				if ($this->screenOptionsPageNow) $this->overrideScreenOptionsPageNow();
-				$this->matchedCurrentAccess();
-				$this->maybeCallIndexMethod();
+
+				if ($this->screenId) {
+					$this->overrideCurrentScreen();
+				}
+
+				if ($this->pagenow) {
+					$this->overridePageNow();
+				}
+
 				$this->overridePageTitle();
-				$this->showScreenOptions();
+				$this->maybeCallIndexMethod();
+
+				if (method_exists($this, 'matchedCurrentAccess')) {
+					$this->callAdminPageMethod('matchedCurrentAccess');
+				}
+
+				if ($this->showScreenOptions) {
+					$this->showScreenOptions();
+				}
 			}
 		}
 	}
@@ -328,23 +375,23 @@ abstract class BaseAdminPage extends BaseInstances {
 	 *
 	 */
 
-	public function beforeInit() {}
+//	public function beforeInit() {}
 
-	public function afterAddAdminPage($adminPage) {}
+//	public function afterAddAdminPage($adminPage) {}
 
-	public function beforeLoadAdminPage($adminPage) {}
+//	public function beforeLoadAdminPage($adminPage) {}
 
-	public function beforeInLoadAdminPage($adminPage) {}
+//	public function beforeInLoadAdminPage($adminPage) {}
 
-	public function afterInLoadAdminPage($adminPage) {}
+//	public function afterInLoadAdminPage($adminPage) {}
 
-	public function afterLoadAdminPage($adminPage) {}
+//	public function afterLoadAdminPage($adminPage) {}
 
-	public function matchedHighLightMenu() {}
+//	public function matchedHighLightMenu() {}
 
-	public function matchedCurrentAccess() {}
+//	public function matchedCurrentAccess() {}
 
-	public function afterInit() {}
+//	public function afterInit() {}
 
 	/*
 	 *
@@ -359,18 +406,26 @@ abstract class BaseAdminPage extends BaseInstances {
 			 */
 			wp_enqueue_script('dashboard');
 
-			$this->styles();
-			$this->scripts();
-			$this->localizeScripts();
+			if (method_exists($this, 'styles')) {
+				$this->callAdminPageMethod('styles');
+			}
+
+			if (method_exists($this, 'scripts')) {
+				$this->callAdminPageMethod('scripts');
+			}
+
+			if (method_exists($this, 'localizeScripts')) {
+				$this->callAdminPageMethod('localizeScripts');
+			}
 		}, 9999999999);
 
 //		$this->calledAssets = true;
 	}
 
-	public function styles() {}
+//	public function styles() {}
 
-	public function scripts() {}
+//	public function scripts() {}
 
-	public function localizeScripts() {}
+//	public function localizeScripts() {}
 
 }
