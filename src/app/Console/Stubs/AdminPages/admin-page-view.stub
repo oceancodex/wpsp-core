@@ -38,7 +38,7 @@ class {{ class_name }} extends BaseAdminPage {
 //	public $screenBase			   = null;
 //	public $screenId			   = null;
 //	public $pagenow				   = null;
-//	public $itemsPerPageKey		   = null;
+//	public $itemsPerPageKey		   = null;	// Tùy chỉnh key được sử dụng để lưu option "items per page" trên Screen Options Panel.
 
 //	public $urlsMatchCurrentAccess = [];
 //	public $urlsMatchHighlightMenu = [];

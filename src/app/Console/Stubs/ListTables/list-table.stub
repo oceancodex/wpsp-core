@@ -29,7 +29,8 @@ class {{ class_name }} extends BaseListTable {
 	public $allowScreenIds = null;
 
 	/**
-	 * Tùy chỉnh "itemsPerPageKey" để lưu giá trị cho tính năng item per pages.
+	 * Tùy chỉnh "itemsPerPageKey" để lưu giá trị cho tính năng "item per pages" trên Screen Options Panel.\
+	 * Nếu "itemsPerPageKey" ở đây và trong Admin Page không giống nhau, giá trị sẽ không được lưu.
 	 */
 	public $itemsPerPageKey = null;
 
