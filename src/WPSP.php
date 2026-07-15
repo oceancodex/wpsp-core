@@ -66,7 +66,7 @@ abstract class WPSP extends BaseInstances {
 		return $this->application;
 	}
 
-	private function buildApplication($basePath): void {
+	public function buildApplication($basePath): void {
 		$this->application = Application::configure($basePath)
 			->withRouting(
 				web     : $this->funcs->_getRoutesPath('/original/web.php'),
@@ -94,16 +94,16 @@ abstract class WPSP extends BaseInstances {
 	public function getCustomCommands() {
 		return array_merge(
 			$this->funcs->_getAllClassesInDir(
-				'WPSPCORE\App\Console\Commands',
-				__DIR__.'/app/Console/Commands'
+				__DIR__.'/app/Console/Commands',
+				'WPSPCORE\App\Console\Commands'
 			),
 			$this->funcs->_getAllClassesInDir(
-				'WPSPCORE\App\Console\Commands\Extends',
-				__DIR__.'/app/Console/Commands/Extends'
+				__DIR__.'/app/Console/Commands/Extends',
+				'WPSPCORE\App\Console\Commands\Extends'
 			),
 			$this->funcs->_getAllClassesInDir(
-				$this->funcs->_getRootNamespace().'\App\Widen\Commands',
-				$this->funcs->_getAppPath('/Widen/Commands')
+				$this->funcs->_getAppPath('/Widen/Commands'),
+				$this->funcs->_getRootNamespace().'\App\Widen\Commands'
 			),
 		);
 	}

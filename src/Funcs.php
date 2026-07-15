@@ -49,7 +49,7 @@ use WPSPCORE\App\Routes\RouteRegexParser;
  * @method static string getDBCustomMigrationTableName(string $name)
  *
  * @method static string getPathFromDir(string $targetDir, string $path)
- * @method static array getAllClassesInDir(string $namespace = __NAMESPACE__, string $path = __DIR__)
+ * @method static array getAllClassesInDir(string $path = __DIR__, string $namespace = __NAMESPACE__)
  *
  * @method static mixed getArrItemByKeyDots(array $array, string $key)
  * @method static mixed getArrItemByKeyValue(array $arr, string $key, $value = null, string $operator = 'equals', bool $single = true)
@@ -387,27 +387,33 @@ class Funcs extends BaseInstances {
 		return preg_replace('/^(.*?)' . $targetDir . '(.*?)$/iu', $targetDir . '$2', $path);
 	}
 
-	public function _getAllClassesInDir($namespace = __NAMESPACE__, $path = __DIR__) {
+	public function _getAllClassesInDir($path = __DIR__, $namespace = __NAMESPACE__, $depth = null) {
 		$finder = new \Symfony\Component\Finder\Finder();
-		$finder->files()->in($path)->name('*.php'); // Finder tự động recursive
+		$finder->files()->in($path)->name('*.php');
+
+		// Tùy chỉnh độ sâu nếu được truyền vào
+		if ($depth !== null) {
+			$finder->depth($depth);
+		}
+
+		$classes = [];
 
 		foreach ($finder as $file) {
-			// Tính relative path từ $path đến file để build đúng namespace
-			$relativePath = $file->getRelativePath(); // vd: "SubDir/ChildDir"
-
-			if ($relativePath) {
-				$subNamespace = str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
-				$className = rtrim($namespace, '\\') . '\\' . $subNamespace . '\\' . $file->getFilenameWithoutExtension();
-			} else {
-				$className = rtrim($namespace, '\\') . '\\' . $file->getFilenameWithoutExtension();
-			}
-
 			try {
+				$relativePath = $file->getRelativePath(); // vd: "SubDir/ChildDir" hoặc ""
+
+				// Chuyển đổi đường dẫn thư mục thành Namespace (hỗ trợ cả Windows/Linux)
+				$subNamespace = $relativePath ? str_replace('/', '\\', str_replace('\\', '/', $relativePath)) : '';
+
+				// Build namespace đầy đủ một cách gọn gàng, loại bỏ các dấu \ thừa
+				$className = rtrim($namespace, '\\');
+				if ($subNamespace) {
+					$className .= '\\' . $subNamespace;
+				}
+				$className .= '\\' . $file->getFilenameWithoutExtension();
+
 				if (class_exists($className) && $className !== __CLASS__) {
 					$classes[] = $className;
-				}
-				else {
-					continue;
 				}
 			}
 			catch (\Throwable $e) {
@@ -415,7 +421,104 @@ class Funcs extends BaseInstances {
 			}
 		}
 
-		return $classes ?? [];
+		return $classes;
+	}
+
+	public function _getAllDirsInDir(string $path, $depth = null): array {
+		// 1. Kiểm tra nếu đường dẫn không tồn tại hoặc không phải thư mục
+		if (!is_dir($path)) {
+			return [];
+		}
+
+		$finder = new \Symfony\Component\Finder\Finder();
+
+		// 2. Chỉ cấu hình tìm kiếm THƯ MỤC (directories) thay vì file
+		$finder->directories()->in($path);
+
+		// 3. Tùy chỉnh độ sâu nếu được truyền vào
+		if ($depth !== null) {
+			$finder->depth($depth);
+		}
+
+		$directories = [];
+
+		// 4. Lặp qua các thư mục tìm được
+		foreach ($finder as $dir) {
+			try {
+				$directories[] = [
+					'name'          => $dir->getFilename(),
+					'absolute_path' => $dir->getRealPath(),
+					'relative_path' => $dir->getRelativePathname()
+				];
+			} catch (\Throwable $e) {
+				continue;
+			}
+		}
+
+		return $directories;
+	}
+
+	public function _getAllFilesInDir(string $path, $depth = null): array {
+		// 1. Kiểm tra nếu đường dẫn cha không hợp lệ
+		if (!is_dir($path)) {
+			return [];
+		}
+
+		$finder = new \Symfony\Component\Finder\Finder();
+
+		// 2. Cấu hình tìm kiếm FILE
+		$finder->files()->in($path);
+
+		// 3. Tùy chỉnh độ sâu
+		if ($depth !== null) {
+			$finder->depth($depth);
+		}
+
+		$files = [];
+
+		// 4. Lặp qua các file và thu thập tối đa thông tin
+		foreach ($finder as $file) {
+			try {
+				$absolutePath = $file->getRealPath();
+
+				// Lấy quyền truy cập dạng Octal (Ví dụ: "0644")
+				$perms = $file->getPerms();
+				$formattedPerms = substr(sprintf('%o', $perms), -4);
+
+				$files[] = [
+					// Thông tin định danh & Đường dẫn
+					'name'               => $file->getFilename(),                 // Tên file kèm đuôi (vd: "index.php")
+					'filename_no_ext'    => $file->getFilenameWithoutExtension(), // Tên file không kèm đuôi (vd: "index")
+					'extension'          => $file->getExtension(),                 // Đuôi file (vd: "php")
+					'absolute_path'      => $absolutePath,                         // Đường dẫn tuyệt đối
+					'relative_path'      => $file->getRelativePath(),              // Thư mục cha tương đối (vd: "SubDir")
+					'relative_pathname'  => $file->getRelativePathname(),          // Đường dẫn tương đối đầy đủ (vd: "SubDir/index.php")
+
+					// Thuộc tính vật lý
+					'size_bytes'         => $file->getSize(),                      // Dung lượng (Bytes)
+					'size_readable'      => $this->_formatBytes($file->getSize()), // Dung lượng dễ đọc (vd: "1.2 MB")
+					'mime_type'          => mime_content_type($absolutePath) ?: 'unknown', // Loại file (vd: "text/x-php", "image/jpeg")
+					'is_readable'        => $file->isReadable(),
+					'is_writable'        => $file->isWritable(),
+					'permissions'        => $formattedPerms,                       // Quyền hạn file (vd: "0644")
+
+					// Mốc thời gian (Timestamp)
+					'created_time'       => $file->getCTime(),                     // Thay đổi inode/Tạo (tùy OS)
+					'modified_time'      => $file->getMTime(),                     // Thay đổi nội dung gần nhất
+					'accessed_time'      => $file->getATime(),                     // Truy cập gần nhất
+
+					// Bảo mật / Kiểm tra toàn vẹn
+					'md5_hash'           => md5_file($absolutePath),               // Mã hash kiểm tra trùng lặp
+					'owner_id'           => $file->getOwner(),                     // ID User sở hữu trong Linux
+					'group_id'           => $file->getGroup(),                     // ID Group sở hữu trong Linux
+				];
+			} catch (\Throwable $e) {
+				// Bỏ qua nếu file bị lỗi quyền truy cập hoặc bị xóa đột ngột trong lúc quét
+				continue;
+			}
+		}
+
+		return $files;
 	}
 
 	public function _getArrItemByKeyDots($array, $key) {
@@ -1251,6 +1354,17 @@ class Funcs extends BaseInstances {
 		$pattern = $pregQuote ? $this->_pregQuoteKeepGroups($pattern, $delimiter) : $pattern;
 
 		return $pattern;
+	}
+
+	public function _formatBytes(int $bytes, int $precision = 2): string {
+		$units = ['B', 'KB', 'MB', 'GB', 'TB'];
+		$bytes = max($bytes, 0);
+		$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+		$pow = min($pow, count($units) - 1);
+
+		$bytes /= pow(1024, $pow);
+
+		return round($bytes, $precision) . ' ' . $units[$pow];
 	}
 
 	public function _pregQuoteKeepGroups($pattern, $delimiter = '/') {
