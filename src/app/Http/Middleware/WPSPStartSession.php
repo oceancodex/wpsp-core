@@ -27,25 +27,30 @@ class WPSPStartSession {
 			return $next($request);
 		}
 
-		/** @var \Illuminate\Session\Store $session */
-		$session = $args['funcs']->_getApplication('session.store');
+		try {
+			/** @var \Illuminate\Session\Store $session */
+			$session = $args['funcs']->_getApplication('session.store');
 
-		$sessionCookieName = $session->getName();
-		$clientSessionId   = $request->cookie($sessionCookieName);
+			$sessionCookieName = $session->getName();
+			$clientSessionId   = $request->cookie($sessionCookieName);
 
-		if ($clientSessionId) {
-			$session->setId($clientSessionId);
+			if ($clientSessionId) {
+				$session->setId($clientSessionId);
 
-			if (!$session->isStarted()) {
-				$session->start();
+				if (!$session->isStarted()) {
+					$session->start();
+				}
+
 			}
-
+			else {
+				// Không có cookie và là client thật → tạo session mới.
+				if (!$session->isStarted()) {
+					$session->start();
+				}
+			}
 		}
-		else {
-			// Không có cookie và là client thật → tạo session mới.
-			if (!$session->isStarted()) {
-				$session->start();
-			}
+		catch (\Throwable $e) {
+			return $next($request);
 		}
 
 		return $next($request);

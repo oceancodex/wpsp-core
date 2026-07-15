@@ -55,6 +55,8 @@ use WPSPCORE\App\Routes\RouteRegexParser;
  * @method static mixed getArrItemByKeyValue(array $arr, string $key, $value = null, string $operator = 'equals', bool $single = true)
  *
  * @method static string getPluginDirName()
+ * @method static string getPluginDirNameFromPath(string $path)
+ * @method static string getPluginDirPathFromPath(string $path)
  * @method static array getWPConfig(string $file = null)
  *
  * @method static mixed app($abstract, array $parameters = [])
@@ -384,7 +386,19 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _getPathFromDir($targetDir, $path) {
-		return preg_replace('/^(.*?)' . $targetDir . '(.*?)$/iu', $targetDir . '$2', $path);
+		// 1. Chuẩn hóa tạm thời cả targetDir và path về dạng gạch xuôi '/' để xử lý regex chính xác và không bị lỗi escape kí tự '\'
+		$normalizedTargetDir = str_replace('\\', '/', $targetDir);
+		$normalizedPath      = str_replace('\\', '/', $path);
+
+		// 2. Thực hiện khớp và thay thế chuỗi bằng regex dựa trên chuỗi đã chuẩn hóa
+		$result = preg_replace(
+			'/^(.*?)' . preg_quote($normalizedTargetDir, '/') . '(.*?)$/iu',
+			$normalizedTargetDir . '$2',
+			$normalizedPath
+		);
+
+		// 3. CHUẨN HÓA ĐẦU RA: Chuyển đổi toàn bộ dấu gạch chéo về đúng định dạng hệ điều hành hiện tại
+		return str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $result);
 	}
 
 	public function _getAllClassesInDir($path = __DIR__, $namespace = __NAMESPACE__, $depth = null) {
@@ -424,7 +438,7 @@ class Funcs extends BaseInstances {
 		return $classes;
 	}
 
-	public function _getAllDirsInDir(string $path, $depth = null): array {
+	public function _getAllDirsInDir($path, $depth = null): array {
 		// 1. Kiểm tra nếu đường dẫn không tồn tại hoặc không phải thư mục
 		if (!is_dir($path)) {
 			return [];
@@ -458,7 +472,7 @@ class Funcs extends BaseInstances {
 		return $directories;
 	}
 
-	public function _getAllFilesInDir(string $path, $depth = null): array {
+	public function _getAllFilesInDir($path, $depth = null): array {
 		// 1. Kiểm tra nếu đường dẫn cha không hợp lệ
 		if (!is_dir($path)) {
 			return [];
@@ -580,6 +594,76 @@ class Funcs extends BaseInstances {
 
 	public function _getPluginDirName() {
 		return $this->_getMainBaseName();
+	}
+
+	public function _getPluginDirNameFromPath($path): string {
+		// 1. Chuẩn hóa tất cả đường dẫn về dấu gạch xuôi '/'
+		$normalizedPath = str_replace('\\', '/', $path);
+
+		// 2. Lấy đường dẫn thư mục plugins chuẩn của WordPress và chuẩn hóa nó
+		$pluginDir = defined('WP_PLUGIN_DIR') ? str_replace('\\', '/', WP_PLUGIN_DIR) : 'wp-content/plugins';
+
+		// 3. Nếu đường dẫn file thực sự nằm trong thư mục plugins của hệ thống
+		if (str_starts_with($normalizedPath, $pluginDir)) {
+			// Cắt bỏ phần gốc: Chỉ giữ lại phần nằm sau "wp-content/plugins/"
+			$relativeToPlugins = ltrim(substr($normalizedPath, strlen($pluginDir)), '/');
+
+			// Trích xuất thư mục đầu tiên (tên plugin)
+			$parts = explode('/', $relativeToPlugins);
+			return !empty($parts[0]) ? $parts[0] : 'unknown';
+		}
+
+		// 4. Phương án dự phòng (Fallback) dùng Regex chuẩn hóa nếu hằng số WP_PLUGIN_DIR chưa được định nghĩa
+		if (preg_match('/wp-content\/plugins\/([^\/]+)/', $normalizedPath, $matches)) {
+			return $matches[1];
+		}
+
+		return 'unknown';
+	}
+
+	public function _getPluginDirPathFromPath($path): string {
+		// 1. Chuẩn hóa tất cả đường dẫn về dấu gạch xuôi '/' để xử lý chuỗi ổn định (không phân biệt OS)
+		$normalizedPath = str_replace('\\', '/', $path);
+
+		// 2. Lấy đường dẫn thư mục plugins chuẩn của WordPress và chuẩn hóa nó về dạng '/'
+		$pluginDir = defined('WP_PLUGIN_DIR') ? str_replace('\\', '/', WP_PLUGIN_DIR) : '';
+
+		// Nếu WP_PLUGIN_DIR chưa được định nghĩa (chạy CLI/Console ngoài WP), tìm vị trí wp-content/plugins trong chuỗi
+		if (empty($pluginDir)) {
+			$pos = strpos($normalizedPath, 'wp-content/plugins');
+			if ($pos !== false) {
+				$pluginDir = substr($normalizedPath, 0, $pos + 18); // 18 là độ dài của 'wp-content/plugins'
+			}
+		} else {
+			$pluginDir = str_replace('\\', '/', $pluginDir);
+		}
+
+		$pluginDir = rtrim($pluginDir, '/');
+		$resultPath = 'unknown';
+
+		// 3. Nếu xác định được thư mục plugins gốc
+		if (!empty($pluginDir) && str_starts_with($normalizedPath, $pluginDir)) {
+			// Cắt bỏ phần gốc để lấy phần tương đối sau "plugins/"
+			$relativeToPlugins = ltrim(substr($normalizedPath, strlen($pluginDir)), '/');
+
+			// Trích xuất tên thư mục plugin đầu tiên
+			$parts = explode('/', $relativeToPlugins);
+			if (!empty($parts[0])) {
+				$resultPath = $pluginDir . '/' . $parts[0];
+			}
+		}
+
+		// 4. Phương án dự phòng (Fallback) sử dụng Regex nếu các cách trên không khớp
+		if ($resultPath === 'unknown' && preg_match('/^(.*\/wp-content\/plugins\/([^\/]+))/', $normalizedPath, $matches)) {
+			$resultPath = $matches[1]; // Trả về toàn bộ đường dẫn tính đến hết tên thư mục plugin
+		}
+
+		// 5. CHUẨN HÓA ĐẦU RA: Chuyển đổi toàn bộ dấu gạch chéo theo đúng định dạng hệ điều hành hiện tại (Windows: \, Linux: /)
+		if ($resultPath !== 'unknown') {
+			return str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $resultPath);
+		}
+
+		return 'unknown';
 	}
 
 	public function _getWPConfig($file = null) {

@@ -2,6 +2,9 @@
 
 namespace WPSPCORE\App\Exceptions;
 
+use Illuminate\Container\Container;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Facade;
 use WPSPCORE\App\Exceptions\Renderer as WPSPRenderer;
 use WPSPCORE\App\Routes\RouteManager;
 use WPSPCORE\BaseInstances;
@@ -99,7 +102,7 @@ class Handler extends BaseInstances {
 		}
 
 		wp_die(
-			'<h1>ERROR: 500</h1><p>'.$e->getMessage().' in '.$e->getFile().':'.$e->getLine().'</p>',
+			'<h1>ERROR: 500</h1><p>'.$e->getMessage().' in <strong>'.$e->getFile().':'.$e->getLine().'</strong></p><pre>'.$e->getTraceAsString().'</pre>',
 			'ERROR: 500',
 			[
 				'response'  => 500,
@@ -137,34 +140,48 @@ class Handler extends BaseInstances {
 		$app = $this->funcs->_getApplication();
 
 		// 1) Ưu tiên dùng Exception Handler của Laravel 12+.
+		// Chỉ chạy renderer nếu cấu hình debug của CHÍNH container hiện tại đang bật
 		if ($app && $this->funcs->_config('app.debug') && class_exists(WPSPRenderer::class)) {
-			$request  = $this->request ?? $app->make('request') ?? \Illuminate\Http\Request::capture();
-			$renderer = $app->make(WPSPRenderer::class, ['basePath' => $this->funcs->_getMainPath()]);
-			$response = $renderer->render($request, $e, $this->funcs->_getRouteManager());
+			// Ép Laravel nhận diện lại đúng Application Container hiện tại của plugin này
+			Container::setInstance($app);
+			Facade::setFacadeApplication($app);
+			Model::setConnectionResolver($app['db']);
+			Model::setEventDispatcher($app['events']);
 
-			if (is_object($response) && method_exists($response, 'getContent')) {
-				$content = $response->getContent();
-				$status  = method_exists($response, 'getStatusCode') ? $response->getStatusCode() : 500;
+			try {
+				$currentPluginPath = $this->funcs->_getPluginDirPathFromPath($e->getFile());
+				$request           = $this->request ?? $app->make('request') ?? \Illuminate\Http\Request::capture();
+				$renderer          = $app->make(WPSPRenderer::class, ['basePath' => $currentPluginPath]);
+				$response          = $renderer->render($request, $e, $this->funcs->_getRouteManager());
 
-				if (trim((string)$content) !== '') {
-					@http_response_code($status);
-					echo $content;
+				if (is_object($response) && method_exists($response, 'getContent')) {
+					$content = $response->getContent();
+					$status  = method_exists($response, 'getStatusCode') ? $response->getStatusCode() : 500;
+
+					if (trim((string)$content) !== '') {
+						@http_response_code($status);
+						echo $content;
+						exit;
+					}
+				}
+				elseif (is_string($response) && trim($response) !== '') {
+					echo $response;
 					exit;
 				}
 			}
-			elseif (is_string($response) && trim($response) !== '') {
-				echo $response;
-				exit;
+			catch (\Throwable $renderException) {
+				// Nếu quá trình render lỗi bằng Blade gặp trục trặc (như lỗi "No hint path"),
+				// âm thầm fallback xuống cơ chế an toàn tiếp theo dưới đây
 			}
 		}
 
-		// 2) Nếu tồn tại handler trước đó thì gọi lại.
+		// 2) Nếu tồn tại handler trước đó của WordPress/Plugin khác thì gọi lại.
 		if ($this->existsExceptionHandler && is_callable($this->existsExceptionHandler)) {
 			call_user_func($this->existsExceptionHandler, $e);
 			return;
 		}
 
-		// 3) Nếu không có handler nào, fallback về "wp_die" hoặc JSON response.
+		// 3) Nếu không có handler nào, fallback về "wp_die" hoặc JSON response an toàn.
 		$this->prepareResponse($e);
 	}
 
