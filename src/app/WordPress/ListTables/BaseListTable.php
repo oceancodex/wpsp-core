@@ -12,32 +12,44 @@ abstract class BaseListTable extends \WP_List_Table {
 	use BaseInstancesTrait;
 
 	public $args             = [];
-	public $screenIds        = null;
-	public $screenOptionsKey = null;
+
+	public $allowScreenIds   = null;
+	public $itemsPerPageKey  = null;
 	public $bulkEditAssets	 = true;
+
+	private $currentScreen   = null;
 
 	/*
 	 *
 	 */
 
-	public function __construct($args = [], $screenIds = null, $mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
-		$this->args      = $args;
-		$this->screenIds = $screenIds;
+	public function __construct($args = [], $allowScreenIds = null, $mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
+		global $current_screen;
+
+		$this->currentScreen  = $current_screen;
+		$this->args           = $args;
+		$this->allowScreenIds = $allowScreenIds ?? $this->allowScreenIds;
 
 		// Cần gọi __construct của parent trước.
 		parent::__construct($this->args);
 
+		// Chuẩn hóa "allowScreenIds".
+		if (!$this->allowScreenIds) {
+			$this->allowScreenIds = $this->funcs?->_slugParams(['page']);
+		}
+
+		// Chuẩn hóa "itemsPerPageKey".
+		if (!$this->itemsPerPageKey) {
+			$this->itemsPerPageKey = $this->currentScreen?->id ?? $this->funcs?->_getAppShortName() ?? 'wpsp';
+			$this->itemsPerPageKey .= '_items_per_page';
+		}
+
 		// Khởi tạo các thuộc tính cơ bản.
 		$this->baseInstanceConstruct($mainPath, $rootNamespace, $prefixEnv, $extraParams);
 
-		// Chuẩn hóa "screenOptionsKey".
-		if (!$this->screenOptionsKey) {
-			$this->screenOptionsKey = $this->funcs->_slugParams(['page']) ?? $screenIds;
-		}
-
 		// Tự động đăng ký các checkboxes để ẩn/hiện cột cho Custom List Table trên Screen Options panel.
 		$this->autoScreenOptionColumns();
-		
+
 		// List table này có bulk edit hay không.
 		$this->maybeEnqueueBulkEditAssets();
 	}
@@ -46,48 +58,47 @@ abstract class BaseListTable extends \WP_List_Table {
 	 * Tự động đăng ký các checkboxes để ẩn/hiện cột cho Custom List Table trên Screen Options panel.
 	 */
 	public function autoScreenOptionColumns() {
-		global $current_screen;
-
 //		add_action('current_screen', function(\WP_Screen $current_screen) {
-			$screenId          = $current_screen?->id ?? null;
-			$showScreenOptions = $current_screen?->show_screen_options ?? false;
-			if ($screenId && $showScreenOptions) {
+			$currentScreenId   = $this->currentScreen?->id ?? null;
+			$showScreenOptions = $this->currentScreen?->show_screen_options ?? false;
+			if ($currentScreenId && $showScreenOptions) {
 				/**
-				 * Kiểm tra xem "screenId" hiện tại có khớp với "screenOptionsKey" được khải báo trong Custom List Table không.
+				 * Kiểm tra xem "screenId" hiện tại có khớp với "allowScreenIds" được khải báo trong Custom List Table không.
 				 * Nếu có thì kích hoạt tính năng "hidden columns" và "items per page" trên "sreen options panel".
 				 */
 				$isScreenMatched = false;
 
-				// Nếu screenOptionsKey là mảng.
-				if (is_array($this->screenOptionsKey)) {
-					foreach ($this->screenOptionsKey as $screenOptionsKey) {
-						// Nếu mỗi screenOptionsKey bắt đầu bằng "/", xem như đó là Regex.
-						if (str_starts_with($screenOptionsKey, '/') && preg_match($screenOptionsKey, $screenId)) {
+				// Nếu screenIds là mảng.
+				if (is_array($this->allowScreenIds)) {
+					foreach ($this->allowScreenIds as $allowScreenId) {
+						// Nếu mỗi "screenId" bắt đầu bằng "/", xem như đó là Regex.
+						if (str_starts_with($allowScreenId, '/') && preg_match($allowScreenId, $currentScreenId)) {
 							$isScreenMatched = true;
 							break;
 						}
 						// Nếu không, nó là chuỗi.
-						elseif ($screenId === $screenOptionsKey) {
+						elseif ($allowScreenId === $currentScreenId) {
 							$isScreenMatched = true;
 							break;
 						}
 					}
 				}
-				// Nếu screenOptionsKey là một chuỗi.
-				elseif (is_string($this->screenOptionsKey) && $screenId == $this->screenOptionsKey) {
+				// Nếu screenIds là một chuỗi.
+				elseif (is_string($this->allowScreenIds) && $currentScreenId == $this->allowScreenIds) {
 					$isScreenMatched = true;
 				}
 
 				if (!$isScreenMatched) return;
 
-				add_filter("manage_{$screenId}_columns", function($columns) {
+				// Hiển thị tính năng hide columns trên screen options panel.
+				add_filter("manage_{$currentScreenId}_columns", function($columns) {
 					return array_merge($columns, $this->get_columns());
 				});
 
-				// Items per page độc lập theo "screen_options_key".
+				// Items per page độc lập theo mỗi screen.
 				add_screen_option('per_page', [
 					'default' => 20,
-					'option'  => $screenId.'_items_per_page',
+					'option'  => $this->itemsPerPageKey,
 				]);
 			}
 //		}, 9999999999);
