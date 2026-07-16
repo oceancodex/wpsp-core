@@ -785,13 +785,19 @@ class Funcs extends BaseInstances {
 			}
 
 			if ($blade !== null) {
+				$debugbarCollectViewsTime = false;
+
 				if (isset($debugbar) && $debugbar->isEnabled() && $debugbar->shouldCollect('views')) {
+					$debugbarCollectViewsTime = true;
+				}
+
+				if ($debugbarCollectViewsTime) {
 					$debugbar['time']?->startMeasure('views', 'Views');
 				}
 
 				$content = $blade->make($viewName, $data, $mergeData);
 
-				if (isset($debugbar) && $debugbar->isEnabled() && $debugbar->shouldCollect('views')) {
+				if ($debugbarCollectViewsTime) {
 					$debugbar['time']?->stopMeasure('views');
 				}
 
