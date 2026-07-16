@@ -28,11 +28,18 @@ abstract class WPSP extends BaseInstances {
 	public $application = null;
 	public $response    = null;
 
+	// Thêm thuộc tính lưu mốc thời gian bắt đầu khởi tạo ứng dụng.
+//	public $bootstrapStartTime;
+//	public $handleRequestStartTime;
+
 	/*
 	 * Bootstrap
 	 */
 
 	public function setApplication($basePath, $handleRequest = true) {
+		// Ghi nhận mốc thời gian khởi tạo ngay lập tức.
+//		$this->bootstrapStartTime = microtime(true);
+
 		$this->buildApplication($basePath);
 
 		$this->setPaths();
@@ -45,12 +52,19 @@ abstract class WPSP extends BaseInstances {
 
 		$this->application->boot();
 
+		// Ghi nhận mốc thời gian sau khi boot thành công
+//		$this->application->instance('boot_time', microtime(true));
+//		$this->application->instance('bootstrap_start_time', $this->bootstrapStartTime);
+
 		if ($handleRequest) {
 			$this->handleRequest();
 		}
 	}
 
 	public function setApplicationForConsole($basePath) {
+		// Ghi nhận mốc thời gian khởi tạo ngay lập tức.
+//		$this->bootstrapStartTime = microtime(true);
+
 		$this->buildApplication($basePath);
 
 		$this->setPaths();
@@ -62,6 +76,10 @@ abstract class WPSP extends BaseInstances {
 		$this->extendsConsole();
 
 		$this->application->boot();
+
+		// Ghi nhận mốc thời gian sau khi boot thành công
+//		$this->application->instance('boot_time', microtime(true));
+//		$this->application->instance('bootstrap_start_time', $this->bootstrapStartTime);
 
 		return $this->application;
 	}
@@ -230,6 +248,8 @@ abstract class WPSP extends BaseInstances {
 	 */
 
 	public function handleRequest() {
+//		$this->handleRequestStartTime = microtime(true);
+
 		$this->startSession();
 
 		// 1: Đẩy Cookie sớm về Client.
@@ -252,6 +272,9 @@ abstract class WPSP extends BaseInstances {
 		$this->shareErrorsToViews();
 
 		$this->afterHandleRequest();
+
+//		$this->application->instance('after_handle_request_time', microtime(true));
+//		$this->application->instance('start_handle_request_time', $this->handleRequestStartTime);
 	}
 
 	public function startSession() {
