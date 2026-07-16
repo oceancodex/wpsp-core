@@ -22,7 +22,7 @@ class {{ class_name }} extends BaseAdminBarMenu {
 	 */
 
 	public function customProperties() {
-//		$this->$id   = '{{ name }}';
+//		$this->id    = '{{ name }}';
 //		$this->title = '{{ name }}';
 	}
 
