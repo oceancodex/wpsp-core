@@ -17,7 +17,7 @@ class WPSPStartSession {
 	 */
 	public function handle(Request $request, Closure $next, $args = []) {
 		// Bỏ qua hoàn toàn với CRON / CLI / WP loopback
-		if ($args['funcs']->isWPInternalRequest($request)) {
+		if ($args['funcs']->_isWPInternalRequest($request)) {
 			return $next($request);
 		}
 
