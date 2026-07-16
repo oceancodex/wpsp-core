@@ -197,6 +197,9 @@ class RouteManager extends BaseInstances {
 //		$name          = $routeItem->name;
 //		$middlewares   = $routeItem->middlewares;
 
+		// Measure key cho Laravel Debugbar.
+		$measureKey = $type . '|' . $method . '|' . $fullPath;
+
 		/**
 		 * Nếu route là Actions hoặc Filters thì method sẽ là "action" và "filter".\
 		 * Như thế sẽ chạy vào hook() thay vì execute() => Sai\
@@ -225,11 +228,15 @@ class RouteManager extends BaseInstances {
 					)
 				) {
 					$this->addMatchedRoute($routeItem);
+
+					do_action($this->funcs->_getAppShortName() . '_add_matched_route', $routeItem, $measureKey);
 				}
 			}
 
 			// Chạy route.
 			$route::instance()->execute($routeItem);
+
+			do_action($this->funcs->_getAppShortName() . '_after_execute_route', $routeItem, $measureKey);
 		}
 	}
 
