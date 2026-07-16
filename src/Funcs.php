@@ -775,35 +775,11 @@ class Funcs extends BaseInstances {
 		$blade = $this->_app('view');
 
 		try {
-			/** @var \Fruitcake\LaravelDebugbar\LaravelDebugbar $debugbar */
-			if ($this->_isDebugBarValid()) {
-				$debugbar = $this->_app('debugbar');
-			}
-
 			if (!$viewName && $instance) {
 				return $blade ?? null;
 			}
 
-			if ($blade !== null) {
-				$debugbarCollectViewsTime = false;
-
-				if (isset($debugbar) && $debugbar->isEnabled() && $debugbar->shouldCollect('views')) {
-					$debugbarCollectViewsTime = true;
-				}
-
-				if ($debugbarCollectViewsTime) {
-					$debugbar['time']?->startMeasure('views', 'Views');
-				}
-
-				$content = $blade->make($viewName, $data, $mergeData);
-
-				if ($debugbarCollectViewsTime) {
-					$debugbar['time']?->stopMeasure('views');
-				}
-
-				return $content;
-			}
-			return null;
+			return $blade?->make($viewName, $data, $mergeData);
 		}
 		catch (\Throwable $e) {
 			return '<div class="wrap"><div class="notice notice-error"><p>' . $e->getMessage() . '</p></div></div>';
