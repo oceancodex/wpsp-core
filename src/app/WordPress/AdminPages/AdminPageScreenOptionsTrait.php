@@ -4,11 +4,10 @@ namespace WPSPCORE\App\WordPress\AdminPages;
 
 trait AdminPageScreenOptionsTrait {
 
+	public $showScreenOptions = false;
 	public $screenBase        = null;
 	public $screenId          = null;
 	public $pagenow           = null;
-
-	public $showScreenOptions = false;
 	public $itemsPerPageKey   = null;
 
 	/*

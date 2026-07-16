@@ -19,16 +19,17 @@ abstract class BaseAdminPage extends BaseInstances {
 	public 	$position               = null;
 	public 	$parent_slug            = '';
 
+	public 	$forceInit           	= false;
+	public 	$forceInitSlug         	= null;
+
 	public 	$classes                = null;
 	public 	$firstSubmenuTitle      = null;
 	public 	$firstSubmenuClasses    = null;
 	public 	$isSubmenuPage          = false;
 	public 	$removeFirstSubmenu     = false;
+
 	public 	$urlsMatchCurrentAccess = [];
 	public 	$urlsMatchHighlightMenu = [];
-
-	public 	$forceInit           	= false;
-	public 	$forceInitSlug         	= null;
 
 	public  $callback_function     	= null;
 
