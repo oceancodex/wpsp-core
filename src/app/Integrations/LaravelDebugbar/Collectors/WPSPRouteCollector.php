@@ -7,6 +7,7 @@ use DebugBar\DataCollector\Renderable;
 
 class WPSPRouteCollector extends DataCollector implements Renderable {
 
+	/** @var \WPSPCORE\App\Routes\RouteManager */
 	public $routeManagerInstance;
 
 	/*

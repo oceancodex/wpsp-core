@@ -228,10 +228,11 @@ class {{ class_name }} extends BaseListTable {
 	public function extra_tablenav($which) {
 		if ($which == 'top') {
 			echo '<div class="alignleft actions bulkactions">';
-			echo '<select name="c" id="filter-by-sites"><option value="">Select category</option>';
+			echo '<select name="filter[categories]" id="filter-by-sites"><option value="">- Select category -</option>';
 			echo '<option value="category_1">Category 1</option>';
+			echo '<option value="category_2">Category 2</option>';
 			echo '</select>';
-			echo '<input type="submit" name="filter_action" class="button" value="Filter"/>';
+			echo '<input type="submit" class="button" value="Filter"/>';
 			echo '</div>';
 		}
 	}
