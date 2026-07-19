@@ -13,21 +13,8 @@
 
     <x-laravel-exceptions-renderer::section-container class="flex flex-col gap-8 pt-14">
         <x-laravel-exceptions-renderer::trace :$exception />
-
-		@php
-			try {
-		@endphp
-
-		@if ($exception->previousExceptions()->isNotEmpty())
-			<x-laravel-exceptions-renderer::previous-exceptions :$exception />
-		@endif
-
-		@php
-			} catch (\Throwable $e) {
-			}
-		@endphp
-
-        <x-laravel-exceptions-renderer::query :queries="$exception->applicationQueries()" />
+		<x-laravel-exceptions-renderer::previous-exceptions :$exception />
+		<x-laravel-exceptions-renderer::query :queries="$exception->applicationQueries()" />
     </x-laravel-exceptions-renderer::section-container>
 
     <x-laravel-exceptions-renderer::separator />
