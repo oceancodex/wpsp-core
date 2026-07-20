@@ -204,7 +204,8 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function _getMainPath($path = null) {
-		return rtrim($this->mainPath, '/\\') . ($path ? '/' . ltrim($path, '/\\') : '');
+		$path = rtrim($this->mainPath, '/\\') . ($path ? '/' . ltrim($path, '/\\') : '');
+		return $this->_normalizePath($path);
 	}
 
 	public function _getRootNamespace() {
@@ -265,18 +266,22 @@ class Funcs extends BaseInstances {
 			$path = preg_replace('/^(.+?)wp-content(.+?)$/iu', '$1', $path);
 		}
 		$path = rtrim($path, '/\\');
+
 		if ($appendPath) {
 			$path .= '/' . ltrim($appendPath, '/\\');
 		}
-		return $path;
+
+		return $this->_normalizePath($path);
 	}
 
 	public function _getMainFilePath() {
-		return $this->_getMainPath() . '/main.php';
+		$path = $this->_getMainPath() . '/main.php';
+		return $this->_normalizePath($path);
 	}
 
 	public function _getAppPath($path = null) {
-		return $this->_getMainPath() . '/app' . ($path ? '/' . ltrim($path, '/\\') : '');
+		$path = $this->_getMainPath() . '/app' . ($path ? '/' . ltrim($path, '/\\') : '');
+		return $this->_normalizePath($path);
 	}
 
 	public function _getControllerPath($path = null) {
@@ -398,7 +403,7 @@ class Funcs extends BaseInstances {
 		);
 
 		// 3. CHUẨN HÓA ĐẦU RA: Chuyển đổi toàn bộ dấu gạch chéo về đúng định dạng hệ điều hành hiện tại
-		return str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $result);
+		return $this->_normalizePath($result);
 	}
 
 	public function _getAllClassesInDir($path = __DIR__, $namespace = __NAMESPACE__, $depth = null) {
@@ -462,7 +467,7 @@ class Funcs extends BaseInstances {
 				$directories[] = [
 					'name'          => $dir->getFilename(),
 					'absolute_path' => $dir->getRealPath(),
-					'relative_path' => $dir->getRelativePathname()
+					'relative_path' => $dir->getRelativePathname(),
 				];
 			} catch (\Throwable $e) {
 				continue;
@@ -660,7 +665,7 @@ class Funcs extends BaseInstances {
 
 		// 5. CHUẨN HÓA ĐẦU RA: Chuyển đổi toàn bộ dấu gạch chéo theo đúng định dạng hệ điều hành hiện tại (Windows: \, Linux: /)
 		if ($resultPath !== 'unknown') {
-			return str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $resultPath);
+			return $this->_normalizePath($resultPath);
 		}
 
 		return 'unknown';
@@ -1070,6 +1075,13 @@ class Funcs extends BaseInstances {
 			'data'    => $data,
 			'message' => $message,
 		];
+	}
+
+	public function _event(...$args) {
+		/** @var \Illuminate\Events\Dispatcher $dispatcher */
+		$dispatcher = $this->_app('events')->dispatcher();
+		$dispatcher->dispatch($args);
+		return $dispatcher;
 	}
 
 	/*
@@ -1521,6 +1533,10 @@ class Funcs extends BaseInstances {
 
 	public function _normalizeURL($url = null) {
 		return $this->_sanitizeURL($url);
+	}
+
+	public function _normalizePath($path) {
+		return str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
 	}
 
 	public function _commentTokens() {
