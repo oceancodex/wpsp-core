@@ -17,6 +17,7 @@ use Illuminate\Foundation\Bootstrap\RegisterProviders;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Exceptions\Renderer\Listener as ExceptionRendererListener;
+use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Process\Factory as ProcessFactory;
 use Illuminate\Support\Timebox;
 use WPSPCORE\App\Http\Middleware\WPSPStartSession;
@@ -27,6 +28,11 @@ abstract class WPSP extends BaseInstances {
 	/** @var null|Application|Container */
 	public $application = null;
 	public $response    = null;
+
+	/**
+	 * Custom middlewares.
+	 */
+	public $middlewares = [];
 
 	// Thêm thuộc tính lưu mốc thời gian bắt đầu khởi tạo ứng dụng.
 //	public $bootstrapStartTime;
@@ -220,8 +226,6 @@ abstract class WPSP extends BaseInstances {
 
 	public function afterBindingsConsole() {}
 
-	public function afterHandleRequest() {}
-
 	/*
 	 * Blade directives
 	 */
@@ -248,6 +252,8 @@ abstract class WPSP extends BaseInstances {
 	 */
 
 	public function handleRequest() {
+		$this->beforeHandleRequest();
+
 //		$this->handleRequestStartTime = microtime(true);
 
 		$this->startSession();
@@ -269,13 +275,19 @@ abstract class WPSP extends BaseInstances {
 //			register_shutdown_function([$this, 'saveSession']);
 //		}
 
-		$this->shareErrorsToViews();
+		$this->applyMiddlewares();
 
-		$this->afterHandleRequest();
+		$this->beforeResponse();
+
+		$this->shareErrorsToViews();
 
 //		$this->application->instance('after_handle_request_time', microtime(true));
 //		$this->application->instance('start_handle_request_time', $this->handleRequestStartTime);
+
+		$this->afterHandleRequest();
 	}
+
+	public function beforeHandleRequest() {}
 
 	public function startSession() {
 		if ($this->funcs->_isWPInternalRequest()) {
@@ -325,12 +337,23 @@ abstract class WPSP extends BaseInstances {
 		$this->emitCookies($this->buildSessionCookies($session));
 	}
 
+	public function applyMiddlewares() {
+		foreach ($this->middlewares as $middleware) {
+			$middlewareConvertEmptyStringsToNull = $this->application->make($middleware);
+			$middlewareConvertEmptyStringsToNull->handle($this->request, fn($request) => $request);
+		}
+	}
+
+	public function beforeResponse() {}
+
 	public function shareErrorsToViews() {
 		if ($this->application->bound('view') && $this->application->bound('session.store')) {
 			$errors = $this->application['session.store']->get('errors', new \Illuminate\Support\ViewErrorBag());
 			$this->application['view']->share('errors', $errors);
 		}
 	}
+
+	public function afterHandleRequest() {}
 
 	/*
 	 * Session cookie helpers

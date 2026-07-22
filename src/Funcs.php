@@ -25,6 +25,7 @@ use WPSPCORE\App\Routes\RouteRegexParser;
  * @method static string getSitePath($appendPath = null)
  * @method static string getMainFilePath()
  * @method static string getAppPath($path = null)
+ * @method static string getBootstrapPath($path = null)
  * @method static string getControllerPath($path = null)
  * @method static string getConfigPath($path = null)
  * @method static string getRoutesPath($path = null)
@@ -281,6 +282,11 @@ class Funcs extends BaseInstances {
 
 	public function _getAppPath($path = null) {
 		$path = $this->_getMainPath() . '/app' . ($path ? '/' . ltrim($path, '/\\') : '');
+		return $this->_normalizePath($path);
+	}
+
+	public function _getBootstrapPath($path = null) {
+		$path = $this->_getMainPath() . '/bootstrap' . ($path ? '/' . ltrim($path, '/\\') : '');
 		return $this->_normalizePath($path);
 	}
 
