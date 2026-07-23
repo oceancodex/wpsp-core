@@ -70,6 +70,7 @@ class RouteRemapCommand extends Command {
 			try {
 				// Thử explode host để xem có chứa port hay socket không.
 				$hostAndPortOrSocket = explode(':', $host);
+				$host = $hostAndPortOrSocket[0];
 
 				// Nếu host chứa post hoặc socket, xử lý.
 				if (isset($hostAndPortOrSocket[1]) && $portOrSocket = $hostAndPortOrSocket[1]) {
