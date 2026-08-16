@@ -32,6 +32,11 @@ class WPSPStartSession {
 			$session = $args['funcs']->_getApplication('session.store');
 			$sessionCookieName = $session->getName();
 
+			// Gắn $request vào Session Handler trước khi read/start session
+			// Giải quyết lỗi: Warning: Attempt to read property "cookies" on null in .../vendor/laravel/framework/src/Illuminate/Session/CookieSessionHandler.php
+			// khi cài đặt config/session.php với session driver là "cookie"
+			$session->setRequestOnHandler($request);
+
 			// Lấy Cookie đã mã hóa từ Client gửi lên
 			$rawCookie = $request->cookie($sessionCookieName);
 			$clientSessionId = null;
@@ -69,6 +74,9 @@ class WPSPStartSession {
 					$session->start();
 				}
 			}
+
+			// Gắn Session Store vào Request để các Controller/View dùng được $request->session() hay session()
+			$request->setLaravelSession($session);
 		}
 		catch (\Throwable $e) {
 			return $next($request);
