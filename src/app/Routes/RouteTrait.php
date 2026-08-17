@@ -465,6 +465,7 @@ trait RouteTrait {
 						try {
 							$nextClass = new $className($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams);
 							@$this->{$name} = $nextClass;
+							$callParams[$name] = $nextClass;
 						}
 						catch (\Exception $e) {}
 					}
@@ -530,6 +531,7 @@ trait RouteTrait {
 					try {
 						$nextClass = new $className($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams);
 						@$this->{$name} = $nextClass;
+						$callParams[$name] = $nextClass;
 					}
 					catch (\Exception $e) {}
 				}
@@ -677,7 +679,9 @@ trait RouteTrait {
 	public function setRouteResolver() {
 		$route = $this->funcs->_getRouteManager()->currentRoute() ?? null;
 
-		if (!in_array($route?->type, ['AdminPages', 'Apis', 'FrontPages', 'RewriteFrontPages'])) return;
+		if (!$route || !in_array($route?->type, ['AdminPages', 'Apis', 'Ajaxs', 'FrontPages', 'RewriteFrontPages'])) {
+			return;
+		}
 
 		$httpMethod          = $this->request->getMethod();
 		$originalRequestPath = ltrim($this->request->getRequestUri(), '/\\');
@@ -770,9 +774,9 @@ trait RouteTrait {
 	 * Bắt buộc phải có "callParams" để resolve Dependency Injection.\
 	 * "callParams" có thể được chuẩn bị bằng method getCallParams().
 	 */
-	public function resolveAndCall($callback, $callParams = [], $call = true) {
+	public function resolveAndCall($callback, $callParams = [], $call = true, $method = null) {
 		// Set route resolver.
-		$this->setRouteResolver();
+//		$this->setRouteResolver();
 
 		/** @var \Illuminate\Container\Container|\Illuminate\Foundation\Application $container */
 		$container = $this->funcs->_getApplication();
@@ -811,8 +815,9 @@ trait RouteTrait {
 
 		if ($class && $method && method_exists($class, $method)) {
 			$callback   = $this->prepareCallbackFunction($method, $path, $fullPath, $class, $args);
-			$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method, $args);
-			return $this->resolveAndCall($callback, $callParams, $call);
+//			$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method, $args);
+//			return $this->resolveAndCall($callback, $callParams, $call, $method);
+			return $this->resolveAndCall($callback, [], $call, $method);
 		}
 		return null;
 	}

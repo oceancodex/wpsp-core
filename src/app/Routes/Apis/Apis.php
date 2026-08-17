@@ -101,7 +101,9 @@ class Apis extends BaseRoute {
 				'methods'  => strtoupper($method),
 				'callback' => function(\WP_REST_Request $wpRestRequest) use ($callback, $path, $pathRegex, $fullPath, $fullPathRegex, $requestPath, $route) {
 					$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['wpRestRequest' => $wpRestRequest, 'route' => $route]);
-					return $this->resolveAndCall($callback, $callParams);
+					$call = $this->resolveAndCall($callback, $callParams);
+					$this->setRouteResolver();
+					return $call;
 				},
 				'args' > [
 //				    'id' => [
