@@ -84,6 +84,7 @@ class FrontPages extends BaseRoute {
 				$callback   = $this->prepareRouteCallback($callback, $constructParams);
 				$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 				$this->resolveAndCall($callback, $callParams);
+				$this->setRouteResolver();
 			}
 		}
 		catch (\Exception $e) {}
