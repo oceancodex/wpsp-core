@@ -75,6 +75,11 @@ class FrontPages extends BaseRoute {
 				$constructParams[3] = array_merge($constructParams[3], $route->args);
 
 				/**
+				 * Set route resolver.
+				 */
+				$this->setRouteResolver();
+
+				/**
 				 * Thực hiện các công việc với Callback.
 				 * 1. Chuẩn bị callback.
 				 * 2. Chuẩn bị parameters mà callback sử dụng.
@@ -84,7 +89,6 @@ class FrontPages extends BaseRoute {
 				$callback   = $this->prepareRouteCallback($callback, $constructParams);
 				$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 				$this->resolveAndCall($callback, $callParams);
-				$this->setRouteResolver();
 			}
 		}
 		catch (\Exception $e) {}

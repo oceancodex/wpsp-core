@@ -105,16 +105,20 @@ class AdminPages extends BaseRoute {
 				$constructParams[3] = array_merge($constructParams[3], $route->args);
 
 				/**
+				 * Set route resolver.
+				 */
+				$this->setRouteResolver();
+
+				/**
 				 * Thực hiện các công việc với Callback.
 				 * 1. Chuẩn bị callback.
 				 * 2. Chuẩn bị parameters mà callback sử dụng.
 				 * 3. Xử lý callback với parameters (DI).
 				 * 4. Gọi callback.
 				 */
-				$callback        = $this->prepareRouteCallback($callback, $constructParams);
-				$callParams      = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
+				$callback   = $this->prepareRouteCallback($callback, $constructParams);
+				$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 				$this->resolveAndCall($callback, $callParams);
-				$this->setRouteResolver();
 			}
 			else {
 				wp_die(
@@ -233,6 +237,11 @@ class AdminPages extends BaseRoute {
 						if ((isset($callback[1]) && is_string($callback[1]) && $callback[1] !== 'index') && (!isset($route->args['force_init']))) {
 							if (@preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
 								/**
+								 * Set route resolver.
+								 */
+								$this->setRouteResolver();
+
+								/**
 								 * Thực hiện các công việc với Callback.
 								 * 1. Chuẩn bị callback.
 								 * 2. Chuẩn bị parameters mà callback sử dụng.
@@ -242,7 +251,6 @@ class AdminPages extends BaseRoute {
 								$callback   = $this->prepareRouteCallback($callback, $constructParams);
 								$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 								$this->resolveAndCall($callback, $callParams);
-								$this->setRouteResolver();
 							}
 						}
 
@@ -255,6 +263,11 @@ class AdminPages extends BaseRoute {
 							if (isset($callback[1]) && $callback[1] == 'index' || !isset($callback[1]) || isset($route->args['force_init'])) $callback[1] = 'init';
 
 							/**
+							 * Set route resolver.
+							 */
+							$this->setRouteResolver();
+
+							/**
 							 * Thực hiện các công việc với Callback.
 							 * 1. Chuẩn bị callback.
 							 * 2. Chuẩn bị parameters mà callback sử dụng.
@@ -264,7 +277,6 @@ class AdminPages extends BaseRoute {
 							$callback   = $this->prepareRouteCallback($callback, $constructParams);
 							$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 							$this->resolveAndCall($callback, $callParams);
-							$this->setRouteResolver();
 						}
 					}
 				}
