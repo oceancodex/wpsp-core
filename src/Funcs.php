@@ -1575,7 +1575,7 @@ class Funcs extends BaseInstances {
 
 	public function _numberFormat($value, $precision = 0, $endWithZeros = true, $locale = 'vi', $currencyCode = 'vnd', $style = NumberFormatter::DECIMAL, $groupingUsed = true) {
 		try {
-			if (!$value) return null;
+			if (!$value) return $value;
 			$formatter = new NumberFormatter($locale, $style);
 			$formatter->setAttribute(NumberFormatter::FRACTION_DIGITS, $precision);
 			$formatter->setAttribute(NumberFormatter::GROUPING_USED, $groupingUsed);
