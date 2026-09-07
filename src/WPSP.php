@@ -380,50 +380,52 @@ abstract class WPSP extends BaseInstances {
 		$sessionConfig = $this->application['session']->getSessionConfig();
 		$configSession = $this->funcs->_config('session');
 
-		$lifetime = $sessionConfig['lifetime'];
-		$path     = $configSession['path'];
-		$domain   = $configSession['domain'];
-		$secure   = $configSession['secure'] ?? true;
-		$sameSite = $sessionConfig['same_site'] ?? 'Lax';
-
 		$cookies = [];
 
-		/** @var Encrypter $encrypter */
-		$encrypter = $this->application->make(Encrypter::class);
+		if (($sessionConfig['driver'] ?? '') !== 'array') {
+			$lifetime = $sessionConfig['lifetime'];
+			$path     = $configSession['path'];
+			$domain   = $configSession['domain'];
+			$secure   = $configSession['secure'] ?? true;
+			$sameSite = $sessionConfig['same_site'] ?? 'Lax';
 
-		// ==========================================
-		// Mã hóa Auth Session Cookie
-		// ==========================================
-		$sessionName = $session->getName();
+			/** @var Encrypter $encrypter */
+			$encrypter = $this->application->make(Encrypter::class);
 
-		// Thêm tiền tố định danh Cookie nhằm tránh việc tráo đổi giá trị giữa các cookie khác nhau
-		$sessionPrefix = CookieValuePrefix::create($sessionName, $encrypter->getKey());
+			// ==========================================
+			// Mã hóa Auth Session Cookie
+			// ==========================================
+			$sessionName = $session->getName();
 
-		// Tiến hành mã hóa (không dùng serialize)
-		$encryptedSessionId = $encrypter->encrypt(
-			$sessionPrefix . $session->getId(),
-			false
-		);
+			// Thêm tiền tố định danh Cookie nhằm tránh việc tráo đổi giá trị giữa các cookie khác nhau
+			$sessionPrefix = CookieValuePrefix::create($sessionName, $encrypter->getKey());
 
-		$cookies[] = (string)cookie(
-			$sessionName,
-			$encryptedSessionId, // Gửi chuỗi đã mã hóa.
-			$lifetime, $path, $domain, $secure, true, false, $sameSite
-		);
+			// Tiến hành mã hóa (không dùng serialize)
+			$encryptedSessionId = $encrypter->encrypt(
+				$sessionPrefix . $session->getId(),
+				false
+			);
 
-		// 2. XSRF cookie (httpOnly = false để JS đọc được).
-		$xsrfName   = $sessionName . '-XSRF-TOKEN';
-		$xsrfPrefix = CookieValuePrefix::create($xsrfName, $encrypter->getKey());
-		$xsrfToken  = $encrypter->encrypt(
-			$xsrfPrefix . $session->token(),
-			EncryptCookies::serialized('XSRF-TOKEN')
-		);
+			$cookies[] = (string)cookie(
+				$sessionName,
+				$encryptedSessionId, // Gửi chuỗi đã mã hóa.
+				$lifetime, $path, $domain, $secure, true, false, $sameSite
+			);
 
-		$cookies[] = (string) cookie(
-			$xsrfName,
-			$xsrfToken,
-			$lifetime, $path, $domain, $secure, false, false, $sameSite
-		);
+			// 2. XSRF cookie (httpOnly = false để JS đọc được).
+			$xsrfName   = $sessionName . '-XSRF-TOKEN';
+			$xsrfPrefix = CookieValuePrefix::create($xsrfName, $encrypter->getKey());
+			$xsrfToken  = $encrypter->encrypt(
+				$xsrfPrefix . $session->token(),
+				EncryptCookies::serialized('XSRF-TOKEN')
+			);
+
+			$cookies[] = (string)cookie(
+				$xsrfName,
+				$xsrfToken,
+				$lifetime, $path, $domain, $secure, false, false, $sameSite
+			);
+		}
 
 		// 3. Tự động kiểm tra và quét qua CookieJar để lôi các cookie khác trong hàng đợi ra (ví dụ: Remember Me)
 		if ($this->application->bound('cookie')) {
@@ -434,7 +436,7 @@ abstract class WPSP extends BaseInstances {
 				// Đổi timestamp hết hạn sang số phút (hàm cookie() nhận tham số $minutes)
 				$minutes = $queuedCookie->getExpiresTime() ? ($queuedCookie->getExpiresTime() - time()) / 60 : 0;
 
-				$cookies[] = (string) cookie(
+				$cookies[] = (string)cookie(
 					$queuedCookie->getName(),
 					$queuedCookie->getValue(),
 					$minutes,
