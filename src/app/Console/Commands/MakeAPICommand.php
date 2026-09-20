@@ -52,7 +52,7 @@ class MakeAPICommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateSlug($path, 'path');
+		$this->validatePath($path, 'path');
 
 		// Chuẩn bị thêm các biến để sử dụng.
 		$className = preg_replace('/[^A-Za-z0-9_]/', '_', $path);
