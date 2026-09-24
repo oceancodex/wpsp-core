@@ -42,7 +42,7 @@ class MakeFilterCommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateSlug($filter, 'filter');
+		$this->validatePath($filter, 'filter');
 
 		/**
 		 * ---

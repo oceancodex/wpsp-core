@@ -42,7 +42,7 @@ class MakeActionCommand extends Command {
 		}
 
 		// Kiểm tra chuỗi hợp lệ.
-		$this->validateSlug($action, 'action');
+		$this->validatePath($action, 'action');
 
 		/**
 		 * ---
