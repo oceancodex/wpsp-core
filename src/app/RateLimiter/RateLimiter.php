@@ -31,12 +31,14 @@ abstract class RateLimiter extends BaseInstances {
 	}
 
 	public static function __callStatic($method, $arguments) {
-		if (method_exists(static::instance(), $method)) {
-			return static::instance()->$method(...$arguments);
+		$instance = static::wpspInstance();
+
+		$underlineMethod = '_' . $method;
+		if (method_exists($instance, $underlineMethod)) {
+			return $instance->$underlineMethod(...$arguments);
 		}
-		else {
-			return static::instance()->getRateLimiter()?->$method(...$arguments);
-		}
+
+		return $instance->getRateLimiter()?->$method(...$arguments);
 	}
 
 }

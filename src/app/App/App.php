@@ -1,27 +1,28 @@
 <?php
 
-namespace WPSPCORE\App\View;
+namespace WPSPCORE\App\App;
 
+use Illuminate\Foundation\Application;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\View\Factory
- * @mixin \Illuminate\Support\Facades\View
+ * @mixin \Illuminate\Foundation\Application
+ * @mixin \Illuminate\Support\Facades\App
  */
-abstract class View extends BaseInstances {
+abstract class App extends BaseInstances {
 
-	private ?\Illuminate\View\Factory $view;
+	private ?Application $app;
 
 	/*
 	 *
 	 */
 
-	public function getView(): ?\Illuminate\View\Factory {
-		return $this->view;
+	public function getApp(): ?Application {
+		return $this->app;
 	}
 
-	public function setView() {
-		$this->view = $this->funcs->_getApplication('view');
+	public function setApp() {
+		$this->app = $this->funcs->_getApplication();
 	}
 
 	/*
@@ -40,7 +41,7 @@ abstract class View extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getView()?->$method(...$arguments);
+		return $instance->getApp()?->$method(...$arguments);
 	}
 
 }

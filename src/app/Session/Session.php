@@ -3,21 +3,22 @@
 namespace WPSPCORE\App\Session;
 
 use Illuminate\Cookie\CookieJar;
+use Illuminate\Session\SessionManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Session\SessionManager
+ * @mixin SessionManager
  * @mixin \Illuminate\Support\Facades\Session
  */
 abstract class Session extends BaseInstances {
 
-	private ?\Illuminate\Session\SessionManager $session;
+	private ?SessionManager $session;
 
 	/*
 	 *
 	 */
 
-	public function getSession(): ?\Illuminate\Session\SessionManager {
+	public function getSession(): ?SessionManager {
 		return $this->session;
 	}
 
@@ -34,7 +35,7 @@ abstract class Session extends BaseInstances {
 	}
 
 	public static function __callStatic($method, $arguments) {
-		$instance = static::instance();
+		$instance = static::wpspInstance();
 
 		$underlineMethod = '_' . $method;
 		if (method_exists($instance, $underlineMethod)) {

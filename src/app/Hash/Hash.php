@@ -1,27 +1,28 @@
 <?php
 
-namespace WPSPCORE\App\View;
+namespace WPSPCORE\App\Hash;
 
+use Illuminate\Hashing\HashManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\View\Factory
- * @mixin \Illuminate\Support\Facades\View
+ * @mixin \Illuminate\Hashing\HashManager
+ * @mixin \Illuminate\Support\Facades\Hash
  */
-abstract class View extends BaseInstances {
+abstract class Hash extends BaseInstances {
 
-	private ?\Illuminate\View\Factory $view;
+	private ?HashManager $hash;
 
 	/*
 	 *
 	 */
 
-	public function getView(): ?\Illuminate\View\Factory {
-		return $this->view;
+	public function getHash(): ?HashManager {
+		return $this->hash;
 	}
 
-	public function setView() {
-		$this->view = $this->funcs->_getApplication('view');
+	public function setHash() {
+		$this->hash = $this->funcs->_getApplication('hash');
 	}
 
 	/*
@@ -40,7 +41,7 @@ abstract class View extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getView()?->$method(...$arguments);
+		return $instance->getHash()?->$method(...$arguments);
 	}
 
 }

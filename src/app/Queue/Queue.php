@@ -1,27 +1,28 @@
 <?php
 
-namespace WPSPCORE\App\View;
+namespace WPSPCORE\App\Queue;
 
+use Illuminate\Queue\QueueManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\View\Factory
- * @mixin \Illuminate\Support\Facades\View
+ * @mixin QueueManager
+ * @mixin \Illuminate\Support\Facades\Queue
  */
-abstract class View extends BaseInstances {
+abstract class Queue extends BaseInstances {
 
-	private ?\Illuminate\View\Factory $view;
+	private ?QueueManager $queue;
 
 	/*
 	 *
 	 */
 
-	public function getView(): ?\Illuminate\View\Factory {
-		return $this->view;
+	public function getQueue(): ?QueueManager {
+		return $this->queue;
 	}
 
-	public function setView() {
-		$this->view = $this->funcs->_getApplication('view');
+	public function setQueue() {
+		$this->queue = $this->funcs->_getApplication('queue');
 	}
 
 	/*
@@ -40,7 +41,7 @@ abstract class View extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getView()?->$method(...$arguments);
+		return $instance->getQueue()?->$method(...$arguments);
 	}
 
 }
