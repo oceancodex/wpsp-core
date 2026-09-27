@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Artisan;
 
-use Illuminate\Foundation\Console\Kernel;
+use Illuminate\Contracts\Console\Kernel;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -22,7 +22,7 @@ abstract class Artisan extends BaseInstances {
 	}
 
 	public function setArtisan() {
-		$this->artisan = $this->funcs->_getApplication(\Illuminate\Foundation\Console\Kernel::class);
+		$this->artisan = $this->funcs->_getApplication(Kernel::class);
 	}
 
 	/*

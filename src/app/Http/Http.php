@@ -22,7 +22,7 @@ abstract class Http extends BaseInstances {
 	}
 
 	public function setHttp() {
-		$this->http = $this->funcs->_getApplication(\Illuminate\Http\Client\Factory::class);
+		$this->http = $this->funcs->_getApplication(Factory::class);
 	}
 
 	/*

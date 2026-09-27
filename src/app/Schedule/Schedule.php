@@ -17,13 +17,12 @@ abstract class Schedule extends BaseInstances {
 	 */
 
 	public function getSchedule(): ?\Illuminate\Console\Scheduling\Schedule {
-		return $this->funcs->_getApplication(\Illuminate\Console\Scheduling\Schedule::class);
-//		return $this->schedule;
+		return $this->schedule;
 	}
 
-//	public function setSchedule() {
-//		$this->schedule = $this->funcs->_getApplication('schedule');
-//	}
+	public function setSchedule() {
+		$this->schedule = $this->funcs->_getApplication(\Illuminate\Console\Scheduling\Schedule::class);
+	}
 
 	/*
 	 *

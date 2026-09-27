@@ -5,6 +5,10 @@ namespace WPSPCORE\App\RateLimiter;
 use Illuminate\Cache\CacheManager;
 use WPSPCORE\BaseInstances;
 
+/**
+ * @mixin \Illuminate\Cache\RateLimiter
+ * @mixin \Illuminate\Support\Facades\RateLimiter
+ */
 abstract class RateLimiter extends BaseInstances {
 
 	private ?\Illuminate\Cache\RateLimiter $rateLimiter;
