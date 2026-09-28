@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Cache extends BaseInstances {
 
-	private ?CacheManager $cache;
+	private ?CacheManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getCache(): ?CacheManager {
-		return $this->cache;
+	public function getFacade(): ?CacheManager {
+		return $this->facade;
 	}
 
-	public function setCache() {
-		$this->cache = $this->funcs->_getApplication('cache');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('cache');
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Cache extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getCache()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

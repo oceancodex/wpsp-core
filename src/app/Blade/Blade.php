@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Blade extends BaseInstances {
 
-	private ?BladeCompiler $blade;
+	private ?BladeCompiler $facade;
 
 	/*
 	 *
 	 */
 
-	public function getBlade(): ?BladeCompiler {
-		return $this->blade;
+	public function getFacade(): ?BladeCompiler {
+		return $this->facade;
 	}
 
-	public function setBlade() {
-		$this->blade = $this->funcs->_getApplication('blade.compiler');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('blade.compiler');
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Blade extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getBlade()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

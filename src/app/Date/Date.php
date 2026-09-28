@@ -21,7 +21,7 @@ abstract class Date extends BaseInstances {
 		return $this->facade;
 	}
 
-	public function getFacade() {
+	public function setFacade() {
 		$this->facade = $this->funcs->_getApplication('date');
 	}
 
@@ -41,7 +41,7 @@ abstract class Date extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getDate()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

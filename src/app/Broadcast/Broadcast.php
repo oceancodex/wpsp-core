@@ -12,18 +12,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Broadcast extends BaseInstances {
 
-	private ?BroadcastManager $broadcast;
+	private ?BroadcastManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getBroadcast(): ?BroadcastManager {
-		return $this->broadcast;
+	public function getFacade(): ?BroadcastManager {
+		return $this->facade;
 	}
 
-	public function setBroadcast() {
-		$this->broadcast = $this->funcs->_getApplication(\Illuminate\Contracts\Broadcasting\Factory::class);
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication(\Illuminate\Contracts\Broadcasting\Factory::class);
 	}
 
 	/*
@@ -42,7 +42,7 @@ abstract class Broadcast extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getBroadcast()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

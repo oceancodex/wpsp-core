@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Cookie extends BaseInstances {
 
-	private ?CookieJar $cookie;
+	private ?CookieJar $facade;
 
 	/*
 	 *
 	 */
 
-	public function getCookie(): ?CookieJar {
-		return $this->cookie;
+	public function getFacade(): ?CookieJar {
+		return $this->facade;
 	}
 
-	public function setCookie() {
-		$this->cookie = $this->funcs->_getApplication('cookie');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('cookie');
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Cookie extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getCookie()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Config extends BaseInstances {
 
-	private ?Repository $config;
+	private ?Repository $facade;
 
 	/*
 	 *
 	 */
 
-	public function getConfig(): ?Repository {
-		return $this->config;
+	public function getFacade(): ?Repository {
+		return $this->facade;
 	}
 
-	public function setConfig() {
-		$this->config = $this->funcs->_getApplication('config');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('config');
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Config extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getConfig()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

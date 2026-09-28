@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Bus extends BaseInstances {
 
-	private ?Dispatcher $bus;
+	private ?Dispatcher $facade;
 
 	/*
 	 *
 	 */
 
-	public function getBus(): ?Dispatcher {
-		return $this->bus;
+	public function getFacade(): ?Dispatcher {
+		return $this->facade;
 	}
 
-	public function setBus() {
-		$this->bus = $this->funcs->_getApplication(Dispatcher::class);
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication(Dispatcher::class);
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Bus extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getBus()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

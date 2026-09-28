@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Image extends BaseInstances {
 
-	private ?ImageManager $image;
+	private ?ImageManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getImage(): ?ImageManager {
-		return $this->image;
+	public function getFacade(): ?ImageManager {
+		return $this->facade;
 	}
 
-	public function setImage() {
-		$this->image = $this->funcs->_getApplication('image');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('image');
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Image extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getImage()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Artisan extends BaseInstances {
 
-	private ?Kernel $artisan;
+	private ?Kernel $facade;
 
 	/*
 	 *
 	 */
 
-	public function getArtisan(): ?Kernel {
-		return $this->artisan;
+	public function getFacade(): ?Kernel {
+		return $this->facade;
 	}
 
-	public function setArtisan() {
-		$this->artisan = $this->funcs->_getApplication(Kernel::class);
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication(Kernel::class);
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Artisan extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getArtisan()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

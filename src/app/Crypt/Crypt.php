@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Crypt extends BaseInstances {
 
-	private ?Encrypter $cloud;
+	private ?Encrypter $facade;
 
 	/*
 	 *
 	 */
 
-	public function getCrypt(): ?Encrypter {
-		return $this->cloud;
+	public function getFacade(): ?Encrypter {
+		return $this->facade;
 	}
 
-	public function setCrypt() {
-		$this->cloud = $this->funcs->_getApplication('encrypter');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('encrypter');
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Crypt extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getCrypt()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

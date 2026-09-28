@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class App extends BaseInstances {
 
-	private ?Application $app;
+	private ?Application $facade;
 
 	/*
 	 *
 	 */
 
-	public function getApp(): ?Application {
-		return $this->app;
+	public function getFacade(): ?Application {
+		return $this->facade;
 	}
 
-	public function setApp() {
-		$this->app = $this->funcs->_getApplication();
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication();
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class App extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getApp()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

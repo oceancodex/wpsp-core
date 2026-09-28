@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class DB extends BaseInstances {
 
-	private ?DatabaseManager $db;
+	private ?DatabaseManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getDB(): ?DatabaseManager {
-		return $this->db;
+	public function getFacade(): ?DatabaseManager {
+		return $this->facade;
 	}
 
-	public function setDB() {
-		$this->db = $this->funcs->_getApplication('db');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('db');
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class DB extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getDB()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

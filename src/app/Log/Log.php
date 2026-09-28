@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Log extends BaseInstances {
 
-	private ?LogManager $log;
+	private ?LogManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getLog(): ?LogManager {
-		return $this->log;
+	public function getFacade(): ?LogManager {
+		return $this->facade;
 	}
 
-	public function setLog() {
-		$this->log = $this->funcs->_getApplication('log');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('log');
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Log extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getLog()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

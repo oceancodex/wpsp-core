@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Cloud extends BaseInstances {
 
-	private ?CloudManager $cloud;
+	private ?CloudManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getCloud(): ?CloudManager {
-		return $this->cloud;
+	public function getFacade(): ?CloudManager {
+		return $this->facade;
 	}
 
-	public function setCloud() {
-		$this->cloud = $this->funcs->_getApplication(CloudManager::class);
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication(CloudManager::class);
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Cloud extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getCloud()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

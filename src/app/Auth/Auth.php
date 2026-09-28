@@ -14,18 +14,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Auth extends BaseInstances {
 
-	public ?AuthManager $auth;
+	public ?AuthManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function setAuth() {
-		$this->auth = $this->funcs->_getApplication('auth');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('auth');
 	}
 
-	public function getAuth(): ?AuthManager {
-		return $this->auth;
+	public function getFacade(): ?AuthManager {
+		return $this->facade;
 	}
 
 	/*
@@ -125,7 +125,7 @@ abstract class Auth extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getAuth()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

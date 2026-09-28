@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Http extends BaseInstances {
 
-	private ?Factory $http;
+	private ?Factory $facade;
 
 	/*
 	 *
 	 */
 
-	public function getHttp(): ?Factory {
-		return $this->http;
+	public function getFacade(): ?Factory {
+		return $this->facade;
 	}
 
-	public function setHttp() {
-		$this->http = $this->funcs->_getApplication(Factory::class);
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication(Factory::class);
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Http extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getHttp()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

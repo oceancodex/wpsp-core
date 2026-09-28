@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Hash extends BaseInstances {
 
-	private ?HashManager $hash;
+	private ?HashManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getHash(): ?HashManager {
-		return $this->hash;
+	public function getFacade(): ?HashManager {
+		return $this->facade;
 	}
 
-	public function setHash() {
-		$this->hash = $this->funcs->_getApplication('hash');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('hash');
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Hash extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getHash()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

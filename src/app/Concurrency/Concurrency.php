@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Concurrency extends BaseInstances {
 
-	private ?ConcurrencyManager $cloud;
+	private ?ConcurrencyManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getConcurrency(): ?ConcurrencyManager {
-		return $this->cloud;
+	public function getFacade(): ?ConcurrencyManager {
+		return $this->facade;
 	}
 
-	public function setConcurrency() {
-		$this->cloud = $this->funcs->_getApplication(ConcurrencyManager::class);
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication(ConcurrencyManager::class);
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Concurrency extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getConcurrency()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

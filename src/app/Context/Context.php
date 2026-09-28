@@ -11,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Context extends BaseInstances {
 
-	private ?Repository $cloud;
+	private ?Repository $facade;
 
 	/*
 	 *
 	 */
 
-	public function getContext(): ?Repository {
-		return $this->cloud;
+	public function getFacade(): ?Repository {
+		return $this->facade;
 	}
 
-	public function setContext() {
-		$this->cloud = $this->funcs->_getApplication(Repository::class);
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication(Repository::class);
 	}
 
 	/*
@@ -41,7 +41,7 @@ abstract class Context extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getContext()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

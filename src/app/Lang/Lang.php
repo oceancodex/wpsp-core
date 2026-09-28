@@ -11,19 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Lang extends BaseInstances {
 
-	private ?Translator $lang;
+	private ?Translator $facade;
 
 	/*
 	 *
 	 */
 
-	public function getLang(): ?Translator {
-//		return $this->funcs->_getApplication('translator');
-		return $this->lang;
+	public function getFacade(): ?Translator {
+		return $this->facade;
 	}
 
-	public function setLang() {
-		$this->lang = $this->funcs->_getApplication('translator');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('translator');
 	}
 
 	/*
@@ -42,7 +41,7 @@ abstract class Lang extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getLang()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }
