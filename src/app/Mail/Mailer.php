@@ -9,18 +9,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Mailer extends BaseInstances {
 
-	private ?\Illuminate\Mail\Mailer $mail;
+	private ?\Illuminate\Mail\Mailer $facade;
 
 	/*
 	 *
 	 */
 
-	public function getMail(): ?\Illuminate\Mail\Mailer {
-		return $this->mail;
+	public function getFacade(): ?\Illuminate\Mail\Mailer {
+		return $this->facade;
 	}
 
-	public function setMail() {
-		$this->mail = $this->funcs->_getApplication('mailer');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('mailer');
 	}
 
 	/*
@@ -32,14 +32,14 @@ abstract class Mailer extends BaseInstances {
 	}
 
 	public static function __callStatic($method, $arguments) {
-		$instance = static::instance();
+		$instance = static::wpspInstance();
 
 		$underlineMethod = '_' . $method;
 		if (method_exists($instance, $underlineMethod)) {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getMail()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

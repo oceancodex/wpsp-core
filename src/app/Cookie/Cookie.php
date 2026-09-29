@@ -6,23 +6,22 @@ use Illuminate\Cookie\CookieJar;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Cookie\CookieJar
  * @mixin \Illuminate\Support\Facades\Cookie
  */
 abstract class Cookie extends BaseInstances {
 
-	private ?CookieJar $cookie;
+	private ?CookieJar $facade;
 
 	/*
 	 *
 	 */
 
-	public function getCookie(): ?CookieJar {
-		return $this->cookie;
+	public function getFacade(): ?CookieJar {
+		return $this->facade;
 	}
 
-	public function setCookie() {
-		$this->cookie = $this->funcs->_getApplication('cookie');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('cookie');
 	}
 
 	/*
@@ -34,14 +33,14 @@ abstract class Cookie extends BaseInstances {
 	}
 
 	public static function __callStatic($method, $arguments) {
-		$instance = static::instance();
+		$instance = static::wpspInstance();
 
 		$underlineMethod = '_' . $method;
 		if (method_exists($instance, $underlineMethod)) {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getCookie()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }
