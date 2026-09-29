@@ -6,7 +6,6 @@ use Illuminate\Image\ImageManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Image\ImageManager
  * @mixin \Illuminate\Support\Facades\Image
  */
 abstract class Image extends BaseInstances {

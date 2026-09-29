@@ -6,7 +6,6 @@ use Illuminate\Cookie\CookieJar;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Cookie\CookieJar
  * @mixin \Illuminate\Support\Facades\Cookie
  */
 abstract class Cookie extends BaseInstances {

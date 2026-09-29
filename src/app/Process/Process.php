@@ -6,23 +6,22 @@ use Illuminate\Process\Factory;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Process\Factory
  * @mixin \Illuminate\Support\Facades\Process
  */
 abstract class Process extends BaseInstances {
 
-	private ?Factory $process;
+	private ?Factory $facade;
 
 	/*
 	 *
 	 */
 
-	public function getProcess(): ?Factory {
-		return $this->process;
+	public function getFacade(): ?Factory {
+		return $this->facade;
 	}
 
-	public function setProcess() {
-		$this->process = $this->funcs->_getApplication('process');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('process');
 	}
 
 	/*
@@ -41,7 +40,7 @@ abstract class Process extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getProcess()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

@@ -6,7 +6,6 @@ use Illuminate\Hashing\HashManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Hashing\HashManager
  * @mixin \Illuminate\Support\Facades\Hash
  */
 abstract class Hash extends BaseInstances {

@@ -1,27 +1,27 @@
 <?php
 
-namespace WPSPCORE\App\Cache;
+namespace WPSPCORE\App\Schema;
 
-use Illuminate\Cache\CacheManager;
+use Illuminate\Database\Schema\Builder as SchemaCore;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\Facades\Cache
+ * @mixin \Illuminate\Support\Facades\Schema
  */
-abstract class Cache extends BaseInstances {
+abstract class Schema extends BaseInstances {
 
-	private ?CacheManager $facade;
+	private ?SchemaCore $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CacheManager {
+	public function getFacade(): ?SchemaCore {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('cache');
+		$this->facade = $this->funcs->_getApplication('db.schema');
 	}
 
 	/*

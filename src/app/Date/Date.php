@@ -6,7 +6,6 @@ use Illuminate\Support\DateFactory;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\DateFactory
  * @mixin \Illuminate\Support\Facades\Date
  */
 abstract class Date extends BaseInstances {

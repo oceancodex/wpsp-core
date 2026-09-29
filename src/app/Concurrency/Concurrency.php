@@ -6,7 +6,6 @@ use Illuminate\Concurrency\ConcurrencyManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Concurrency\ConcurrencyManager
  * @mixin \Illuminate\Support\Facades\Concurrency
  */
 abstract class Concurrency extends BaseInstances {

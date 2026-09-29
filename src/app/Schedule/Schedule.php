@@ -2,26 +2,26 @@
 
 namespace WPSPCORE\App\Schedule;
 
+use Illuminate\Console\Scheduling\Schedule as ScheduleCore;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Console\Scheduling\Schedule
  * @mixin \Illuminate\Support\Facades\Schedule
  */
 abstract class Schedule extends BaseInstances {
 
-	private ?\Illuminate\Console\Scheduling\Schedule $schedule;
+	private ?ScheduleCore $facade;
 
 	/*
 	 *
 	 */
 
-	public function getSchedule(): ?\Illuminate\Console\Scheduling\Schedule {
-		return $this->schedule;
+	public function getFacade(): ?ScheduleCore {
+		return $this->facade;
 	}
 
-	public function setSchedule() {
-		$this->schedule = $this->funcs->_getApplication(\Illuminate\Console\Scheduling\Schedule::class);
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication(ScheduleCore::class);
 	}
 
 	/*
@@ -40,7 +40,7 @@ abstract class Schedule extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getSchedule()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

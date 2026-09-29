@@ -6,7 +6,6 @@ use Illuminate\Http\Client\Factory;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Http\Client\Factory
  * @mixin \Illuminate\Support\Facades\Http
  */
 abstract class Http extends BaseInstances {

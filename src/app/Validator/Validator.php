@@ -1,27 +1,27 @@
 <?php
 
-namespace WPSPCORE\App\Cache;
+namespace WPSPCORE\App\Validator;
 
-use Illuminate\Cache\CacheManager;
+use Illuminate\Validation\Factory as ValidatorCore;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\Facades\Cache
+ * @mixin \Illuminate\Support\Facades\Validator
  */
-abstract class Cache extends BaseInstances {
+abstract class Validator extends BaseInstances {
 
-	private ?CacheManager $facade;
+	private ?ValidatorCore $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CacheManager {
+	public function getFacade(): ?ValidatorCore {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('cache');
+		$this->facade = $this->funcs->_getApplication('validator');
 	}
 
 	/*

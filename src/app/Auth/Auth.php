@@ -10,7 +10,7 @@ use WPSPCORE\BaseInstances;
  * @method static saveSessionsAndCookies
  * @method static cleanupOldSessionsForUser
  *
- * @mixin \Illuminate\Support\Facades\Auth|\Illuminate\Contracts\Auth\Guard|\Illuminate\Contracts\Auth\StatefulGuard
+ * @mixin \Illuminate\Support\Facades\Auth
  */
 abstract class Auth extends BaseInstances {
 

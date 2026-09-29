@@ -1,27 +1,27 @@
 <?php
 
-namespace WPSPCORE\App\Cache;
+namespace WPSPCORE\App\MaintenanceMode;
 
-use Illuminate\Cache\CacheManager;
+use Illuminate\Foundation\MaintenanceModeManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\Facades\Cache
+ * @mixin \Illuminate\Support\Facades\MaintenanceMode
  */
-abstract class Cache extends BaseInstances {
+abstract class MaintenanceMode extends BaseInstances {
 
-	private ?CacheManager $facade;
+	private ?MaintenanceModeManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CacheManager {
+	public function getFacade(): ?MaintenanceModeManager {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('cache');
+		$this->facade = $this->funcs->_getApplication(MaintenanceModeManager::class);
 	}
 
 	/*

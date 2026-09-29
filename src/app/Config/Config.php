@@ -6,7 +6,6 @@ use Illuminate\Config\Repository;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Config\Repository
  * @mixin \Illuminate\Support\Facades\Config
  */
 abstract class Config extends BaseInstances {

@@ -1,27 +1,27 @@
 <?php
 
-namespace WPSPCORE\App\Cache;
+namespace WPSPCORE\App\Redirect;
 
-use Illuminate\Cache\CacheManager;
+use \Illuminate\Routing\Redirector;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\Facades\Cache
+ * @mixin \Illuminate\Support\Facades\Redirect
  */
-abstract class Cache extends BaseInstances {
+abstract class Redirect extends BaseInstances {
 
-	private ?CacheManager $facade;
+	private ?Redirector $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CacheManager {
+	public function getFacade(): ?Redirector {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('cache');
+		$this->facade = $this->funcs->_getApplication('redirect');
 	}
 
 	/*

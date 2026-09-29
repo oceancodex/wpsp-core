@@ -1,27 +1,27 @@
 <?php
 
-namespace WPSPCORE\App\Cache;
+namespace WPSPCORE\App\File;
 
-use Illuminate\Cache\CacheManager;
+use Illuminate\Filesystem\Filesystem;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\Facades\Cache
+ * @mixin \Illuminate\Support\Facades\File
  */
-abstract class Cache extends BaseInstances {
+abstract class File extends BaseInstances {
 
-	private ?CacheManager $facade;
+	private ?Filesystem $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CacheManager {
+	public function getFacade(): ?Filesystem {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('cache');
+		$this->facade = $this->funcs->_getApplication('files');
 	}
 
 	/*

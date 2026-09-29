@@ -7,25 +7,22 @@ use Illuminate\Filesystem\FilesystemManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Filesystem\Filesystem
  * @mixin \Illuminate\Support\Facades\Storage
  */
 abstract class Storage extends BaseInstances {
 
-	private ?FilesystemManager $storage;
+	private ?FilesystemManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getStorage(): ?FilesystemManager {
-		return $this->storage;
+	public function getFacade(): ?FilesystemManager {
+		return $this->facade;
 	}
 
-	public function setStorage() {
-		$this->storage = $this->funcs->_getApplication('filesystem');
-//		$this->storage = $this->funcs->_getApplication('storage');
-//		$this->storage = $this->funcs->_getApplication(FilesystemManager::class);
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('filesystem');
 	}
 
 	/*
@@ -44,7 +41,7 @@ abstract class Storage extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getStorage()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

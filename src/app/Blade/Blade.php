@@ -6,7 +6,6 @@ use Illuminate\View\Compilers\BladeCompiler;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\View\Compilers\BladeCompiler
  * @mixin \Illuminate\Support\Facades\Blade
  */
 abstract class Blade extends BaseInstances {

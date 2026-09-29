@@ -6,7 +6,6 @@ use Illuminate\Foundation\Cloud\CloudManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Foundation\Cloud\CloudManager
  * @mixin \Illuminate\Support\Facades\Cloud
  */
 abstract class Cloud extends BaseInstances {

@@ -6,7 +6,6 @@ use Illuminate\Encryption\Encrypter;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Encryption\Encrypter
  * @mixin \Illuminate\Support\Facades\Crypt
  */
 abstract class Crypt extends BaseInstances {

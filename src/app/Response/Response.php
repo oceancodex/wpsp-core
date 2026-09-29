@@ -1,27 +1,27 @@
 <?php
 
-namespace WPSPCORE\App\Cache;
+namespace WPSPCORE\App\Response;
 
-use Illuminate\Cache\CacheManager;
+use \Illuminate\Routing\ResponseFactory;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\Facades\Cache
+ * @mixin \Illuminate\Support\Facades\Response
  */
-abstract class Cache extends BaseInstances {
+abstract class Response extends BaseInstances {
 
-	private ?CacheManager $facade;
+	private ?ResponseFactory $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CacheManager {
+	public function getFacade(): ?ResponseFactory {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('cache');
+		$this->facade = $this->funcs->_getApplication('redis');
 	}
 
 	/*

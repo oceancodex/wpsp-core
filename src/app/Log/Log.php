@@ -7,7 +7,6 @@ use WPSPCORE\BaseInstances;
 
 /**
  * @mixin \Illuminate\Support\Facades\Log
- * @mixin \Illuminate\Log\LogManager
  */
 abstract class Log extends BaseInstances {
 

@@ -1,27 +1,27 @@
 <?php
 
-namespace WPSPCORE\App\Cache;
+namespace WPSPCORE\App\Pipeline;
 
-use Illuminate\Cache\CacheManager;
+use \Illuminate\Pipeline\Pipeline as PipelineCore;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\Facades\Cache
+ * @mixin \Illuminate\Support\Facades\Pipeline
  */
-abstract class Cache extends BaseInstances {
+abstract class Pipeline extends BaseInstances {
 
-	private ?CacheManager $facade;
+	private ?PipelineCore $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CacheManager {
+	public function getFacade(): ?PipelineCore {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('cache');
+		$this->facade = $this->funcs->_getApplication('pipeline');
 	}
 
 	/*

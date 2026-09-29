@@ -6,7 +6,6 @@ use Illuminate\Foundation\Application;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Foundation\Application
  * @mixin \Illuminate\Support\Facades\App
  */
 abstract class App extends BaseInstances {

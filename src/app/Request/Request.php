@@ -1,27 +1,27 @@
 <?php
 
-namespace WPSPCORE\App\Cache;
+namespace WPSPCORE\App\Request;
 
-use Illuminate\Cache\CacheManager;
+use \Illuminate\Http\Request as RequestCore;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\Facades\Cache
+ * @mixin \Illuminate\Support\Facades\Request
  */
-abstract class Cache extends BaseInstances {
+abstract class Request extends BaseInstances {
 
-	private ?CacheManager $facade;
+	private ?RequestCore $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CacheManager {
+	public function getFacade(): ?RequestCore {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('cache');
+		$this->facade = $this->funcs->_getApplication('redis');
 	}
 
 	/*

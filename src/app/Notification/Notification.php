@@ -1,27 +1,27 @@
 <?php
 
-namespace WPSPCORE\App\Cache;
+namespace WPSPCORE\App\Notification;
 
-use Illuminate\Cache\CacheManager;
+use Illuminate\Notifications\ChannelManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\Facades\Cache
+ * @mixin \Illuminate\Support\Facades\Notification
  */
-abstract class Cache extends BaseInstances {
+abstract class Notification extends BaseInstances {
 
-	private ?CacheManager $facade;
+	private ?ChannelManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CacheManager {
+	public function getFacade(): ?ChannelManager {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('cache');
+		$this->facade = $this->funcs->_getApplication(ChannelManager::class);
 	}
 
 	/*

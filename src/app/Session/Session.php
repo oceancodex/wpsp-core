@@ -7,23 +7,22 @@ use Illuminate\Session\SessionManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin SessionManager
  * @mixin \Illuminate\Support\Facades\Session
  */
 abstract class Session extends BaseInstances {
 
-	private ?SessionManager $session;
+	private ?SessionManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getSession(): ?SessionManager {
-		return $this->session;
+	public function getFacade(): ?SessionManager {
+		return $this->facade;
 	}
 
-	public function setSession() {
-		$this->session = $this->funcs->_getApplication('session');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('session');
 	}
 
 	/*
@@ -42,7 +41,7 @@ abstract class Session extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getSession()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

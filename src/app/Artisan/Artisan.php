@@ -6,7 +6,6 @@ use Illuminate\Contracts\Console\Kernel;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Foundation\Console\Kernel
  * @mixin \Illuminate\Support\Facades\Artisan
  */
 abstract class Artisan extends BaseInstances {

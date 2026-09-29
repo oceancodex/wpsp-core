@@ -1,27 +1,27 @@
 <?php
 
-namespace WPSPCORE\App\Cache;
+namespace WPSPCORE\App\Gate;
 
-use Illuminate\Cache\CacheManager;
+use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\Facades\Cache
+ * @mixin \Illuminate\Support\Facades\Gate
  */
-abstract class Cache extends BaseInstances {
+abstract class Gate extends BaseInstances {
 
-	private ?CacheManager $facade;
+	private ?GateContract $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CacheManager {
+	public function getFacade(): ?GateContract {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('cache');
+		$this->facade = $this->funcs->_getApplication(GateContract::class);
 	}
 
 	/*

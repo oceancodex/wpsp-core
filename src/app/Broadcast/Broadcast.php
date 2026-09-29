@@ -6,8 +6,6 @@ use Illuminate\Broadcasting\BroadcastManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Contracts\Broadcasting\Factory
- * @mixin \Illuminate\Broadcasting\BroadcastManager
  * @mixin \Illuminate\Support\Facades\Broadcast
  */
 abstract class Broadcast extends BaseInstances {

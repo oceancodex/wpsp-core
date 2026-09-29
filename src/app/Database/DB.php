@@ -6,7 +6,6 @@ use Illuminate\Database\DatabaseManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Database\DatabaseManager
  * @mixin \Illuminate\Support\Facades\DB
  */
 abstract class DB extends BaseInstances {

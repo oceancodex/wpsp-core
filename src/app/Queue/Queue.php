@@ -6,23 +6,22 @@ use Illuminate\Queue\QueueManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin QueueManager
  * @mixin \Illuminate\Support\Facades\Queue
  */
 abstract class Queue extends BaseInstances {
 
-	private ?QueueManager $queue;
+	private ?QueueManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getQueue(): ?QueueManager {
-		return $this->queue;
+	public function getFacade(): ?QueueManager {
+		return $this->facade;
 	}
 
-	public function setQueue() {
-		$this->queue = $this->funcs->_getApplication('queue');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('queue');
 	}
 
 	/*
@@ -41,7 +40,7 @@ abstract class Queue extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getQueue()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

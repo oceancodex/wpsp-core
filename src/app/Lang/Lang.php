@@ -6,7 +6,6 @@ use Illuminate\Translation\Translator;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Translation\Translator
  * @mixin \Illuminate\Support\Facades\Lang
  */
 abstract class Lang extends BaseInstances {

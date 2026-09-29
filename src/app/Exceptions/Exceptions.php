@@ -1,27 +1,27 @@
 <?php
 
-namespace WPSPCORE\App\Cache;
+namespace WPSPCORE\App\Exceptions;
 
-use Illuminate\Cache\CacheManager;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\Facades\Cache
+ * @mixin \Illuminate\Support\Facades\Exceptions
  */
-abstract class Cache extends BaseInstances {
+abstract class Exceptions extends BaseInstances {
 
-	private ?CacheManager $facade;
+	private ?ExceptionHandler $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CacheManager {
+	public function getFacade(): ?ExceptionHandler {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('cache');
+		$this->facade = $this->funcs->_getApplication(ExceptionHandler::class);
 	}
 
 	/*

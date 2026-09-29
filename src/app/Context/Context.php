@@ -6,7 +6,6 @@ use Illuminate\Log\Context\Repository;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Log\Context\Repository
  * @mixin \Illuminate\Support\Facades\Context
  */
 abstract class Context extends BaseInstances {

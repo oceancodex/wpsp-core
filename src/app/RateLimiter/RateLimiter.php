@@ -2,28 +2,28 @@
 
 namespace WPSPCORE\App\RateLimiter;
 
+use Illuminate\Cache\RateLimiter as RateLimiterCore;
 use Illuminate\Cache\CacheManager;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Cache\RateLimiter
  * @mixin \Illuminate\Support\Facades\RateLimiter
  */
 abstract class RateLimiter extends BaseInstances {
 
-	private ?\Illuminate\Cache\RateLimiter $rateLimiter;
+	private ?RateLimiterCore $facade;
 
 	/*
 	 *
 	 */
 
-	public function getRateLimiter(): ?\Illuminate\Cache\RateLimiter {
-		return $this->rateLimiter;
+	public function getFacade(): ?RateLimiterCore {
+		return $this->facade;
 	}
 
-	public function setRateLimiter() {
+	public function setFacade() {
 		/** @var CacheManager $cacheManager */
-		$this->rateLimiter = $this->funcs->_getApplication(\Illuminate\Cache\RateLimiter::class);
+		$this->facade = $this->funcs->_getApplication(RateLimiterCore::class);
 	}
 
 	/*
@@ -42,7 +42,7 @@ abstract class RateLimiter extends BaseInstances {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getRateLimiter()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

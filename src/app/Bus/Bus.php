@@ -6,7 +6,6 @@ use Illuminate\Contracts\Bus\Dispatcher;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Contracts\Bus\Dispatcher
  * @mixin \Illuminate\Support\Facades\Bus
  */
 abstract class Bus extends BaseInstances {

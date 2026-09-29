@@ -1,27 +1,27 @@
 <?php
 
-namespace WPSPCORE\App\Cache;
+namespace WPSPCORE\App\URL;
 
-use Illuminate\Cache\CacheManager;
+use Illuminate\Routing\UrlGenerator;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\Support\Facades\Cache
+ * @mixin \Illuminate\Support\Facades\URL
  */
-abstract class Cache extends BaseInstances {
+abstract class URL extends BaseInstances {
 
-	private ?CacheManager $facade;
+	private ?UrlGenerator $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CacheManager {
+	public function getFacade(): ?UrlGenerator {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('cache');
+		$this->facade = $this->funcs->_getApplication('url');
 	}
 
 	/*
