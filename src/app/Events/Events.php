@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Events extends BaseInstances {
 
-	private ?EventsDispatcher $events;
+	private ?EventsDispatcher $facade;
 
 	/*
 	 *
 	 */
 
-	public function getEvents(): ?EventsDispatcher {
-		return $this->events;
+	public function getFacade(): ?EventsDispatcher {
+		return $this->facade;
 	}
 
-	public function setEvents() {
-		$this->events = $this->funcs->_getApplication('events');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('events');
 	}
 
 	/*
@@ -33,14 +33,14 @@ abstract class Events extends BaseInstances {
 	}
 
 	public static function __callStatic($method, $arguments) {
-		$instance = static::instance();
+		$instance = static::wpspInstance();
 
 		$underlineMethod = '_' . $method;
 		if (method_exists($instance, $underlineMethod)) {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getEvents()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

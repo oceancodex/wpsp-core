@@ -5,23 +5,22 @@ namespace WPSPCORE\App\View;
 use WPSPCORE\BaseInstances;
 
 /**
- * @mixin \Illuminate\View\Factory
  * @mixin \Illuminate\Support\Facades\View
  */
 abstract class View extends BaseInstances {
 
-	private ?\Illuminate\View\Factory $view;
+	private ?\Illuminate\View\Factory $facade;
 
 	/*
 	 *
 	 */
 
-	public function getView(): ?\Illuminate\View\Factory {
-		return $this->view;
+	public function getFacade(): ?\Illuminate\View\Factory {
+		return $this->facade;
 	}
 
-	public function setView() {
-		$this->view = $this->funcs->_getApplication('view');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('view');
 	}
 
 	/*
@@ -33,14 +32,14 @@ abstract class View extends BaseInstances {
 	}
 
 	public static function __callStatic($method, $arguments) {
-		$instance = static::instance();
+		$instance = static::wpspInstance();
 
 		$underlineMethod = '_' . $method;
 		if (method_exists($instance, $underlineMethod)) {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getView()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }
