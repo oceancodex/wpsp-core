@@ -10,22 +10,22 @@ use WPSPCORE\BaseInstances;
  * @method static saveSessionsAndCookies
  * @method static cleanupOldSessionsForUser
  *
- * @mixin \Illuminate\Support\Facades\Auth|\Illuminate\Contracts\Auth\Guard|\Illuminate\Contracts\Auth\StatefulGuard
+ * @mixin \Illuminate\Support\Facades\Auth
  */
 abstract class Auth extends BaseInstances {
 
-	public ?AuthManager $auth;
+	public ?AuthManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function setAuth() {
-		$this->auth = $this->funcs->_getApplication('auth');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('auth');
 	}
 
-	public function getAuth(): ?AuthManager {
-		return $this->auth;
+	public function getFacade(): ?AuthManager {
+		return $this->facade;
 	}
 
 	/*
@@ -118,14 +118,14 @@ abstract class Auth extends BaseInstances {
 	}
 
 	public static function __callStatic($method, $arguments) {
-		$instance = static::instance();
+		$instance = static::wpspInstance();
 
 		$underlineMethod = '_' . $method;
 		if (method_exists($instance, $underlineMethod)) {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getAuth()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }

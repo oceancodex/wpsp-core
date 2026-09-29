@@ -10,8 +10,11 @@ trait AdminPageTrait {
 	 * Ghi đè page_title bằng cách sử dụng filter "admin_title".
 	 */
 	public function overridePageTitle($overrideTitle = null) {
-		$overrideTitle = $overrideTitle ?? $this->page_title_override ?? $this->page_title;
+		$overrideTitle = $overrideTitle ?? $this->page_title_override ?? $this->page_title ?? $this->menu_title ?? $this->menu_slug;
 		if ($overrideTitle) {
+			global $title;
+			$title = $overrideTitle; // Fix lỗi \wp-admin\admin-header.php:41 => strip_tags(): Passing null to parameter #1 ($string) of type string is deprecated
+
 			add_filter('admin_title', function($admin_title, $title) use ($overrideTitle) {
 				return $overrideTitle;
 			}, 9999999999, 2);
