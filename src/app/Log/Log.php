@@ -7,22 +7,21 @@ use WPSPCORE\BaseInstances;
 
 /**
  * @mixin \Illuminate\Support\Facades\Log
- * @mixin \Illuminate\Log\LogManager
  */
 abstract class Log extends BaseInstances {
 
-	private ?LogManager $log;
+	private ?LogManager $facade;
 
 	/*
 	 *
 	 */
 
-	public function getLog(): ?LogManager {
-		return $this->log;
+	public function getFacade(): ?LogManager {
+		return $this->facade;
 	}
 
-	public function setLog() {
-		$this->log = $this->funcs->_getApplication('log');
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('log');
 	}
 
 	/*
@@ -34,14 +33,14 @@ abstract class Log extends BaseInstances {
 	}
 
 	public static function __callStatic($method, $arguments) {
-		$instance = static::instance();
+		$instance = static::wpspInstance();
 
 		$underlineMethod = '_' . $method;
 		if (method_exists($instance, $underlineMethod)) {
 			return $instance->$underlineMethod(...$arguments);
 		}
 
-		return $instance->getLog()?->$method(...$arguments);
+		return $instance->getFacade()?->$method(...$arguments);
 	}
 
 }
