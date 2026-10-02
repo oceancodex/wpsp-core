@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Pipeline;
 
-use \Illuminate\Pipeline\Pipeline as PipelineCore;
+use \Illuminate\Pipeline\Pipeline as IlluminatePipeline;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Pipeline extends BaseInstances {
 
-	private ?PipelineCore $facade;
+	private ?IlluminatePipeline $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?PipelineCore {
+	public function getFacade(): ?IlluminatePipeline {
 		return $this->facade;
 	}
 

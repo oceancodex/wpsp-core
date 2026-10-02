@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Blade;
 
-use Illuminate\View\Compilers\BladeCompiler;
+use Illuminate\View\Compilers\BladeCompiler as IlluminateBlade;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Blade extends BaseInstances {
 
-	private ?BladeCompiler $facade;
+	private ?IlluminateBlade $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?BladeCompiler {
+	public function getFacade(): ?IlluminateBlade {
 		return $this->facade;
 	}
 

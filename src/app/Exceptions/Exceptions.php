@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Exceptions;
 
-use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Contracts\Debug\ExceptionHandler as IlluminateExceptions;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Exceptions extends BaseInstances {
 
-	private ?ExceptionHandler $facade;
+	private ?IlluminateExceptions $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?ExceptionHandler {
+	public function getFacade(): ?IlluminateExceptions {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication(ExceptionHandler::class);
+		$this->facade = $this->funcs->_getApplication(IlluminateExceptions::class);
 	}
 
 	/*

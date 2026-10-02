@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Database;
 
-use Illuminate\Database\DatabaseManager;
+use Illuminate\Database\DatabaseManager as IlluminateDB;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class DB extends BaseInstances {
 
-	private ?DatabaseManager $facade;
+	private ?IlluminateDB $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?DatabaseManager {
+	public function getFacade(): ?IlluminateDB {
 		return $this->facade;
 	}
 

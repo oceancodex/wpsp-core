@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Bus;
 
-use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Contracts\Bus\Dispatcher as IlluminateBus;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Bus extends BaseInstances {
 
-	private ?Dispatcher $facade;
+	private ?IlluminateBus $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?Dispatcher {
+	public function getFacade(): ?IlluminateBus {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication(Dispatcher::class);
+		$this->facade = $this->funcs->_getApplication(IlluminateBus::class);
 	}
 
 	/*

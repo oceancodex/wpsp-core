@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Redis;
 
-use \Illuminate\Redis\RedisManager;
+use \Illuminate\Redis\RedisManager as IlluminateRedis;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Redis extends BaseInstances {
 
-	private ?RedisManager $facade;
+	private ?IlluminateRedis $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?RedisManager {
+	public function getFacade(): ?IlluminateRedis {
 		return $this->facade;
 	}
 

@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Context;
 
-use Illuminate\Log\Context\Repository;
+use Illuminate\Log\Context\Repository as IlluminateContext;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Context extends BaseInstances {
 
-	private ?Repository $facade;
+	private ?IlluminateContext $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?Repository {
+	public function getFacade(): ?IlluminateContext {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication(Repository::class);
+		$this->facade = $this->funcs->_getApplication(IlluminateContext::class);
 	}
 
 	/*

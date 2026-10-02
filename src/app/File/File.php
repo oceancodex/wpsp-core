@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\File;
 
-use Illuminate\Filesystem\Filesystem;
+use Illuminate\Filesystem\Filesystem as IlluminateFile;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class File extends BaseInstances {
 
-	private ?Filesystem $facade;
+	private ?IlluminateFile $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?Filesystem {
+	public function getFacade(): ?IlluminateFile {
 		return $this->facade;
 	}
 

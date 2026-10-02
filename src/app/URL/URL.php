@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\URL;
 
-use Illuminate\Routing\UrlGenerator;
+use Illuminate\Routing\UrlGenerator as IlluminateUrl;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class URL extends BaseInstances {
 
-	private ?UrlGenerator $facade;
+	private ?IlluminateUrl $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?UrlGenerator {
+	public function getFacade(): ?IlluminateUrl {
 		return $this->facade;
 	}
 

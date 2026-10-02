@@ -3,7 +3,7 @@
 namespace WPSPCORE\App\Session;
 
 use Illuminate\Cookie\CookieJar;
-use Illuminate\Session\SessionManager;
+use Illuminate\Session\SessionManager as IlluminateSession;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -11,13 +11,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Session extends BaseInstances {
 
-	private ?SessionManager $facade;
+	private ?IlluminateSession $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?SessionManager {
+	public function getFacade(): ?IlluminateSession {
 		return $this->facade;
 	}
 
