@@ -2,7 +2,8 @@
 
 namespace WPSPCORE\App\Broadcast;
 
-use Illuminate\Broadcasting\BroadcastManager;
+use Illuminate\Broadcasting\BroadcastManager as IlluminateBroadcast;
+use Illuminate\Contracts\Broadcasting\Factory as IlluminateBroadcastFactory;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +11,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Broadcast extends BaseInstances {
 
-	private ?BroadcastManager $facade;
+	private ?IlluminateBroadcast $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?BroadcastManager {
+	public function getFacade(): ?IlluminateBroadcast {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication(\Illuminate\Contracts\Broadcasting\Factory::class);
+		$this->facade = $this->funcs->_getApplication(IlluminateBroadcastFactory::class);
 	}
 
 	/*

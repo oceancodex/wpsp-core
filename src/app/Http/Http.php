@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Http;
 
-use Illuminate\Http\Client\Factory;
+use Illuminate\Http\Client\Factory as IlluminateHttp;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Http extends BaseInstances {
 
-	private ?Factory $facade;
+	private ?IlluminateHttp $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?Factory {
+	public function getFacade(): ?IlluminateHttp {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication(Factory::class);
+		$this->facade = $this->funcs->_getApplication(IlluminateHttp::class);
 	}
 
 	/*

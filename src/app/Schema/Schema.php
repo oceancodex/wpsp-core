@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Schema;
 
-use Illuminate\Database\Schema\Builder as SchemaCore;
+use Illuminate\Database\Schema\Builder as IlluminateSchema;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Schema extends BaseInstances {
 
-	private ?SchemaCore $facade;
+	private ?IlluminateSchema $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?SchemaCore {
+	public function getFacade(): ?IlluminateSchema {
 		return $this->facade;
 	}
 

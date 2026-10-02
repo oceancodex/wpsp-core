@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Config;
 
-use Illuminate\Config\Repository;
+use Illuminate\Config\Repository as IlluminateConfig;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Config extends BaseInstances {
 
-	private ?Repository $facade;
+	private ?IlluminateConfig $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?Repository {
+	public function getFacade(): ?IlluminateConfig {
 		return $this->facade;
 	}
 

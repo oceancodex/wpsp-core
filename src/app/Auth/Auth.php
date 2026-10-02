@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Auth;
 
-use Illuminate\Auth\AuthManager;
+use Illuminate\Auth\AuthManager as IlluminateAuth;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use WPSPCORE\BaseInstances;
 
@@ -14,18 +14,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Auth extends BaseInstances {
 
-	public ?AuthManager $facade;
+	public ?IlluminateAuth $facade;
 
 	/*
 	 *
 	 */
 
-	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('auth');
+	public function getFacade(): ?IlluminateAuth {
+		return $this->facade;
 	}
 
-	public function getFacade(): ?AuthManager {
-		return $this->facade;
+	public function setFacade() {
+		$this->facade = $this->funcs->_getApplication('auth');
 	}
 
 	/*

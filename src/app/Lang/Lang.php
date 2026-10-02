@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Lang;
 
-use Illuminate\Translation\Translator;
+use Illuminate\Translation\Translator as IlluminateLang;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Lang extends BaseInstances {
 
-	private ?Translator $facade;
+	private ?IlluminateLang $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?Translator {
+	public function getFacade(): ?IlluminateLang {
 		return $this->facade;
 	}
 

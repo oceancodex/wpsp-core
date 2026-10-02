@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\MaintenanceMode;
 
-use Illuminate\Foundation\MaintenanceModeManager;
+use Illuminate\Foundation\MaintenanceModeManager as IlluminateMaintenanceMode;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class MaintenanceMode extends BaseInstances {
 
-	private ?MaintenanceModeManager $facade;
+	private ?IlluminateMaintenanceMode $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?MaintenanceModeManager {
+	public function getFacade(): ?IlluminateMaintenanceMode {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication(MaintenanceModeManager::class);
+		$this->facade = $this->funcs->_getApplication(IlluminateMaintenanceMode::class);
 	}
 
 	/*

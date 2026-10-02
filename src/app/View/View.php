@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\App\View;
 
+use Illuminate\View\Factory as IlluminateView;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -9,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class View extends BaseInstances {
 
-	private ?\Illuminate\View\Factory $facade;
+	private ?IlluminateView $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?\Illuminate\View\Factory {
+	public function getFacade(): ?IlluminateView {
 		return $this->facade;
 	}
 
