@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Cache;
 
-use Illuminate\Cache\CacheManager;
+use Illuminate\Cache\CacheManager as IlluminateCache;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Cache extends BaseInstances {
 
-	private ?CacheManager $facade;
+	private ?IlluminateCache $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CacheManager {
+	public function getFacade(): ?IlluminateCache {
 		return $this->facade;
 	}
 

@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Notification;
 
-use Illuminate\Notifications\ChannelManager;
+use Illuminate\Notifications\ChannelManager as IlluminateNotification;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Notification extends BaseInstances {
 
-	private ?ChannelManager $facade;
+	private ?IlluminateNotification $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?ChannelManager {
+	public function getFacade(): ?IlluminateNotification {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication(ChannelManager::class);
+		$this->facade = $this->funcs->_getApplication(IlluminateNotification::class);
 	}
 
 	/*

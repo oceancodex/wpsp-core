@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Concurrency;
 
-use Illuminate\Concurrency\ConcurrencyManager;
+use Illuminate\Concurrency\ConcurrencyManager as IlluminateConcurrency;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Concurrency extends BaseInstances {
 
-	private ?ConcurrencyManager $facade;
+	private ?IlluminateConcurrency $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?ConcurrencyManager {
+	public function getFacade(): ?IlluminateConcurrency {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication(ConcurrencyManager::class);
+		$this->facade = $this->funcs->_getApplication(IlluminateConcurrency::class);
 	}
 
 	/*

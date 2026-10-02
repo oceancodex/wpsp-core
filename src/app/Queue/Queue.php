@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Queue;
 
-use Illuminate\Queue\QueueManager;
+use Illuminate\Queue\QueueManager as IlluminateQueue;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Queue extends BaseInstances {
 
-	private ?QueueManager $facade;
+	private ?IlluminateQueue $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?QueueManager {
+	public function getFacade(): ?IlluminateQueue {
 		return $this->facade;
 	}
 

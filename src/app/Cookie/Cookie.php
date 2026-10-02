@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Cookie;
 
-use Illuminate\Cookie\CookieJar;
+use Illuminate\Cookie\CookieJar as IlluminateCookie;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Cookie extends BaseInstances {
 
-	private ?CookieJar $facade;
+	private ?IlluminateCookie $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CookieJar {
+	public function getFacade(): ?IlluminateCookie {
 		return $this->facade;
 	}
 

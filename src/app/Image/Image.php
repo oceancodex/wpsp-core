@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Image;
 
-use Illuminate\Image\ImageManager;
+use Illuminate\Image\ImageManager as IlluminateImage;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Image extends BaseInstances {
 
-	private ?ImageManager $facade;
+	private ?IlluminateImage $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?ImageManager {
+	public function getFacade(): ?IlluminateImage {
 		return $this->facade;
 	}
 

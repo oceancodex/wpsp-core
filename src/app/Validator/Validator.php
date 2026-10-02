@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Validator;
 
-use Illuminate\Validation\Factory as ValidatorCore;
+use Illuminate\Validation\Factory as IlluminateValidator;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Validator extends BaseInstances {
 
-	private ?ValidatorCore $facade;
+	private ?IlluminateValidator $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?ValidatorCore {
+	public function getFacade(): ?IlluminateValidator {
 		return $this->facade;
 	}
 

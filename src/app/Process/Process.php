@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Process;
 
-use Illuminate\Process\Factory;
+use Illuminate\Process\Factory as IlluminateProcess;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Process extends BaseInstances {
 
-	private ?Factory $facade;
+	private ?IlluminateProcess $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?Factory {
+	public function getFacade(): ?IlluminateProcess {
 		return $this->facade;
 	}
 

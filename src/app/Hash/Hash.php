@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Hash;
 
-use Illuminate\Hashing\HashManager;
+use Illuminate\Hashing\HashManager as IlluminateHash;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Hash extends BaseInstances {
 
-	private ?HashManager $facade;
+	private ?IlluminateHash $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?HashManager {
+	public function getFacade(): ?IlluminateHash {
 		return $this->facade;
 	}
 

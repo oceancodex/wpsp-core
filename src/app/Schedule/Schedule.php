@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Schedule;
 
-use Illuminate\Console\Scheduling\Schedule as ScheduleCore;
+use Illuminate\Console\Scheduling\Schedule as IlluminateSchedule;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Schedule extends BaseInstances {
 
-	private ?ScheduleCore $facade;
+	private ?IlluminateSchedule $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?ScheduleCore {
+	public function getFacade(): ?IlluminateSchedule {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication(ScheduleCore::class);
+		$this->facade = $this->funcs->_getApplication(IlluminateSchedule::class);
 	}
 
 	/*

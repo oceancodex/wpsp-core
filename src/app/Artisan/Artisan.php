@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Artisan;
 
-use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Contracts\Console\Kernel as IlluminateArtisan;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Artisan extends BaseInstances {
 
-	private ?Kernel $facade;
+	private ?IlluminateArtisan $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?Kernel {
+	public function getFacade(): ?IlluminateArtisan {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication(Kernel::class);
+		$this->facade = $this->funcs->_getApplication(IlluminateArtisan::class);
 	}
 
 	/*
