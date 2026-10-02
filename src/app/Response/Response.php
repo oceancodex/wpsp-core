@@ -21,7 +21,7 @@ abstract class Response extends BaseInstances {
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('redis');
+		$this->facade = $this->funcs->_getApplication('response');
 	}
 
 	/*

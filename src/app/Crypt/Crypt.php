@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Crypt;
 
-use Illuminate\Encryption\Encrypter;
+use Illuminate\Encryption\Encrypter as IlluminateCrypt;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Crypt extends BaseInstances {
 
-	private ?Encrypter $facade;
+	private ?IlluminateCrypt $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?Encrypter {
+	public function getFacade(): ?IlluminateCrypt {
 		return $this->facade;
 	}
 

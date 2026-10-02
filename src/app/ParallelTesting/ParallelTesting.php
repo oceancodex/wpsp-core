@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\ParallelTesting;
 
-use Illuminate\Testing\ParallelTesting as ParallelTestingCore;
+use Illuminate\Testing\ParallelTesting as IlluminateParallelTesting;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class ParallelTesting extends BaseInstances {
 
-	private ?ParallelTestingCore $facade;
+	private ?IlluminateParallelTesting $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?ParallelTestingCore {
+	public function getFacade(): ?IlluminateParallelTesting {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication(ParallelTestingCore::class);
+		$this->facade = $this->funcs->_getApplication(IlluminateParallelTesting::class);
 	}
 
 	/*

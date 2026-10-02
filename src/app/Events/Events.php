@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Events;
 
-use Illuminate\Events\Dispatcher as EventsDispatcher;
+use Illuminate\Events\Dispatcher as IlluminateEvents;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Events extends BaseInstances {
 
-	private ?EventsDispatcher $facade;
+	private ?IlluminateEvents $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?EventsDispatcher {
+	public function getFacade(): ?IlluminateEvents {
 		return $this->facade;
 	}
 

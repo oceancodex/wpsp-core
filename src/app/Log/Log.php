@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Log;
 
-use Illuminate\Log\LogManager;
+use Illuminate\Log\LogManager as IlluminateLog;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Log extends BaseInstances {
 
-	private ?LogManager $facade;
+	private ?IlluminateLog $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?LogManager {
+	public function getFacade(): ?IlluminateLog {
 		return $this->facade;
 	}
 

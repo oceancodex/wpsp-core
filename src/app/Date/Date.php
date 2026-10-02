@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Date;
 
-use Illuminate\Support\DateFactory;
+use Illuminate\Support\DateFactory as IlluminateDate;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Date extends BaseInstances {
 
-	private ?DateFactory $facade;
+	private ?IlluminateDate $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?DateFactory {
+	public function getFacade(): ?IlluminateDate {
 		return $this->facade;
 	}
 

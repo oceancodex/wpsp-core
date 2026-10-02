@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Vite;
 
-use Illuminate\Foundation\Vite as ViteCore;
+use Illuminate\Foundation\Vite as IlluminateVite;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Vite extends BaseInstances {
 
-	private ?ViteCore $facade;
+	private ?IlluminateVite $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?ViteCore {
+	public function getFacade(): ?IlluminateVite {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('validator');
+		$this->facade = $this->funcs->_getApplication('vite');
 	}
 
 	/*

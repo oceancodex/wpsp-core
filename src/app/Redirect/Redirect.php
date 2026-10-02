@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Redirect;
 
-use \Illuminate\Routing\Redirector;
+use \Illuminate\Routing\Redirector as IlluminateRedirect;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Redirect extends BaseInstances {
 
-	private ?Redirector $facade;
+	private ?IlluminateRedirect $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?Redirector {
+	public function getFacade(): ?IlluminateRedirect {
 		return $this->facade;
 	}
 

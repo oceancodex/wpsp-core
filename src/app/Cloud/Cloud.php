@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Cloud;
 
-use Illuminate\Foundation\Cloud\CloudManager;
+use Illuminate\Foundation\Cloud\CloudManager as IlluminateCloud;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Cloud extends BaseInstances {
 
-	private ?CloudManager $facade;
+	private ?IlluminateCloud $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?CloudManager {
+	public function getFacade(): ?IlluminateCloud {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication(CloudManager::class);
+		$this->facade = $this->funcs->_getApplication(IlluminateCloud::class);
 	}
 
 	/*
