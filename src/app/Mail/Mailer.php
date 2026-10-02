@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\App\Mail;
 
+use Illuminate\Mail\Mailer as IlluminateMailer;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -9,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Mailer extends BaseInstances {
 
-	private ?\Illuminate\Mail\Mailer $facade;
+	private ?IlluminateMailer $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?\Illuminate\Mail\Mailer {
+	public function getFacade(): ?IlluminateMailer {
 		return $this->facade;
 	}
 

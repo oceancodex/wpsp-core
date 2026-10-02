@@ -3,7 +3,7 @@
 namespace WPSPCORE\App\Storage;
 
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Filesystem\FilesystemManager;
+use Illuminate\Filesystem\FilesystemManager as IlluminateStorage;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -11,13 +11,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Storage extends BaseInstances {
 
-	private ?FilesystemManager $facade;
+	private ?IlluminateStorage $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?FilesystemManager {
+	public function getFacade(): ?IlluminateStorage {
 		return $this->facade;
 	}
 

@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Gate;
 
-use Illuminate\Contracts\Auth\Access\Gate as GateContract;
+use Illuminate\Contracts\Auth\Access\Gate as IlluminateGate;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,18 +10,18 @@ use WPSPCORE\BaseInstances;
  */
 abstract class Gate extends BaseInstances {
 
-	private ?GateContract $facade;
+	private ?IlluminateGate $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?GateContract {
+	public function getFacade(): ?IlluminateGate {
 		return $this->facade;
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication(GateContract::class);
+		$this->facade = $this->funcs->_getApplication(IlluminateGate::class);
 	}
 
 	/*

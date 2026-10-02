@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Request;
 
-use \Illuminate\Http\Request as RequestCore;
+use Illuminate\Http\Request as RequestCore;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -21,7 +21,7 @@ abstract class Request extends BaseInstances {
 	}
 
 	public function setFacade() {
-		$this->facade = $this->funcs->_getApplication('redis');
+		$this->facade = $this->funcs->_getApplication('request');
 	}
 
 	/*
