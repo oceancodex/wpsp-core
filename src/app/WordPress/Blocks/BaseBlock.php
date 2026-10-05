@@ -43,7 +43,7 @@ abstract class BaseBlock extends BaseInstances {
 		if ($name) {
 			$blockPath = $this->blockPath ?? $this->funcs->_getResourcesPath('/views/blocks/build/' . $name);
 
-			if (File::exists($blockPath)) {
+			if (class_exists('Illuminate\Support\Facades\File') ? File::exists($blockPath) : file_exists($blockPath)) {
 				if (method_exists($this, 'render')) {
 					$this->args['render_callback'] = function($attributes, $content, $block) use ($requestPath) {
 						return $this->autoResolveAndCall(

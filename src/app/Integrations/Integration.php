@@ -78,7 +78,15 @@ class Integration extends BaseInstances {
 	public function registerIntergrationPackage($packageClass) {
 		try {
 			if (class_exists($packageClass) && method_exists($packageClass, 'init')) {
-				$package = $this->funcs->_getApplication()->make($packageClass);
+
+				if ($container = $this->funcs->_getApplication()) {
+					$package = $this->funcs->_getApplication()->make($packageClass);
+				}
+
+				else {
+					$package = $this->manualMakeClass($packageClass);
+				}
+
 				$activate = $package->getActivate();
 				if ($activate) {
 					$callback = $this->prepareRouteCallback([$package, 'init']);

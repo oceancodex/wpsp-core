@@ -215,17 +215,31 @@ trait RouteTrait {
 					return false;
 				}
 
-				$instance = $app->make($class);
+				if ($app && method_exists($app, 'make')) {
+					$instance = $app->make($class);
+				}
+				else {
+					$instance = $this->manualMakeClass($class);
+				}
 
 				if (!method_exists($instance, $method)) {
 					$method = 'handle';
 				}
 
-				$res = $app->call([$instance, $method], [
-					'request' => $request,
-					'next'    => $next,
-					'args'    => $mw['args'] ?? null,
-				]);
+				if ($app && method_exists($app, 'call')) {
+					$res = $app->call([$instance, $method], [
+						'request' => $request,
+						'next'    => $next,
+						'args'    => $mw['args'] ?? null,
+					]);
+				}
+				else {
+					$res = $this->manualResolveAndCall([$instance, $method], [
+						'request' => $request,
+						'next'    => $next,
+						'args'    => $mw['args'] ?? null,
+					]);
+				}
 			}
 
 			if ($res instanceof Response) {
@@ -361,8 +375,14 @@ trait RouteTrait {
 		return function() use ($method, $path, $fullPath, $class, $args) {
 			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
 
-			// build callback [instance, method]
-			$callback = [$class ?? $this, $method];
+			// Nếu truyền tên class thay vì instance, tự khởi tạo class với DI bằng manualMakeClass
+			$targetInstance = $class;
+			if (is_string($class) && class_exists($class)) {
+				$container = method_exists($this->funcs, '_getApplication') ? $this->funcs->_getApplication() : null;
+				$targetInstance = $container ? $container->make($class) : $this->manualMakeClass($class);
+			}
+
+			$callback = [$targetInstance ?? $this, $method];
 
 			if (!isset($args['route'])) {
 				$args['route'] = $this->extraParams['route'] ?? null;
@@ -598,7 +618,7 @@ trait RouteTrait {
 				$value = $named[$name];
 			}
 			// 2) attributes (request attributes)
-			elseif (array_key_exists($name, $attr)) {
+			elseif (array_key_exists($name, is_array($attr) ? $attr : $attr->all())) {
 				$value = $attr[$name];
 			}
 			// 3) POST (body)
@@ -665,6 +685,130 @@ trait RouteTrait {
 		return $callParams;
 	}
 
+	/*
+	 *
+	 */
+
+	/**
+	 * Tự động Resolve Dependency Injection dựa trên Reflection khi không có Laravel Container.
+	 */
+	protected function manualResolveAndCall($callback, array $callParams = []) {
+		if ($callback instanceof \Closure) {
+			$reflection = new \ReflectionFunction($callback);
+			$instance   = null;
+		} elseif (is_array($callback)) {
+			[$classOrInstance, $method] = $callback;
+
+			if (is_object($classOrInstance)) {
+				$instance = $classOrInstance;
+				$class    = get_class($instance);
+			} else {
+				$class    = $classOrInstance;
+				// Tự động DI vào Constructor của Controller/Class nếu truyền vào tên Class
+				$instance = $this->manualMakeClass($class);
+			}
+
+			$reflection = new \ReflectionMethod($instance ?? $class, $method);
+		} else {
+			throw new \InvalidArgumentException("Unsupported callback type for manual DI.");
+		}
+
+		$resolvedArgs = [];
+
+		foreach ($reflection->getParameters() as $param) {
+			$paramName = $param->getName();
+			$paramType = $param->getType();
+			$className = $this->getClassFromType($paramType);
+
+			// 1. Nếu tham số đã có sẵn trong $callParams (ví dụ: $request, $id từ Route, ...)
+			if (array_key_exists($paramName, $callParams)) {
+				$resolvedArgs[] = $callParams[$paramName];
+				continue;
+			}
+
+			// 2. Nếu tham số là một Class Type-hint (ví dụ: Request $request, MyService $service)
+			if ($className && class_exists($className)) {
+				// Kiểm tra xem trong $callParams có instance nào khớp kiểu dữ liệu không
+				$foundMatch = false;
+				foreach ($callParams as $argVal) {
+					if (is_object($argVal) && $argVal instanceof $className) {
+						$resolvedArgs[] = $argVal;
+						$foundMatch = true;
+						break;
+					}
+				}
+
+				if ($foundMatch) {
+					continue;
+				}
+
+				// Nếu không có trong $callParams, tiến hành tự instantiate Class đó (Đệ quy DI)
+				$resolvedArgs[] = $this->manualMakeClass($className);
+				continue;
+			}
+
+			// 3. Nếu là tham số primitive có giá trị Default trong method signature
+			if ($param->isDefaultValueAvailable()) {
+				$resolvedArgs[] = $param->getDefaultValue();
+				continue;
+			}
+
+			// 4. Fallback mặc định là null nếu không match điều kiện nào
+			$resolvedArgs[] = null;
+		}
+
+		// Thực thi Callback với danh sách Tham số đã được DI tự động
+		if ($callback instanceof \Closure) {
+			return $reflection->invokeArgs($resolvedArgs);
+		}
+
+		return $reflection->invokeArgs($instance, $resolvedArgs);
+	}
+
+	/**
+	 * Tự động tạo Instance của một Class và Inject các Dependency vào Constructor của nó (Manual Instantiation).
+	 */
+	protected function manualMakeClass(string $className) {
+		if (!class_exists($className)) {
+			throw new \RuntimeException("Class {$className} does not exist.");
+		}
+
+		$reflector = new \ReflectionClass($className);
+
+		// Nếu Class không thể instantiate (Interface, Abstract class, ...)
+		if (!$reflector->isInstantiable()) {
+			throw new \RuntimeException("Class {$className} is not instantiable.");
+		}
+
+		$constructor = $reflector->getConstructor();
+
+		// Nếu Class không có Constructor -> new trực tiếp
+		if (is_null($constructor)) {
+			return new $className();
+		}
+
+		$constructorParams = [];
+		foreach ($constructor->getParameters() as $param) {
+			$paramType = $param->getType();
+			$typeClass = $this->getClassFromType($paramType);
+
+			if ($typeClass && class_exists($typeClass)) {
+				// Đệ quy tự make các dependency của constructor
+				$constructorParams[] = $this->manualMakeClass($typeClass);
+			} elseif ($param->isDefaultValueAvailable()) {
+				$constructorParams[] = $param->getDefaultValue();
+			} else {
+				$constructorParams[] = null;
+			}
+		}
+
+		return $reflector->newInstanceArgs($constructorParams);
+	}
+
+	/*
+	 *
+	 */
+
 	/**
 	 * Đưa tham số route vào request để có thể truyền vào callback.\
 	 * Ví dụ:
@@ -707,9 +851,11 @@ trait RouteTrait {
 					|| @preg_match($route->fullPathRegex, $originalRequestPath)
 				)
 			) {
-				$this->request->setRouteResolver(function() use ($route) {
-					return $route;
-				});
+				if (method_exists($this->request, 'setRouteResolver')) {
+					$this->request->setRouteResolver(function() use ($route) {
+						return $route;
+					});
+				}
 			}
 		}
 	}
@@ -775,25 +921,42 @@ trait RouteTrait {
 	 * "callParams" có thể được chuẩn bị bằng method getCallParams().
 	 */
 	public function resolveAndCall($callback, $callParams = [], $call = true, $method = null) {
-		// Set route resolver.
-//		$this->setRouteResolver();
+		/** @var \Illuminate\Container\Container|\Illuminate\Foundation\Application|null $container */
+		$container = method_exists($this->funcs, '_getApplication')
+			? $this->funcs->_getApplication()
+			: null;
 
-		/** @var \Illuminate\Container\Container|\Illuminate\Foundation\Application $container */
-		$container = $this->funcs->_getApplication();
+		// Set container và facade theo mỗi lần gọi callback nếu có sẵn
+		if ($container) {
+			if (class_exists('Illuminate\Container\Container')) {
+				Container::setInstance($container);
+			}
+			if (class_exists('Illuminate\Support\Facades\Facade')) {
+				Facade::setFacadeApplication($container);
+			}
+			if (class_exists('Illuminate\Database\Eloquent\Model') && isset($container['db'])) {
+				Model::setConnectionResolver($container['db']);
+				Model::setEventDispatcher($container['events']);
+			}
 
-		// Set container và facade theo mỗi lần gọi callback.
-		Container::setInstance($container);
-		Facade::setFacadeApplication($container);
-		Model::setConnectionResolver($container['db']);
-		Model::setEventDispatcher($container['events']);
+			if (!$call) {
+				return function(...$wpParams) use ($container, $callback, $callParams) {
+					return $container->call($callback, $callParams);
+				};
+			}
 
-		if (!$call) {
-			return function(...$wpParams) use ($container, $callback, $callParams) {
-				return $container->call($callback, $callParams);
-			};
+			return $container->call($callback, $callParams);
 		}
+		else {
+			// === KHÔNG CÓ CONTAINER -> SỬ DỤNG MANUAL RESOLVER ===
+			if (!$call) {
+				return function(...$wpParams) use ($callback, $callParams) {
+					return $this->manualResolveAndCall($callback, $callParams);
+				};
+			}
 
-		return $container->call($callback, $callParams);
+			return $this->manualResolveAndCall($callback, $callParams);
+		}
 	}
 
 	/**
