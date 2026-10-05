@@ -73,7 +73,7 @@ trait BaseInstancesTrait {
 	public function prepareFuncs() {
 		if ($this->funcs) return;
 
-		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
+		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs']) {
 			if (is_bool($this->extraParams['funcs'])) {
 				$this->funcs = new \WPSPCORE\Funcs(
 					$this->mainPath,
@@ -100,7 +100,7 @@ trait BaseInstancesTrait {
 			else {
 				$this->request = $this->funcs->_getApplication('request');
 				if (!$this->request && !class_exists('Illuminate\Http\Request')) {
-					$request = \WPSPCORE\App\Widen\Commons\Http\Request::capture();
+					$request = $this->funcs->_getRequestClass()::capture();
 					$this->request = $request;
 				}
 			}
