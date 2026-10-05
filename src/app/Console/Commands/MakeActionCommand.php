@@ -2,8 +2,8 @@
 
 namespace WPSPCORE\App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
+use WPSPCORE\App\Console\Command;
+use WPSPCORE\App\File\File;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class MakeActionCommand extends Command {

@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Console\Commands;
 
-use Illuminate\Console\Command;
+use WPSPCORE\App\Console\Command;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class RouteWatchCommand extends Command {

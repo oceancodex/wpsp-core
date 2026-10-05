@@ -2,9 +2,9 @@
 
 namespace WPSPCORE\App\Console\Commands;
 
-use Illuminate\Console\Command;
+use WPSPCORE\App\Console\Command;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\File;
+use WPSPCORE\App\File\File;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class MakeAjaxCommand extends Command {
