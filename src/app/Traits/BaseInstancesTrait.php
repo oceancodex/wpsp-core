@@ -2,7 +2,8 @@
 
 namespace WPSPCORE\App\Traits;
 
-use Illuminate\Http\Request;
+use Illuminate\Http\Request as IlluminateRequest;
+use WPSPCORE\App\Widen\Http\Request as WPSPCORE_Request;
 use WPSPCORE\App\Routes\RouteTrait;
 
 /**
@@ -107,7 +108,7 @@ trait BaseInstancesTrait {
 			}
 		}
 		else {
-			$this->request = \WPSPCORE\App\Widen\Http\Request::capture();
+			$this->request = WPSPCORE_Request::capture();
 
 			if (class_exists('Illuminate\Http\Request')) {
 				// Set user resolver.
