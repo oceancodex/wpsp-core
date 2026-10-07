@@ -133,6 +133,7 @@ abstract class WPSP extends BaseInstances {
 	 */
 
 	public function setPaths() {
+		$this->application->useEnvironmentPath($this->mainPath);
 		$this->application->useAppPath($this->mainPath . '/app');
 		$this->application->useLangPath($this->mainPath . '/lang');
 		$this->application->useConfigPath($this->mainPath . '/config');
@@ -140,10 +141,6 @@ abstract class WPSP extends BaseInstances {
 		$this->application->useStoragePath($this->mainPath . '/storage');
 		$this->application->useDatabasePath($this->mainPath . '/database');
 		$this->application->useBootstrapPath($this->mainPath . '/bootstrap');
-
-		if (class_exists('Illuminate\Foundation\Application')) {
-			$this->application->useEnvironmentPath($this->mainPath);
-		}
 	}
 
 	/*
@@ -169,15 +166,11 @@ abstract class WPSP extends BaseInstances {
 	 */
 	private function bindingsBase(): void {
 		$this->application->instance('request', $this->request);
-
-		if (class_exists('Illuminate\Foundation\Application')) {
-			$this->application->singleton('files', fn() => new Filesystem());
-			$this->application->singleton('process', fn($app) => $app->make(ProcessFactory::class));
-			$this->application->singleton('filesystem', fn($app) => new FilesystemManager($app));
-			$this->application->alias('filesystem', 'storage');
-			$this->application->alias('filesystem', FilesystemManager::class);
-		}
-
+		$this->application->singleton('files', fn() => new Filesystem());
+		$this->application->singleton('process', fn($app) => $app->make(ProcessFactory::class));
+		$this->application->singleton('filesystem', fn($app) => new FilesystemManager($app));
+		$this->application->alias('filesystem', 'storage');
+		$this->application->alias('filesystem', FilesystemManager::class);
 		$this->application->instance('funcs', $this->funcs ??= new Funcs(
 			$this->mainPath,
 			$this->rootNamespace,
@@ -193,12 +186,10 @@ abstract class WPSP extends BaseInstances {
 	public function bindings() {
 		$this->bindingsBase();
 
-		if (class_exists('Illuminate\Console\Application')) {
-			// Exception Renderer Listener — bắt query/log/dump cho trang lỗi.
-			// Bind singleton TRƯỚC khi make để renderer và listener share cùng instance.
-			$this->application->singleton(ExceptionRendererListener::class);
-			$this->application->make(ExceptionRendererListener::class)->registerListeners($this->application->make('events'));
-		}
+		// Exception Renderer Listener — bắt query/log/dump cho trang lỗi.
+		// Bind singleton TRƯỚC khi make để renderer và listener share cùng instance.
+		$this->application->singleton(ExceptionRendererListener::class);
+		$this->application->make(ExceptionRendererListener::class)->registerListeners($this->application->make('events'));
 	}
 
 	// Alias giữ lại tương thích ngược.
