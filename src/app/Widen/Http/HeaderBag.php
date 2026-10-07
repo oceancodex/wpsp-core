@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\App\Widen\Lite\Http;
+namespace WPSPCORE\App\Widen\Http;
 
 use ArrayIterator;
 use Countable;

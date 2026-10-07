@@ -6,7 +6,7 @@
  * Time: 8:56 CH
  */
 
-namespace WPSPCORE\App\Widen\Lite;
+namespace WPSPCORE\App\Widen;
 
 use WPSPCORE\App\Console\Command;
 

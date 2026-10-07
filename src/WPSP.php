@@ -17,12 +17,11 @@ use Illuminate\Foundation\Bootstrap\RegisterProviders;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Exceptions\Renderer\Listener as ExceptionRendererListener;
-use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Process\Factory as ProcessFactory;
 use Illuminate\Support\Timebox;
 use WPSPCORE\App\Http\Middleware\WPSPStartSession;
 use WPSPCORE\App\View\Directives\adminpagemetaboxes;
-use WPSPCORE\App\Widen\Lite\Application as WPSPLiteApplication;
+use WPSPCORE\App\Widen\Application as WPSPLiteApplication;
 
 abstract class WPSP extends BaseInstances {
 

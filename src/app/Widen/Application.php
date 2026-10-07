@@ -6,9 +6,9 @@
  * Time: 8:56 CH
  */
 
-namespace WPSPCORE\App\Widen\Lite;
+namespace WPSPCORE\App\Widen;
 
-use WPSPCORE\App\Widen\Lite\Http\Request;
+use WPSPCORE\App\Widen\Http\Request;
 
 /**
  * Application - mô phỏng Illuminate\Foundation\Application bằng PHP thuần.

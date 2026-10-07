@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\App\Widen\Lite;
+namespace WPSPCORE\App\Widen;
 
 /**
  * Service container - mô phỏng Illuminate\Container\Container bằng PHP thuần.

@@ -99,6 +99,7 @@ trait BaseInstancesTrait {
 			}
 			else {
 				$this->request = $this->funcs->_getApplication('request');
+
 				if (!$this->request && !class_exists('Illuminate\Http\Request')) {
 					$request = $this->funcs->_getRequestClass()::capture();
 					$this->request = $request;
@@ -106,9 +107,9 @@ trait BaseInstancesTrait {
 			}
 		}
 		else {
-			if (class_exists('Illuminate\Http\Request')) {
-				$this->request = Request::capture();
+			$this->request = \WPSPCORE\App\Widen\Http\Request::capture();
 
+			if (class_exists('Illuminate\Http\Request')) {
 				// Set user resolver.
 				if (!$this->request?->getUserResolver()) {
 					$this->request?->setUserResolver(function() {
@@ -125,10 +126,6 @@ trait BaseInstancesTrait {
 						return $this->funcs?->_auth()?->user();
 					});
 				}
-			}
-			else {
-				$request = \WPSPCORE\App\Widen\Lite\Http\Request::capture();
-				$this->request = $request;
 			}
 		}
 
