@@ -339,8 +339,8 @@ abstract class WPSP extends BaseInstances {
 
 	public function applyMiddlewares() {
 		foreach ($this->middlewares as $middleware) {
-			$middlewareConvertEmptyStringsToNull = $this->application->make($middleware);
-			$middlewareConvertEmptyStringsToNull->handle($this->request, fn($request) => $request);
+			$middleware = $this->application->make($middleware);
+			$middleware->handle($this->request, fn($request) => $request);
 		}
 	}
 

@@ -998,6 +998,9 @@ trait RouteTrait {
 			if (class_exists('Illuminate\Support\Facades\Facade')) {
 				Facade::setFacadeApplication($container);
 			}
+			else {
+				\WPSPCORE\App\Widen\Support\Facades\Facade::setFacadeApplication($container);
+			}
 			if (class_exists('Illuminate\Database\Eloquent\Model') && isset($container['db'])) {
 				Model::setConnectionResolver($container['db']);
 				Model::setEventDispatcher($container['events']);

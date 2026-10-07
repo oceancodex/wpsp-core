@@ -6,8 +6,8 @@ use Closure;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Cookie\CookieValuePrefix;
 use Illuminate\Encryption\Encrypter;
-use Illuminate\Http\Request;
 use Illuminate\Session\SessionManager;
+use WPSPCORE\App\Widen\Http\Request;
 
 class WPSPStartSession {
 

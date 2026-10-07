@@ -3,7 +3,7 @@
 namespace WPSPCORE;
 
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use WPSPCORE\App\Widen\Http\Request;
 use Illuminate\View\View;
 use NumberFormatter;
 use WPSPCORE\App\Routes\RouteRegexParser;
