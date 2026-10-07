@@ -1,6 +1,6 @@
 <?php
 
-namespace WPSPCORE\App\Widen\Commons\Http;
+namespace WPSPCORE\App\Widen\Lite\Http;
 
 use ArrayAccess;
 use BadMethodCallException;
@@ -40,19 +40,22 @@ else {
 		public HeaderBag    $headers;
 
 		protected ?string       $content = null;
-		protected ?ParameterBag $json = null;
+		protected ?ParameterBag $json    = null;
 
-		protected ?string $baseUrl = null;
-		protected ?string $format = null;
-		protected ?string $locale = null;
-		protected string  $defaultLocale = 'en';
+		protected ?string $baseUrl                = null;
+		protected ?string $pathInfo               = null;
+		protected ?array  $acceptableContentTypes = null;
+		protected ?array  $languages              = null;
+		protected ?string $format                 = null;
+		protected ?string $locale                 = null;
+		protected string  $defaultLocale          = 'en';
 
-		protected $session = null;
+		protected          $session       = null;
 		protected ?Closure $userResolver  = null;
 		protected ?Closure $routeResolver = null;
 
-		protected static array $trustedProxies = [];
-		protected static array $macros = [];
+		protected static array $trustedProxies              = [];
+		protected static array $macros                      = [];
 		protected static bool  $httpMethodParameterOverride = false;
 
 		protected static array $formats = [
@@ -89,7 +92,14 @@ else {
 			$this->headers    = new HeaderBag($this->extractHeaders($server));
 			$this->content    = $content;
 			$this->json       = null;
-			$this->format     = null;
+			$this->resetCache();
+		}
+
+		/** Xoá các giá trị đã cache (gọi sau khi sửa server/headers thủ công). */
+		public function resetCache(): static {
+			$this->baseUrl                = $this->pathInfo = $this->format = null;
+			$this->acceptableContentTypes = $this->languages = null;
+			return $this;
 		}
 
 		public function __clone() {
@@ -109,12 +119,17 @@ else {
 		 | Construction
 		 * ================================================================== */
 
-		public static function capture(): static {
-			static::enableHttpMethodParameterOverride();
-
+		/** Symfony: Request::createFromGlobals(). */
+		public static function createFromGlobals(): static {
 			$request = new static($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
 			$request->bindJsonToRequest();
 			return $request;
+		}
+
+		public static function capture(): static {
+			static::enableHttpMethodParameterOverride();
+
+			return static::createFromGlobals();
 		}
 
 		/** For JSON requests, expose the decoded body as $request->request (like Laravel). */
@@ -190,18 +205,18 @@ else {
 		public function duplicate(?array $query = null, ?array $request = null, ?array $attributes = null, ?array $cookies = null, ?array $files = null, ?array $server = null): static {
 			$dup = clone $this;
 
-			if ($query !== null)      $dup->query->replace($query);
-			if ($request !== null)    $dup->request->replace($request);
+			if ($query !== null) $dup->query->replace($query);
+			if ($request !== null) $dup->request->replace($request);
 			if ($attributes !== null) $dup->attributes->replace($attributes);
-			if ($cookies !== null)    $dup->cookies->replace($cookies);
-			if ($files !== null)      $dup->files->replace($this->filterFiles($files) ?? []);
+			if ($cookies !== null) $dup->cookies->replace($cookies);
+			if ($files !== null) $dup->files->replace($this->filterFiles($files) ?? []);
 			if ($server !== null) {
 				$dup->server->replace($server);
 				$dup->headers->replace($dup->extractHeaders($server));
 			}
 			if ($query !== null || $request !== null || $server !== null) $dup->json = null;
 
-			return $dup;
+			return $dup->resetCache();
 		}
 
 		public function instance(): static {
@@ -213,14 +228,16 @@ else {
 			foreach ($server as $key => $value) {
 				if (str_starts_with((string)$key, 'HTTP_')) {
 					$headers[strtolower(str_replace('_', '-', substr($key, 5)))] = $value;
-				} elseif (in_array($key, ['CONTENT_TYPE', 'CONTENT_LENGTH', 'CONTENT_MD5'], true) && $value !== '') {
+				}
+				elseif (in_array($key, ['CONTENT_TYPE', 'CONTENT_LENGTH', 'CONTENT_MD5'], true) && $value !== '') {
 					$headers[strtolower(str_replace('_', '-', $key))] = $value;
 				}
 			}
 			if (!isset($headers['authorization'])) {
 				if (isset($server['REDIRECT_HTTP_AUTHORIZATION'])) {
 					$headers['authorization'] = $server['REDIRECT_HTTP_AUTHORIZATION'];
-				} elseif (isset($server['PHP_AUTH_USER'])) {
+				}
+				elseif (isset($server['PHP_AUTH_USER'])) {
 					$headers['authorization'] = 'Basic ' . base64_encode($server['PHP_AUTH_USER'] . ':' . ($server['PHP_AUTH_PW'] ?? ''));
 				}
 			}
@@ -288,18 +305,30 @@ else {
 		 * ================================================================== */
 
 		public function setBaseUrl(string $baseUrl): static {
-			$this->baseUrl = rtrim($baseUrl, '/');
+			$this->baseUrl  = rtrim($baseUrl, '/');
+			$this->pathInfo = null;
 			return $this;
 		}
 
 		/** Sub-directory the app is installed in ("" when at domain root). */
 		public function getBaseUrl(): string {
-			if ($this->baseUrl !== null) return $this->baseUrl;
+			return $this->baseUrl ??= $this->prepareBaseUrl();
+		}
 
+		public function getBasePath(): string {
+			return $this->getBaseUrl();
+		}
+
+		public function getScriptName(): string {
+			return (string)$this->server->get('SCRIPT_NAME', $this->server->get('ORIG_SCRIPT_NAME', ''));
+		}
+
+		protected function prepareBaseUrl(): string {
 			$uri = $this->requestUriPath();
 			if (function_exists('home_url')) {                       // WordPress: use the site's own path
 				$dir = rtrim((string)parse_url(home_url('/'), PHP_URL_PATH), '/');
-			} else {
+			}
+			else {
 				$dir = rtrim(str_replace('\\', '/', dirname((string)$this->server->get('SCRIPT_NAME', '/index.php'))), '/');
 			}
 			if ($dir === '') return '';
@@ -316,10 +345,12 @@ else {
 
 		/** Raw path after the base URL, with leading slash ("/" for root). */
 		public function getPathInfo(): string {
+			if ($this->pathInfo !== null) return $this->pathInfo;
+
 			$path = $this->requestUriPath();
 			$base = $this->getBaseUrl();
 			if ($base !== '' && str_starts_with($path, $base)) $path = substr($path, strlen($base));
-			return $path === '' ? '/' : $path;
+			return $this->pathInfo = ($path === '' ? '/' : $path);
 		}
 
 		public function path(): string {
@@ -379,6 +410,16 @@ else {
 
 		public function getPassword(): ?string {
 			return $this->server->get('PHP_AUTH_PW');
+		}
+
+		public function getUserInfo(): ?string {
+			$user = $this->getUser();
+			$pass = $this->getPassword();
+			return $pass !== null && $pass !== '' ? $user . ':' . $pass : $user;
+		}
+
+		public function getProtocolVersion(): ?string {
+			return $this->server->get('SERVER_PROTOCOL');
 		}
 
 		public function root(): string {
@@ -478,7 +519,7 @@ else {
 			return static::$trustedProxies;
 		}
 
-		protected function isFromTrustedProxy(): bool {
+		public function isFromTrustedProxy(): bool {
 			return $this->isTrustedIp((string)$this->server->get('REMOTE_ADDR', ''));
 		}
 
@@ -637,7 +678,42 @@ else {
 		}
 
 		public function getAcceptableContentTypes(): array {
-			return $this->parseAcceptHeader((string)$this->headers->get('Accept', ''));
+			return $this->acceptableContentTypes ??= $this->parseAcceptHeader((string)$this->headers->get('Accept', ''));
+		}
+
+		public function getCharsets(): array {
+			return $this->parseAcceptHeader((string)$this->headers->get('Accept-Charset', ''));
+		}
+
+		public function getEncodings(): array {
+			return $this->parseAcceptHeader((string)$this->headers->get('Accept-Encoding', ''));
+		}
+
+		public function getETags(): array {
+			return preg_split('/\\s*,\\s*/', (string)$this->headers->get('If-None-Match', ''), -1, PREG_SPLIT_NO_EMPTY);
+		}
+
+		public function isNoCache(): bool {
+			return str_contains((string)$this->headers->get('Cache-Control', ''), 'no-cache')
+				|| $this->headers->get('Pragma') === 'no-cache';
+		}
+
+		public function preferSafeContent(): bool {
+			return $this->isSecure() && str_contains(strtolower((string)$this->headers->get('Prefer', '')), 'safe');
+		}
+
+		/** Thêm/ghi đè định dạng: Request::setFormat('csv', 'text/csv'). */
+		public static function setFormat(string $format, string|array $mimeTypes): void {
+			static::$formats[$format] = (array)$mimeTypes;
+		}
+
+		/** Định dạng ưu tiên: _format attribute > Accept > $default. */
+		public function getPreferredFormat(?string $default = 'html'): ?string {
+			if ($format = $this->getRequestFormat(null)) return $format;
+			foreach ($this->getAcceptableContentTypes() as $type) {
+				if ($format = $this->getFormat($type)) return $format;
+			}
+			return $default;
 		}
 
 		protected function parseAcceptHeader(string $header): array {
@@ -731,6 +807,10 @@ else {
 		 * ------------------------------------------------------------------ */
 
 		public function getLanguages(): array {
+			return $this->languages ??= $this->parseLanguages();
+		}
+
+		protected function parseLanguages(): array {
 			$header = (string)$this->headers->get('Accept-Language', '');
 			if ($header === '') return [];
 			$langs = [];
@@ -1019,8 +1099,8 @@ else {
 		/** Symfony-style getter (deprecated in Laravel in favour of input()). */
 		public function get(string $key, mixed $default = null): mixed {
 			if ($this->attributes->has($key)) return $this->attributes->get($key);
-			if ($this->query->has($key))      return $this->query->get($key);
-			if ($this->request->has($key))    return $this->request->get($key);
+			if ($this->query->has($key)) return $this->query->get($key);
+			if ($this->request->has($key)) return $this->request->get($key);
 			return $default;
 		}
 
@@ -1066,7 +1146,7 @@ else {
 		}
 
 		protected function isValidFile($file): bool {
-			return $file instanceof UploadedFile && $file->path() !== '';
+			return $file instanceof \SplFileInfo && $file->getPath() !== '';
 		}
 
 		/** Remove empty entries (e.g. file inputs with no upload) recursively. */
@@ -1147,7 +1227,7 @@ else {
 		}
 
 		public function getUserResolver(): Closure {
-			return $this->userResolver ?: function () {
+			return $this->userResolver ?: function() {
 				return null;
 			};
 		}
@@ -1168,7 +1248,7 @@ else {
 		}
 
 		public function getRouteResolver(): Closure {
-			return $this->routeResolver ?: function () {
+			return $this->routeResolver ?: function() {
 				return null;
 			};
 		}
@@ -1255,6 +1335,17 @@ else {
 			return $this->all();
 		}
 
+		/** Raw HTTP message (request line + headers + body), như Symfony. */
+		public function __toString(): string {
+			$headers = '';
+			foreach ($this->headers->all() as $name => $values) {
+				$name = implode('-', array_map('ucfirst', explode('-', $name)));
+				foreach ($values as $value) $headers .= $name . ': ' . $value . "\r\n";
+			}
+			return sprintf('%s %s %s', $this->getMethod(), $this->getRequestUri(), $this->getProtocolVersion() ?? 'HTTP/1.1') . "\r\n"
+				. $headers . "\r\n" . $this->getContent();
+		}
+
 		public function jsonSerialize(): mixed {
 			return $this->all();
 		}
@@ -1336,5 +1427,6 @@ else {
 			}
 			unset($array[array_shift($segments)]);
 		}
+
 	}
 }

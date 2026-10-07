@@ -8,7 +8,8 @@
 
 namespace WPSPCORE\App\Console;
 
-use WPSPCORE\App\App\Application;
+use WPSPCORE\App\Widen\Lite\Application;
+use WPSPCORE\App\Widen\Lite\Commands;
 
 if (class_exists('Illuminate\Console\Command')) {
 	abstract class Command extends \Illuminate\Console\Command {}
@@ -35,11 +36,14 @@ else {
 		protected $description = '';
 		protected $hidden      = false;
 
-		/** @var Application */
+		/** @var Application Container: $this->laravel->make(...) */
+		protected $laravel;
+
+		/** @var Application Alias của $laravel (tương thích code cũ). */
 		protected $app;
 
-		/** @var Application Tương thích code cũ: $this->laravel->make(...) */
-		protected $laravel;
+		/** @var Commands Console kernel đang chạy command này. */
+		protected $application;
 
 		protected $name;
 		protected $argumentDefs = [];
@@ -77,32 +81,55 @@ else {
 			return (bool)$this->hidden;
 		}
 
-		public function setApplication(Application $app) {
-			$this->app = $this->laravel = $app;
+		public function setLaravel(Application $laravel) {
+			$this->laravel = $this->app = $laravel;
 			return $this;
 		}
 
-		public function getApplication() {
-			return $this->app;
+		public function getLaravel() {
+			return $this->laravel;
 		}
 
-		public function getLaravel() {
-			return $this->app;
+		public function setApplication(Commands $application) {
+			$this->application = $application;
+			return $this;
+		}
+
+		/** Console kernel (giống Laravel: getApplication() trả về console application). */
+		public function getApplication() {
+			return $this->application;
 		}
 
 		/**
 		 * Lấy service từ container: $this->make('funcs')
 		 */
 		public function make($abstract, array $parameters = []) {
-			return $this->app->make($abstract, $parameters);
+			return $this->laravel->make($abstract, $parameters);
 		}
 
 		/**
 		 * Đường dẫn gốc của plugin (thư mục chứa file artisan).
 		 */
 		public function basePath($path = '') {
-			$base = $this->app ? $this->app->basePath() : getcwd();
+			$base = $this->laravel ? $this->laravel->basePath() : getcwd();
 			return $path ? $base . '/' . ltrim($path, '/') : $base;
+		}
+
+		/**
+		 * Gọi command khác: $this->call('make:model', ['name' => 'Post', '--force' => true])
+		 */
+		public function call($command, array $arguments = []) {
+			return $this->application->call($command, $arguments);
+		}
+
+		public function callSilent($command, array $arguments = []) {
+			ob_start();
+			try {
+				return $this->call($command, $arguments);
+			}
+			finally {
+				ob_end_clean();
+			}
 		}
 
 		/*
@@ -212,7 +239,7 @@ else {
 			}
 
 			// Inject dependency vào handle() qua container.
-			$result = $this->app ? $this->app->call([$this, 'handle']) : $this->handle();
+			$result = $this->laravel ? $this->laravel->call([$this, 'handle']) : $this->handle();
 
 			return is_int($result) ? $result : 0;
 		}
@@ -466,7 +493,7 @@ else {
 		 */
 
 		public function color($text, $color) {
-			return $this->app ? $this->app->color($text, $color) : $text;
+			return $this->application ? $this->application->color($text, $color) : $text;
 		}
 
 		public function line($text = '', $color = null) {

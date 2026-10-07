@@ -477,6 +477,12 @@ trait RouteTrait {
 
 				// Nếu type là class → container sẽ inject sau
 				if ($className = $this->getClassFromType($type)) {
+					// Request (kể cả class con) → luôn truyền request hiện tại.
+					if ($requestInstance = $this->resolveRequestForType($className)) {
+						$callParams[$name] = $requestInstance;
+						continue;
+					}
+
 					/**
 					 * Nếu method đang xử lý là "__wpspConstruct" và type của param\
 					 * là một class hợp lệ, tự động tạo properties cho class đang xử lý.
@@ -542,6 +548,12 @@ trait RouteTrait {
 			 */
 			$className = $this->getClassFromType($type);
 			if ($className) {
+
+				// Request (kể cả class con) → luôn truyền request hiện tại.
+				if ($requestInstance = $this->resolveRequestForType($className)) {
+					$callParams[$name] = $requestInstance;
+					continue;
+				}
 
 				/**
 				 * Nếu method đang xử lý là "__wpspConstruct" và type của param\
@@ -728,6 +740,11 @@ trait RouteTrait {
 
 			// 2. Nếu tham số là một Class Type-hint (ví dụ: Request $request, MyService $service)
 			if ($className && class_exists($className)) {
+				if ($requestInstance = $this->resolveRequestForType($className)) {
+					$resolvedArgs[] = $requestInstance;
+					continue;
+				}
+
 				// Kiểm tra xem trong $callParams có instance nào khớp kiểu dữ liệu không
 				$foundMatch = false;
 				foreach ($callParams as $argVal) {
@@ -794,7 +811,7 @@ trait RouteTrait {
 
 			if ($typeClass && class_exists($typeClass)) {
 				// Đệ quy tự make các dependency của constructor
-				$constructorParams[] = $this->manualMakeClass($typeClass);
+				$constructorParams[] = $this->resolveRequestForType($typeClass) ?? $this->manualMakeClass($typeClass);
 			} elseif ($param->isDefaultValueAvailable()) {
 				$constructorParams[] = $param->getDefaultValue();
 			} else {
@@ -858,6 +875,54 @@ trait RouteTrait {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Nếu $className là một Request (Lite / Illuminate / Symfony, kể cả class con)
+	 * thì trả về request hiện tại; ngược lại trả về null.
+	 *
+	 * - Type là class cha của request hiện tại (vd: Lite\Http\Request) → trả về chính instance đó.
+	 * - Type là class con (vd: WPSP\...\Facades\Request) → tạo instance class con
+	 *   và chép toàn bộ dữ liệu sang bằng createFrom() (query, post, server, headers,
+	 *   files, session, route/user resolver...).
+	 */
+	protected function resolveRequestForType(string $className) {
+		$isRequestType = is_a($className, \WPSPCORE\App\Widen\Lite\Http\Request::class, true)
+			|| (class_exists('Illuminate\Http\Request', false) && is_a($className, 'Illuminate\Http\Request', true))
+			|| (class_exists('Symfony\Component\HttpFoundation\Request', false) && is_a($className, 'Symfony\Component\HttpFoundation\Request', true));
+
+		if (!$isRequestType) {
+			return null;
+		}
+
+		$current = $this->request;
+		if (!$current) {
+			$app     = method_exists($this->funcs, '_getApplication') ? $this->funcs->_getApplication() : null;
+			$current = $app && $app->bound('request') ? $app->make('request') : null;
+		}
+
+		if (!$current) {
+			return null;
+		}
+
+		if ($current instanceof $className) {
+			return $current;
+		}
+
+		// Class con: cache theo request + class để mọi tham số trong cùng request dùng chung 1 bản.
+		static $copies = [];
+		$key = spl_object_id($current) . '|' . $className;
+
+		if (!isset($copies[$key])) {
+			try {
+				$copies[$key] = $className::createFrom($current);
+			}
+			catch (\Throwable $e) {
+				return null;
+			}
+		}
+
+		return $copies[$key];
 	}
 
 	/**

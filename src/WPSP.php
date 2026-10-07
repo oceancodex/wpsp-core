@@ -9,7 +9,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
-use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Application as IlluminateApplication;
 use Illuminate\Foundation\Bootstrap\LoadConfiguration;
 use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
 use Illuminate\Foundation\Bootstrap\RegisterFacades;
@@ -22,10 +22,11 @@ use Illuminate\Process\Factory as ProcessFactory;
 use Illuminate\Support\Timebox;
 use WPSPCORE\App\Http\Middleware\WPSPStartSession;
 use WPSPCORE\App\View\Directives\adminpagemetaboxes;
+use WPSPCORE\App\Widen\Lite\Application as WPSPLiteApplication;
 
 abstract class WPSP extends BaseInstances {
 
-	/** @var null|Application|Container */
+	/** @var null|WPSPLiteApplication|Container */
 	public $application = null;
 	public $response    = null;
 
@@ -34,18 +35,11 @@ abstract class WPSP extends BaseInstances {
 	 */
 	public $middlewares = [];
 
-	// Thêm thuộc tính lưu mốc thời gian bắt đầu khởi tạo ứng dụng.
-//	public $bootstrapStartTime;
-//	public $handleRequestStartTime;
-
 	/*
 	 * Bootstrap
 	 */
 
 	public function setApplication($basePath, $handleRequest = true) {
-		// Ghi nhận mốc thời gian khởi tạo ngay lập tức.
-//		$this->bootstrapStartTime = microtime(true);
-
 		$this->buildApplication($basePath);
 
 		$this->setPaths();
@@ -58,19 +52,12 @@ abstract class WPSP extends BaseInstances {
 
 		$this->application->boot();
 
-		// Ghi nhận mốc thời gian sau khi boot thành công
-//		$this->application->instance('boot_time', microtime(true));
-//		$this->application->instance('bootstrap_start_time', $this->bootstrapStartTime);
-
 		if ($handleRequest) {
 			$this->handleRequest();
 		}
 	}
 
 	public function setApplicationForConsole($basePath) {
-		// Ghi nhận mốc thời gian khởi tạo ngay lập tức.
-//		$this->bootstrapStartTime = microtime(true);
-
 		$this->buildApplication($basePath);
 
 		$this->setPaths();
@@ -83,26 +70,28 @@ abstract class WPSP extends BaseInstances {
 
 		$this->application->boot();
 
-		// Ghi nhận mốc thời gian sau khi boot thành công
-//		$this->application->instance('boot_time', microtime(true));
-//		$this->application->instance('bootstrap_start_time', $this->bootstrapStartTime);
-
 		return $this->application;
 	}
 
 	public function buildApplication($basePath): void {
-		$this->application = Application::configure($basePath)
-			->withRouting(
-				web     : $this->funcs->_getRoutesPath('/original/web.php'),
-				api     : $this->funcs->_getRoutesPath('/original/api.php'),
-				commands: $this->funcs->_getRoutesPath('/original/console.php'),
-				health  : '/up',
-			)
-			->withMiddleware(function(Middleware $middleware) {})
-			->withExceptions(function(Exceptions $exceptions) {})
-			->withProviders($this->getConfig('providers'))
-			->withCommands($this->getCustomCommands())
-			->create();
+		if (class_exists('Illuminate\Foundation\Application')) {
+			$this->application = IlluminateApplication::configure($basePath)
+				->withRouting(
+					web     : $this->funcs->_getRoutesPath('/original/web.php'),
+					api     : $this->funcs->_getRoutesPath('/original/api.php'),
+					commands: $this->funcs->_getRoutesPath('/original/console.php'),
+					health  : '/up',
+				)
+				->withMiddleware(function(Middleware $middleware) {})
+				->withExceptions(function(Exceptions $exceptions) {})
+				->withProviders($this->getConfig('providers'))
+				->withCommands($this->getCustomCommands())
+				->create();
+		}
+		else {
+			$this->application = WPSPLiteApplication::configure($basePath)
+				->withCommands($this->getCustomCommands());
+		}
 	}
 
 	/*
@@ -118,22 +107,26 @@ abstract class WPSP extends BaseInstances {
 	public function getCustomCommands() {
 		return array_merge(
 			$this->funcs->_getAllClassesInDir(
-				__DIR__.'/app/Console/Commands',
+				__DIR__ . '/app/Console/Commands',
 				'WPSPCORE\App\Console\Commands'
 			),
 			$this->funcs->_getAllClassesInDir(
-				__DIR__.'/app/Console/Commands/Extends',
+				__DIR__ . '/app/Console/Commands/Extends',
 				'WPSPCORE\App\Console\Commands\Extends'
 			),
 			$this->funcs->_getAllClassesInDir(
 				$this->funcs->_getAppPath('/Widen/Commands'),
-				$this->funcs->_getRootNamespace().'\App\Widen\Commands'
+				$this->funcs->_getRootNamespace() . '\App\Widen\Commands'
+			),
+			$this->funcs->_getAllClassesInDir(
+				$this->funcs->_getAppPath('/Console/Commands'),
+				$this->funcs->_getRootNamespace() . '\App\Console\Commands'
 			),
 		);
 	}
 
 	public function getConfig($fileName = null) {
-		return $fileName ? require __DIR__.'/config/'.$fileName.'.php' : [];
+		return $fileName ? require __DIR__ . '/config/' . $fileName . '.php' : [];
 	}
 
 	/*
@@ -141,14 +134,17 @@ abstract class WPSP extends BaseInstances {
 	 */
 
 	public function setPaths() {
-		$this->application->useAppPath($this->mainPath.'/app');
-		$this->application->useLangPath($this->mainPath.'/lang');
-		$this->application->useConfigPath($this->mainPath.'/config');
-		$this->application->usePublicPath($this->mainPath.'/public');
-		$this->application->useStoragePath($this->mainPath.'/storage');
-		$this->application->useDatabasePath($this->mainPath.'/database');
-		$this->application->useBootstrapPath($this->mainPath.'/bootstrap');
-		$this->application->useEnvironmentPath($this->mainPath);
+		$this->application->useAppPath($this->mainPath . '/app');
+		$this->application->useLangPath($this->mainPath . '/lang');
+		$this->application->useConfigPath($this->mainPath . '/config');
+		$this->application->usePublicPath($this->mainPath . '/public');
+		$this->application->useStoragePath($this->mainPath . '/storage');
+		$this->application->useDatabasePath($this->mainPath . '/database');
+		$this->application->useBootstrapPath($this->mainPath . '/bootstrap');
+
+		if (class_exists('Illuminate\Foundation\Application')) {
+			$this->application->useEnvironmentPath($this->mainPath);
+		}
 	}
 
 	/*
@@ -156,10 +152,12 @@ abstract class WPSP extends BaseInstances {
 	 */
 
 	public function bootstrap() {
-		(new LoadEnvironmentVariables)->bootstrap($this->application);
-		(new LoadConfiguration)->bootstrap($this->application);
-		(new RegisterFacades)->bootstrap($this->application);
-		(new RegisterProviders)->bootstrap($this->application);
+		if (class_exists('Illuminate\Foundation\Application')) {
+			(new LoadEnvironmentVariables)->bootstrap($this->application);
+			(new LoadConfiguration)->bootstrap($this->application);
+			(new RegisterFacades)->bootstrap($this->application);
+			(new RegisterProviders)->bootstrap($this->application);
+		}
 	}
 
 	// Alias giữ lại để không phá vỡ code cũ gọi bootstrapConsole().
@@ -173,18 +171,20 @@ abstract class WPSP extends BaseInstances {
 	private function bindingsBase(): void {
 		$this->application->instance('request', $this->request);
 
-		$this->application->instance(
-			'funcs',
-			$this->funcs ??= new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams)
-		);
+		if (class_exists('Illuminate\Foundation\Application')) {
+			$this->application->singleton('files', fn() => new Filesystem());
+			$this->application->singleton('process', fn($app) => $app->make(ProcessFactory::class));
+			$this->application->singleton('filesystem', fn($app) => new FilesystemManager($app));
+			$this->application->alias('filesystem', 'storage');
+			$this->application->alias('filesystem', FilesystemManager::class);
+		}
 
-		$this->application->singleton('files', fn() => new Filesystem());
-
-		$this->application->singleton('process', fn($app) => $app->make(ProcessFactory::class));
-
-		$this->application->singleton('filesystem', fn($app) => new FilesystemManager($app));
-		$this->application->alias('filesystem', 'storage');
-		$this->application->alias('filesystem', FilesystemManager::class);
+		$this->application->instance('funcs', $this->funcs ??= new Funcs(
+			$this->mainPath,
+			$this->rootNamespace,
+			$this->prefixEnv,
+			$this->extraParams
+		));
 	}
 
 	/**
@@ -194,11 +194,12 @@ abstract class WPSP extends BaseInstances {
 	public function bindings() {
 		$this->bindingsBase();
 
-		// Exception Renderer Listener — bắt query/log/dump cho trang lỗi.
-		// Bind singleton TRƯỚC khi make để renderer và listener share cùng instance.
-		$this->application->singleton(ExceptionRendererListener::class);
-		$this->application->make(ExceptionRendererListener::class)
-			->registerListeners($this->application->make('events'));
+		if (class_exists('Illuminate\Console\Application')) {
+			// Exception Renderer Listener — bắt query/log/dump cho trang lỗi.
+			// Bind singleton TRƯỚC khi make để renderer và listener share cùng instance.
+			$this->application->singleton(ExceptionRendererListener::class);
+			$this->application->make(ExceptionRendererListener::class)->registerListeners($this->application->make('events'));
+		}
 	}
 
 	// Alias giữ lại tương thích ngược.
@@ -466,7 +467,7 @@ abstract class WPSP extends BaseInstances {
 			return;
 		}
 		foreach ($cookies as $cookie) {
-			@header('Set-Cookie: '.$cookie, false);
+			@header('Set-Cookie: ' . $cookie, false);
 		}
 	}
 
