@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\App;
 
-use Illuminate\Foundation\Application as IlluminateApplication;
+use Illuminate\Foundation\Application;
 use WPSPCORE\BaseInstances;
 
 /**
@@ -10,13 +10,13 @@ use WPSPCORE\BaseInstances;
  */
 abstract class App extends BaseInstances {
 
-	private ?IlluminateApplication $facade;
+	private ?Application $facade;
 
 	/*
 	 *
 	 */
 
-	public function getFacade(): ?IlluminateApplication {
+	public function getFacade(): ?Application {
 		return $this->facade;
 	}
 
