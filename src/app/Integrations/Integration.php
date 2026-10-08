@@ -80,7 +80,7 @@ class Integration extends BaseInstances {
 			if (class_exists($packageClass) && method_exists($packageClass, 'init')) {
 
 				if ($container = $this->funcs->_getApplication()) {
-					$package = $this->funcs->_getApplication()->make($packageClass);
+					$package = $container->make($packageClass);
 				}
 
 				else {

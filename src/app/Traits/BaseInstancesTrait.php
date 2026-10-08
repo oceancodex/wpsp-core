@@ -2,8 +2,7 @@
 
 namespace WPSPCORE\App\Traits;
 
-use Illuminate\Http\Request as IlluminateRequest;
-use WPSPCORE\App\Widen\Http\Request as WPSPCORE_Request;
+use Illuminate\Http\Request;
 use WPSPCORE\App\Routes\RouteTrait;
 
 /**
@@ -26,7 +25,6 @@ trait BaseInstancesTrait {
 	public $rootNamespace = null;
 	public $prefixEnv     = null;
 	public $extraParams   = [];
-	/** @var \Illuminate\Http\Request | \WPSPCORE\App\Widen\Commons\Http\Request */
 	public $request       = null;
 
 	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
@@ -100,34 +98,27 @@ trait BaseInstancesTrait {
 			}
 			else {
 				$this->request = $this->funcs->_getApplication('request');
-
-				if (!$this->request && !class_exists('Illuminate\Http\Request')) {
-					$request = $this->funcs->_getRequestClass()::capture();
-					$this->request = $request;
-				}
 			}
 		}
 		else {
-			$this->request = WPSPCORE_Request::capture();
+			$this->request = Request::capture();
+		}
 
-			if (class_exists('Illuminate\Http\Request')) {
-				// Set user resolver.
-				if (!$this->request?->getUserResolver()) {
-					$this->request?->setUserResolver(function() {
-						if (!$this->funcs->_getApplication()->bound('session.store')) {
-							return null;
-						}
-
-						$store = $this->funcs->_getApplication('session.store');
-
-						if (!$store->isStarted()) {
-							return null;
-						}
-
-						return $this->funcs?->_auth()?->user();
-					});
+		// Set user resolver.
+		if (!$this->request?->getUserResolver()) {
+			$this->request?->setUserResolver(function() {
+				if (!$this->funcs->_getApplication()->bound('session.store')) {
+					return null;
 				}
-			}
+
+				$store = $this->funcs->_getApplication('session.store');
+
+				if (!$store->isStarted()) {
+					return null;
+				}
+
+				return $this->funcs?->_auth()?->user();
+			});
 		}
 
 		unset($this->extraParams['request']);

@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\WordPress\Blocks;
 
-use Illuminate\Support\Facades\File;
+use WPSPCORE\App\File\File;
 use WPSPCORE\BaseInstances;
 
 abstract class BaseBlock extends BaseInstances {
@@ -43,7 +43,7 @@ abstract class BaseBlock extends BaseInstances {
 		if ($name) {
 			$blockPath = $this->blockPath ?? $this->funcs->_getResourcesPath('/views/blocks/build/' . $name);
 
-			if (class_exists('Illuminate\Support\Facades\File') ? File::exists($blockPath) : file_exists($blockPath)) {
+			if (File::exists($blockPath)) {
 				if (method_exists($this, 'render')) {
 					$this->args['render_callback'] = function($attributes, $content, $block) use ($requestPath) {
 						return $this->autoResolveAndCall(

@@ -3,7 +3,7 @@
 namespace WPSPCORE;
 
 use Carbon\Carbon;
-use WPSPCORE\App\Widen\Http\Request;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use NumberFormatter;
 use WPSPCORE\App\Routes\RouteRegexParser;
@@ -134,9 +134,9 @@ class Funcs extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->WPSPClass = '\\' . $this->rootNamespace . '\WPSP';
-		$this->requestClass = '\\' . $this->rootNamespace . '\App\Widen\Http\Request';
-		$this->routeMapClass = '\\' . $this->rootNamespace . '\App\Widen\Routes\RouteMap';
+		$this->WPSPClass         = '\\' . $this->rootNamespace . '\WPSP';
+		$this->requestClass      = '\\' . $this->rootNamespace . '\App\Http\Request';
+		$this->routeMapClass     = '\\' . $this->rootNamespace . '\App\Widen\Routes\RouteMap';
 		$this->routeManagerClass = '\\' . $this->rootNamespace . '\App\Widen\Routes\RouteManager';
 	}
 
@@ -440,7 +440,8 @@ class Funcs extends BaseInstances {
 					'filename'     => $file->getFilenameWithoutExtension(),
 				];
 			}
-		} else {
+		}
+		else {
 			// 2. Fallback sử dụng Native PHP (SPL)
 			$realPath = realpath($path);
 			if ($realPath === false) {
@@ -451,7 +452,7 @@ class Funcs extends BaseInstances {
 
 			try {
 				$directoryIterator = new \RecursiveDirectoryIterator($realPath, $flags);
-				$iterator = new \RecursiveIteratorIterator($directoryIterator, \RecursiveIteratorIterator::SELF_FIRST);
+				$iterator          = new \RecursiveIteratorIterator($directoryIterator, \RecursiveIteratorIterator::SELF_FIRST);
 
 				if ($depth !== null) {
 					$maxDepth = is_numeric($depth) ? (int)$depth : $this->_parseDepthString($depth);
@@ -470,7 +471,7 @@ class Funcs extends BaseInstances {
 							}
 
 							// Tính relative path của thư mục chứa file
-							$dirRealPath = dirname($itemRealPath);
+							$dirRealPath  = dirname($itemRealPath);
 							$relativePath = '';
 
 							if ($dirRealPath !== $realPath) {
@@ -482,11 +483,13 @@ class Funcs extends BaseInstances {
 								'filename'     => pathinfo($item->getFilename(), PATHINFO_FILENAME),
 							];
 						}
-					} catch (\Throwable $e) {
+					}
+					catch (\Throwable $e) {
 						continue;
 					}
 				}
-			} catch (\Throwable $e) {
+			}
+			catch (\Throwable $e) {
 				return [];
 			}
 		}
@@ -510,7 +513,8 @@ class Funcs extends BaseInstances {
 				if (class_exists($className) && $className !== __CLASS__) {
 					$classes[] = $className;
 				}
-			} catch (\Throwable $e) {
+			}
+			catch (\Throwable $e) {
 				continue;
 			}
 		}
@@ -540,7 +544,8 @@ class Funcs extends BaseInstances {
 						'absolute_path' => $dir->getRealPath(),
 						'relative_path' => $dir->getRelativePathname(),
 					];
-				} catch (\Throwable $e) {
+				}
+				catch (\Throwable $e) {
 					continue;
 				}
 			}
@@ -555,11 +560,11 @@ class Funcs extends BaseInstances {
 		}
 
 		$directories = [];
-		$flags = \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO;
+		$flags       = \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO;
 
 		try {
 			$directoryIterator = new \RecursiveDirectoryIterator($realPath, $flags);
-			$iterator = new \RecursiveIteratorIterator($directoryIterator, \RecursiveIteratorIterator::SELF_FIRST);
+			$iterator          = new \RecursiveIteratorIterator($directoryIterator, \RecursiveIteratorIterator::SELF_FIRST);
 
 			// Giới hạn độ sâu nếu $depth được truyền vào
 			if ($depth !== null) {
@@ -588,11 +593,13 @@ class Funcs extends BaseInstances {
 							'relative_path' => $relativePath,
 						];
 					}
-				} catch (\Throwable $e) {
+				}
+				catch (\Throwable $e) {
 					continue;
 				}
 			}
-		} catch (\Throwable $e) {
+		}
+		catch (\Throwable $e) {
 			return [];
 		}
 
@@ -623,37 +630,38 @@ class Funcs extends BaseInstances {
 				$absolutePath = $file->getRealPath();
 
 				// Lấy quyền truy cập dạng Octal (Ví dụ: "0644")
-				$perms = $file->getPerms();
+				$perms          = $file->getPerms();
 				$formattedPerms = substr(sprintf('%o', $perms), -4);
 
 				$files[] = [
 					// Thông tin định danh & Đường dẫn
-					'name'               => $file->getFilename(),                 // Tên file kèm đuôi (vd: "index.php")
-					'filename_no_ext'    => $file->getFilenameWithoutExtension(), // Tên file không kèm đuôi (vd: "index")
-					'extension'          => $file->getExtension(),                 // Đuôi file (vd: "php")
-					'absolute_path'      => $absolutePath,                         // Đường dẫn tuyệt đối
-					'relative_path'      => $file->getRelativePath(),              // Thư mục cha tương đối (vd: "SubDir")
-					'relative_pathname'  => $file->getRelativePathname(),          // Đường dẫn tương đối đầy đủ (vd: "SubDir/index.php")
+					'name'              => $file->getFilename(),                 // Tên file kèm đuôi (vd: "index.php")
+					'filename_no_ext'   => $file->getFilenameWithoutExtension(), // Tên file không kèm đuôi (vd: "index")
+					'extension'         => $file->getExtension(),                 // Đuôi file (vd: "php")
+					'absolute_path'     => $absolutePath,                         // Đường dẫn tuyệt đối
+					'relative_path'     => $file->getRelativePath(),              // Thư mục cha tương đối (vd: "SubDir")
+					'relative_pathname' => $file->getRelativePathname(),          // Đường dẫn tương đối đầy đủ (vd: "SubDir/index.php")
 
 					// Thuộc tính vật lý
-					'size_bytes'         => $file->getSize(),                      // Dung lượng (Bytes)
-					'size_readable'      => $this->_formatBytes($file->getSize()), // Dung lượng dễ đọc (vd: "1.2 MB")
-					'mime_type'          => mime_content_type($absolutePath) ?: 'unknown', // Loại file (vd: "text/x-php", "image/jpeg")
-					'is_readable'        => $file->isReadable(),
-					'is_writable'        => $file->isWritable(),
-					'permissions'        => $formattedPerms,                       // Quyền hạn file (vd: "0644")
+					'size_bytes'        => $file->getSize(),                      // Dung lượng (Bytes)
+					'size_readable'     => $this->_formatBytes($file->getSize()), // Dung lượng dễ đọc (vd: "1.2 MB")
+					'mime_type'         => mime_content_type($absolutePath) ?: 'unknown', // Loại file (vd: "text/x-php", "image/jpeg")
+					'is_readable'       => $file->isReadable(),
+					'is_writable'       => $file->isWritable(),
+					'permissions'       => $formattedPerms,                       // Quyền hạn file (vd: "0644")
 
 					// Mốc thời gian (Timestamp)
-					'created_time'       => $file->getCTime(),                     // Thay đổi inode/Tạo (tùy OS)
-					'modified_time'      => $file->getMTime(),                     // Thay đổi nội dung gần nhất
-					'accessed_time'      => $file->getATime(),                     // Truy cập gần nhất
+					'created_time'      => $file->getCTime(),                     // Thay đổi inode/Tạo (tùy OS)
+					'modified_time'     => $file->getMTime(),                     // Thay đổi nội dung gần nhất
+					'accessed_time'     => $file->getATime(),                     // Truy cập gần nhất
 
 					// Bảo mật / Kiểm tra toàn vẹn
-					'md5_hash'           => md5_file($absolutePath),               // Mã hash kiểm tra trùng lặp
-					'owner_id'           => $file->getOwner(),                     // ID User sở hữu trong Linux
-					'group_id'           => $file->getGroup(),                     // ID Group sở hữu trong Linux
+					'md5_hash'          => md5_file($absolutePath),               // Mã hash kiểm tra trùng lặp
+					'owner_id'          => $file->getOwner(),                     // ID User sở hữu trong Linux
+					'group_id'          => $file->getGroup(),                     // ID Group sở hữu trong Linux
 				];
-			} catch (\Throwable $e) {
+			}
+			catch (\Throwable $e) {
 				// Bỏ qua nếu file bị lỗi quyền truy cập hoặc bị xóa đột ngột trong lúc quét
 				continue;
 			}
@@ -761,11 +769,12 @@ class Funcs extends BaseInstances {
 			if ($pos !== false) {
 				$pluginDir = substr($normalizedPath, 0, $pos + 18); // 18 là độ dài của 'wp-content/plugins'
 			}
-		} else {
+		}
+		else {
 			$pluginDir = str_replace('\\', '/', $pluginDir);
 		}
 
-		$pluginDir = rtrim($pluginDir, '/');
+		$pluginDir  = rtrim($pluginDir, '/');
 		$resultPath = 'unknown';
 
 		// 3. Nếu xác định được thư mục plugins gốc
@@ -998,7 +1007,7 @@ class Funcs extends BaseInstances {
 
 		// Normalize
 		if (@preg_match('/\\\\/', $routeClass)) {
-			$parts = explode('\\', trim($routeClass, '\\'));
+			$parts      = explode('\\', trim($routeClass, '\\'));
 			$routeClass = end($parts);
 		}
 
@@ -1024,10 +1033,11 @@ class Funcs extends BaseInstances {
 
 				if (is_array($args) && array_key_exists($paramName, $args)) {
 					// Có value
-					$value = rawurlencode($args[$paramName]);
+					$value    = rawurlencode($args[$paramName]);
 					$finalUrl = str_replace($fullTag, $paramKey . '=' . $value, $finalUrl);
 					unset($args[$paramName]);
-				} else {
+				}
+				else {
 					// Không có value → key=
 					$finalUrl = str_replace($fullTag, $paramKey . '=', $finalUrl);
 				}
@@ -1041,10 +1051,11 @@ class Funcs extends BaseInstances {
 
 				if (is_array($args) && array_key_exists($name, $args)) {
 					// Thay bằng giá trị thực
-					$value = rawurlencode($args[$name]);
+					$value    = rawurlencode($args[$name]);
 					$finalUrl = str_replace($fullTag, $value, $finalUrl);
 					unset($args[$name]);
-				} else {
+				}
+				else {
 					// Không có value → bỏ luôn placeholder
 					$finalUrl = str_replace($fullTag, '', $finalUrl);
 				}
@@ -1297,7 +1308,7 @@ class Funcs extends BaseInstances {
 
 	public function _vendorFolderExists($package = null) {
 		$vendorPath = $this->_getMainPath('/vendor');
-		$package = trim($package, '/\\');
+		$package    = trim($package, '/\\');
 		return $this->_folderExists($vendorPath . '/' . $package);
 	}
 
@@ -1489,7 +1500,7 @@ class Funcs extends BaseInstances {
 
 	public function _slugParams($params = [], $separator = '_') {
 		// Lấy toàn bộ query string từ URL
-		$request = $this->request ?? $this->_app('request');
+		$request     = $this->request ?? $this->_app('request');
 		$queryParams = $request->query->all();
 
 		$selectedParts = [];
@@ -1559,8 +1570,8 @@ class Funcs extends BaseInstances {
 	public function _formatBytes(int $bytes, int $precision = 2): string {
 		$units = ['B', 'KB', 'MB', 'GB', 'TB'];
 		$bytes = max($bytes, 0);
-		$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-		$pow = min($pow, count($units) - 1);
+		$pow   = floor(($bytes ? log($bytes) : 0) / log(1024));
+		$pow   = min($pow, count($units) - 1);
 
 		$bytes /= pow(1024, $pow);
 
@@ -1569,9 +1580,9 @@ class Funcs extends BaseInstances {
 
 	public function _pregQuoteKeepGroups($pattern, $delimiter = '/') {
 		// 1. Tách toàn bộ group
-		$groups = [];
+		$groups      = [];
 		$placeholder = '___REGEX_GROUP_%d___';
-		$i = 0;
+		$i           = 0;
 
 		// Match đúng mọi group kể cả lồng nhau
 		$patternWithPlaceholders = preg_replace_callback(
@@ -1712,13 +1723,13 @@ class Funcs extends BaseInstances {
 		}
 
 		// Convert to string if not already
-		$value = (string) $value;
+		$value = (string)$value;
 
 		// Remove all whitespace (including non-breaking spaces used in some locales)
 		$value = preg_replace('/\s+/u', '', $value);
 
 		// Determine separators based on locale
-		$formatter = new NumberFormatter($locale, NumberFormatter::DECIMAL);
+		$formatter   = new NumberFormatter($locale, NumberFormatter::DECIMAL);
 		$decimalSep  = $formatter->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
 		$groupingSep = $formatter->getSymbol(NumberFormatter::GROUPING_SEPARATOR_SYMBOL);
 
@@ -1731,10 +1742,10 @@ class Funcs extends BaseInstances {
 
 		// Cast to appropriate type
 		if (str_contains($value, '.')) {
-			return (float) $value;
+			return (float)$value;
 		}
 
-		return (int) $value;
+		return (int)$value;
 	}
 
 	public function _normalizeDateTime($value) {

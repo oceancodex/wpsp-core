@@ -1,7 +1,7 @@
 <?php
 namespace {{ root_namespace }}\App\WordPress\MediaColumns;
 
-use Illuminate\Http\Request;
+use {{ core_namespace }}\App\Http\Request;
 use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
 use {{ core_namespace }}\App\WordPress\MediaColumns\BaseMediaColumn;
 

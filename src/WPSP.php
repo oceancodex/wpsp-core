@@ -21,11 +21,10 @@ use Illuminate\Process\Factory as ProcessFactory;
 use Illuminate\Support\Timebox;
 use WPSPCORE\App\Http\Middleware\WPSPStartSession;
 use WPSPCORE\App\View\Directives\adminpagemetaboxes;
-use WPSPCORE\App\Widen\Application as WPSPLiteApplication;
 
 abstract class WPSP extends BaseInstances {
 
-	/** @var null|WPSPLiteApplication|Container */
+	/** @var null|IlluminateApplication|Container */
 	public $application = null;
 	public $response    = null;
 
@@ -73,24 +72,18 @@ abstract class WPSP extends BaseInstances {
 	}
 
 	public function buildApplication($basePath): void {
-		if (class_exists('Illuminate\Foundation\Application')) {
-			$this->application = IlluminateApplication::configure($basePath)
-				->withRouting(
-					web     : $this->funcs->_getRoutesPath('/original/web.php'),
-					api     : $this->funcs->_getRoutesPath('/original/api.php'),
-					commands: $this->funcs->_getRoutesPath('/original/console.php'),
-					health  : '/up',
-				)
-				->withMiddleware(function(Middleware $middleware) {})
-				->withExceptions(function(Exceptions $exceptions) {})
-				->withProviders($this->getConfig('providers'))
-				->withCommands($this->getCustomCommands())
-				->create();
-		}
-		else {
-			$this->application = WPSPLiteApplication::configure($basePath)
-				->withCommands($this->getCustomCommands());
-		}
+		$this->application = IlluminateApplication::configure($basePath)
+			->withRouting(
+				web     : $this->funcs->_getRoutesPath('/original/web.php'),
+				api     : $this->funcs->_getRoutesPath('/original/api.php'),
+				commands: $this->funcs->_getRoutesPath('/original/console.php'),
+				health  : '/up',
+			)
+			->withMiddleware(function(Middleware $middleware) {})
+			->withExceptions(function(Exceptions $exceptions) {})
+			->withProviders($this->getConfig('providers'))
+			->withCommands($this->getCustomCommands())
+			->create();
 	}
 
 	/*
@@ -117,10 +110,6 @@ abstract class WPSP extends BaseInstances {
 				$this->funcs->_getAppPath('/Widen/Commands'),
 				$this->funcs->_getRootNamespace() . '\App\Widen\Commands'
 			),
-			$this->funcs->_getAllClassesInDir(
-				$this->funcs->_getAppPath('/Console/Commands'),
-				$this->funcs->_getRootNamespace() . '\App\Console\Commands'
-			),
 		);
 	}
 
@@ -133,7 +122,6 @@ abstract class WPSP extends BaseInstances {
 	 */
 
 	public function setPaths() {
-		$this->application->useEnvironmentPath($this->mainPath);
 		$this->application->useAppPath($this->mainPath . '/app');
 		$this->application->useLangPath($this->mainPath . '/lang');
 		$this->application->useConfigPath($this->mainPath . '/config');
@@ -141,6 +129,7 @@ abstract class WPSP extends BaseInstances {
 		$this->application->useStoragePath($this->mainPath . '/storage');
 		$this->application->useDatabasePath($this->mainPath . '/database');
 		$this->application->useBootstrapPath($this->mainPath . '/bootstrap');
+		$this->application->useEnvironmentPath($this->mainPath);
 	}
 
 	/*
@@ -148,12 +137,10 @@ abstract class WPSP extends BaseInstances {
 	 */
 
 	public function bootstrap() {
-		if (class_exists('Illuminate\Foundation\Application')) {
-			(new LoadEnvironmentVariables)->bootstrap($this->application);
-			(new LoadConfiguration)->bootstrap($this->application);
-			(new RegisterFacades)->bootstrap($this->application);
-			(new RegisterProviders)->bootstrap($this->application);
-		}
+		(new LoadEnvironmentVariables)->bootstrap($this->application);
+		(new LoadConfiguration)->bootstrap($this->application);
+		(new RegisterFacades)->bootstrap($this->application);
+		(new RegisterProviders)->bootstrap($this->application);
 	}
 
 	// Alias giữ lại để không phá vỡ code cũ gọi bootstrapConsole().
