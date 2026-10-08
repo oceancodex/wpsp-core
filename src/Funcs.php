@@ -1712,7 +1712,7 @@ class Funcs extends BaseInstances {
 	public static function __callStatic($method, $parameters) {
 		$method = '_' . $method;
 
-		if (!method_exists(static::instance(), $method)) {
+		if (!method_exists(static::class, $method)) {
 			throw new \BadMethodCallException(
 				sprintf(
 					'Call to undefined method %s::%s',

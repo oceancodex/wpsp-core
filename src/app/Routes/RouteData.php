@@ -45,7 +45,7 @@ class RouteData {
 	 */
 	public function __construct($type, $route, $method, $path, $callback, $args, $groupAttributes, $funcs = null) {
 		// Loại bỏ một số properties từ $funcs để gọn gàng hơn.
-		unset($funcs->request);
+//		unset($funcs->request);
 
 		// Lấy prefix từ group, chuẩn hoá: đảm bảo luôn kết thúc bằng '/'
 		$prefix = $groupAttributes['prefix'] ?? '';
