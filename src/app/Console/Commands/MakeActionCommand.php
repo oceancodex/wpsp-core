@@ -3,7 +3,7 @@
 namespace WPSPCORE\App\Console\Commands;
 
 use WPSPCORE\App\Console\Command;
-use WPSPCORE\App\File\File;
+use Illuminate\Support\Facades\File;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class MakeActionCommand extends Command {

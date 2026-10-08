@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\WordPress\Blocks;
 
-use WPSPCORE\App\File\File;
+use Illuminate\Support\Facades\File;
 use WPSPCORE\BaseInstances;
 
 abstract class BaseBlock extends BaseInstances {

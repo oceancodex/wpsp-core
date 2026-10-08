@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Console\Traits;
 
-use WPSPCORE\App\File\File;
+use Illuminate\Support\Facades\File;
 use WPSPCORE\Funcs;
 
 /**

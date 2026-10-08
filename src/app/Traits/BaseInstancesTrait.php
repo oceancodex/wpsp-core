@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Traits;
 
-use Illuminate\Http\Request;
+use WPSPCORE\App\Http\Request;
 use WPSPCORE\App\Routes\RouteTrait;
 
 /**

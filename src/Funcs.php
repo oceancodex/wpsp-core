@@ -3,10 +3,10 @@
 namespace WPSPCORE;
 
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use NumberFormatter;
 use WPSPCORE\App\Routes\RouteRegexParser;
+use WPSPCORE\App\Http\Request;
 
 /**
  * @method static mixed getWPSP()

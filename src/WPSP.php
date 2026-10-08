@@ -60,9 +60,9 @@ abstract class WPSP extends BaseInstances {
 
 		$this->setPaths();
 		$this->afterSetPaths();
-		$this->bootstrap();
+		$this->bootstrapConsole();
 		$this->afterBoostrapConsole();
-		$this->bindingsBase(); // Console không cần Listener của exception renderer
+		$this->bindingsConsole(); // Console không cần Listener của exception renderer
 		$this->afterBindingsConsole();
 		$this->extendsConsole();
 
@@ -143,14 +143,10 @@ abstract class WPSP extends BaseInstances {
 		(new RegisterProviders)->bootstrap($this->application);
 	}
 
-	// Alias giữ lại để không phá vỡ code cũ gọi bootstrapConsole().
 	public function bootstrapConsole() {
 		$this->bootstrap();
 	}
 
-	/**
-	 * Bindings dùng chung cho cả web & console.
-	 */
 	private function bindingsBase(): void {
 		$this->application->instance('request', $this->request);
 		$this->application->singleton('files', fn() => new Filesystem());
@@ -166,10 +162,6 @@ abstract class WPSP extends BaseInstances {
 		));
 	}
 
-	/**
-	 * instance - khởi tạo ngay khi bootstrap.
-	 * singleton - chỉ khởi tạo khi cần.
-	 */
 	public function bindings() {
 		$this->bindingsBase();
 
@@ -179,7 +171,6 @@ abstract class WPSP extends BaseInstances {
 		$this->application->make(ExceptionRendererListener::class)->registerListeners($this->application->make('events'));
 	}
 
-	// Alias giữ lại tương thích ngược.
 	public function bindingsConsole() {
 		$this->bindingsBase();
 	}
@@ -232,8 +223,6 @@ abstract class WPSP extends BaseInstances {
 	public function handleRequest() {
 		$this->beforeHandleRequest();
 
-//		$this->handleRequestStartTime = microtime(true);
-
 		$this->startSession();
 
 		// 1: Đẩy Cookie sớm về Client.
@@ -258,9 +247,6 @@ abstract class WPSP extends BaseInstances {
 		$this->beforeResponse();
 
 		$this->shareErrorsToViews();
-
-//		$this->application->instance('after_handle_request_time', microtime(true));
-//		$this->application->instance('start_handle_request_time', $this->handleRequestStartTime);
 
 		$this->afterHandleRequest();
 	}
