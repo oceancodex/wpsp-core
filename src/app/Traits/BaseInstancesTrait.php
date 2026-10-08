@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Traits;
 
-use WPSPCORE\App\Http\Request;
+use Illuminate\Http\Request;
 use WPSPCORE\App\Routes\RouteTrait;
 
 /**
@@ -72,7 +72,7 @@ trait BaseInstancesTrait {
 	public function prepareFuncs() {
 		if ($this->funcs) return;
 
-		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs']) {
+		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
 			if (is_bool($this->extraParams['funcs'])) {
 				$this->funcs = new \WPSPCORE\Funcs(
 					$this->mainPath,

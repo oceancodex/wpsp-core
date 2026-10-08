@@ -1,7 +1,7 @@
 <?php
 namespace {{ root_namespace }}\App\WordPress\PluginColumns;
 
-use {{ core_namespace }}\App\Http\Request;
+use Illuminate\Http\Request;
 use {{ root_namespace }}\App\Widen\Traits\InstancesTrait;
 use {{ root_namespace }}\Funcs;
 use {{ core_namespace }}\App\WordPress\PluginColumns\BasePluginColumn;

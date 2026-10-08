@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Console\Commands;
 
-use WPSPCORE\App\Console\Command;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
