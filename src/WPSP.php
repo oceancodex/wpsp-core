@@ -33,18 +33,11 @@ abstract class WPSP extends BaseInstances {
 	 */
 	public $middlewares = [];
 
-	// Thêm thuộc tính lưu mốc thời gian bắt đầu khởi tạo ứng dụng.
-//	public $bootstrapStartTime;
-//	public $handleRequestStartTime;
-
 	/*
 	 * Bootstrap
 	 */
 
 	public function setApplication($basePath, $handleRequest = true) {
-		// Ghi nhận mốc thời gian khởi tạo ngay lập tức.
-//		$this->bootstrapStartTime = microtime(true);
-
 		$this->buildApplication($basePath);
 
 		$this->setPaths();
@@ -57,19 +50,12 @@ abstract class WPSP extends BaseInstances {
 
 		$this->application->boot();
 
-		// Ghi nhận mốc thời gian sau khi boot thành công
-//		$this->application->instance('boot_time', microtime(true));
-//		$this->application->instance('bootstrap_start_time', $this->bootstrapStartTime);
-
 		if ($handleRequest) {
 			$this->handleRequest();
 		}
 	}
 
 	public function setApplicationForConsole($basePath) {
-		// Ghi nhận mốc thời gian khởi tạo ngay lập tức.
-//		$this->bootstrapStartTime = microtime(true);
-
 		$this->buildApplication($basePath);
 
 		$this->setPaths();
@@ -81,10 +67,6 @@ abstract class WPSP extends BaseInstances {
 		$this->extendsConsole();
 
 		$this->application->boot();
-
-		// Ghi nhận mốc thời gian sau khi boot thành công
-//		$this->application->instance('boot_time', microtime(true));
-//		$this->application->instance('bootstrap_start_time', $this->bootstrapStartTime);
 
 		return $this->application;
 	}
@@ -117,22 +99,22 @@ abstract class WPSP extends BaseInstances {
 	public function getCustomCommands() {
 		return array_merge(
 			$this->funcs->_getAllClassesInDir(
-				__DIR__.'/app/Console/Commands',
+				__DIR__ . '/app/Console/Commands',
 				'WPSPCORE\App\Console\Commands'
 			),
 			$this->funcs->_getAllClassesInDir(
-				__DIR__.'/app/Console/Commands/Extends',
+				__DIR__ . '/app/Console/Commands/Extends',
 				'WPSPCORE\App\Console\Commands\Extends'
 			),
 			$this->funcs->_getAllClassesInDir(
 				$this->funcs->_getAppPath('/Widen/Commands'),
-				$this->funcs->_getRootNamespace().'\App\Widen\Commands'
+				$this->funcs->_getRootNamespace() . '\App\Widen\Commands'
 			),
 		);
 	}
 
 	public function getConfig($fileName = null) {
-		return $fileName ? require __DIR__.'/config/'.$fileName.'.php' : [];
+		return $fileName ? require __DIR__ . '/config/' . $fileName . '.php' : [];
 	}
 
 	/*
@@ -140,13 +122,13 @@ abstract class WPSP extends BaseInstances {
 	 */
 
 	public function setPaths() {
-		$this->application->useAppPath($this->mainPath.'/app');
-		$this->application->useLangPath($this->mainPath.'/lang');
-		$this->application->useConfigPath($this->mainPath.'/config');
-		$this->application->usePublicPath($this->mainPath.'/public');
-		$this->application->useStoragePath($this->mainPath.'/storage');
-		$this->application->useDatabasePath($this->mainPath.'/database');
-		$this->application->useBootstrapPath($this->mainPath.'/bootstrap');
+		$this->application->useAppPath($this->mainPath . '/app');
+		$this->application->useLangPath($this->mainPath . '/lang');
+		$this->application->useConfigPath($this->mainPath . '/config');
+		$this->application->usePublicPath($this->mainPath . '/public');
+		$this->application->useStoragePath($this->mainPath . '/storage');
+		$this->application->useDatabasePath($this->mainPath . '/database');
+		$this->application->useBootstrapPath($this->mainPath . '/bootstrap');
 		$this->application->useEnvironmentPath($this->mainPath);
 	}
 
@@ -186,10 +168,6 @@ abstract class WPSP extends BaseInstances {
 		$this->application->alias('filesystem', FilesystemManager::class);
 	}
 
-	/**
-	 * instance - khởi tạo ngay khi bootstrap.
-	 * singleton - chỉ khởi tạo khi cần.
-	 */
 	public function bindings() {
 		$this->bindingsBase();
 
@@ -200,7 +178,6 @@ abstract class WPSP extends BaseInstances {
 			->registerListeners($this->application->make('events'));
 	}
 
-	// Alias giữ lại tương thích ngược.
 	public function bindingsConsole() {
 		$this->bindingsBase();
 	}
@@ -253,8 +230,6 @@ abstract class WPSP extends BaseInstances {
 	public function handleRequest() {
 		$this->beforeHandleRequest();
 
-//		$this->handleRequestStartTime = microtime(true);
-
 		$this->startSession();
 
 		// 1: Đẩy Cookie sớm về Client.
@@ -279,9 +254,6 @@ abstract class WPSP extends BaseInstances {
 		$this->beforeResponse();
 
 		$this->shareErrorsToViews();
-
-//		$this->application->instance('after_handle_request_time', microtime(true));
-//		$this->application->instance('start_handle_request_time', $this->handleRequestStartTime);
 
 		$this->afterHandleRequest();
 	}
@@ -338,8 +310,8 @@ abstract class WPSP extends BaseInstances {
 
 	public function applyMiddlewares() {
 		foreach ($this->middlewares as $middleware) {
-			$middlewareConvertEmptyStringsToNull = $this->application->make($middleware);
-			$middlewareConvertEmptyStringsToNull->handle($this->request, fn($request) => $request);
+			$middleware = $this->application->make($middleware);
+			$middleware->handle($this->request, fn($request) => $request);
 		}
 	}
 
@@ -465,7 +437,7 @@ abstract class WPSP extends BaseInstances {
 			return;
 		}
 		foreach ($cookies as $cookie) {
-			@header('Set-Cookie: '.$cookie, false);
+			@header('Set-Cookie: ' . $cookie, false);
 		}
 	}
 
