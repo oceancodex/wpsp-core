@@ -20,7 +20,7 @@ abstract class BasePostType extends BaseInstances {
 	public $singular_name                   = null;
 	public $add_new                         = 'Add new';
 	public $add_new_item                    = 'Add new';
-	public $edit_item                       = null;
+	public $edit_item                       = 'Edit';
 	public $new_item                        = null;
 	public $view_item                       = null;
 	public $view_items                      = null;
