@@ -26,7 +26,7 @@ class RouteWatchCommand extends Command {
 
 		$mainPath = $this->funcs->_getMainPath();
 		$watchDir = $mainPath . '/routes';
-		$ide      = strtolower($this->option('ide'));
+		$ide      = strtolower($this->option('ide') ?: '');
 		$ideStr   = $ide ? " --ide={$ide}" : null;
 
 		if (!is_dir($watchDir)) {
