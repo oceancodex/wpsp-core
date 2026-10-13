@@ -11,6 +11,13 @@ use Symfony\Component\HttpFoundation\Response;
 use WPSP\App\Exceptions\HttpException;
 
 trait RouteTrait {
+
+	/*
+	 * =====================================================================
+	 * MIDDLEWARE
+	 * =====================================================================
+	 */
+
 	/**
 	 * Kiểm tra middleware hiện tại có phải là middleware cuối cùng trong pipeline hay không.
 	 *
@@ -27,11 +34,10 @@ trait RouteTrait {
 	 *
 	 * và tên class trùng với giá trị của tham số $currentClass.
 	 *
-	 * @param string $currentClass Tên class middleware cần kiểm tra.
+	 * @param string $currentClass   Tên class middleware cần kiểm tra.
 	 * @param mixed  $allMiddlewares Danh sách middleware của pipeline.
 	 *
-	 * @return bool Trả về true nếu middleware hiện tại là middleware cuối cùng,
-	 *              ngược lại trả về false.
+	 * @return bool
 	 */
 	public function isLastMiddleware($currentClass, $allMiddlewares) {
 		if (!is_array($allMiddlewares)) {
@@ -39,12 +45,7 @@ trait RouteTrait {
 		}
 
 		// Lọc chỉ lấy key dạng số (0,1,2...)
-		$middlewares = [];
-		foreach ($allMiddlewares as $key => $value) {
-			if (is_int($key)) {
-				$middlewares[$key] = $value;
-			}
-		}
+		$middlewares = array_filter($allMiddlewares, 'is_int', ARRAY_FILTER_USE_KEY);
 
 		if (empty($middlewares)) {
 			return false;
@@ -54,11 +55,7 @@ trait RouteTrait {
 		$last = end($middlewares);
 
 		// dạng: [ 'ClassName', 'handle' ]
-		if (is_array($last) && isset($last[0]) && $last[0] === $currentClass) {
-			return true;
-		}
-
-		return false;
+		return is_array($last) && isset($last[0]) && $last[0] === $currentClass;
 	}
 
 	/**
@@ -75,7 +72,7 @@ trait RouteTrait {
 	 *
 	 * Middleware hỗ trợ các định dạng:
 	 *
-	 * - Closure
+	 * - Closure                       → function($request, $next, $args)
 	 * - ClassName::class
 	 * - [ClassName::class, 'method']
 	 *
@@ -86,8 +83,7 @@ trait RouteTrait {
 	 * - Response có status < 400 : PASS
 	 * - Response có status >= 400 : FAIL
 	 *
-	 * Thông tin block hiện tại sẽ được truyền vào tham số `$args`
-	 * với key `current_block_middleware`.
+	 * Thông tin block hiện tại sẽ được truyền vào `$args['current_block_middleware']`.
 	 *
 	 * Ví dụ:
 	 *
@@ -109,8 +105,8 @@ trait RouteTrait {
 	 * - AdminMiddleware hoặc ManagerMiddleware chỉ cần một PASS.
 	 *
 	 * @param array $middlewares Danh sách middleware block cần kiểm tra.
-	 * @param mixed $request Request hiện tại. Nếu null sẽ tự động lấy từ container.
-	 * @param array $args Dữ liệu bổ sung được truyền vào middleware.
+	 * @param mixed $request     Request hiện tại. Nếu null sẽ tự động lấy từ container.
+	 * @param array $args        Dữ liệu bổ sung được truyền vào middleware.
 	 *
 	 * @return bool Trả về true nếu toàn bộ middleware đều PASS, ngược lại false.
 	 */
@@ -679,7 +675,7 @@ trait RouteTrait {
 	public function setRouteResolver() {
 		$route = $this->funcs->_getRouteManager()->currentRoute() ?? null;
 
-		if (!$route || !in_array($route?->type, ['AdminPages', 'Apis', 'Ajaxs', 'FrontPages', 'RewriteFrontPages'])) {
+		if (!$route || !in_array($route->type, ['AdminPages', 'Apis', 'Ajaxs', 'FrontPages', 'RewriteFrontPages'])) {
 			return;
 		}
 
@@ -740,19 +736,12 @@ trait RouteTrait {
 		}
 
 		if ($type instanceof \ReflectionNamedType) {
-			return $type->isBuiltin()
-				? null
-				: $type->getName();
+			return $type->isBuiltin() ? null : $type->getName();
 		}
 
 		if ($type instanceof \ReflectionUnionType) {
-
 			foreach ($type->getTypes() as $t) {
-
-				if (
-					$t instanceof \ReflectionNamedType &&
-					!$t->isBuiltin()
-				) {
+				if ($t instanceof \ReflectionNamedType && !$t->isBuiltin()) {
 					return $t->getName();
 				}
 			}
@@ -760,6 +749,12 @@ trait RouteTrait {
 
 		return null;
 	}
+
+	/*
+	 * =====================================================================
+	 * RESOLVE & CALL
+	 * =====================================================================
+	 */
 
 	/**
 	 * Beauty method của resolveAndCall với call = false.\
@@ -814,16 +809,17 @@ trait RouteTrait {
 		$method = $method ?? '__instanceConstruct';
 
 		if ($class && $method && method_exists($class, $method)) {
-			$callback   = $this->prepareCallbackFunction($method, $path, $fullPath, $class, $args);
-//			$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method, $args);
-//			return $this->resolveAndCall($callback, $callParams, $call, $method);
+			$callback = $this->prepareCallbackFunction($method, $path, $fullPath, $class, $args);
 			return $this->resolveAndCall($callback, [], $call, $method);
 		}
+
 		return null;
 	}
 
 	/*
-	 *
+	 * =====================================================================
+	 * UTILS
+	 * =====================================================================
 	 */
 
 	/**
@@ -846,6 +842,12 @@ trait RouteTrait {
 	 */
 	public function buildParametersForCallable($callback, $path, $fullPath, $requestPath, $args = []) {
 		[$class, $method] = $this->normalizeCallback($callback);
+
+		// Closure: normalizeCallback trả [null, Closure] → reflect chính Closure.
+		if ($class === null) {
+			return $this->getCallParams($path, $fullPath, $requestPath, $method, null, $args);
+		}
+
 		return $this->getCallParams($path, $fullPath, $requestPath, $class, $method, $args);
 	}
 
