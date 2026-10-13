@@ -7,6 +7,9 @@ use WPSPCORE\BaseInstances;
 
 /**
  * @property $labels
+ * @see https://developer.wordpress.org/reference/functions/register_post_type/
+ * @see https://developer.wordpress.org/reference/functions/get_post_type_labels/
+ * @note WordPress sẽ loại bỏ các metabox nếu metabox đó không có tiêu đề.
  */
 abstract class BasePostType extends BaseInstances {
 
@@ -18,9 +21,9 @@ abstract class BasePostType extends BaseInstances {
 	/** Labels. */
 	public $name                            = null;
 	public $singular_name                   = null;
-	public $add_new                         = 'Add new';
-	public $add_new_item                    = 'Add new';
-	public $edit_item                       = 'Edit';
+	public $add_new                         = null;
+	public $add_new_item                    = null;
+	public $edit_item                       = null;
 	public $new_item                        = null;
 	public $view_item                       = null;
 	public $view_items                      = null;
@@ -120,9 +123,13 @@ abstract class BasePostType extends BaseInstances {
 	public function init($postType = null) {
 		$postType = $this->post_type ?? $postType;
 		if ($postType) {
-//			add_action('init', function() use ($postType) {
-				register_post_type($postType, $this->args);
-//			});
+			// Bỏ các label null để WordPress dùng label mặc định.
+			$this->args->labels = array_filter(
+				(array) $this->args->labels,
+				fn($v) => $v !== null
+			);
+
+			register_post_type($postType, $this->args);
 		}
 	}
 
