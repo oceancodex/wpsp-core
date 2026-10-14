@@ -2,7 +2,7 @@
 
 namespace WPSPCORE\App\Traits;
 
-use Illuminate\Http\Request;
+use Illuminate\Http\Request as IlluminateRequest;
 use WPSPCORE\App\Routes\RouteTrait;
 
 /**
@@ -20,20 +20,23 @@ trait BaseInstancesTrait {
 
 	use RouteTrait;
 
-	public $funcs         = null;
 	public $mainPath      = null;
 	public $rootNamespace = null;
 	public $prefixEnv     = null;
 	public $extraParams   = [];
+
 	public $request       = null;
+	public $funcs         = null;
 
 	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 		$this->beforeInstanceConstruct();
 		$this->beforeConstruct();
-		if ($mainPath)      $this->mainPath      = $mainPath;
+
+		if ($mainPath) $this->mainPath = $mainPath;
 		if ($rootNamespace) $this->rootNamespace = $rootNamespace;
-		if ($prefixEnv)     $this->prefixEnv     = $prefixEnv;
-		if ($extraParams)   $this->extraParams   = $extraParams;
+		if ($prefixEnv) $this->prefixEnv = $prefixEnv;
+		if ($extraParams) $this->extraParams = $extraParams;
+
 		$this->prepareFuncs();
 		$this->prepareRequest();
 		$this->afterConstruct();
@@ -72,7 +75,7 @@ trait BaseInstancesTrait {
 	public function prepareFuncs() {
 		if ($this->funcs) return;
 
-		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs'] && !$this->funcs) {
+		if (isset($this->extraParams['funcs']) && $this->extraParams['funcs']) {
 			if (is_bool($this->extraParams['funcs'])) {
 				$this->funcs = new \WPSPCORE\Funcs(
 					$this->mainPath,
@@ -97,11 +100,11 @@ trait BaseInstancesTrait {
 				$this->request = $funcs::$request;
 			}
 			else {
-				$this->request = $this->funcs->_getApplication('request');
+				$this->request = $funcs->_getApplication('request');
 			}
 		}
 		else {
-			$this->request = Request::capture();
+			$this->request = IlluminateRequest::capture();
 		}
 
 		// Set user resolver.
@@ -139,20 +142,16 @@ trait BaseInstancesTrait {
 	 */
 
 	public function wpspCall($method, $class = null, $args = []) {
-//		if ($this->funcs && $this->request) {
-			$path        = $this->extraParams['path'] ?? null;
-			$fullPath    = $this->extraParams['full_path'] ?? null;
-			$requestPath = ltrim($this->request?->getRequestUri() ?? null, '/\\');
+		$path        = $this->extraParams['path'] ?? null;
+		$fullPath    = $this->extraParams['full_path'] ?? null;
+		$requestPath = ltrim($this->request?->getRequestUri() ?? null, '/\\');
 
-			if ($class) {
-				return $this->autoResolveAndCall($path, $fullPath, $requestPath, $class, $method, $args);
-			}
-			else {
-				return $this->autoResolveAndCall($path, $fullPath, $requestPath, $this, $method, $args);
-			}
-//		}
-
-//		return null;
+		if ($class) {
+			return $this->autoResolveAndCall($path, $fullPath, $requestPath, $class, $method, $args);
+		}
+		else {
+			return $this->autoResolveAndCall($path, $fullPath, $requestPath, $this, $method, $args);
+		}
 	}
 
 }
