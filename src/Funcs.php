@@ -1029,19 +1029,32 @@ class Funcs extends BaseInstances {
 		return $finalUrl;
 	}
 
-	public function _trans($string, $replaces = [], $wordpress = false) {
+	public function _trans($string, $replaces = [], $forceWordPress = false) {
+		// Nếu $replaces được truyền vào là true (để tương thích ngược với cách gọi cũ)
+		if ($forceWordPress || is_bool($replaces)) {
+			$forceWordPress = true;
+			$replaces       = [];
+		}
+
 		try {
-			if ($wordpress || !class_exists('Illuminate\Translation\Translator')) {
-				foreach (($replaces ?? []) as $find => $replace) {
+			// Nếu bắt buộc dùng WordPress hoặc không tồn tại Laravel Translator
+			if ($forceWordPress || !class_exists('Illuminate\Translation\Translator')) {
+				foreach ($replaces as $find => $replace) {
 					$string = str_replace($find, $replace, $string);
 				}
 				return __($string, $this->_getTextDomain());
 			}
-			else {
-				/** @var \Illuminate\Translation\Translator $translation */
-				$translation = $this->_app('translator');
-				return $translation->has($string) ? $translation->get($string, $replaces) : $translation->get($string, $replaces, $this->_config('app.fallback_locale'));
+
+			/** @var \Illuminate\Translation\Translator $translation */
+			$translation = $this->_app('translator');
+
+			// Kiểm tra key tồn tại, nếu không dùng bản fallback
+			if ($translation->has($string)) {
+				return $translation->get($string, $replaces);
 			}
+
+			return $translation->get($string, $replaces, $this->_config('app.fallback_locale'));
+
 		}
 		catch (\Throwable $e) {
 			return $string;
