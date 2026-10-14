@@ -96,7 +96,7 @@ class Apis extends BaseRoute {
 
 		register_rest_route(
 			$routeNamespace,
-			$fullPathRegex,
+			rtrim($fullPathRegex, '\/'), // preg_replace('#\\\\/$#', '', $fullPathRegex),
 			[
 				'methods'  => strtoupper($method),
 				'callback' => function(\WP_REST_Request $wpRestRequest) use ($callback, $path, $pathRegex, $fullPath, $fullPathRegex, $requestPath, $route) {
