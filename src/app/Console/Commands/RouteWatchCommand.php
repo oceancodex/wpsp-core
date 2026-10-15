@@ -48,7 +48,7 @@ class RouteWatchCommand extends Command {
 			if ($newHashes !== $hashes) {
 				$hashes = $newHashes;
 
-				$this->line('<fg=yellow>Change detected. Remapping...</>');
+				$this->warn('Change detected. Remapping...');
 
 				passthru(
 					'php ' . escapeshellarg($mainPath . '/artisan')
