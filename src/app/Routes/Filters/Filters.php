@@ -16,7 +16,7 @@ class Filters extends BaseRoute {
 	 * RouteManager::executeAllRoutes()
 	 */
 	public function execute($route) {
-		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+		$requestPath = $this->request->getRequestUri();
 
 		$path          = $route->path;
 		$pathRegex     = $route->pathRegex;
