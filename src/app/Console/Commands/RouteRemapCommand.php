@@ -161,13 +161,13 @@ class RouteRemapCommand extends Command {
 				return 'activated';
 			}
 
-			$this->line('<fg=yellow>Loading WordPress...</>');
+			$this->warn('Loading WordPress...');
 
 			if (is_plugin_active($pluginSlug)) {
 				return 'activated';
 			}
 
-			$this->line("<fg=yellow>Activating plugin \"{$pluginName}\" ...</>");
+			$this->warn("Activating plugin \"{$pluginName}\" ...");
 			$res = activate_plugin($pluginSlug);
 
 			if (is_wp_error($res)) {
