@@ -355,7 +355,7 @@ trait RouteTrait {
 	 */
 	public function prepareCallbackFunction($method, $path, $fullPath, $class = null, $args = []): \Closure {
 		return function() use ($method, $path, $fullPath, $class, $args) {
-			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+			$requestPath = $this->request->getRequestUri();
 
 			// build callback [instance, method]
 			$callback = [$class ?? $this, $method];
@@ -680,7 +680,7 @@ trait RouteTrait {
 		}
 
 		$httpMethod          = $this->request->getMethod();
-		$originalRequestPath = ltrim($this->request->getRequestUri(), '/\\');
+		$originalRequestPath = $this->request->getRequestUri();
 		$forceRegex          = $route->args['force_regex'] ?? false;
 		$fullPath            = $route->fullPath;
 		$regexPath           = $this->funcs->_regexPath($fullPath, $forceRegex);

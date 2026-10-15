@@ -56,7 +56,7 @@ class AdminPages extends BaseRoute {
 			return;
 		}
 
-		$requestPath = ltrim($request->getRequestUri(), '/\\');
+		$requestPath = $request->getRequestUri();
 
 		if (
 			(
@@ -136,7 +136,7 @@ class AdminPages extends BaseRoute {
 
 	public function executeMethodGet($route) {
 		$request     = $this->request;
-		$requestPath = ltrim($request->getRequestUri(), '/\\');
+		$requestPath = $request->getRequestUri();
 
 		$method      = $route->method;
 		$path        = $route->path;
