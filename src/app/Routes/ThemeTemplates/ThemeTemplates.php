@@ -24,7 +24,7 @@ class ThemeTemplates extends BaseRoute {
 		$middlewares   = $route->middlewares;
 
 		if ($this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
-			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+			$requestPath = $this->request->getRequestUri();
 
 			$constructParams = [
 				$this->funcs->_getMainPath(),
