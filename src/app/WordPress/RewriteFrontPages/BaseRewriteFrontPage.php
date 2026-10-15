@@ -58,6 +58,9 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 		$path     = $this->path ?? $path;
 		$fullPath = $this->fullPath ?? $fullPath;
 
+		// Loại bỏ dấu / ở đầu, vì rewrite rule sẽ lỗi khi regex bắt đầu bằng dấu /.
+		$fullPath = ltrim($fullPath, '/\\');
+
 		/**
 		 * Chuẩn hóa regex path
 		 * - luôn có ^ ở đầu

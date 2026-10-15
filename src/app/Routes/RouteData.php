@@ -50,7 +50,7 @@ class RouteData {
 		// Lấy prefix từ group, chuẩn hoá: đảm bảo luôn kết thúc bằng '/'
 		$prefix = $groupAttributes['prefix'] ?? '';
 		if ($prefix !== '') {
-			$prefix = rtrim($prefix, '/') . '/';
+			$prefix = '/' . rtrim($prefix, '/') . '/';
 		}
 
 		// Gán thông tin cơ bản

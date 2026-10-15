@@ -215,7 +215,7 @@ class RouteManager extends BaseInstances {
 		else {
 			// Set "currentRoute" là route đang truy cập thực sự qua URL.
 			if (in_array($type, ['AdminPages', 'Apis', 'Ajaxs', 'FrontPages', 'RewriteFrontPages'])) {
-				$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+				$requestPath = $this->request->getRequestUri();
 				$requestMethod = $this->request->method();
 
 				if (
