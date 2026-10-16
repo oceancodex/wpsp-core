@@ -54,7 +54,7 @@ abstract class BaseMetaBox extends BaseInstances {
 						$id,
 						$this->title,
 						function($post, $meta_box) use ($id) {
-							$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+							$requestPath = $this->request->getRequestUri();
 							return $this->autoResolveAndCall(
 								$id,
 								$this->extraParams['full_path'],
@@ -80,7 +80,7 @@ abstract class BaseMetaBox extends BaseInstances {
 						$id,
 						$this->title,
 						function($post, $meta_box) use ($metabox_id, $id) {
-							$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+							$requestPath = $this->request->getRequestUri();
 							return $this->autoResolveAndCall(
 								$id,
 								$this->extraParams['full_path'],

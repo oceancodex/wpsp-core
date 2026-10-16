@@ -57,7 +57,7 @@ abstract class BasePostTypeColumn extends BaseInstances {
 	 */
 
 	public function init($column_name = null) {
-		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+		$requestPath = $this->request->getRequestUri();
 		$column_name = $this->column_name ?? $column_name;
 
 		if ($column_name) {

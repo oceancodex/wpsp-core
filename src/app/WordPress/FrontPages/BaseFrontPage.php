@@ -69,7 +69,7 @@ abstract class BaseFrontPage extends BaseInstances {
 		$fullPathEx = !str_ends_with($fullPathEx, $regexSuffix) ? $fullPathEx . $regexSuffix : $fullPathEx;
 
 		if ($path && $fullPath) {
-			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+			$requestPath = $this->request->getRequestUri();
 
 			// Access URL that match rewrite rule.
 			if (!is_admin()) {

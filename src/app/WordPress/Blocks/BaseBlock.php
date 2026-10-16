@@ -37,7 +37,7 @@ abstract class BaseBlock extends BaseInstances {
 	 */
 
 	public function init($name = null) {
-		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+		$requestPath = $this->request->getRequestUri();
 		$name = $this->name ?? $name;
 
 		if ($name) {
