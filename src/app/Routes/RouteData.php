@@ -50,7 +50,8 @@ class RouteData {
 		// Lấy prefix từ group, chuẩn hoá: đảm bảo luôn kết thúc bằng '/'
 		$prefix = $groupAttributes['prefix'] ?? '';
 		if ($prefix !== '') {
-			$prefix = '/' . rtrim($prefix, '/') . '/';
+			$prefix = rtrim($prefix, '/') . '/';
+			$prefix = '/' . ltrim($prefix, '/');
 		}
 
 		// Gán thông tin cơ bản
@@ -58,7 +59,7 @@ class RouteData {
 		$this->route         = $route;
 		$this->parentRoute   = get_parent_class($route);
 		$this->method        = $method;
-		$this->path          = ltrim($path, '/');
+		$this->path          = $path;
 		$this->fullPath      = $prefix . $this->path;
 		$this->callback      = $callback;
 		$this->namespace     = $groupAttributes['namespace'] ?? null;
