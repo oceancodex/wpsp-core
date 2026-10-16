@@ -97,17 +97,21 @@ class RouteRemapCommand extends Command {
 			}
 
 			$routeMap = $this->funcs->_getRouteMap()->getMap() ?? [];
+
 			if (empty($routeMap)) {
-				$this->error('No routes found! Ensure the database server is running.');
-				return 0;
+//				$this->error('No routes found! Ensure the database server is running.');
+//				return 0;
+
+				$prepareMap = [];
 			}
+			else {
+				$pluginDirName = $this->funcs->_getPluginDirName();
 
-			$pluginDirName = $this->funcs->_getPluginDirName();
-
-			$prepareMap = [
-				'scope'  => $pluginDirName,
-				'routes' => $routeMap,
-			];
+				$prepareMap = [
+					'scope'  => $pluginDirName,
+					'routes' => $routeMap,
+				];
+			}
 
 			$json = json_encode($prepareMap, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 //			File::put($app->basePath('.wpsp-routes.json'), $json);
