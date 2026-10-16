@@ -59,7 +59,7 @@ abstract class BaseUserMetaBox extends BaseInstances {
 	 */
 
 	public function init($id = null) {
-		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+		$requestPath = $this->request->getRequestUri();
 		$id          = $this->id ?? $id;
 
 		if ($id) {
@@ -81,7 +81,7 @@ abstract class BaseUserMetaBox extends BaseInstances {
 	 */
 
 	private function updateUser() {
-		$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+		$requestPath = $this->request->getRequestUri();
 		$callback    = function($user_id) use ($requestPath) {
 			return $this->autoResolveAndCall($this->path, $this->id, $requestPath, $this, 'update', ['user_id' => $user_id]);
 		};

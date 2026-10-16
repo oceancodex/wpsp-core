@@ -60,7 +60,7 @@ trait BaseInstancesTrait {
 
 			$path        = $this->extraParams['path'] ?? '';
 			$fullPath    = $this->extraParams['full_path'] ?? '';
-			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+			$requestPath = $this->request->getRequestUri();
 
 			return $this->autoResolveAndCall($path, $fullPath, $requestPath, $this, $method);
 		}
@@ -144,7 +144,7 @@ trait BaseInstancesTrait {
 	public function wpspCall($method, $class = null, $args = []) {
 		$path        = $this->extraParams['path'] ?? null;
 		$fullPath    = $this->extraParams['full_path'] ?? null;
-		$requestPath = ltrim($this->request?->getRequestUri() ?? null, '/\\');
+		$requestPath = $this->request?->getRequestUri();
 
 		if ($class) {
 			return $this->autoResolveAndCall($path, $fullPath, $requestPath, $class, $method, $args);
