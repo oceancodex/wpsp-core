@@ -90,7 +90,7 @@ abstract class BaseSchedule extends BaseInstances {
 		 */
 		$method = preg_replace('/!$/', '', $method);
 		if (method_exists($this, $method)) {
-			$requestPath = ltrim($this->request->getRequestUri(), '/\\');
+			$requestPath = $this->request->getRequestUri();
 
 			$constructParams = [
 				$this->funcs->_getMainPath(),
