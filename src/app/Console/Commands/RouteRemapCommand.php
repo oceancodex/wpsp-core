@@ -171,20 +171,20 @@ class RouteRemapCommand extends Command {
 			$res = activate_plugin($pluginSlug);
 
 			if (is_wp_error($res)) {
-				$this->error("Failed to activate plugin: {$pluginName} - {$res->get_error_message()}");
+				$this->error("Unable to activate the plugin: {$pluginName} - {$res->get_error_message()}");
 				return false;
 			}
 
 			if (!is_plugin_active($pluginSlug)) {
-				$this->warn("Activation succeeded but plugin still inactive: {$pluginName}");
+				$this->warn("Successfully activated, but the plugin remains in an inactive state: {$pluginName}");
 				return false;
 			}
 
-			$this->info("Plugin \"{$pluginName}\" activated successfully!");
+			$this->info("Plugin \"{$pluginName}\" has been successfully activated!");
 			return true;
 		}
 		catch (\Throwable $e) {
-			$this->error("Error activating plugin {$plugin}: " . $e->getMessage());
+			$this->error("Error while activating plugin {$plugin}: " . $e->getMessage());
 			return false;
 		}
 	}
@@ -195,7 +195,7 @@ class RouteRemapCommand extends Command {
 		try {
 			$wpConfig = $this->funcs->_getWPConfig();
 			$prefix   = $wpConfig['table_prefix'] ?? 'wp_';
-			$host     = $wpConfig['DB_HOST'] ?? null;
+			$host     = $wpConfig['DB_HOST'] ?? '';
 			$port     = $wpConfig['DB_PORT'] ?? null;
 			$user     = $wpConfig['DB_USER'] ?? null;
 			$password = $wpConfig['DB_PASSWORD'] ?? null;
@@ -229,7 +229,7 @@ class RouteRemapCommand extends Command {
 			return is_array($active) && in_array($plugin, $active, true);
 		}
 		catch (\Throwable $e) {
-			$this->error('isPluginActiveFast error: ' . $e->getMessage());
+			$this->error('Error: ' . $e->getMessage() . '(isPluginActiveFast)');
 			return false;
 		}
 	}
