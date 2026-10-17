@@ -60,7 +60,7 @@ class RouteData {
 		$this->parentRoute   = get_parent_class($route);
 		$this->method        = $method;
 		$this->path          = $path;
-		$this->fullPath      = $prefix . $this->path;
+		$this->fullPath      = $prefix . ltrim($this->path, '/');
 		$this->callback      = $callback;
 		$this->namespace     = $groupAttributes['namespace'] ?? null;
 		$this->version       = $groupAttributes['version'] ?? null;
