@@ -769,6 +769,10 @@ class Funcs extends BaseInstances {
 		return $result;
 	}
 
+	public function _old($key = null, $default = null) {
+		return $this->_app('request')->old($key, $default);
+	}
+
 	public function _auth($guard = null) {
 
 		/** @var \Illuminate\Support\Facades\Auth $auth */
