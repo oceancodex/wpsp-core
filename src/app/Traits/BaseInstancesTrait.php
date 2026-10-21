@@ -2,6 +2,7 @@
 
 namespace WPSPCORE\App\Traits;
 
+use Illuminate\Contracts\Container\Container as ContainerContract;
 use Illuminate\Http\Request as IlluminateRequest;
 use WPSPCORE\App\Routes\RouteTrait;
 
@@ -25,8 +26,8 @@ trait BaseInstancesTrait {
 	public $prefixEnv     = null;
 	public $extraParams   = [];
 
-	public $request       = null;
-	public $funcs         = null;
+	public $request = null;
+	public $funcs   = null;
 
 	public function baseInstanceConstruct($mainPath = null, $rootNamespace = null, $prefixEnv = null, $extraParams = []) {
 		$this->beforeInstanceConstruct();
@@ -95,34 +96,16 @@ trait BaseInstancesTrait {
 	public function prepareRequest() {
 		if ($this->request) return;
 
-		if (isset($this->funcs) && $funcs = $this->funcs) {
-			if (isset($funcs::$request) && $funcs::$request) {
-				$this->request = $funcs::$request;
-			}
-			else {
-				$this->request = $funcs->_getApplication('request');
-			}
+		if ($funcs = $this->funcs) {
+			$this->request = (isset($funcs::$request) && $funcs::$request)
+				? $funcs::$request
+				: $funcs->_getApplication('request');
 		}
 		else {
 			$this->request = IlluminateRequest::capture();
 		}
 
-		// Set user resolver.
-		if (!$this->request?->getUserResolver()) {
-			$this->request?->setUserResolver(function() {
-				if (!$this->funcs->_getApplication()->bound('session.store')) {
-					return null;
-				}
-
-				$store = $this->funcs->_getApplication('session.store');
-
-				if (!$store->isStarted()) {
-					return null;
-				}
-
-				return $this->funcs?->_auth()?->user();
-			});
-		}
+		$this->ensureRequestUserResolver($this->request);
 
 		unset($this->extraParams['request']);
 	}
@@ -149,9 +132,34 @@ trait BaseInstancesTrait {
 		if ($class) {
 			return $this->autoResolveAndCall($path, $fullPath, $requestPath, $class, $method, $args);
 		}
-		else {
-			return $this->autoResolveAndCall($path, $fullPath, $requestPath, $this, $method, $args);
+
+		return $this->autoResolveAndCall($path, $fullPath, $requestPath, $this, $method, $args);
+	}
+
+	public function ensureRequestUserResolver($request, ?ContainerContract $app = null, bool $force = false): void {
+		if (!$request instanceof IlluminateRequest) {
+			return;
 		}
+
+		if (!$force && (fn() => $this->userResolver !== null)->call($request)) {
+			return;
+		}
+
+		$funcs = $this->funcs;
+
+		$request->setUserResolver(static function($guard = null) use ($app, $funcs) {
+			$app ??= $funcs?->_getApplication();
+
+			if (!$app || !$app->bound('auth') || !$app->bound('session.store')) {
+				return null;
+			}
+
+			if (!$app->make('session.store')->isStarted()) {
+				return null;
+			}
+
+			return call_user_func($app->make('auth')->userResolver(), $guard);
+		});
 	}
 
 }
