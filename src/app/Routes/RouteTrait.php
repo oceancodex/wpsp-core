@@ -458,12 +458,10 @@ trait RouteTrait {
 					 * là một class hợp lệ, tự động tạo properties cho class đang xử lý.
 					 */
 					if ($method == '__wpspConstruct' && $name && class_exists($className)) {
-						try {
-							$nextClass = new $className($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams);
-							@$this->{$name} = $nextClass;
-							$callParams[$name] = $nextClass;
+						$instance = $this->injectConstructProperty($name, $className);
+						if ($instance !== null) {
+							$callParams[$name] = $instance;
 						}
-						catch (\Exception $e) {}
 					}
 					continue;
 				}
@@ -524,12 +522,10 @@ trait RouteTrait {
 				 * là một class hợp lệ, tự động tạo properties cho class đang xử lý.
 				 */
 				if ($method == '__wpspConstruct' && $name && class_exists($className)) {
-					try {
-						$nextClass = new $className($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams);
-						@$this->{$name} = $nextClass;
-						$callParams[$name] = $nextClass;
+					$instance = $this->injectConstructProperty($name, $className);
+					if ($instance !== null) {
+						$callParams[$name] = $instance;
 					}
-					catch (\Exception $e) {}
 				}
 
 				// Nếu type là Eloquent Model => tự binding
@@ -659,6 +655,113 @@ trait RouteTrait {
 		}
 
 		return $callParams;
+	}
+
+	/**
+	 * Khởi tạo service cho tham số của __wpspConstruct và gán thành property.
+	 *
+	 * - Khởi tạo lỗi  → log, trả null để container / manual DI làm fallback.
+	 * - Gán lỗi       → lỗi khai báo của dev: WP_DEBUG thì ném lại, ngược lại log.
+	 *
+	 * @return object|null Instance đã tạo, hoặc null nếu khởi tạo thất bại.
+	 */
+	protected function injectConstructProperty(string $name, string $className) {
+		if ($name === '' || !class_exists($className)) {
+			return null;
+		}
+
+		try {
+			$instance = new $className($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams);
+		}
+		catch (\Throwable $e) {
+			$this->handleInjectionError($e, $className, $name, false);
+			return null;
+		}
+
+		try {
+			$this->assignInjectedProperty($name, $instance);
+		}
+		catch (\Throwable $e) {
+			$this->handleInjectionError($e, $className, $name, true);
+		}
+
+		return $instance;
+	}
+
+	/**
+	 * Gán property được inject, hỗ trợ private / protected / readonly
+	 * khai báo ở bất kỳ class nào trong hierarchy.
+	 */
+	protected function assignInjectedProperty(string $name, $value): void {
+		$declaringClass = null;
+		$ref            = new \ReflectionClass($this);
+
+		do {
+			if ($ref->hasProperty($name)) {
+				$prop = $ref->getProperty($name);
+				if ($prop->isStatic()) return;
+				if ($prop->getDeclaringClass()->getName() === $ref->getName()) {
+					$declaringClass = $ref->getName();
+					break;
+				}
+			}
+		}
+		while ($ref = $ref->getParentClass());
+
+		if ($declaringClass === null) {
+			$this->{$name} = $value; // không khai báo → dynamic property như cũ
+			return;
+		}
+
+		\Closure::bind(function($n, $v) {
+			$this->{$n} = $v;
+		}, $this, $declaringClass)($name, $value);
+	}
+
+	/**
+	 * Xử lý lỗi auto-inject trong __wpspConstruct.
+	 *
+	 * - $rethrow + WP_DEBUG → ném LogicException (giữ exception gốc qua $previous).
+	 * - Còn lại             → log (logger của container nếu có, ngược lại error_log)
+	 *                         + action "{app}_injection_failed".
+	 */
+	protected function handleInjectionError(\Throwable $e, string $className, string $name, bool $rethrow): void {
+		$message = sprintf(
+			'[%s] Không inject được [%s] vào property $%s: %s',
+			static::class, $className, $name, $e->getMessage()
+		);
+
+		if ($rethrow && defined('WP_DEBUG') && WP_DEBUG) {
+			throw new \LogicException($message, 0, $e);
+		}
+
+		// Log: container 'log' (CORE, hoặc Lite nếu có) → error_log.
+		$logged = false;
+		try {
+			$app = (is_object($this->funcs) && method_exists($this->funcs, '_getApplication'))
+				? $this->funcs->_getApplication()
+				: null;
+
+			if ($app && method_exists($app, 'bound') && method_exists($app, 'make') && $app->bound('log')) {
+				$app->make('log')->error($message, ['exception' => $e]);
+				$logged = true;
+			}
+		}
+		catch (\Throwable $logError) {
+		}
+
+		if (!$logged) {
+			error_log($message);
+		}
+
+		// Hook cho plugin tự xử lý (Sentry, Query Monitor...).
+		if (function_exists('do_action')) {
+			$prefix = (is_object($this->funcs) && method_exists($this->funcs, '_getAppShortName'))
+				? $this->funcs->_getAppShortName()
+				: 'wpsp';
+
+			do_action($prefix . '_injection_failed', $className, $name, $e, $this);
+		}
 	}
 
 	/**
