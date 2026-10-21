@@ -159,6 +159,8 @@ abstract class WPSP extends BaseInstances {
 			$this->funcs ??= new Funcs($this->mainPath, $this->rootNamespace, $this->prefixEnv, $this->extraParams)
 		);
 
+		$this->ensureRequestUserResolver($this->request, $this->application, true);
+
 		$this->application->singleton('files', fn() => new Filesystem());
 
 		$this->application->singleton('process', fn($app) => $app->make(ProcessFactory::class));
