@@ -86,15 +86,7 @@ class Filters extends BaseRoute {
 				add_filter(
 					$fullPath,
 					function(...$wpParams) use ($path, $fullPath, $requestPath, $callback, $route) {
-						$callParams = $this->getCallParams(
-							$path,
-							$fullPath,
-							$requestPath,
-							$callback[0],
-							$callback[1],
-							['route' => $route],
-							$wpParams
-						);
+						$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route], $wpParams);
 
 						return $this->resolveAndCall(
 							$callback,

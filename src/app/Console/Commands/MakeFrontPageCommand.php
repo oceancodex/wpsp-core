@@ -4,7 +4,6 @@ namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class MakeFrontPageCommand extends Command {
