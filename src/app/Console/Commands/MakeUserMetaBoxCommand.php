@@ -4,7 +4,6 @@ namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 
 class MakeUserMetaBoxCommand extends Command {
@@ -25,7 +24,8 @@ class MakeUserMetaBoxCommand extends Command {
 		 * Funcs.
 		 * ---
 		 */
-		$this->funcs = $this->getLaravel()->make("funcs");
+		$app         = $this->getLaravel();
+		$this->funcs = $app->make("funcs");
 		$mainPath    = $this->funcs->mainPath;
 
 		/**
@@ -93,8 +93,8 @@ class MakeUserMetaBoxCommand extends Command {
 		 * ---
 		 */
 		if ($createView) {
-			$bladeExt    = class_exists('Illuminate\View\View') ? '.blade.php' : '.php';
-			$nonBladeSep = class_exists('Illuminate\View\View') ? '' : '/non-blade';
+			$bladeExt    = $app->bound('view') ? '.blade.php' : '.php';
+			$nonBladeSep = $app->bound('view') ? '' : '/non-blade';
 
 			File::ensureDirectoryExists($viewDir);
 

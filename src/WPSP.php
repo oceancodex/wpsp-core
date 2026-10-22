@@ -33,6 +33,12 @@ abstract class WPSP extends BaseInstances {
 	 */
 	public $middlewares = [];
 
+	/**
+	 * Cache user WordPress đã hydrate, key = "{modelClass}#{ID}".
+	 * Dùng property thay vì static var để không dùng chung giữa các plugin.
+	 */
+	public array $wordPressUserCache = [];
+
 	/*
 	 * Bootstrap
 	 */
@@ -186,6 +192,7 @@ abstract class WPSP extends BaseInstances {
 
 	public function extends() {
 		$this->overrideRememberCookieName();
+		$this->registerUserResolverFallback();
 	}
 
 	public function extendsConsole() {}
@@ -472,6 +479,67 @@ abstract class WPSP extends BaseInstances {
 				return $guard;
 			});
 		});
+	}
+
+	/**
+	 * User resolver dùng chung cho Gate và Request:
+	 *   1. User của guard Laravel (khi session đã start).
+	 *   2. Fallback: user WordPress đang đăng nhập (wp_get_current_user).
+	 *
+	 * Auth::user() / Auth::check() KHÔNG bị ảnh hưởng.
+	 */
+	private function registerUserResolverFallback(): void {
+		$configure = function(AuthManager $auth) {
+			$auth->resolveUsersUsing(function($guard = null) use ($auth) {
+				$app = $this->application;
+
+				if ($app->bound('session.store') && $app['session.store']->isStarted()) {
+					if ($user = $auth->guard($guard)->user()) {
+						return $user;
+					}
+				}
+
+				// Chỉ fallback cho guard mặc định, không fallback khi gọi guard cụ thể như 'api'.
+				if ($guard !== null && $guard !== $auth->getDefaultDriver()) {
+					return null;
+				}
+
+				return $this->resolveWordPressUser();
+			});
+		};
+
+		if ($this->application->resolved('auth')) {
+			$configure($this->application['auth']);
+		}
+		else {
+			$this->application->afterResolving('auth', $configure);
+		}
+	}
+
+	/**
+	 * Chuyển WP_User hiện tại thành Eloquent model (không query lại DB).
+	 */
+	private function resolveWordPressUser() {
+		// wp_get_current_user() nằm trong pluggable.php, chưa có trước plugins_loaded.
+		if (!function_exists('wp_get_current_user')) {
+			return null;
+		}
+
+		$wpUser = wp_get_current_user();
+		if (!$wpUser instanceof \WP_User || !$wpUser->exists()) {
+			return null;
+		}
+
+		$modelClass = $this->application['config']->get('auth.wp_user_model')
+			?? $this->funcs->_getRootNamespace() . '\\App\\Models\\WPUsersModel';
+
+		if (!class_exists($modelClass)) {
+			return null;
+		}
+
+		$key = $modelClass . '#' . $wpUser->ID;
+
+		return $this->wordPressUserCache[$key] ??= (new $modelClass)->newFromBuilder((array)$wpUser->data);
 	}
 
 }

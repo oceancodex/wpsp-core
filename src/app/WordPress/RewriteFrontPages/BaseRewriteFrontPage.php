@@ -58,6 +58,9 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 		$path     = $this->path ?? $path;
 		$fullPath = $this->fullPath ?? $fullPath;
 
+		$path = (!str_starts_with('/', $path) && !str_starts_with('\/', $path)) ? '/' . $path : $path;
+		$fullPath = (!str_starts_with('/', $fullPath) && !str_starts_with('\/', $fullPath)) ? '/' . $fullPath : $fullPath;
+
 		/**
 		 * Chuẩn hóa regex path
 		 * - luôn có ^ ở đầu
@@ -65,9 +68,10 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 		 */
 		$regexPrefix = '^';
 		$regexSuffix = '$';
-		$regexPath   = $this->funcs->_regexPath($fullPath);
-		$regexPath   = !str_starts_with($regexPath, $regexPrefix) ? $regexPrefix . $regexPath : $regexPath;
-		$regexPath   = !str_ends_with($regexPath, $regexSuffix) ? $regexPath . $regexSuffix : $regexPath;
+
+		$regexPath = $this->funcs->_regexPath($fullPath);
+		$regexPath = !str_starts_with($regexPath, $regexPrefix) ? $regexPrefix . $regexPath : $regexPath;
+		$regexPath = !str_ends_with($regexPath, $regexSuffix) ? $regexPath . $regexSuffix : $regexPath;
 
 		$fullPathEx = !str_starts_with($fullPath, $regexPrefix) ? $regexPrefix . $fullPath : $fullPath;
 		$fullPathEx = !str_ends_with($fullPathEx, $regexSuffix) ? $fullPathEx . $regexSuffix : $fullPathEx;
@@ -117,9 +121,9 @@ abstract class BaseRewriteFrontPage extends BaseInstances {
 			 * (tránh hook không cần thiết)
 			 */
 			try {
-				$matched = @preg_match('/' . $regexPath . '/iu', $requestPath, $matches);
+				$matched = @preg_match('#' . $regexPath . '#u', $requestPath, $matches);
 				if (!$matched) {
-					$matched = @preg_match('/' . $fullPathEx . '/iu', $requestPath, $matches);
+					$matched = @preg_match('#' . $fullPathEx . '#', $requestPath, $matches);
 				}
 			}
 			catch (\Throwable $e) {

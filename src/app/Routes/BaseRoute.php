@@ -10,7 +10,7 @@ use WPSPCORE\BaseInstances;
  *
  * @method static $this name(string $name)
  * @method static $this group($callback)
- * @method static $this prefix(string $prefix)
+ * @method static $this prefix(string $prefix, string $separator = '/')
  * @method static $this namespace(string $namespace)
  * @method static $this version(string $version)
  * @method static $this middleware(array|string ...$middlewares)
@@ -103,6 +103,13 @@ abstract class BaseRoute extends BaseInstances {
 
 				return $this;
 			}
+
+			// Xử lý prefix.
+			elseif ($method === 'prefix') {
+				$this->pending['prefix'] = $this->normalizePrefix($arguments[0] ?? '', $arguments[1] ?? '/');
+			}
+
+			// Xử lý các method còn lại.
 			else {
 				$this->pending[$method] = $arguments[0];
 			}
@@ -205,6 +212,33 @@ abstract class BaseRoute extends BaseInstances {
 	}
 
 	/**
+	 * Chuẩn hoá prefix: bỏ slash đầu, gắn separator vào cuối.
+	 * ('demo', '_')  → 'demo_'
+	 * ('/api/', '/') → 'api/'
+	 * ('demo', '')   → 'demo' (nối thẳng)
+	 */
+	private function normalizePrefix($prefix, $separator = '/') {
+		$prefix    = ltrim((string)$prefix, '/\\');
+		$separator = (string)$separator;
+
+		if ($prefix === '') {
+			return '';
+		}
+
+		if ($separator === '') {
+			return $prefix;
+		}
+
+		// Bỏ separator thừa ở cuối (hỗ trợ separator nhiều ký tự, không dùng rtrim để tránh lỗi charlist như '..')
+		$len = strlen($separator);
+		while ($prefix !== '' && substr($prefix, -$len) === $separator) {
+			$prefix = substr($prefix, 0, -$len);
+		}
+
+		return $prefix === '' ? '' : $prefix . $separator;
+	}
+
+	/**
 	 * Build 1 block middleware, hỗ trợ các block con lồng nhau bên trong.
 	 */
 	private function buildMiddlewareBlock($raw) {
@@ -254,7 +288,8 @@ abstract class BaseRoute extends BaseInstances {
 		 *     Route::prefix('x')->get(...)
 		 */
 		if (!empty($this->pending['prefix'])) {
-			$group['prefix'] .= rtrim($this->pending['prefix'], '/').'/';
+//			$group['prefix'] .= rtrim($this->pending['prefix'], '/').'/';
+			$group['prefix'] = ($group['prefix'] ?? '') . $this->pending['prefix']; // Thay bằng cái này để ->prefix() có thêm đối số "separator"
 		}
 
 		/**

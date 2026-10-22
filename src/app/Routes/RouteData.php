@@ -47,12 +47,15 @@ class RouteData {
 		// Loại bỏ một số properties từ $funcs để gọn gàng hơn.
 //		unset($funcs->request);
 
+		// Prefix đã được chuẩn hoá (kèm separator) từ BaseRoute + RouteManager
+		$prefix = (string)($groupAttributes['prefix'] ?? '');
+
 		// Lấy prefix từ group, chuẩn hoá: đảm bảo luôn kết thúc bằng '/'
-		$prefix = $groupAttributes['prefix'] ?? '';
-		if ($prefix !== '') {
-			$prefix = rtrim($prefix, '/') . '/';
-			$prefix = '/' . ltrim($prefix, '/');
-		}
+		// Bỏ đoạn code này vì prefix cho phép tùy chỉnh seperator.
+//		if ($prefix !== '') {
+//			$prefix = rtrim($prefix, '/') . '/';
+////			$prefix = '/' . ltrim($prefix, '/');
+//		}
 
 		// Gán thông tin cơ bản
 		$this->type          = $type;
@@ -60,7 +63,7 @@ class RouteData {
 		$this->parentRoute   = get_parent_class($route);
 		$this->method        = $method;
 		$this->path          = $path;
-		$this->fullPath      = $prefix . ltrim($this->path, '/');
+		$this->fullPath      = $prefix . ltrim($this->path, '/'); // fullPath sẽ dùng để register nhiều thứ khác (AdminPages, Shortcode, PostTypeColumns, v.v... vì thế sẽ không có / ở đầu để tránh lỗi)
 		$this->callback      = $callback;
 		$this->namespace     = $groupAttributes['namespace'] ?? null;
 		$this->version       = $groupAttributes['version'] ?? null;
