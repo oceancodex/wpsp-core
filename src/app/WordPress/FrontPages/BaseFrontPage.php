@@ -54,6 +54,9 @@ abstract class BaseFrontPage extends BaseInstances {
 		$path     = $this->path ?? $path;
 		$fullPath = $this->fullPath ?? $fullPath;
 
+		$path = (!str_starts_with('/', $path) && !str_starts_with('\/', $path)) ? '/' . $path : $path;
+		$fullPath = (!str_starts_with('/', $fullPath) && !str_starts_with('\/', $fullPath)) ? '/' . $fullPath : $fullPath;
+
 		/**
 		 * Chuẩn hóa regex path
 		 * - luôn có ^ ở đầu
