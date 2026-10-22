@@ -10,6 +10,38 @@ use Illuminate\Support\Facades\Facade;
 use Symfony\Component\HttpFoundation\Response;
 use WPSP\App\Exceptions\HttpException;
 
+/**
+ * RouteTrait
+ *
+ * Dùng chung cho các loại route của WPSP (AdminPages, Apis, Ajaxs, FrontPages,
+ * RewriteFrontPages, Actions, Filters...). Trait này chịu trách nhiệm:
+ *
+ * - Đánh giá middleware dạng block AND/OR lồng nhau.
+ * - Build tham số cho callback (route params, request params, model binding,
+ *   WP hook params, metadata).
+ * - Auto-inject property qua __wpspConstruct.
+ * - Gọi callback qua Laravel container với Dependency Injection.
+ *
+ * ---------------------------------------------------------------------
+ * BẤT BIẾN QUAN TRỌNG (KHÔNG ĐƯỢC PHÁ KHI TỐI ƯU)
+ * ---------------------------------------------------------------------
+ *
+ * 1. Mỗi lần gọi callback, Container::getInstance(), Facade app và Model
+ *    resolver PHẢI trỏ về đúng application của plugin đang chạy.
+ *    Các helper redirect(), session(), back(), old(), view()... đều đi qua
+ *    Container::getInstance(). Nếu container global đang trỏ sang plugin khác,
+ *    hoặc facade còn cache instance của plugin khác, thì dữ liệu sẽ bị ghi
+ *    vào session store của plugin kia. Khi đó redirect()->withErrors() /
+ *    ->with() / withInput() "mất" dữ liệu flash.
+ *    → Xem bindContainerContext().
+ *
+ * 2. Request dùng để build params PHẢI là $this->request (đã gắn session).
+ *    Không thay bằng Request::capture(), vì request mới không có session:
+ *    back() không lấy được URL trước, còn errors/old input không đọc được.
+ *
+ * 3. Thứ tự ưu tiên lấy giá trị cho param giữ nguyên như bản gốc
+ *    (xem getCallParams()).
+ */
 trait RouteTrait {
 
 	/*
@@ -69,21 +101,27 @@ trait RouteTrait {
 	 * - OR : chỉ cần một middleware trong block PASS.
 	 *
 	 * Route chỉ được coi là PASS khi tất cả các block middleware đều PASS.
+	 * Block có thể lồng nhau vô hạn cấp (phần tử con là mảng có key 'relation').
+	 * Đánh giá có short-circuit: AND dừng ở FAIL đầu tiên, OR dừng ở PASS đầu tiên,
+	 * nên các middleware phía sau sẽ KHÔNG chạy.
 	 *
 	 * Middleware hỗ trợ các định dạng:
 	 *
-	 * - Closure                       → function($request, $next, $args)
+	 * - Closure                       → function($request, $next)
 	 * - ClassName::class
 	 * - [ClassName::class, 'method']
+	 * - 'throttle:60,1' / 'throttle:30rpm' / ['throttle:api'] / ThrottleRequests::using('api')
 	 *
 	 * Giá trị trả về của middleware:
 	 *
 	 * - true  : PASS
 	 * - false : FAIL
-	 * - Response có status < 400 : PASS
+	 * - Response có status < 400 : PASS (lưu ý: RedirectResponse 3xx cũng là PASS)
 	 * - Response có status >= 400 : FAIL
+	 * - Giá trị khác (null, string...) : PASS
 	 *
-	 * Thông tin block hiện tại sẽ được truyền vào `$args['current_block_middleware']`.
+	 * Thông tin block hiện tại sẽ được truyền vào `$args['current_block_middleware']`
+	 * (chỉ middleware dạng class nhận được $args, qua DI param tên `$args`).
 	 *
 	 * Ví dụ:
 	 *
@@ -121,6 +159,16 @@ trait RouteTrait {
 		}
 
 		/**
+		 * $next giả lập cho middleware: luôn trả 200 OK.
+		 * Middleware gọi $next($request) nghĩa là "cho qua".
+		 *
+		 * [TỐI ƯU] Tạo 1 lần cho cả lần đánh giá thay vì tạo lại cho mỗi middleware.
+		 */
+		$next = function() {
+			return new Response('OK', 200);
+		};
+
+		/**
 		 * Chuẩn hoá 1 middleware "lá" (Closure / string / [class, method]) thành dạng runtime.
 		 */
 		$normalizeLeaf = function($mw, $args) {
@@ -146,52 +194,62 @@ trait RouteTrait {
 		};
 
 		/**
+		 * Chạy ThrottleRequests của Laravel.
+		 *
+		 * - 'throttle:60,1' → handle($request, $next, '60', '1')
+		 * - 'throttle:api'  → handle($request, $next, 'api') (named limiter)
+		 *
+		 * Khi vượt giới hạn: JSON request → trả JsonResponse 429 (đã send()),
+		 * request thường → wp_die 429 (dừng luôn).
+		 *
+		 * [TỐI ƯU] Tách ra ngoài $runOne để chỉ tạo closure 1 lần.
+		 */
+		$runThrottle = function($mw, $request) use ($app, $next) {
+			$middleware = $app->make(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+
+			$parts = explode(':', $mw['value'], 2);
+
+			$parameters = [];
+			if (isset($parts[1])) {
+				$parameters = explode(',', $parts[1]);
+			}
+
+			try {
+				return $middleware->handle($request, $next, ...$parameters);
+			}
+			catch (\Illuminate\Http\Exceptions\ThrottleRequestsException $e) {
+				if ($this->funcs->_wantsJson()) {
+					$response = $this->funcs->_response(false, $e->getMessage(), 429);
+					$response = new JsonResponse($response, 429);
+					return $response->send();
+				}
+				wp_die($e->getMessage(), '429 - Too Many Requests.', [
+					'back_link' => true,
+					'response'  => 429,
+				]);
+			}
+			catch (\Exception $e) {
+				if ($this->funcs->_wantsJson()) {
+					$response = $this->funcs->_response(false, $e->getMessage(), 500);
+					$response = new JsonResponse($response, 500);
+					return $response->send();
+				}
+				wp_die($e->getMessage(), '500 - Internal Server Error.', [
+					'back_link' => true,
+					'response'  => 500,
+				]);
+			}
+		};
+
+		/**
 		 * Chạy 1 middleware đã normalize, trả về true (PASS) / false (FAIL).
 		 */
-		$runOne = function($mw) use ($app, $request) {
-			$next = function() {
-				return new Response('OK', 200);
-			};
-
-			$runThrottle = function($mw, $request) use ($app, $next) {
-				$middleware = $app->make(\Illuminate\Routing\Middleware\ThrottleRequests::class);
-
-				$parts = explode(':', $mw['value'], 2);
-
-				$parameters = [];
-				if (isset($parts[1])) {
-					$parameters = explode(',', $parts[1]);
-				}
-
-				try {
-					return $middleware->handle($request, $next, ...$parameters);
-				}
-				catch (\Illuminate\Http\Exceptions\ThrottleRequestsException $e) {
-					if ($this->funcs->_wantsJson()) {
-						$response = $this->funcs->_response(false, $e->getMessage(), 429);
-						$response = new JsonResponse($response, 429);
-						return $response->send();
-					}
-					wp_die($e->getMessage(), '429 - Too Many Requests.', [
-						'back_link' => true,
-						'response'  => 429,
-					]);
-				}
-				catch (\Exception $e) {
-					if ($this->funcs->_wantsJson()) {
-						$response = $this->funcs->_response(false, $e->getMessage(), 500);
-						$response = new JsonResponse($response, 500);
-						return $response->send();
-					}
-					wp_die($e->getMessage(), '500 - Internal Server Error.', [
-						'back_link' => true,
-						'response'  => 500,
-					]);
-				}
-			};
-
+		$runOne = function($mw) use ($app, $request, $next, $runThrottle) {
 			if ($mw['type'] === 'throttle') {
-				// Chạy throttle đúng 1 lần cho mỗi (request, signature) trong 1 vòng đời request
+				// Chạy throttle đúng 1 lần cho mỗi signature.
+				// Lưu ý: static trong closure gắn với chính object closure này,
+				// mà $runOne được tạo mới mỗi lần gọi isPassedMiddleware(),
+				// nên cache có hiệu lực trong phạm vi 1 lần đánh giá middleware.
 				static $ran = [];
 				$sig = $mw['value'];
 				if (isset($ran[$sig])) {
@@ -200,7 +258,8 @@ trait RouteTrait {
 				$ran[$sig] = $runThrottle($mw, $request);
 				return $ran[$sig];
 			}
-			elseif ($mw['type'] === 'closure') {
+
+			if ($mw['type'] === 'closure') {
 				$res = call_user_func($mw['closure'], $request, $next);
 			}
 			else {
@@ -253,22 +312,17 @@ trait RouteTrait {
 		};
 
 		/**
-		 * Đánh giá 1 block theo relation (mặc định AND nếu không khai báo).\
-		 * Các phần tử con có thể là middleware lá hoặc block con lồng nhau — đệ quy vô hạn cấp.
+		 * Đánh giá 1 block theo relation (mặc định AND nếu không khai báo).
+		 * Các phần tử con có thể là middleware lá hoặc block con lồng nhau, đệ quy vô hạn cấp.
 		 */
 		$evaluateBlock = function($block, $args) use (&$evaluateNode) {
-			$relation = 'AND';
-			if (isset($block['relation'])) {
-				$relation = strtoupper($block['relation']);
-			}
+			$relation = isset($block['relation']) ? strtoupper($block['relation']) : 'AND';
 
 			$args['current_block_middleware'] = $block;
 
-			$children = [];
-			foreach ($block as $key => $value) {
-				if ($key === 'relation') continue;
-				$children[] = $value;
-			}
+			// [TỐI ƯU] Copy rồi unset thay vì foreach + push từng phần tử.
+			$children = $block;
+			unset($children['relation']);
 
 			if (empty($children)) {
 				return true;
@@ -323,7 +377,7 @@ trait RouteTrait {
 	 * Nếu callback không thuộc các định dạng được hỗ trợ,
 	 * RuntimeException sẽ được ném ra.
 	 *
-	 * @param mixed $callback Callback cần chuẩn hóa.
+	 * @param mixed $callback        Callback cần chuẩn hóa.
 	 * @param array $constructParams Các tham số truyền vào constructor của class.
 	 *
 	 * @return callable Callback đã được chuẩn hóa và sẵn sàng để thực thi.
@@ -352,6 +406,9 @@ trait RouteTrait {
 	 * Lúc này myMethod được gọi với DI tự động.\
 	 * Nhưng trong myMethod chúng ta lại muốn gọi tiếp method khác, ví dụ: $this->secondMethod()
 	 * Nếu không sử dụng hàm này, thì secondMethod() sẽ không được "Dependencies Injection".
+	 *
+	 * Lưu ý: params được build LÚC CLOSURE CHẠY (lazy), không phải lúc tạo closure,
+	 * để lấy đúng request/route tại thời điểm WP thực sự gọi callback.
 	 */
 	public function prepareCallbackFunction($method, $path, $fullPath, $class = null, $args = []): \Closure {
 		return function() use ($method, $path, $fullPath, $class, $args) {
@@ -388,6 +445,22 @@ trait RouteTrait {
 	 * - Eloquent model binding
 	 * - Metadata injection
 	 * - Request → route parameter bridging
+	 *
+	 * Thứ tự ưu tiên giá trị cho param PRIMITIVE (khi route match):
+	 *   1) named capture (?P<name>) → 2) request attributes → 3) POST
+	 *   → 4) query string → 5) positional capture → 6) default value
+	 *   → 7) WP hook params → 8) null
+	 *
+	 * Thứ tự ưu tiên ID cho param MODEL (khi route match):
+	 *   1) named capture → 2) query → 3) POST → 4) $args
+	 *
+	 * Param kiểu class khác (Request, Service...) KHÔNG đưa vào $callParams;
+	 * container sẽ tự inject khi call(). Riêng __wpspConstruct sẽ tạo instance
+	 * và gán thành property.
+	 *
+	 * Khác biệt có chủ đích giữa 2 nhánh (giữ nguyên như bản gốc):
+	 * - Route KHÔNG match: $args GHI ĐÈ lên $callParams.
+	 * - Route match      : $args chỉ điền vào key chưa có (isset).
 	 */
 	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = [], $wpParams = []) {
 		$httpMethod    = $this->request->getMethod();
@@ -407,13 +480,19 @@ trait RouteTrait {
 		// Match pattern: KHÔNG escape path vì path đã là regex pattern (có thể chứa (?P<name>...))
 		// Nếu $path có ^ hoặc $ thì vẫn dùng như vậy; nếu không có, ta match toàn chuỗi.
 		$forceRegex = $args['route']->args['force_regex'] ?? false;
-		$regexPath = $this->funcs->_regexPath($fullPath, $forceRegex);
-		$pattern   = '#' . $regexPath . '#iu';
+		$regexPath  = $this->funcs->_regexPath($fullPath, $forceRegex);
+		$pattern    = '#' . $regexPath . '#iu';
 
 		$passed = false;
+		// [CỦNG CỐ] Khởi tạo sẵn. Bản gốc có thể để $matches undefined khi
+		// Ajax POST pass nhưng $regexPath rỗng → array_filter(null) gây TypeError.
+		$matches = [];
+
+		// [TỐI ƯU] str_ends_with tương đương regex /Ajaxs$/ nhưng nhanh hơn, không cần @.
+		$routeClass = static::class;
 
 		// Nếu nơi gọi hàm này là route "Ajaxs" với method POST, check match action và path.
-		if (@preg_match('/Ajaxs$/', static::class)) {
+		if (str_ends_with($routeClass, 'Ajaxs')) {
 			if ($httpMethod === 'POST') {
 				$passed = isset($requestParams['action']) && $requestParams['action'] === $fullPath;
 			}
@@ -423,7 +502,7 @@ trait RouteTrait {
 		 * Nếu nơi gọi hàm là "Actions" hoặc "Filters", tự động passed.\
 		 * Bởi vì add_action và add_filter không có request.
 		 */
-		if (@preg_match('/Actions$|Filters$/', static::class)) {
+		if (str_ends_with($routeClass, 'Actions') || str_ends_with($routeClass, 'Filters')) {
 			$requestPath = $fullPath;
 		}
 
@@ -449,35 +528,21 @@ trait RouteTrait {
 
 			foreach ($reflection->getParameters() as $param) {
 				$name = $param->getName();
-				$type = $param->getType();
 
 				// Nếu type là class → container sẽ inject sau
-				if ($className = $this->getClassFromType($type)) {
-					/**
-					 * Nếu method đang xử lý là "__wpspConstruct" và type của param\
-					 * là một class hợp lệ, tự động tạo properties cho class đang xử lý.
-					 */
-					if ($method == '__wpspConstruct' && $name && class_exists($className)) {
-						$instance = $this->injectConstructProperty($name, $className);
-						if ($instance !== null) {
-							$callParams[$name] = $instance;
-						}
-					}
+				if ($className = $this->getClassFromType($param->getType())) {
+					$this->maybeInjectConstructParam($callParams, $method, $name, $className);
 					continue;
 				}
 
 				// Primitive → NULL
-				$callParams[$param->getName()] = null;
+				$callParams[$name] = null;
 			}
 
 			// Thêm các giá trị hệ thống
-			$callParams['path']            = $path;
-			$callParams['path_regex']      = $this->funcs->_regexPath($path);
-			$callParams['full_path']       = $fullPath;
-			$callParams['full_path_regex'] = $this->funcs->_regexPath($fullPath);
-			$callParams['request_path']    = $requestPath;
+			$this->appendRouteMetaParams($callParams, $path, $fullPath, $requestPath);
 
-			// Thêm args vào call params.
+			// Thêm args vào call params (ghi đè).
 			foreach ($args as $argKey => $argValue) {
 				$callParams[$argKey] = $argValue;
 			}
@@ -485,8 +550,9 @@ trait RouteTrait {
 			return $callParams;
 		}
 
-		// Lấy container / request
-		$app = $this->funcs->_getApplication();
+		// Lấy container / request.
+		// QUAN TRỌNG: ưu tiên $this->request (đã gắn session), không capture request mới.
+		$app         = $this->funcs->_getApplication();
 		$baseRequest = $this->request ?? ($app->bound('request') ? $app->make('request') : Request::capture());
 
 		// Named groups: keys là tên (PHP returns associative entries for named groups)
@@ -509,78 +575,25 @@ trait RouteTrait {
 
 		foreach ($reflection->getParameters() as $param) {
 			$name = $param->getName();
-			$type = $param->getType();
 
 			/**
 			 * Model binding & auto define class properties with DI.
 			 */
-			$className = $this->getClassFromType($type);
+			$className = $this->getClassFromType($param->getType());
 			if ($className) {
-
 				/**
 				 * Nếu method đang xử lý là "__wpspConstruct" và type của param\
 				 * là một class hợp lệ, tự động tạo properties cho class đang xử lý.
 				 */
-				if ($method == '__wpspConstruct' && $name && class_exists($className)) {
-					$instance = $this->injectConstructProperty($name, $className);
-					if ($instance !== null) {
-						$callParams[$name] = $instance;
-					}
+				$this->maybeInjectConstructParam($callParams, $method, $name, $className);
+
+				// Nếu type là Eloquent Model => tự binding (ghi đè giá trị inject ở trên nếu có).
+				if (is_subclass_of($className, Model::class)) {
+					$callParams[$name] = $this->resolveModelBinding($className, $param, $named, $query, $post, $args);
 				}
 
-				// Nếu type là Eloquent Model => tự binding
-				if (is_subclass_of($className, \Illuminate\Database\Eloquent\Model::class)) {
-					// Lấy id từ path / query
-					$modelId = null;
-
-					// Ưu tiên named group (?P<user_id>)
-					if (array_key_exists($name, $named)) {
-						$modelId = $named[$name];
-					}
-					elseif (array_key_exists($name, $query)) {
-						$modelId = $query[$name];
-					}
-					elseif (array_key_exists($name, $post)) {
-						$modelId = $post[$name];
-					}
-					elseif (array_key_exists($name, $args)) {
-						$modelId = $args[$name];
-					}
-
-					// Nếu có ID → binding
-					if (!empty($modelId)) {
-						try {
-							$callParams[$name] = $className::query()->findOrFail($modelId);
-						}
-						catch (\Exception $exception) {
-							do_action($this->funcs->_getAppShortName() . '_model_not_found', $className, $modelId, $exception);
-							wp_die($exception->getMessage(), $exception->getMessage(), [
-								'back_link' => true,
-							]);
-						}
-					}
-					else {
-						// Không có id nhưng param optional → default / null
-						if ($param->isDefaultValueAvailable()) {
-							$defaultValue = $param->getDefaultValue();
-							try {
-								$callParams[$name] = $className::query()->findOrFail($defaultValue);
-							}
-							catch (\Exception $e) {
-								$callParams[$name] = $defaultValue;
-							}
-						}
-						else {
-							$callParams[$name] = null;
-						}
-					}
-
-					continue; // xong param model-binding
-				}
-				// Còn lại hãy xử lý param tiếp theo.
-				else {
-					continue;
-				}
+				// Class khác → container inject sau. Xử lý param tiếp theo.
+				continue;
 			}
 
 			$value = null;
@@ -625,13 +638,9 @@ trait RouteTrait {
 		}
 
 		// Thêm các thuộc tính vào params.
-		$callParams['path']            = $path;
-		$callParams['path_regex']      = $this->funcs->_regexPath($path);
-		$callParams['full_path']       = $fullPath;
-		$callParams['full_path_regex'] = $this->funcs->_regexPath($fullPath);
-		$callParams['request_path']    = $requestPath;
+		$this->appendRouteMetaParams($callParams, $path, $fullPath, $requestPath);
 
-		// Thêm args vào call params.
+		// Thêm args vào call params (không ghi đè).
 		foreach ($args as $argKey => $argValue) {
 			if (!isset($callParams[$argKey])) $callParams[$argKey] = $argValue;
 		}
@@ -655,6 +664,94 @@ trait RouteTrait {
 		}
 
 		return $callParams;
+	}
+
+	/**
+	 * Thêm metadata hệ thống của route vào $callParams.
+	 *
+	 * Callback có thể khai báo các param cùng tên ($path, $full_path,
+	 * $request_path...) để nhận giá trị qua DI của container.
+	 *
+	 * [TỐI ƯU] Tách từ 2 khối code trùng lặp trong getCallParams().
+	 */
+	protected function appendRouteMetaParams(array &$callParams, $path, $fullPath, $requestPath): void {
+		$callParams['path']            = $path;
+		$callParams['path_regex']      = $this->funcs->_regexPath($path);
+		$callParams['full_path']       = $fullPath;
+		$callParams['full_path_regex'] = $this->funcs->_regexPath($fullPath);
+		$callParams['request_path']    = $requestPath;
+	}
+
+	/**
+	 * Nếu method đang xử lý là "__wpspConstruct" và type của param là một
+	 * class hợp lệ, tạo instance, gán thành property của class hiện tại
+	 * và đưa vào $callParams.
+	 *
+	 * [TỐI ƯU] Tách từ 2 khối code trùng lặp trong getCallParams().
+	 */
+	protected function maybeInjectConstructParam(array &$callParams, $method, $name, string $className): void {
+		if ($method == '__wpspConstruct' && $name && class_exists($className)) {
+			$instance = $this->injectConstructProperty($name, $className);
+			if ($instance !== null) {
+				$callParams[$name] = $instance;
+			}
+		}
+	}
+
+	/**
+	 * Eloquent model binding cho 1 param.
+	 *
+	 * - Có ID (named capture → query → POST → $args): findOrFail(ID).
+	 *   Không tìm thấy → do_action('{app}_model_not_found') rồi wp_die.
+	 * - Không có ID, param có default: thử findOrFail(default),
+	 *   lỗi thì dùng chính default.
+	 * - Không có ID, không default: null.
+	 *
+	 * @return mixed Model instance, giá trị default, hoặc null.
+	 */
+	protected function resolveModelBinding(string $className, \ReflectionParameter $param, array $named, array $query, array $post, array $args) {
+		$name    = $param->getName();
+		$modelId = null;
+
+		// Ưu tiên named group (?P<user_id>)
+		if (array_key_exists($name, $named)) {
+			$modelId = $named[$name];
+		}
+		elseif (array_key_exists($name, $query)) {
+			$modelId = $query[$name];
+		}
+		elseif (array_key_exists($name, $post)) {
+			$modelId = $post[$name];
+		}
+		elseif (array_key_exists($name, $args)) {
+			$modelId = $args[$name];
+		}
+
+		// Nếu có ID → binding
+		if (!empty($modelId)) {
+			try {
+				return $className::query()->findOrFail($modelId);
+			}
+			catch (\Exception $exception) {
+				do_action($this->funcs->_getAppShortName() . '_model_not_found', $className, $modelId, $exception);
+				wp_die($exception->getMessage(), $exception->getMessage(), [
+					'back_link' => true,
+				]);
+			}
+		}
+
+		// Không có id nhưng param optional → default / null
+		if ($param->isDefaultValueAvailable()) {
+			$defaultValue = $param->getDefaultValue();
+			try {
+				return $className::query()->findOrFail($defaultValue);
+			}
+			catch (\Exception $e) {
+				return $defaultValue;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -691,6 +788,10 @@ trait RouteTrait {
 	/**
 	 * Gán property được inject, hỗ trợ private / protected / readonly
 	 * khai báo ở bất kỳ class nào trong hierarchy.
+	 *
+	 * Cách làm: tìm class khai báo property (đi ngược lên parent), rồi bind
+	 * closure vào scope của class đó để có quyền ghi private/readonly.
+	 * Property static → bỏ qua. Không khai báo → dynamic property.
 	 */
 	protected function assignInjectedProperty(string $name, $value): void {
 		$declaringClass = null;
@@ -787,11 +888,10 @@ trait RouteTrait {
 		$forceRegex          = $route->args['force_regex'] ?? false;
 		$fullPath            = $route->fullPath;
 		$regexPath           = $this->funcs->_regexPath($fullPath, $forceRegex);
-		$pattern             = '#'.$regexPath.'#iu';
+		$pattern             = '#' . $regexPath . '#iu';
 
 		if (
-			!empty($route)
-			&& !empty($regexPath)
+			!empty($regexPath)
 			&& (
 				@preg_match($pattern, $originalRequestPath, $matches)
 				|| @preg_match('#' . $fullPath . '#iu', $originalRequestPath, $matches)
@@ -860,6 +960,37 @@ trait RouteTrait {
 	 */
 
 	/**
+	 * Gắn ngữ cảnh global của Laravel về application của plugin hiện tại.
+	 *
+	 * PHẢI chạy MỖI LẦN trước khi gọi callback. Không được "tối ưu" thành
+	 * chạy 1 lần hay bỏ qua khi "có vẻ đã set". Trong môi trường nhiều plugin
+	 * WPSP cùng chạy, mỗi plugin có container riêng. Các giá trị global
+	 * (Container::$instance, Facade::$app, Model resolver) bị plugin chạy sau
+	 * ghi đè bất kỳ lúc nào.
+	 *
+	 * Nếu sai ngữ cảnh:
+	 * - redirect()->withErrors() / ->with() flash vào session của plugin khác
+	 *   → trang đích không thấy $errors.
+	 * - Model query nhầm connection, event không dispatch.
+	 *
+	 * Facade cache resolved instance trong static::$resolvedInstance, và
+	 * setFacadeApplication() KHÔNG xoá cache này. Vì vậy khi đổi sang container
+	 * khác, ta xoá cache để Session::, Redirect::, Validator::... resolve lại
+	 * từ đúng container. Nếu container không đổi thì không xoá, giữ nguyên
+	 * hành vi khi chỉ có 1 plugin.
+	 */
+	protected function bindContainerContext($container): void {
+		if (Facade::getFacadeApplication() !== $container) {
+			Facade::clearResolvedInstances();
+		}
+
+		Container::setInstance($container);
+		Facade::setFacadeApplication($container);
+		Model::setConnectionResolver($container['db']);
+		Model::setEventDispatcher($container['events']);
+	}
+
+	/**
 	 * Beauty method của resolveAndCall với call = false.\
 	 * Mục đích để trả về Closure chứa callback đã được resolve Dependency Injection.
 	 */
@@ -871,6 +1002,11 @@ trait RouteTrait {
 	 * Call callback với Dependency Injection.\
 	 * Bắt buộc phải có "callParams" để resolve Dependency Injection.\
 	 * "callParams" có thể được chuẩn bị bằng method getCallParams().
+	 *
+	 * - $call = true : gọi ngay, trả kết quả callback.
+	 * - $call = false: trả Closure để WP gọi sau (add_menu_page, add_action...).
+	 *   Closure này gắn lại ngữ cảnh container ngay lúc chạy, vì giữa lúc
+	 *   đăng ký và lúc WP thực sự gọi, plugin khác có thể đã đổi container global.
 	 */
 	public function resolveAndCall($callback, $callParams = [], $call = true, $method = null) {
 		// Set route resolver.
@@ -880,13 +1016,12 @@ trait RouteTrait {
 		$container = $this->funcs->_getApplication();
 
 		// Set container và facade theo mỗi lần gọi callback.
-		Container::setInstance($container);
-		Facade::setFacadeApplication($container);
-		Model::setConnectionResolver($container['db']);
-		Model::setEventDispatcher($container['events']);
+		$this->bindContainerContext($container);
 
 		if (!$call) {
 			return function(...$wpParams) use ($container, $callback, $callParams) {
+				// [CỦNG CỐ] Gắn lại ngữ cảnh tại thời điểm callback thực sự chạy.
+				$this->bindContainerContext($container);
 				return $container->call($callback, $callParams);
 			};
 		}

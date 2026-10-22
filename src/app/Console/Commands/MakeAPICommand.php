@@ -3,7 +3,6 @@
 namespace WPSPCORE\App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use WPSPCORE\App\Console\Traits\CommandsTrait;
 

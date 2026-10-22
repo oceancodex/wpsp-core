@@ -91,24 +91,31 @@ class RouteManager extends BaseInstances {
 			 * Merge prefix:
 			 * - loại bỏ slash thừa
 			 * - ghép prefix chính xác
+			 * * Phần này được loại bỏ vì prefix cho phép tùy chỉnh seperator.\
+			 * Thay bằng code phía dưới.
 			 */
-			if (!empty($g['prefix'])) {
+//			if (!empty($g['prefix'])) {
+//
+//				$prefix = rtrim($g['prefix'], '/');
+//
+//				if ($prefix !== '') {
+//					// Ghép prefix cha + prefix con
+//					$merged['prefix'] =
+//						rtrim($merged['prefix'], '/') . '/' . ltrim($prefix, '/');
+//
+//					// Chuẩn hóa: bỏ slash đầu/cuối
+//					$merged['prefix'] = trim($merged['prefix'], '/\\');
+//
+//					// Nếu có prefix → thêm slash cho đúng chuẩn
+//					if ($merged['prefix'] !== '') {
+//						$merged['prefix'] .= '/';
+//					}
+//				}
+//			}
 
-				$prefix = rtrim($g['prefix'], '/');
-
-				if ($prefix !== '') {
-					// Ghép prefix cha + prefix con
-					$merged['prefix'] =
-						rtrim($merged['prefix'], '/') . '/' . ltrim($prefix, '/');
-
-					// Chuẩn hóa: bỏ slash đầu/cuối
-					$merged['prefix'] = trim($merged['prefix'], '/\\');
-
-					// Nếu có prefix → thêm slash cho đúng chuẩn
-					if ($merged['prefix'] !== '') {
-						$merged['prefix'] .= '/';
-					}
-				}
+			if (($g['prefix'] ?? '') !== '') {
+				// Prefix đã được chuẩn hoá (kèm separator) từ BaseRoute::prefix()
+				$merged['prefix'] .= $g['prefix'];
 			}
 
 			/**
@@ -148,9 +155,10 @@ class RouteManager extends BaseInstances {
 		}
 
 		// Đảm bảo prefix phải kết thúc bằng '/'
-		if ($merged['prefix'] !== '' && substr($merged['prefix'], -1) !== '/') {
-			$merged['prefix'] .= '/';
-		}
+		// Bỏ đoạn này vì prefix sẽ cho tùy chỉnh dấu phân cách.
+//		if ($merged['prefix'] !== '' && substr($merged['prefix'], -1) !== '/') {
+//			$merged['prefix'] .= '/';
+//		}
 
 		return $merged;
 	}

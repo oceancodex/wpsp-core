@@ -24,7 +24,8 @@ class MakeAdminPageCommand extends Command {
 		 * Funcs.
 		 * ---
 		 */
-		$this->funcs = $this->getLaravel()->make('funcs');
+		$app         = $this->getLaravel();
+		$this->funcs = $app->make('funcs');
 		$mainPath    = $this->funcs->mainPath;
 
 		/**
@@ -96,8 +97,8 @@ class MakeAdminPageCommand extends Command {
 		 * ---
 		 */
 		if ($createView) {
-			$bladeExt    = class_exists('Illuminate\View\View') ? '.blade.php' : '.php';
-			$nonBladeSep = class_exists('Illuminate\View\View') ? '' : '/non-blade';
+			$bladeExt    = $app->bound('view') ? '.blade.php' : '.php';
+			$nonBladeSep = $app->bound('view') ? '' : '/non-blade';
 
 			File::ensureDirectoryExists($viewDirPath);
 
