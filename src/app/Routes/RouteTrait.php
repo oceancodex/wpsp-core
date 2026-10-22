@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Facade;
 use Symfony\Component\HttpFoundation\Response;
-use WPSP\App\Exceptions\HttpException;
 
 /**
  * RouteTrait — bản CORE.
@@ -190,6 +189,10 @@ trait RouteTrait {
 	 */
 	public function isPassedMiddleware($middlewares = [], $request = null, $args = []) {
 		$request = $request ?? $this->resolveCurrentRequest();
+
+		// Middleware gọi helper / facade (auth(), redirect(), session(), RateLimiter::...)
+		// → phải chạy trong đúng container của plugin này, không phải plugin chạy trước.
+		$this->bindContainerContext();
 
 		// Mỗi lần đánh giá bắt đầu sạch: bỏ response bị chặn của lần đánh giá trước.
 		$this->forgetBlockedMiddlewareResponse($request);
@@ -440,7 +443,7 @@ trait RouteTrait {
 	 * 429 (JSON nếu client muốn JSON, ngược lại wp_die) + Retry-After / X-RateLimit-*.
 	 */
 	protected function runThrottleMiddleware(string $value, $request): bool {
-		$memoKey = '_wpsp_throttle.' . $value;
+		$memoKey = '_' . $this->hookPrefix() . '_throttle.' . $value;
 		$cached  = $this->requestStash($request, $memoKey);
 
 		if ($cached !== null) {
@@ -616,7 +619,7 @@ trait RouteTrait {
 	}
 
 	protected function blockedMiddlewareResponseKey(): string {
-		return '_wpsp_blocked_middleware_response';
+		return '_' . $this->hookPrefix() . '_blocked_middleware_response';
 	}
 
 	/**
@@ -1780,10 +1783,45 @@ trait RouteTrait {
 	}
 
 	/**
-	 * ThrottleRequests của Laravel, RateLimiter lấy từ container của plugin.
+	 * ThrottleRequests của Laravel, inject đúng RateLimiter đang giữ named limiter (xem throttleRateLimiter()).
 	 */
 	protected function makeThrottleMiddleware(array $parameters) {
-		return $this->containerMake(ThrottleRequests::class);
+		return $this->currentApp()->make(ThrottleRequests::class, [
+			'limiter' => $this->throttleRateLimiter($parameters),
+		]);
+	}
+
+	/**
+	 * RateLimiter cho ThrottleRequests.
+	 *
+	 * Named limiter ('throttle:30rpm') được tìm lần lượt trên:
+	 * 1. Container: Illuminate\Cache\RateLimiter (singleton của CacheServiceProvider).
+	 * 2. Binding 'rate.limiter' (nếu plugin có, giống quy ước bản LITE).
+	 * 3. Facade của plugin: {RootNamespace}\App\Widen\Support\Facades\RateLimiter.
+	 * 4. Facade Laravel: Illuminate\Support\Facades\RateLimiter.
+	 * Instance đầu tiên có limiter đó được dùng.
+	 *
+	 * Vì sao cần: RateLimiter::for() gọi trong ServiceProvider::register() (thay vì boot())
+	 * chạy TRƯỚC khi Laravel nạp deferred services → limiter có thể được đăng ký vào một
+	 * instance khác singleton của container. Khi đó ThrottleRequests tra không thấy và ném
+	 * "Rate limiter [...] is not defined.". Cách đúng vẫn là khai báo trong boot().
+	 *
+	 * Không phải named limiter (hoặc không tìm thấy) → instance của container (1).
+	 */
+	protected function throttleRateLimiter(array $parameters = []): \Illuminate\Cache\RateLimiter {
+		$candidates = $this->rateLimiterCandidates();
+		$name       = $parameters[0] ?? null;
+
+		// ThrottleRequests::handle() chỉ tra named limiter khi có đúng 1 tham số không phải số.
+		if (count($parameters) === 1 && is_string($name) && !is_numeric($name)) {
+			foreach ($candidates as $limiter) {
+				if ($limiter->limiter($name) !== null) {
+					return $limiter;
+				}
+			}
+		}
+
+		return $candidates[0] ?? $this->currentApp()->make(\Illuminate\Cache\RateLimiter::class);
 	}
 
 	/**
@@ -1833,6 +1871,58 @@ trait RouteTrait {
 	 * Chỉ có ở bản CORE
 	 * ---------------------------------------------------------------------
 	 */
+
+	/**
+	 * Các instance RateLimiter có thể đang giữ named limiter, theo thứ tự ưu tiên,
+	 * không trùng nhau (xem throttleRateLimiter()). Lỗi resolve ở nguồn nào thì bỏ qua nguồn đó.
+	 *
+	 * @return \Illuminate\Cache\RateLimiter[]
+	 */
+	protected function rateLimiterCandidates(): array {
+		$app        = $this->currentApp();
+		$candidates = [];
+
+		$add = function($limiter) use (&$candidates) {
+			if ($limiter instanceof \Illuminate\Cache\RateLimiter && !in_array($limiter, $candidates, true)) {
+				$candidates[] = $limiter;
+			}
+		};
+
+		try {
+			$add($app->make(\Illuminate\Cache\RateLimiter::class));
+		}
+		catch (\Throwable $e) {
+		}
+
+		try {
+			if ($app->bound('rate.limiter')) {
+				$add($app->make('rate.limiter'));
+			}
+		}
+		catch (\Throwable $e) {
+		}
+
+		$rootNamespace = (is_object($this->funcs) && method_exists($this->funcs, '_getRootNamespace'))
+			? $this->funcs->_getRootNamespace()
+			: null;
+
+		$facades = array_filter([
+			$rootNamespace ? $rootNamespace . '\\App\\Widen\\Support\\Facades\\RateLimiter' : null,
+			\Illuminate\Support\Facades\RateLimiter::class,
+		]);
+
+		foreach ($facades as $facade) {
+			try {
+				if (class_exists($facade) && method_exists($facade, 'getFacadeRoot')) {
+					$add($facade::getFacadeRoot());
+				}
+			}
+			catch (\Throwable $e) {
+			}
+		}
+
+		return $candidates;
+	}
 
 	/**
 	 * Eloquent model binding cho 1 param.
