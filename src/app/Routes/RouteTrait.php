@@ -594,7 +594,7 @@ trait RouteTrait {
 			// WP_DEBUG + Gate từ chối mà không có message (thường là Gate không gọi tới Policy):
 			// tự chẩn đoán để biết vì sao (user, đối số, Policy...).
 			if (!$message && defined('WP_DEBUG') && WP_DEBUG) {
-				$message = $value . ' bị từ chối. ' . $this->describeAuthorizationContext($ability, $arguments);
+				$message = $value . ' is denied. ' . $this->describeAuthorizationContext($ability, $arguments);
 			}
 
 			$this->requestStash($request, $this->authorizationMessageKey(), $message ?: 'This action is unauthorized.');
@@ -771,7 +771,7 @@ trait RouteTrait {
 			throw $e;
 		}
 
-		error_log(sprintf('[%s] can:%s lỗi khi gọi Gate / Policy: %s in %s:%d', static::class, $ability, $e->getMessage(), $e->getFile(), $e->getLine()));
+		error_log(sprintf('[%s] can:%s error while calling Gate / Policy: %s in %s:%d', static::class, $ability, $e->getMessage(), $e->getFile(), $e->getLine()));
 
 		return [false, null];
 	}
@@ -791,9 +791,9 @@ trait RouteTrait {
 		// ->can('view', Model::class): Gate bỏ tên class → Policy::view($user) thiếu đối số model.
 		if ($e instanceof \ArgumentCountError && $classArgument !== null) {
 			return sprintf(
-				"can:%s được truyền TÊN CLASS [%s]: Gate bỏ tên class và gọi Policy::%s(\$user) không có model. "
-				. "Ability không cần model → dùng viewAny / create, hoặc khai báo ?Model \$model = null trong Policy. "
-				. "Ability cần 1 model cụ thể → truyền tên tham số route: ->can('%s', 'user') và action khai báo kiểu Model (UsersModel \$user)",
+				"can:%s was passed CLASS NAME [%s]: Gate drops the class name and calls Policy::%s(\$user) without a model. "
+				. "Ability does not need a model → use viewAny / create, or declare ?Model \$model = null in the Policy. "
+				. "Ability needs a specific model → pass the route parameter name: ->can('%s', 'user') and type-hint the action with Model (UsersModel \$user)",
 				$ability, $classArgument, $ability, $ability
 			);
 		}
@@ -801,8 +801,8 @@ trait RouteTrait {
 		// Tham số đầu (user) của Policy không nhận kiểu user hiện tại (vd: WPUsersModel từ fallback WordPress).
 		if ($e instanceof \TypeError && str_contains($e->getMessage(), 'Argument #1')) {
 			return sprintf(
-				"can:%s: kiểu user không khớp tham số đầu của Policy. Trong wp-admin / front-end, user có thể là model fallback "
-				. "của WordPress (vd: WPUsersModel) → khai báo union type, vd: UsersModel|WPUsersModel \$user",
+				"can:%s: user type does not match the Policy's first parameter. In wp-admin / front-end, the user may be the WordPress "
+				. "fallback model (e.g. WPUsersModel) → declare a union type, e.g. UsersModel|WPUsersModel \$user",
 				$ability
 			);
 		}
@@ -1646,7 +1646,7 @@ trait RouteTrait {
 	 */
 	protected function handleInjectionError(\Throwable $e, string $className, string $name, bool $rethrow): void {
 		$message = sprintf(
-			'[%s] Không inject được [%s] vào property $%s: %s',
+			'[%s] Can not inject [%s] into property $%s: %s',
 			static::class, $className, $name, $e->getMessage()
 		);
 
@@ -1797,7 +1797,7 @@ trait RouteTrait {
 	 *
 	 * Trong callback có thể gọi:
 	 *
-	 * public function posts(Request \$request) {\
+	 * protected function posts(Request \$request) {\
 	 * ㅤ\$id = $request->route('id');\
 	 * }
 	 */
@@ -1986,7 +1986,7 @@ trait RouteTrait {
 		$this->abortWithStatus(
 			$this->lastAuthorizationMessage($request) ?? 'This action is unauthorized.',
 			403,
-			'403 - Forbidden.'
+			'403 - Forbidden'
 		);
 	}
 
@@ -2351,32 +2351,32 @@ trait RouteTrait {
 			$policy = (is_object($first) || (is_string($first) && class_exists($first))) ? $gate->getPolicyFor($first) : null;
 
 			$parts = [
-				'User: ' . ($user === null ? 'null (khách — Gate từ chối nếu Policy không cho user nullable)' : $this->describeAuthorizationArgument($user)),
-				'Đối số: [' . $args . ']',
+				'User: ' . ($user === null ? 'null (guest — Gate denies access if the policy does not allow a nullable user)' : $this->describeAuthorizationArgument($user)),
+				'Arguments: [' . $args . ']',
 			];
 
 			if ($policy) {
 				$parts[] = 'Policy: ' . get_class($policy) . '::' . $ability . '()'
-					. (method_exists($policy, $ability) ? '' : ' — KHÔNG có method này');
+					. (method_exists($policy, $ability) ? '' : ' — Method not found');
 			}
 			elseif ($gate->has($ability)) {
 				$parts[] = 'Gate::define(\'' . $ability . '\')';
 			}
 			elseif ($this->capabilityFallbackEnabled()) {
 				$wpUser  = function_exists('wp_get_current_user') ? wp_get_current_user() : null;
-				$parts[] = "Không có Policy / Gate::define → capability WordPress user_can('" . $ability . "')"
-					. (($wpUser instanceof \WP_User && $wpUser->exists()) ? ' với WP_User#' . $wpUser->ID : ' — chưa đăng nhập WordPress')
-					. (($first === null || is_object($first) || (is_string($first) && class_exists($first))) ? '' : ' (nếu muốn dùng Policy: đối số đầu không phải model — action đã khai báo kiểu Model cho tham số chưa?)');
+				$parts[] = "No Policy / Gate::define → capability WordPress user_can('" . $ability . "')"
+					. (($wpUser instanceof \WP_User && $wpUser->exists()) ? ' with WP_User#' . $wpUser->ID : ' — not logged in WordPress')
+					. (($first === null || is_object($first) || (is_string($first) && class_exists($first))) ? '' : ' (if you want to use Policy: first argument is not a model — action already declared Model type for the parameter?)');
 			}
 			else {
-				$parts[] = 'Không tìm thấy Policy / Gate::define cho ability này (capability fallback đang tắt)'
-					. (is_object($first) || (is_string($first) && class_exists($first)) ? '' : ' — đối số đầu không phải model (action đã khai báo kiểu Model cho tham số chưa?)');
+				$parts[] = 'No Policy / Gate::define for this ability (capability fallback is disabled)'
+					. (is_object($first) || (is_string($first) && class_exists($first)) ? '' : ' — first argument is not a model (action already declared Model type for the parameter?)');
 			}
 
 			return implode(' | ', $parts);
 		}
 		catch (\Throwable $e) {
-			return 'Không chẩn đoán được: ' . $e->getMessage();
+			return 'Can not diagnose: ' . $e->getMessage();
 		}
 	}
 
@@ -2431,7 +2431,7 @@ trait RouteTrait {
 	 */
 	protected function respondThrottleFailure(\Throwable $e): void {
 		if ($e instanceof ThrottleRequestsException) {
-			$this->abortWithStatus($e->getMessage(), 429, '429 - Too Many Requests.', $e->getHeaders());
+			$this->abortWithStatus($e->getMessage(), 429, '429 - Too Many Requests', $e->getHeaders());
 		}
 
 		if ($e instanceof HttpResponseException) {
@@ -2440,7 +2440,7 @@ trait RouteTrait {
 			exit;
 		}
 
-		$this->abortWithStatus($this->safeErrorMessage($e), 500, '500 - Internal Server Error.');
+		$this->abortWithStatus($this->safeErrorMessage($e), 500, '500 - Internal Server Error');
 	}
 
 	/**
@@ -2456,7 +2456,7 @@ trait RouteTrait {
 
 		$this->sendHeaders($headers);
 
-		wp_die($message, $title, [
+		wp_die('<h1>' . $title . '</h1><p>' . $message . '</p>', $title, [
 			'back_link' => true,
 			'response'  => $status,
 		]);
