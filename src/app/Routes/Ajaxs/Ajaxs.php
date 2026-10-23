@@ -56,8 +56,7 @@ class Ajaxs extends BaseRoute {
 
 		add_action($hookAction, function() use ($hookAction, $route, $requestPath, $path, $pathRegex, $fullPath, $fullPathRegex, $callback, $middlewares) {
 			if (!$this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
-				wp_send_json($this->funcs->_response(false, null, 'Access denied.'), 403);
-				return;
+				$this->denyAjaxRequest();
 			}
 
 			$constructParams = [
@@ -104,6 +103,28 @@ class Ajaxs extends BaseRoute {
 			$this->resolveAndCall($callback, $callParams);
 		});
 
+	}
+
+	/**
+	 * Middleware chặn request Ajax → trả JSON và dừng.
+	 *
+	 * 1. Middleware chặn bằng response riêng (vd: response()->json([...], 401)) → gửi đúng response đó.
+	 * 2. Ngược lại → 403 JSON. Message:
+	 *    - Policy từ chối bằng Response::deny('...') → message đó (giống Laravel, kể cả production);
+	 *    - WP_DEBUG + Gate từ chối không kèm message → dòng chẩn đoán (user, đối số, Policy);
+	 *    - còn lại → 'Access denied.'.
+	 *
+	 * wp_send_json() tự gọi wp_die() → không chạy tiếp; exit để chắc chắn.
+	 */
+	protected function denyAjaxRequest(): void {
+		if ($this->sendBlockedMiddlewareResponse($this->request)) {
+			exit;
+		}
+
+		$message = $this->lastAuthorizationMessage($this->request) ?? 'Access denied.';
+
+		wp_send_json($this->funcs->_response(false, null, $message), 403);
+		exit;
 	}
 
 }

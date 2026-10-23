@@ -14,6 +14,7 @@ use WPSPCORE\BaseInstances;
  * @method static $this namespace(string $namespace)
  * @method static $this version(string $version)
  * @method static $this middleware(array|string ...$middlewares)
+ * @method static $this can(\UnitEnum|string $ability, array|string $models = [])
  */
 abstract class BaseRoute extends BaseInstances {
 
