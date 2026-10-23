@@ -2,9 +2,12 @@
 
 namespace WPSPCORE\App\WordPress\RewriteFrontPages;
 
+use WPSPCORE\App\Traits\InstanceMiddlewareTrait;
 use WPSPCORE\BaseInstances;
 
 abstract class BaseRewriteFrontPage extends BaseInstances {
+
+	use InstanceMiddlewareTrait;
 
 	public $path                     = null;
 	public $fullPath                 = null;

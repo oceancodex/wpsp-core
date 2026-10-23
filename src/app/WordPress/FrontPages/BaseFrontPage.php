@@ -2,9 +2,12 @@
 
 namespace WPSPCORE\App\WordPress\FrontPages;
 
+use WPSPCORE\App\Traits\InstanceMiddlewareTrait;
 use WPSPCORE\BaseInstances;
 
 abstract class BaseFrontPage extends BaseInstances {
+
+	use InstanceMiddlewareTrait;
 
 	public $path                     = null;
 	public $fullPath                 = null;
