@@ -1974,8 +1974,21 @@ trait RouteTrait {
 
 		$request = $this->resolveCurrentRequest();
 
+		// Đã kiểm tra (và PASS) sớm bằng authorizeRouteActionEarly() trong request này → không chạy Policy lần 2.
+		$authorizedKey = '_' . $this->hookPrefix() . '_instance_authorized.' . spl_object_id($route) . '.' . $method;
+
+		if ($this->requestStash($request, $authorizedKey)) {
+			return;
+		}
+
 		// 1 block AND: mọi controller middleware áp cho action đều phải PASS.
-		if ($this->isPassedMiddleware([$middlewares], $request, ['route' => $route, 'parameters' => $callParams])) {
+		// Gọi sớm (authorizeRouteActionEarly()) chưa có params đã bind → lấy tham số từ URL.
+		$args = empty($callParams['early'])
+			? ['route' => $route, 'parameters' => $callParams]
+			: ['route' => $route];
+
+		if ($this->isPassedMiddleware([$middlewares], $request, $args)) {
+			$this->requestStash($request, $authorizedKey, true);
 			return;
 		}
 
@@ -1988,6 +2001,37 @@ trait RouteTrait {
 			403,
 			'403 - Forbidden'
 		);
+	}
+
+	/**
+	 * Kiểm tra controller middleware (authorizeResource(), $this->middleware(), HasMiddleware)
+	 * của action route SỚM, trước khi WordPress in giao diện.
+	 *
+	 * Vì sao: action "index" của AdminPages được gọi trong callback render của add_menu_page(),
+	 * lúc header wp-admin đã in ra. wp_die() khi đó chỉ in message bên trong giao diện wp-admin
+	 * (WordPress bỏ khung HTML lỗi khi did_action('admin_head')). Gọi hàm này ngay sau khi tạo
+	 * instance page (AdminPages, nhánh "init") để bị từ chối thì ra trang lỗi đầy đủ.
+	 *
+	 *     $callback = $this->prepareRouteCallback($callback, $constructParams);
+	 *     if (đang truy cập đúng trang này) {
+	 *         $this->authorizeRouteActionEarly($callback[0], $route);
+	 *     }
+	 *
+	 * PASS → được ghi nhớ, lần gọi action thật không chạy Policy lần nữa.
+	 * Tham số route lấy từ URL (named capture / query / POST), chưa có params đã bind của action.
+	 */
+	public function authorizeRouteActionEarly($instance, $route, ?string $method = null): void {
+		if (!is_object($instance) || !$route instanceof RouteData) {
+			return;
+		}
+
+		$method ??= (is_array($route->callback) && is_string($route->callback[1] ?? null)) ? $route->callback[1] : null;
+
+		if ($method === null) {
+			return;
+		}
+
+		$this->authorizeControllerAction([$instance, $method], ['route' => $route, 'early' => true]);
 	}
 
 	/**
