@@ -96,7 +96,7 @@ trait RouteTrait {
 	 *
 	 * @return bool
 	 */
-	public function isLastMiddleware($currentClass, $allMiddlewares) {
+	protected function isLastMiddleware($currentClass, $allMiddlewares) {
 		if (!is_array($allMiddlewares)) {
 			return false;
 		}
@@ -193,7 +193,7 @@ trait RouteTrait {
 	 *
 	 * @return bool Trả về true nếu toàn bộ middleware đều PASS, ngược lại false.
 	 */
-	public function isPassedMiddleware($middlewares = [], $request = null, $args = []) {
+	protected function isPassedMiddleware($middlewares = [], $request = null, $args = []) {
 		$request = $request ?? $this->resolveCurrentRequest();
 
 		// Middleware gọi helper / facade (auth(), redirect(), session(), RateLimiter::...)
@@ -736,7 +736,7 @@ trait RouteTrait {
 	/**
 	 * Message từ chối của lần kiểm tra quyền gần nhất trên request (Policy deny message).
 	 */
-	public function lastAuthorizationMessage($request = null): ?string {
+	protected function lastAuthorizationMessage($request = null): ?string {
 		$message = $this->requestStash($request ?? $this->resolveCurrentRequest(), $this->authorizationMessageKey());
 
 		return is_string($message) ? $message : null;
@@ -841,7 +841,7 @@ trait RouteTrait {
 	 * (vd: redirect('/login'), back()->withErrors(...), response 403).
 	 * null nếu route PASS hoặc middleware chỉ trả false / \WP_Error.
 	 */
-	public function getBlockedMiddlewareResponse($request = null) {
+	protected function getBlockedMiddlewareResponse($request = null) {
 		$request  = $request ?? $this->resolveCurrentRequest();
 		$response = $this->requestStash($request, $this->blockedMiddlewareResponseKey());
 
@@ -870,7 +870,7 @@ trait RouteTrait {
 	 * để flash data của withErrors() / with() không bị mất. Sau khi gửi, header
 	 * (kể cả Set-Cookie) không thể thêm được nữa.
 	 */
-	public function sendBlockedMiddlewareResponse($request = null): bool {
+	protected function sendBlockedMiddlewareResponse($request = null): bool {
 		$request  = $request ?? $this->resolveCurrentRequest();
 		$response = $this->getBlockedMiddlewareResponse($request);
 
@@ -1233,7 +1233,7 @@ trait RouteTrait {
 	 *
 	 * @throws \RuntimeException Khi callback không hợp lệ.
 	 */
-	public function prepareRouteCallback($callback, $constructParams = []) {
+	protected function prepareRouteCallback($callback, $constructParams = []) {
 		if ($callback instanceof \Closure) {
 			return $callback;
 		}
@@ -1262,7 +1262,7 @@ trait RouteTrait {
 	 *
 	 * $class có thể là instance hoặc tên class (tự khởi tạo qua container).
 	 */
-	public function prepareCallbackFunction($method, $path, $fullPath, $class = null, $args = []): \Closure {
+	protected function prepareCallbackFunction($method, $path, $fullPath, $class = null, $args = []): \Closure {
 		return function(...$wpParams) use ($method, $path, $fullPath, $class, $args) {
 			$requestPath = $this->request->getRequestUri();
 
@@ -1320,7 +1320,7 @@ trait RouteTrait {
 	 * - Route KHÔNG match: params < meta < $args (args ghi đè).
 	 * - Route match      : meta ghi đè; $args chỉ điền vào key chưa có (isset).
 	 */
-	public function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = [], $wpParams = []) {
+	protected function getCallParams($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = [], $wpParams = []) {
 		if ($callbackOrClass instanceof \Closure) {
 			$method = null;
 		}
@@ -1801,7 +1801,7 @@ trait RouteTrait {
 	 * ㅤ\$id = $request->route('id');\
 	 * }
 	 */
-	public function setRouteResolver() {
+	protected function setRouteResolver() {
 		$route = $this->funcs->_getRouteManager()->currentRoute() ?? null;
 
 		if (!$route || !in_array($route->type, ['AdminPages', 'Apis', 'Ajaxs', 'FrontPages', 'RewriteFrontPages'])) {
@@ -1896,7 +1896,7 @@ trait RouteTrait {
 	/**
 	 * Trả về Closure chứa callback đã được resolve Dependency Injection.
 	 */
-	public function resolveCallback($callback, $callParams = []) {
+	protected function resolveCallback($callback, $callParams = []) {
 		return $this->resolveAndCall($callback, $callParams, false);
 	}
 
@@ -1911,7 +1911,7 @@ trait RouteTrait {
 	 * Ngữ cảnh container được gắn ngay (giữ hành vi cũ) VÀ gắn lại tại thời điểm
 	 * callback thực sự chạy, vì giữa 2 thời điểm đó plugin khác có thể đã chạy.
 	 */
-	public function resolveAndCall($callback, $callParams = [], $call = true, $method = null) {
+	protected function resolveAndCall($callback, $callParams = [], $call = true, $method = null) {
 		// Set route resolver.
 //		$this->setRouteResolver();
 
@@ -2078,7 +2078,7 @@ trait RouteTrait {
 	 * Trả về callback với Dependency Injection.\
 	 * Tự động hoàn toàn.
 	 */
-	public function autoResolveCallback($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []) {
+	protected function autoResolveCallback($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = []) {
 		return $this->autoResolveAndCall($path, $fullPath, $requestPath, $callbackOrClass, $method, $args, false);
 	}
 
@@ -2086,7 +2086,7 @@ trait RouteTrait {
 	 * Gọi callback với Dependency Injection.\
 	 * Tự động hoàn toàn.
 	 */
-	public function autoResolveAndCall($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = [], $call = true) {
+	protected function autoResolveAndCall($path, $fullPath, $requestPath, $callbackOrClass, $method = null, $args = [], $call = true) {
 		$class  = is_array($callbackOrClass) ? $callbackOrClass[0] : $callbackOrClass;
 		$method = $method ?? (is_array($callbackOrClass) ? ($callbackOrClass[1] ?? null) : null);
 		$method = $method ?? '__instanceConstruct';
@@ -2108,7 +2108,7 @@ trait RouteTrait {
 	/**
 	 * Chuẩn hóa callback để trả về [class, method].
 	 */
-	public function normalizeCallback($callback) {
+	protected function normalizeCallback($callback) {
 		if ($callback instanceof \Closure) {
 			return [null, $callback];
 		}
@@ -2123,7 +2123,7 @@ trait RouteTrait {
 	/**
 	 * Build params for callable (route callback).
 	 */
-	public function buildParametersForCallable($callback, $path, $fullPath, $requestPath, $args = [], $wpParams = []) {
+	protected function buildParametersForCallable($callback, $path, $fullPath, $requestPath, $args = [], $wpParams = []) {
 		[$class, $method] = $this->normalizeCallback($callback);
 
 		// Closure: normalizeCallback trả [null, Closure] → reflect chính Closure.
