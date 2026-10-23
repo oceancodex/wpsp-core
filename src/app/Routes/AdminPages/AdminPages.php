@@ -121,9 +121,19 @@ class AdminPages extends BaseRoute {
 				$this->resolveAndCall($callback, $callParams);
 			}
 			else {
+				/**
+				 * Middleware chặn bằng response riêng (vd: redirect('/login'),
+				 * back()->withErrors(...)) → gửi đúng response đó.
+				 * Không có response riêng → 403 như cũ.
+				 */
+				if ($this->sendBlockedMiddlewareResponse($request)) {
+					exit;
+				}
+
 				wp_die(
 					'<h1>ERROR: 403 - Access denied</h1>' .
-					'<p>You are not allowed to access this page.</p>',
+					'<p>You are not allowed to access this page.</p>' .
+					$this->accessDeniedReasonHtml($request),
 					'ERROR: 403 - Access denied',
 					[
 						'response'  => 403,
@@ -281,9 +291,18 @@ class AdminPages extends BaseRoute {
 					}
 				}
 				elseif (@preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
+					/**
+					 * Chỉ khi đang truy cập đúng trang này: middleware chặn bằng
+					 * response riêng → gửi response đó, ngược lại 403 như cũ.
+					 */
+					if ($this->sendBlockedMiddlewareResponse($request)) {
+						exit;
+					}
+
 					wp_die(
 						'<h1>ERROR: 403 - Access denied</h1>' .
-						'<p>You are not allowed to access this page.</p>',
+						'<p>You are not allowed to access this page.</p>' .
+						$this->accessDeniedReasonHtml($request),
 						'ERROR: 403 - Access denied',
 						[
 							'response'  => 403,
@@ -294,6 +313,20 @@ class AdminPages extends BaseRoute {
 			}
 		}
 		catch (\Exception $e) {}
+	}
+
+
+	/**
+	 * Lý do bị từ chối (message của Policy / chẩn đoán Gate) — chỉ hiện khi WP_DEBUG.
+	 */
+	protected function accessDeniedReasonHtml($request): string {
+		if (!(defined('WP_DEBUG') && WP_DEBUG)) {
+			return '';
+		}
+
+		$reason = $this->lastAuthorizationMessage($request);
+
+		return $reason ? '<p><strong>WP_DEBUG:</strong> <code>' . esc_html($reason) . '</code></p>' : '';
 	}
 
 }
