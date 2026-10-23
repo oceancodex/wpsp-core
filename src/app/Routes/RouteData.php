@@ -163,6 +163,34 @@ class RouteData {
 	}
 
 	/**
+	 * Phân quyền route bằng Gate / Policy (giống Route::can() của Laravel 12).\
+	 * Tương đương ->middleware('can:ability,model1,model2').
+	 *
+	 * Ví dụ:
+	 * - Route::get('posts\/(?P<post>\d+)/edit', [PostPage::class, 'edit'])->can('update', 'post');
+	 * - Route::get('posts/create', [PostPage::class, 'create'])->can('create', Post::class);
+	 * - Route::get('reports', [ReportPage::class, 'index'])->can('view-reports');
+	 *
+	 * Tham số model ('post') là tên tham số route; nếu action khai báo kiểu Model
+	 * (edit(Post $post)) thì được model binding trước khi gọi Policy.
+	 *
+	 * @param \BackedEnum|\UnitEnum|string $ability
+	 * @param array|string                $models
+	 */
+	public function can($ability, $models = []): RouteData {
+		if ($ability instanceof \BackedEnum) {
+			$ability = $ability->value;
+		}
+		elseif ($ability instanceof \UnitEnum) {
+			$ability = $ability->name;
+		}
+
+		$models = is_array($models) ? $models : [$models];
+
+		return $this->middleware('can:' . $ability . (empty($models) ? '' : ',' . implode(',', $models)));
+	}
+
+	/**
 	 * Gán namespace cho route.\
 	 * Ví dụ:
 	 * - Route::namespace('wpsp')->group(...)

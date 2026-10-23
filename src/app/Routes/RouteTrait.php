@@ -47,6 +47,9 @@ use Symfony\Component\HttpFoundation\Response;
  *    đối số được bỏ qua (trừ route Filters).
  * 4. Throttle đếm đúng 1 lần cho mỗi (request, signature).
  * 5. [Class, 'method'] ở top-level là middleware lá; truyền 1 middleware đơn lẻ được.
+ * 6. Phân quyền kiểu Laravel: middleware 'can:update,post', RouteData::can(),
+ *    controller middleware (authorizeResource(), ->middleware()->only(), HasMiddleware)
+ *    chạy ngay trước action của route. Xem section AUTHORIZATION.
  *
  * ---------------------------------------------------------------------
  * BẤT BIẾN QUAN TRỌNG (KHÔNG ĐƯỢC PHÁ KHI TỐI ƯU)
@@ -137,6 +140,8 @@ trait RouteTrait {
 	 * - ClassName::class
 	 * - [ClassName::class, 'method']
 	 * - 'throttle:60,1' / 'throttle:30rpm' / ['throttle:api'] / ThrottleRequests::using('api')
+	 * - 'can:update,post' / 'can:create,App\Models\Post' / Authorize::using('update', 'post')
+	 *   (Gate / Policy, xem runCanMiddleware())
 	 *
 	 * Giá trị trả về của middleware:
 	 *
@@ -179,6 +184,7 @@ trait RouteTrait {
 	 *          ├─ normalizeMiddlewareLeaf()
 	 *          └─ runMiddlewareLeaf()
 	 *              ├─ runThrottleMiddleware()
+	 *              ├─ runCanMiddleware()
 	 *              └─ isPassedResult()
 	 *
 	 * @param array $middlewares Danh sách middleware block cần kiểm tra.
@@ -194,8 +200,10 @@ trait RouteTrait {
 		// → phải chạy trong đúng container của plugin này, không phải plugin chạy trước.
 		$this->bindContainerContext();
 
-		// Mỗi lần đánh giá bắt đầu sạch: bỏ response bị chặn của lần đánh giá trước.
+		// Mỗi lần đánh giá bắt đầu sạch: bỏ response bị chặn và message phân quyền
+		// của lần đánh giá trước (không để lý do cũ lọt sang route / lần kiểm tra khác).
 		$this->forgetBlockedMiddlewareResponse($request);
+		$this->requestStash($request, $this->authorizationMessageKey(), null);
 
 		// Không có middleware → pass
 		if (empty($middlewares)) {
@@ -229,9 +237,12 @@ trait RouteTrait {
 	/**
 	 * Mảng có phải middleware lá dạng [ClassName::class, 'method'] hay không.
 	 *
-	 * Chỉ trả true khi KHÔNG thể là block: đúng 2 phần tử key 0/1, phần tử đầu là
-	 * class tồn tại, phần tử sau KHÔNG phải class nhưng là method của class đó.
-	 * Một block [A::class, 'x'] với 'x' không phải class thì vốn đã luôn FAIL,
+	 * Chỉ trả true khi KHÔNG thể là block: đúng 2 phần tử key 0/1, phần tử sau KHÔNG
+	 * phải class, và:
+	 * - phần tử đầu là class tồn tại, phần tử sau là method của class đó; hoặc
+	 * - phần tử đầu là 'can:...' / 'throttle:...' (dạng [middleware, 'handle'] do
+	 *   BaseRoute / RouteData chuẩn hoá ra).
+	 * Một block [A, 'x'] với 'x' không phải class thì vốn đã luôn FAIL,
 	 * nên nhận diện này không làm thay đổi route nào đang chạy đúng.
 	 */
 	protected function isClassMethodLeaf(array $node): bool {
@@ -240,13 +251,16 @@ trait RouteTrait {
 			|| !isset($node[0], $node[1])
 			|| !is_string($node[0])
 			|| !is_string($node[1])
+			|| class_exists($node[1])
 		) {
 			return false;
 		}
 
-		return class_exists($node[0])
-			&& !class_exists($node[1])
-			&& method_exists($node[0], $node[1]);
+		if ($this->canSignature($node[0]) !== null || $this->throttleSignature($node[0]) !== null) {
+			return true;
+		}
+
+		return class_exists($node[0]) && method_exists($node[0], $node[1]);
 	}
 
 	/**
@@ -288,13 +302,15 @@ trait RouteTrait {
 		}
 
 		if ($relation === 'OR') {
-			// Nhánh OR thua rồi nhánh sau thắng: response "chặn" của nhánh thua
-			// không phải lý do route bị chặn → khôi phục trạng thái trước block.
-			$before = $this->getBlockedMiddlewareResponse($request);
+			// Nhánh OR thua rồi nhánh sau thắng: response "chặn" và message phân quyền của
+			// nhánh thua không phải lý do route bị chặn → khôi phục trạng thái trước block.
+			$before        = $this->getBlockedMiddlewareResponse($request);
+			$beforeMessage = $this->requestStash($request, $this->authorizationMessageKey());
 
 			foreach ($children as $child) {
 				if ($this->evaluateMiddlewareNode($child, $args, $request)) {
 					$this->requestStash($request, $this->blockedMiddlewareResponseKey(), $before);
+					$this->requestStash($request, $this->authorizationMessageKey(), $beforeMessage);
 					return true;
 				}
 			}
@@ -317,6 +333,9 @@ trait RouteTrait {
 		}
 
 		if (is_array($mw) && isset($mw[0]) && is_string($mw[0])) {
+			if ($can = $this->canSignature($mw[0])) {
+				return ['type' => 'can', 'value' => $can, 'args' => $args];
+			}
 			if ($throttle = $this->throttleSignature($mw[0])) {
 				return ['type' => 'throttle', 'value' => $throttle, 'args' => $args];
 			}
@@ -324,6 +343,9 @@ trait RouteTrait {
 		}
 
 		if (is_string($mw)) {
+			if ($can = $this->canSignature($mw)) {
+				return ['type' => 'can', 'value' => $can, 'args' => $args];
+			}
 			if ($throttle = $this->throttleSignature($mw)) {
 				return ['type' => 'throttle', 'value' => $throttle, 'args' => $args];
 			}
@@ -353,12 +375,35 @@ trait RouteTrait {
 	}
 
 	/**
+	 * 'can:update,post' → giữ nguyên.\
+	 * Authorize::using('update', 'post') (dạng "Illuminate\Auth\Middleware\Authorize:update,post") → 'can:update,post'.\
+	 * Không phải can → null.
+	 */
+	protected function canSignature(string $mw): ?string {
+		if (str_starts_with($mw, 'can:')) {
+			return $mw;
+		}
+
+		$parts = explode(':', $mw, 2);
+
+		if (isset($parts[1]) && $parts[1] !== '' && ltrim($parts[0], '\\') === 'Illuminate\\Auth\\Middleware\\Authorize') {
+			return 'can:' . $parts[1];
+		}
+
+		return null;
+	}
+
+	/**
 	 * Chạy 1 middleware đã normalize, trả về true (PASS) / false (FAIL).
 	 * FAIL vì một Response → ghi nhớ response đó (xem sendBlockedMiddlewareResponse()).
 	 */
 	protected function runMiddlewareLeaf(array $mw, $request): bool {
 		if ($mw['type'] === 'throttle') {
 			return $this->runThrottleMiddleware($mw['value'], $request);
+		}
+
+		if ($mw['type'] === 'can') {
+			return $this->runCanMiddleware($mw['value'], $request, $mw['args']);
 		}
 
 		// Theo dõi middleware có gọi $next hay không → phân biệt "cho qua" và "chặn + redirect".
@@ -498,6 +543,291 @@ trait RouteTrait {
 			$name = strtolower((string)$name);
 			return str_starts_with($name, 'x-ratelimit-') || $name === 'retry-after';
 		}, ARRAY_FILTER_USE_KEY);
+	}
+
+	/*
+	 * =====================================================================
+	 * AUTHORIZATION (GATE / POLICY)
+	 * =====================================================================
+	 *
+	 * 3 cách dùng, cùng 1 cơ chế:
+	 *
+	 * 1. Middleware ở route:  Route::middleware('can:update,post')->get(...)
+	 *                         Route::get(...)->middleware(Authorize::using('update', 'post'))
+	 * 2. RouteData::can():    Route::get(...)->can('update', 'post')   (giống Laravel 12)
+	 * 3. Controller middleware trong page class (chạy ngay trước action của route):
+	 *    $this->authorizeResource(Post::class, 'post');                 (AuthorizesRequests)
+	 *    $this->middleware('can:update,post')->only('edit', 'update');
+	 *    hoặc implements HasMiddleware + static middleware() (Laravel 11+).
+	 *
+	 * Tham số model ('post') được resolve giống Authorize middleware của Laravel:
+	 * - Có dấu "\"      → tên class, giữ nguyên (viewAny / create): 'can:create,App\Models\Post'.
+	 * - Trong nháy      → chuỗi literal: "can:edit,'draft'".
+	 * - Còn lại         → tham số route cùng tên (xem resolveMiddlewareParameter()):
+	 *                     action khai báo kiểu Model → model binding; ngược lại giá trị thô.
+	 */
+
+	/**
+	 * Chạy middleware 'can:ability,model1,model2...'.
+	 *
+	 * Từ chối → FAIL. Message của Policy (Response::deny('...')) được nhớ lại để nơi gọi
+	 * hiển thị (xem lastAuthorizationMessage()), kèm action "{app}_authorization_denied".
+	 */
+	protected function runCanMiddleware(string $value, $request, array $args): bool {
+		$parts   = array_map('trim', explode(',', substr($value, 4)));
+		$ability = array_shift($parts);
+
+		if ($ability === '') {
+			return false;
+		}
+
+		$arguments = [];
+		foreach ($parts as $model) {
+			if ($model !== '') {
+				$arguments[] = $this->resolveAuthorizationArgument($model, $request, $args);
+			}
+		}
+
+		[$allowed, $message] = $this->authorizeAbility($ability, $arguments, $request);
+
+		if (!$allowed) {
+			// WP_DEBUG + Gate từ chối mà không có message (thường là Gate không gọi tới Policy):
+			// tự chẩn đoán để biết vì sao (user, đối số, Policy...).
+			if (!$message && defined('WP_DEBUG') && WP_DEBUG) {
+				$message = $value . ' bị từ chối. ' . $this->describeAuthorizationContext($ability, $arguments);
+			}
+
+			$this->requestStash($request, $this->authorizationMessageKey(), $message ?: 'This action is unauthorized.');
+
+			if (function_exists('do_action')) {
+				do_action($this->hookPrefix() . '_authorization_denied', $ability, $arguments, $message, $request);
+			}
+		}
+
+		return $allowed;
+	}
+
+	/**
+	 * 1 tham số của 'can:' → đối số cho Gate (giống Authorize::getModel() của Laravel).
+	 */
+	protected function resolveAuthorizationArgument(string $model, $request, array $args) {
+		$model = trim($model);
+
+		// Tên class (vd: App\Models\Post) → giữ nguyên, Gate tìm Policy theo class.
+		if (str_contains($model, '\\')) {
+			return $model;
+		}
+
+		$value = $this->resolveMiddlewareParameter($model, $request, $args);
+
+		if ($value !== null) {
+			return $value;
+		}
+
+		// Class không có namespace (vd: \WP_Post::class → 'WP_Post'): không có tham số route cùng tên
+		// → coi là tên class, để ->can('view', \WP_Post::class) tìm được Policy như tên class có namespace.
+		if (preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $model) && (class_exists($model) || interface_exists($model))) {
+			return $model;
+		}
+
+		// Chuỗi literal trong nháy: 'draft' / "draft".
+		return preg_match('/^[\'"](.*)[\'"]$/', $model, $matches) ? $matches[1] : null;
+	}
+
+	/**
+	 * Giá trị tham số route $name tại thời điểm chạy middleware.
+	 *
+	 * Thứ tự:
+	 * 1) $args['parameters'] — params đã bind (controller middleware chạy ngay trước action).
+	 * 2) Action của route (RouteData::$callback) khai báo param $name kiểu Model
+	 *    → model binding từ named capture / query / POST (xem resolveModelParam()).
+	 * 3) Giá trị thô: named capture → query → POST (đã urldecode).
+	 *
+	 * Route chưa chạy getCallParams() khi middleware được đánh giá, nên phải tự
+	 * so khớp fullPath với URL hiện tại (xem routeMatchSources()).
+	 */
+	protected function resolveMiddlewareParameter(string $name, $request, array $args) {
+		if (isset($args['parameters']) && is_array($args['parameters']) && array_key_exists($name, $args['parameters'])) {
+			return $args['parameters'][$name];
+		}
+
+		$route = $args['route'] ?? null;
+
+		if (!$route instanceof RouteData) {
+			return null;
+		}
+
+		$sources = $this->routeMatchSources($route, $request);
+		$param   = $this->routeActionParameter($route, $name);
+
+		if ($param !== null && ($className = $this->getClassFromType($param->getType()))) {
+			[$isModel, $model] = $this->resolveModelParam($param, $className, $sources);
+			if ($isModel) {
+				return $model;
+			}
+		}
+
+		foreach (['named', 'query', 'post'] as $source) {
+			if (array_key_exists($name, $sources[$source])) {
+				$value = $sources[$source][$name];
+				return is_string($value) ? urldecode($value) : $value;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Nguồn dữ liệu của route cho request hiện tại (giống nhánh "route khớp" của getCallParams()):
+	 * ['named' => named captures, 'query' => GET, 'post' => POST, 'args' => RouteData::$args].
+	 */
+	protected function routeMatchSources(RouteData $route, $request): array {
+		$requestPath = (is_object($request) && method_exists($request, 'getRequestUri'))
+			? (string)$request->getRequestUri()
+			: (string)($_SERVER['REQUEST_URI'] ?? '');
+
+		$fullPath  = (string)$route->fullPath;
+		$regexPath = $this->funcs->_regexPath($fullPath, $route->args['force_regex'] ?? false);
+		$matches   = [];
+
+		if (!empty($regexPath)) {
+			@preg_match('#' . $regexPath . '#iu', $requestPath, $matches)
+			|| @preg_match('#' . $fullPath . '#iu', $requestPath, $matches);
+		}
+
+		return [
+			'named' => array_filter((array)$matches, 'is_string', ARRAY_FILTER_USE_KEY),
+			'query' => $this->requestBag($request, 'query'),
+			'post'  => $this->requestBag($request, 'request'),
+			'args'  => (array)$route->args,
+		];
+	}
+
+	/**
+	 * ReflectionParameter tên $name của action route ([Class, 'method']), hoặc null.
+	 */
+	protected function routeActionParameter(RouteData $route, string $name): ?\ReflectionParameter {
+		$callback = $route->callback;
+
+		try {
+			if ($callback instanceof \Closure) {
+				$reflection = new \ReflectionFunction($callback);
+			}
+			elseif (is_array($callback) && isset($callback[0], $callback[1]) && is_string($callback[1]) && method_exists($callback[0], $callback[1])) {
+				$reflection = $this->reflectCallable($callback[0], $callback[1]);
+			}
+			else {
+				return null;
+			}
+		}
+		catch (\Throwable $e) {
+			return null;
+		}
+
+		foreach ($reflection->getParameters() as $param) {
+			if ($param->getName() === $name) {
+				return $param;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Message từ chối của lần kiểm tra quyền gần nhất trên request (Policy deny message).
+	 */
+	public function lastAuthorizationMessage($request = null): ?string {
+		$message = $this->requestStash($request ?? $this->resolveCurrentRequest(), $this->authorizationMessageKey());
+
+		return is_string($message) ? $message : null;
+	}
+
+	protected function authorizationMessageKey(): string {
+		return '_' . $this->hookPrefix() . '_authorization_message';
+	}
+
+	/**
+	 * Lỗi xảy ra khi Gate / Policy chạy (không phải kết quả "không có quyền").
+	 *
+	 * - WP_DEBUG: ném lại để dev thấy đúng nguyên nhân (Ignition / trang lỗi). Với 2 lỗi
+	 *   hay gặp, giữ NGUYÊN loại lỗi (vẫn là \Error, không bị catch (\Exception) nuốt mất)
+	 *   nhưng thêm gợi ý cách sửa vào đầu message (lỗi gốc giữ ở getPrevious()).
+	 * - Production: ghi error_log, từ chối với message chung.
+	 *
+	 * @return array{0: bool, 1: ?string}
+	 */
+	protected function handleAuthorizationError(\Throwable $e, string $ability, array $arguments = []): array {
+		if (defined('WP_DEBUG') && WP_DEBUG) {
+			$hint = $this->authorizationErrorHint($e, $ability, $arguments);
+
+			if ($hint !== null && $e instanceof \ArgumentCountError) {
+				throw new \ArgumentCountError($hint . ' — ' . $e->getMessage(), 0, $e);
+			}
+
+			if ($hint !== null && $e instanceof \TypeError) {
+				throw new \TypeError($hint . ' — ' . $e->getMessage(), 0, $e);
+			}
+
+			throw $e;
+		}
+
+		error_log(sprintf('[%s] can:%s lỗi khi gọi Gate / Policy: %s in %s:%d', static::class, $ability, $e->getMessage(), $e->getFile(), $e->getLine()));
+
+		return [false, null];
+	}
+
+	/**
+	 * Gợi ý cách sửa cho lỗi Gate / Policy hay gặp, hoặc null.
+	 */
+	protected function authorizationErrorHint(\Throwable $e, string $ability, array $arguments): ?string {
+		$classArgument = null;
+		foreach ($arguments as $argument) {
+			if (is_string($argument) && class_exists($argument)) {
+				$classArgument = $argument;
+				break;
+			}
+		}
+
+		// ->can('view', Model::class): Gate bỏ tên class → Policy::view($user) thiếu đối số model.
+		if ($e instanceof \ArgumentCountError && $classArgument !== null) {
+			return sprintf(
+				"can:%s được truyền TÊN CLASS [%s]: Gate bỏ tên class và gọi Policy::%s(\$user) không có model. "
+				. "Ability không cần model → dùng viewAny / create, hoặc khai báo ?Model \$model = null trong Policy. "
+				. "Ability cần 1 model cụ thể → truyền tên tham số route: ->can('%s', 'user') và action khai báo kiểu Model (UsersModel \$user)",
+				$ability, $classArgument, $ability, $ability
+			);
+		}
+
+		// Tham số đầu (user) của Policy không nhận kiểu user hiện tại (vd: WPUsersModel từ fallback WordPress).
+		if ($e instanceof \TypeError && str_contains($e->getMessage(), 'Argument #1')) {
+			return sprintf(
+				"can:%s: kiểu user không khớp tham số đầu của Policy. Trong wp-admin / front-end, user có thể là model fallback "
+				. "của WordPress (vd: WPUsersModel) → khai báo union type, vd: UsersModel|WPUsersModel \$user",
+				$ability
+			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Mô tả ngắn 1 đối số của Gate để chẩn đoán: Model#id, 'chuỗi' (string), null...
+	 */
+	protected function describeAuthorizationArgument($argument): string {
+		if ($argument === null) {
+			return 'null';
+		}
+
+		if (is_object($argument)) {
+			$key = method_exists($argument, 'getKey') ? $argument->getKey() : null;
+			return get_class($argument) . ($key !== null ? '#' . $key : '');
+		}
+
+		if (is_string($argument)) {
+			return class_exists($argument) ? $argument . ' (class)' : "'" . $argument . "' (string)";
+		}
+
+		return var_export($argument, true) . ' (' . get_debug_type($argument) . ')';
 	}
 
 	/*
@@ -1597,12 +1927,118 @@ trait RouteTrait {
 	}
 
 	/**
-	 * Gắn ngữ cảnh container rồi gọi callback với DI.
+	 * Gắn ngữ cảnh container, kiểm tra controller middleware (Policy...) rồi gọi callback với DI.
 	 */
 	protected function invokeResolved($callback, array $callParams) {
 		$this->bindContainerContext();
 
+		$this->authorizeControllerAction($callback, $callParams);
+
 		return $this->callWithContainer($callback, $this->paramsForContainerCall($callback, $callParams));
+	}
+
+	/**
+	 * Chạy controller middleware của page class ngay trước ACTION của route.
+	 *
+	 * Controller middleware được khai báo trong page class, thường ở customProperties():
+	 * - $this->authorizeResource(UsersModel::class, 'user');   (AuthorizesRequests)
+	 *       index → can:viewAny,UsersModel   show → can:view,user      create / store → can:create,UsersModel
+	 *       edit / update → can:update,user  destroy → can:delete,user
+	 * - $this->middleware('can:update,user')->only('edit', 'update');   (InstanceMiddlewareTrait)
+	 * - implements HasMiddleware + public static function middleware(): array   (Laravel 11+)
+	 *
+	 * Chỉ áp dụng khi method đang gọi CHÍNH LÀ action của route (RouteData::$callback[1]),
+	 * vd: 'show', 'update', hoặc 'index' khi trang admin render. Các method vòng đời
+	 * (__wpspConstruct, customProperties, init, matchedCurrentAccess...) không bị chặn.
+	 *
+	 * Tham số model ('user') lấy từ $callParams đã bind (model binding của action).
+	 * Bị từ chối → gửi response middleware (nếu có) hoặc dừng với 403 + message của Policy.
+	 */
+	protected function authorizeControllerAction($callback, array $callParams): void {
+		if (!is_array($callback) || !is_object($callback[0] ?? null) || !is_string($callback[1] ?? null)) {
+			return;
+		}
+
+		[$instance, $method] = $callback;
+		$route = $callParams['route'] ?? null;
+
+		if (!$route instanceof RouteData || !is_array($route->callback) || ($route->callback[1] ?? null) !== $method) {
+			return;
+		}
+
+		$middlewares = $this->instanceMiddlewareFor($instance, $method);
+
+		if (empty($middlewares)) {
+			return;
+		}
+
+		$request = $this->resolveCurrentRequest();
+
+		// 1 block AND: mọi controller middleware áp cho action đều phải PASS.
+		if ($this->isPassedMiddleware([$middlewares], $request, ['route' => $route, 'parameters' => $callParams])) {
+			return;
+		}
+
+		if ($this->sendBlockedMiddlewareResponse($request)) {
+			exit;
+		}
+
+		$this->abortWithStatus(
+			$this->lastAuthorizationMessage($request) ?? 'This action is unauthorized.',
+			403,
+			'403 - Forbidden.'
+		);
+	}
+
+	/**
+	 * Danh sách controller middleware của $instance áp cho $method.
+	 *
+	 * - getMiddleware(): [['middleware' => ..., 'options' => ['only' => [...], 'except' => [...]]], ...]
+	 *   (Illuminate\Routing\Controller / InstanceMiddlewareTrait).
+	 * - HasMiddleware: static middleware() trả Middleware (->only() / ->except()), string hoặc Closure.
+	 */
+	protected function instanceMiddlewareFor($instance, string $method): array {
+		$result = [];
+
+		if (method_exists($instance, 'getMiddleware')) {
+			foreach ((array)$instance->getMiddleware() as $entry) {
+				if (is_array($entry) && array_key_exists('middleware', $entry)
+					&& $this->middlewareAppliesTo((array)($entry['options'] ?? []), $method)) {
+					$result[] = $entry['middleware'];
+				}
+			}
+		}
+
+		if (is_a($instance, 'Illuminate\\Routing\\Controllers\\HasMiddleware')) {
+			foreach ((array)$instance::middleware() as $middleware) {
+				if (is_object($middleware) && !$middleware instanceof \Closure && property_exists($middleware, 'middleware')) {
+					$options = array_filter(['only' => $middleware->only ?? null, 'except' => $middleware->except ?? null], fn($v) => $v !== null);
+					if ($this->middlewareAppliesTo($options, $method)) {
+						$result[] = $middleware->middleware;
+					}
+				}
+				else {
+					$result[] = $middleware;
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Kiểm tra options only / except của controller middleware.
+	 */
+	protected function middlewareAppliesTo(array $options, string $method): bool {
+		if (isset($options['only']) && !in_array($method, (array)$options['only'], true)) {
+			return false;
+		}
+
+		if (isset($options['except']) && in_array($method, (array)$options['except'], true)) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -1794,6 +2230,157 @@ trait RouteTrait {
 	}
 
 	/**
+	 * Hỏi Gate của Laravel (Policy / Gate::define) cho 'can:' middleware.
+	 *
+	 * Gate dùng user resolver của auth (đã có fallback user WordPress trong WPSP),
+	 * giống Authorize middleware của Laravel. Dùng inspect() để lấy message của Policy.
+	 *
+	 * Lỗi khi gọi Policy là lỗi lập trình, không phải "không có quyền", vd:
+	 * - ->can('view', Post::class): Gate bỏ tên class → view($user) thiếu đối số (ArgumentCountError).
+	 * - Policy khai báo view(UsersModel $user, ...) nhưng user là WPUsersModel (TypeError).
+	 * → WP_DEBUG: ném lại để thấy ngay (giống Laravel trả 500).
+	 * → Production: từ chối + error_log để không lộ chi tiết.
+	 *
+	 * @return array{0: bool, 1: ?string} [được phép?, message]
+	 */
+	protected function authorizeAbility(string $ability, array $arguments, $request): array {
+		try {
+			$gate = $this->currentApp()->make(\Illuminate\Contracts\Auth\Access\Gate::class);
+
+			// raw() thay vì inspect(): cần biết Gate có xử lý ability này không (null = không có
+			// before / Policy / define / after nào trả kết quả) để fallback sang capability WordPress.
+			try {
+				$result = $gate->raw($ability, $arguments);
+			}
+			catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+				$response = $e->toResponse();
+				return [$response->allowed(), $response->message()];
+			}
+
+			if ($result === null && $this->capabilityFallbackEnabled()) {
+				return $this->authorizeCapability($ability, $arguments);
+			}
+
+			// Phần còn lại giống Gate::inspect().
+			if ($result instanceof \Illuminate\Auth\Access\Response) {
+				return [$result->allowed(), $result->message()];
+			}
+
+			if ($result) {
+				return [true, null];
+			}
+
+			$denial = (fn() => $this->defaultDenialResponse ?? null)->call($gate);
+
+			return [false, $denial instanceof \Illuminate\Auth\Access\Response ? $denial->message() : null];
+		}
+		catch (\Throwable $e) {
+			return $this->handleAuthorizationError($e, $ability, $arguments);
+		}
+	}
+
+	/**
+	 * Bật fallback sang capability WordPress (giống bản LITE): config('auth.capability_fallback'), mặc định true.
+	 * Nhờ đó ->can('manage_options'), ->can('edit_post', 'post') dùng được mà không cần Gate::define().
+	 */
+	protected function capabilityFallbackEnabled(): bool {
+		try {
+			$value = $this->currentApp()->make('config')->get('auth.capability_fallback', true);
+		}
+		catch (\Throwable $e) {
+			$value = true;
+		}
+
+		return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+	}
+
+	/**
+	 * Kiểm tra bằng user_can() của WordPress với user WordPress đang đăng nhập.
+	 * Đối số: model (getKey / ID / id) / số → ID; tên class → bỏ qua; scalar khác → giữ nguyên.
+	 * Khách → từ chối.
+	 *
+	 * @return array{0: bool, 1: ?string}
+	 */
+	protected function authorizeCapability(string $ability, array $arguments): array {
+		if (!function_exists('user_can') || !function_exists('wp_get_current_user')) {
+			return [false, null];
+		}
+
+		$wpUser = wp_get_current_user();
+
+		if (!$wpUser instanceof \WP_User || !$wpUser->exists()) {
+			return [false, null];
+		}
+
+		$capabilityArgs = [];
+		foreach ($arguments as $argument) {
+			if (is_object($argument)) {
+				$id = method_exists($argument, 'getKey') ? $argument->getKey() : ($argument->ID ?? $argument->id ?? null);
+				if (is_numeric($id)) {
+					$capabilityArgs[] = (int)$id;
+				}
+			}
+			elseif (is_int($argument) || (is_string($argument) && ctype_digit($argument))) {
+				$capabilityArgs[] = (int)$argument;
+			}
+			elseif (is_string($argument) && class_exists($argument)) {
+				continue;
+			}
+			elseif (is_scalar($argument)) {
+				$capabilityArgs[] = $argument;
+			}
+		}
+
+		return [(bool)user_can($wpUser, $ability, ...$capabilityArgs), null];
+	}
+
+	/**
+	 * Chẩn đoán vì sao Gate từ chối (chỉ dùng khi WP_DEBUG): user Gate thấy, đối số,
+	 * Policy tìm được và method sẽ gọi. Các trường hợp Gate từ chối KHÔNG gọi Policy:
+	 * - user null và tham số đầu của method Policy không nullable;
+	 * - đối số đầu không phải model / class có Policy (vd: '5' vì action chưa khai báo kiểu Model);
+	 * - không có Policy và không có Gate::define() cho ability.
+	 */
+	protected function describeAuthorizationContext(string $ability, array $arguments): string {
+		try {
+			$gate = $this->currentApp()->make(\Illuminate\Contracts\Auth\Access\Gate::class);
+			$user = (fn() => $this->resolveUser())->call($gate);
+			$args = implode(', ', array_map([$this, 'describeAuthorizationArgument'], $arguments));
+
+			$first  = $arguments[0] ?? null;
+			$policy = (is_object($first) || (is_string($first) && class_exists($first))) ? $gate->getPolicyFor($first) : null;
+
+			$parts = [
+				'User: ' . ($user === null ? 'null (khách — Gate từ chối nếu Policy không cho user nullable)' : $this->describeAuthorizationArgument($user)),
+				'Đối số: [' . $args . ']',
+			];
+
+			if ($policy) {
+				$parts[] = 'Policy: ' . get_class($policy) . '::' . $ability . '()'
+					. (method_exists($policy, $ability) ? '' : ' — KHÔNG có method này');
+			}
+			elseif ($gate->has($ability)) {
+				$parts[] = 'Gate::define(\'' . $ability . '\')';
+			}
+			elseif ($this->capabilityFallbackEnabled()) {
+				$wpUser  = function_exists('wp_get_current_user') ? wp_get_current_user() : null;
+				$parts[] = "Không có Policy / Gate::define → capability WordPress user_can('" . $ability . "')"
+					. (($wpUser instanceof \WP_User && $wpUser->exists()) ? ' với WP_User#' . $wpUser->ID : ' — chưa đăng nhập WordPress')
+					. (($first === null || is_object($first) || (is_string($first) && class_exists($first))) ? '' : ' (nếu muốn dùng Policy: đối số đầu không phải model — action đã khai báo kiểu Model cho tham số chưa?)');
+			}
+			else {
+				$parts[] = 'Không tìm thấy Policy / Gate::define cho ability này (capability fallback đang tắt)'
+					. (is_object($first) || (is_string($first) && class_exists($first)) ? '' : ' — đối số đầu không phải model (action đã khai báo kiểu Model cho tham số chưa?)');
+			}
+
+			return implode(' | ', $parts);
+		}
+		catch (\Throwable $e) {
+			return 'Không chẩn đoán được: ' . $e->getMessage();
+		}
+	}
+
+	/**
 	 * ThrottleRequests của Laravel, inject đúng RateLimiter đang giữ named limiter (xem throttleRateLimiter()).
 	 */
 	protected function makeThrottleMiddleware(array $parameters) {
@@ -1965,10 +2552,18 @@ trait RouteTrait {
 			}
 		}
 
-		// Nếu có ID → binding
+		// Nếu có ID → binding. Nhớ theo request: 'can:' middleware và action dùng chung
+		// 1 lần query (middleware bind trước, getCallParams() bind lại ngay sau đó).
 		if (!empty($modelId)) {
+			$request = $this->resolveCurrentRequest();
+			$memoKey = '_' . $this->hookPrefix() . '_model.' . $className . '#' . (is_scalar($modelId) ? $modelId : md5(serialize($modelId)));
+
+			if (($cached = $this->requestStash($request, $memoKey)) !== null) {
+				return $cached;
+			}
+
 			try {
-				return $className::query()->findOrFail($modelId);
+				return $this->requestStash($request, $memoKey, $className::query()->findOrFail($modelId));
 			}
 			catch (\Exception $exception) {
 				do_action($this->hookPrefix() . '_model_not_found', $className, $modelId, $exception);
