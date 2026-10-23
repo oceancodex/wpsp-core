@@ -33,65 +33,86 @@ class FrontPages extends BaseRoute {
 		$middlewares   = $route->middlewares;
 
 		try {
-			if (
-				$this->request->method() == strtoupper($method)
+			/**
+			 * Tách điều kiện "đúng method + đúng path" ra khỏi điều kiện middleware
+			 * để biết chắc route này đang được truy cập khi middleware chặn.
+			 * Thứ tự đánh giá giữ nguyên như cũ: middleware chỉ chạy khi path khớp.
+			 */
+			$isCurrentRoute = $this->request->method() == strtoupper($method)
 				&& (
 					@preg_match('/' . $this->funcs->_regexPath($fullPath) . '/iu', $requestPath)
+					|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
 					|| @preg_match('/' . $fullPath . '/iu', $requestPath)
-				)
-				&& $this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])
-			) {
-				$constructParams = [
-					$this->funcs->_getMainPath(),
-					$this->funcs->_getRootNamespace(),
-					$this->funcs->_getPrefixEnv(),
-					[
-						'path'              => $path,
-						'path_regex'        => $pathRegex,
-						'full_path'         => $fullPath,
-						'full_path_regex'   => $fullPathRegex,
-						'callback_function' => $callback[1] ?? null,
-					],
-				];
+					|| @preg_match($fullPathRegex, $requestPath)
+				);
 
-				/**
-				 * Khi callback có method là "index", thì sẽ thay đổi method thành "init".\
-				 * Mục đích sẽ gọi method "init" trong Base để khởi tạo Rewrite front page.
-				 */
-				$callback[1] = 'init';
-
-				/**
-				 * Vì thế, DI tại đây được triển khai với method "init".\
-				 * Thành ra method "index" khi gọi trong "init" sẽ không có DI.\
-				 * Cần phải truyền thêm "route" vào "extraParams" trong "constructParams"\
-				 * để DI hoạt động được với method "index".
-				 */
-				$constructParams[3]['route'] = $route;
-
-				/**
-				 * Hợp nhất contructParams[3] (gọi là extraParams) với args được truyền từ route vào nhau.\
-				 * Mục đích để callback Class có thể sử dụng được.
-				 */
-				$constructParams[3] = array_merge($constructParams[3], $route->args);
-
-				/**
-				 * Set route resolver.
-				 */
-				$this->setRouteResolver();
-
-				/**
-				 * Thực hiện các công việc với Callback.
-				 * 1. Chuẩn bị callback.
-				 * 2. Chuẩn bị parameters mà callback sử dụng.
-				 * 3. Xử lý callback với parameters (DI).
-				 * 4. Gọi callback.
-				 */
-				$callback   = $this->prepareRouteCallback($callback, $constructParams);
-				$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
-				$this->resolveAndCall($callback, $callParams);
+			if (!$isCurrentRoute) {
+				return;
 			}
+
+			if (!$this->isPassedMiddleware($middlewares, $this->request, ['route' => $route])) {
+				/**
+				 * Middleware chặn bằng response riêng (vd: redirect('/login'),
+				 * back()->withErrors(...)) → gửi đúng response đó.
+				 * Không có response riêng → im lặng như cũ (WordPress xử lý tiếp).
+				 */
+				if ($this->sendBlockedMiddlewareResponse($this->request)) {
+					exit;
+				}
+				return;
+			}
+
+			$constructParams = [
+				$this->funcs->_getMainPath(),
+				$this->funcs->_getRootNamespace(),
+				$this->funcs->_getPrefixEnv(),
+				[
+					'path'              => $path,
+					'path_regex'        => $pathRegex,
+					'full_path'         => $fullPath,
+					'full_path_regex'   => $fullPathRegex,
+					'callback_function' => $callback[1] ?? null,
+				],
+			];
+
+			/**
+			 * Khi callback có method là "index", thì sẽ thay đổi method thành "init".\
+			 * Mục đích sẽ gọi method "init" trong Base để khởi tạo Rewrite front page.
+			 */
+			$callback[1] = 'init';
+
+			/**
+			 * Vì thế, DI tại đây được triển khai với method "init".\
+			 * Thành ra method "index" khi gọi trong "init" sẽ không có DI.\
+			 * Cần phải truyền thêm "route" vào "extraParams" trong "constructParams"\
+			 * để DI hoạt động được với method "index".
+			 */
+			$constructParams[3]['route'] = $route;
+
+			/**
+			 * Hợp nhất contructParams[3] (gọi là extraParams) với args được truyền từ route vào nhau.\
+			 * Mục đích để callback Class có thể sử dụng được.
+			 */
+			$constructParams[3] = array_merge($constructParams[3], $route->args);
+
+			/**
+			 * Set route resolver.
+			 */
+			$this->setRouteResolver();
+
+			/**
+			 * Thực hiện các công việc với Callback.
+			 * 1. Chuẩn bị callback.
+			 * 2. Chuẩn bị parameters mà callback sử dụng.
+			 * 3. Xử lý callback với parameters (DI).
+			 * 4. Gọi callback.
+			 */
+			$callback   = $this->prepareRouteCallback($callback, $constructParams);
+			$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
+			$this->resolveAndCall($callback, $callParams);
 		}
-		catch (\Exception $e) {}
+		catch (\Exception $e) {
+		}
 	}
 
 }

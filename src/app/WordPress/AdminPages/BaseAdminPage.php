@@ -2,11 +2,12 @@
 
 namespace WPSPCORE\App\WordPress\AdminPages;
 
+use WPSPCORE\App\Traits\InstanceMiddlewareTrait;
 use WPSPCORE\BaseInstances;
 
 abstract class BaseAdminPage extends BaseInstances {
 
-	use AdminPageTrait, AdminPageScreenOptionsTrait, AdminPageMetaBoxesTrait;
+	use AdminPageTrait, AdminPageScreenOptionsTrait, AdminPageMetaBoxesTrait, InstanceMiddlewareTrait;
 
 	/**
 	 * WordPress admin page properties.
