@@ -245,7 +245,11 @@ class AdminPages extends BaseRoute {
 					else {
 						// Nếu method của callback không phải index, hoặc không force_init, đây không phải route khởi tạo admin page.
 						if ((isset($callback[1]) && is_string($callback[1]) && $callback[1] !== 'index') && (!isset($route->args['force_init']))) {
-							if (@preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
+							if (
+								$request->get('page') == $fullPath
+								|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
+								|| @preg_match('/' . $fullPath . '/iu', $requestPath)
+							) {
 								/**
 								 * Set route resolver.
 								 */
@@ -285,12 +289,32 @@ class AdminPages extends BaseRoute {
 							 * 4. Gọi callback.
 							 */
 							$callback   = $this->prepareRouteCallback($callback, $constructParams);
+
+							/**
+							 * Đang truy cập đúng trang này: kiểm tra controller middleware của action "index"
+							 * (authorizeResource(), $this->middleware()->only('index')...) NGAY BÂY GIỜ.
+							 * Action "index" chạy trong callback render của add_menu_page(), lúc header wp-admin
+							 * đã in ra → wp_die() lúc đó chỉ hiện message bên trong giao diện wp-admin.
+							 * Kiểm tra sớm ở đây → bị từ chối thì ra trang lỗi wp_die() đầy đủ.
+							 */
+							if (
+								$request->get('page') == $fullPath
+								|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
+								|| @preg_match('/' . $fullPath . '/iu', $requestPath)
+							) {
+								$this->authorizeRouteActionEarly($callback[0], $route);
+							}
+
 							$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 							$this->resolveAndCall($callback, $callParams);
 						}
 					}
 				}
-				elseif (@preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)) {
+				elseif (
+					$request->get('page') == $fullPath
+					|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
+					|| @preg_match('/' . $fullPath . '/iu', $requestPath)
+				) {
 					/**
 					 * Chỉ khi đang truy cập đúng trang này: middleware chặn bằng
 					 * response riêng → gửi response đó, ngược lại 403 như cũ.
