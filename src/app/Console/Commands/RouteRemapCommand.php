@@ -233,7 +233,7 @@ class RouteRemapCommand extends Command {
 			return is_array($active) && in_array($plugin, $active, true);
 		}
 		catch (\Throwable $e) {
-			$this->error('Error: ' . $e->getMessage() . '(isPluginActiveFast)');
+			$this->error('Error: ' . $e->getMessage() . ' (isPluginActiveFast)');
 			return false;
 		}
 	}
