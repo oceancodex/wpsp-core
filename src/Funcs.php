@@ -75,6 +75,7 @@ use WPSPCORE\App\Routes\RouteRegexParser;
  *
  * @method static mixed viewInject($views, $data)
  * @method static mixed viewDetect($viewName = null)
+ * @method static mixed viewName($viewName = null)
  * @method static \Illuminate\View\Factory|null viewInstance()
  *
  * @method static bool isDebug()
@@ -818,6 +819,10 @@ class Funcs extends BaseInstances {
 	}
 
 	public function _viewDetect($viewName = null) {
+		return $viewName;
+	}
+
+	public function _viewName($viewName = null) {
 		return $viewName;
 	}
 
