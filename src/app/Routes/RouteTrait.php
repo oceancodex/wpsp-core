@@ -2241,6 +2241,8 @@ trait RouteTrait {
 		Facade::setFacadeApplication($container);
 		Model::setConnectionResolver($container['db']);
 		Model::setEventDispatcher($container['events']);
+
+		$this->registerCapabilityGateFallback();
 	}
 
 	/**
@@ -2336,6 +2338,47 @@ trait RouteTrait {
 		}
 
 		return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+	}
+
+	/**
+	 * Đăng ký 1 lần / Gate instance: ability không có Gate::define() và không có Policy
+	 * → để Gate tự hỏi capability WordPress. Nhờ đó Debugbar (và @can, $user->can()...)
+	 * thấy đúng kết quả, không cần Gate::define() từng ability.
+	 */
+	protected function registerCapabilityGateFallback(): void {
+		static $registered = null;
+		$registered ??= new \WeakMap();
+
+		$app = $this->currentApp();
+		if (!$app || !$this->capabilityFallbackEnabled()) {
+			return;
+		}
+
+		$gate = $app->make(\Illuminate\Contracts\Auth\Access\Gate::class);
+
+		if (isset($registered[$gate])) {
+			return;
+		}
+		$registered[$gate] = true;
+
+		$gate->before(function($user, $ability, $arguments = []) use ($gate) {
+			// Đã có Gate::define() → để Gate xử lý bình thường.
+			if ($gate->has($ability)) {
+				return null;
+			}
+
+			// Đối số đầu là model / class có Policy → để Policy xử lý.
+			$first = $arguments[0] ?? null;
+			if ((is_object($first) || (is_string($first) && class_exists($first))) && $gate->getPolicyFor($first)) {
+				return null;
+			}
+
+			[$allowed] = $this->authorizeCapability($ability, (array)$arguments);
+
+			// Chỉ "cho phép" mới ghi đè. Không có quyền → null để Gate xử lý tiếp,
+			// không chặn nhầm các after callback / ability khác.
+			return $allowed ? true : null;
+		});
 	}
 
 	/**
