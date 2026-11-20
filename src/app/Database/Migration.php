@@ -4,6 +4,7 @@ namespace WPSPCORE\App\Database;
 
 use Illuminate\Contracts\Console\Kernel as ArtisanKernel;
 use Illuminate\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use WPSPCORE\App\Traits\BaseInstancesTrait;
 use WPSPCORE\BaseInstances;
 
@@ -77,13 +78,23 @@ class Migration extends BaseInstances {
 				return ['success' => true, 'data' => null, 'message' => 'Database is now in latest version.'];
 			}
 
-			$artisan->call('migrate', [
-//				'--path'     => $this->migrationPath,
-//				'--realpath' => true,
-				'--path'     => 'database/migrations',
+			// Thư mục gốc + toàn bộ thư mục con ở mọi cấp
+			$paths = [$this->migrationPath];
+			foreach (Finder::create()->directories()->in($this->migrationPath) as $dir) {
+				$paths[] = $dir->getRealPath();
+			}
+
+			$params = [
+				'--path'     => $paths,
+				'--realpath' => true,
 				'--force'    => true,
-				'--seed'     => $seed ? true : ''
-			]);
+			];
+
+			if ($seed) {
+				$params['--seed'] = true;
+			}
+
+			$artisan->call('migrate', $params);
 
 			return ['success' => true, 'data' => null, 'message' => 'Migrate database' . ($seed ? ' and seeding data ' : '') . 'successfully!'];
 		}
