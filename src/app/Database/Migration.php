@@ -119,7 +119,7 @@ class Migration extends BaseInstances {
 			return $defined;
 		}
 
-		$files = $fs->files($this->migrationPath);
+		$files = $fs->allFiles($this->migrationPath);
 
 		foreach ($files as $file) {
 			$content = $fs->get($file->getPathname());
@@ -130,7 +130,7 @@ class Migration extends BaseInstances {
 			}
 		}
 
-		return array_unique($defined);
+		return array_values(array_unique($defined));
 
 		/**
 		 * V2:\
@@ -329,7 +329,7 @@ class Migration extends BaseInstances {
 
 		$files = [];
 		if ($fs->isDirectory($this->migrationPath)) {
-			foreach ($fs->files($this->migrationPath) as $file) {
+			foreach ($fs->allFiles($this->migrationPath) as $file) {
 				$files[] = pathinfo($file->getFilename(), PATHINFO_FILENAME);
 			}
 		}
