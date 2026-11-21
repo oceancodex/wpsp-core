@@ -235,6 +235,7 @@ class RouteManager extends BaseInstances {
 						|| @preg_match($fullPathRegex, $requestPath)
 					)
 				) {
+					//
 					$this->addMatchedRoute($routeItem);
 
 					do_action($this->funcs->_getAppShortName() . '_add_matched_route', $routeItem, $measureKey);
