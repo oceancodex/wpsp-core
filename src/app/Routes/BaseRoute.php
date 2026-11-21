@@ -6,7 +6,9 @@ use WPSPCORE\App\Traits\HookRunnerTrait;
 use WPSPCORE\BaseInstances;
 
 /**
- * Hỗ trợ gọi động: prefix(), name(), middleware(), group(),
+ * Hỗ trợ gọi động: prefix(), name(), middleware(), group(), namespace(), version()
+ *
+ * $args = ['force_regex']
  *
  * @method static $this name(string $name)
  * @method static $this group($callback)
