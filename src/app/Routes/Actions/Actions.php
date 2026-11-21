@@ -5,6 +5,8 @@ namespace WPSPCORE\App\Routes\Actions;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
+ * $args = ['priority', 'accepted_args']
+ *
  * @method static $this action(string $action, callable|array $callback, array $args = [])
  */
 class Actions extends BaseRoute {

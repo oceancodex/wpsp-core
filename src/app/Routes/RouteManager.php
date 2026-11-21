@@ -235,6 +235,7 @@ class RouteManager extends BaseInstances {
 						|| @preg_match($fullPathRegex, $requestPath)
 					)
 				) {
+					// Add route vào route matches để phục vụ cho Laravel Debugbar.
 					$this->addMatchedRoute($routeItem);
 
 					do_action($this->funcs->_getAppShortName() . '_add_matched_route', $routeItem, $measureKey);
@@ -278,6 +279,13 @@ class RouteManager extends BaseInstances {
 	 *
 	 */
 
+	/**
+	 * Add route vào route matches để phục vụ cho Laravel Debugbar.
+	 *
+	 * @param RouteData|null $route
+	 *
+	 * @return void
+	 */
 	public function addMatchedRoute(?RouteData $route) {
 		$key = md5(
 			$route->type . '|' .
@@ -291,15 +299,30 @@ class RouteManager extends BaseInstances {
 		$this->currentRoute        = $route;
 	}
 
+	/**
+	 * Xóa danh sách route đã khớp và đặt lại route hiện tại.
+	 *
+	 * @return void
+	 */
 	public function clearMatchedRoutes() {
 		$this->matchedRoutes = [];
 		$this->currentRoute  = null;
 	}
 
+	/**
+	 * Lấy route hiện tại đang được xử lý.
+	 *
+	 * @return RouteData|null Route hiện tại hoặc null nếu chưa có route nào được xác định.
+	 */
 	public function currentRoute(): ?RouteData {
 		return $this->currentRoute;
 	}
 
+	/**
+	 * Lấy danh sách các route đã được khớp.
+	 *
+	 * @return array Danh sách route đã khớp, được đánh lại chỉ mục.
+	 */
 	public function matchedRoutes() {
 //		return $this->matchedRoutes;
 		return array_values($this->matchedRoutes);
