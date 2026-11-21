@@ -5,6 +5,8 @@ namespace WPSPCORE\App\Routes\AdminPages;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
+ * $args = ['force_init', 'force_init_slug']
+ *
  * @method static $this get(string $path, callable|array $callback, array $args = [])
  * @method static $this post(string $path, callable|array $callback, array $args = [])
  * @method static $this put(string $path, callable|array $callback, array $args = [])

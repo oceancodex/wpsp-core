@@ -5,6 +5,8 @@ namespace WPSPCORE\App\Routes\Filters;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
+ * $args = ['priority', 'accepted_args']
+ *
  * @method static $this filter(string $filter, callable|array $callback, array $args = [])
  */
 class Filters extends BaseRoute {
