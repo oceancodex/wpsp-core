@@ -39,17 +39,21 @@ class RouteMap extends BaseInstances {
 			$this->map[$type] = [];
 		}
 
+		preg_match_all('/\(\?P?<([a-zA-Z_][a-zA-Z0-9_]*)>/', $fullPathRegex, $matches);
+		$groupNames = $matches[1] ?? [];
+
 		$this->map[$type][$name] = [
-			'name'            => $name,
-			'file'            => 'routes/' . $type . '.php',
-			'line'            => (new \Exception())->getTrace()[1]['line'] ?? 0,
-			'namespace'       => $namespace,
-			'version'         => $version,
-			'path'            => $path,
-			'path_regex'      => $pathRegex,
-			'full_path'       => $fullPath,
-			'full_path_regex' => $fullPathRegex,
-			'route_data'      => $route,
+			'name'             => $name,
+			'file'             => 'routes/' . $type . '.php',
+			'line'             => (new \Exception())->getTrace()[1]['line'] ?? 0,
+			'namespace'        => $namespace,
+			'version'          => $version,
+			'path'             => $path,
+			'path_regex'       => $pathRegex,
+			'full_path'        => $fullPath,
+			'full_path_regex'  => $fullPathRegex,
+			'route_parameters' => $groupNames,
+			'route_data'       => $route,
 		];
 	}
 
