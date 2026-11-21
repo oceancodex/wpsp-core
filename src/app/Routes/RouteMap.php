@@ -40,7 +40,22 @@ class RouteMap extends BaseInstances {
 		}
 
 		preg_match_all('/\(\?P?<([a-zA-Z_][a-zA-Z0-9_]*)>/', $fullPathRegex, $matches);
-		$groupNames = $matches[1] ?? [];
+		$routeParameters = $matches[1] ?? [];
+
+		if ($type == 'AdminPages') {
+			$routeParameters[] = 'force_init';
+			$routeParameters[] = 'force_init_slug';
+		}
+		elseif ($type == 'Actions' || $type == 'Filters') {
+			$routeParameters[] = 'priority';
+			$routeParameters[] = 'accepted_args';
+		}
+		elseif ($type == 'Ajaxs') {
+			$routeParameters[] = 'nopriv';
+		}
+		elseif ($type == 'Schedules') {
+			$routeParameters[] = 'interval';
+		}
 
 		$this->map[$type][$name] = [
 			'name'             => $name,
@@ -52,7 +67,7 @@ class RouteMap extends BaseInstances {
 			'path_regex'       => $pathRegex,
 			'full_path'        => $fullPath,
 			'full_path_regex'  => $fullPathRegex,
-			'route_parameters' => $groupNames,
+			'route_parameters' => $routeParameters,
 			'route_data'       => $route,
 		];
 	}

@@ -5,6 +5,8 @@ namespace WPSPCORE\App\Routes\UserMetaBoxes;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
+ * $args = ['priority', 'accepted_args']
+ *
  * @method static $this user_meta_box(string $id, callable|array $callback, array $args = [])
  */
 class UserMetaBoxes extends BaseRoute {
