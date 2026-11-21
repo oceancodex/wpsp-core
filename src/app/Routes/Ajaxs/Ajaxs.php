@@ -5,6 +5,8 @@ namespace WPSPCORE\App\Routes\Ajaxs;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
+ * $args = ['nopriv']
+ *
  * @method static $this get(string $action, callable|array $callback, array $args = [])
  * @method static $this post(string $action, callable|array $callback, array $args = [])
  * @method static $this put(string $action, callable|array $callback, array $args = [])

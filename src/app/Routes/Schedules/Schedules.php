@@ -5,6 +5,8 @@ namespace WPSPCORE\App\Routes\Schedules;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
+ * $args = ['interval']
+ *
  * @method static $this schedule(string $hook, callable|array $callback, array $args = [])
  */
 class Schedules extends BaseRoute {
