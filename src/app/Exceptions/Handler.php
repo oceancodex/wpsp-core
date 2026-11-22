@@ -152,7 +152,7 @@ class Handler extends BaseInstances {
 				$currentPluginPath = $this->funcs->_getPluginDirPathFromPath($e->getFile());
 				$request           = $this->request ?? $app->make('request') ?? \Illuminate\Http\Request::capture();
 				$renderer          = $app->make(WPSPRenderer::class, ['basePath' => $currentPluginPath]);
-				$response          = $renderer->render($request, $e, $this->funcs->_getRouteManager());
+				$response          = $renderer->render($request, $e, $this->funcs, $this->funcs->_getRouteManager());
 
 				if (is_object($response) && method_exists($response, 'getContent')) {
 					$content = $response->getContent();
