@@ -1,4 +1,4 @@
-@props(['exception'])
+@props(['exception', 'funcs'])
 
 <div class="flex flex-col pt-8 sm:pt-16 overflow-x-auto">
     <div class="flex flex-col gap-5 mb-8">
@@ -13,7 +13,7 @@
         <div class="bg-white dark:bg-white/[3%] border border-neutral-200 dark:border-white/10 divide-x divide-neutral-200 dark:divide-white/10 rounded-md shadow-xs flex items-center gap-0.5">
             <div class="flex items-center gap-1.5 h-6 px-[6px] font-mono text-[13px]">
                 <span class="text-neutral-400 dark:text-neutral-500">WPSP</span>
-                <span class="text-neutral-500 dark:text-neutral-300">{{ app()->version() }}</span>
+                <span class="text-neutral-500 dark:text-neutral-300">{{ $funcs?->_getVersion() ?? app()->version() }}</span>
             </div>
             <div class="flex items-center gap-1.5 h-6 px-[6px] font-mono text-[13px]">
                 <span class="text-neutral-400 dark:text-neutral-500">PHP</span>
