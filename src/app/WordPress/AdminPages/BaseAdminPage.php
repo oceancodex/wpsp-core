@@ -39,9 +39,9 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->forceInit();
 		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideMenuSlug($this->extraParams['full_path'] ?? null);
+		$this->forceInit();
 
 		if (!$this->screenId) {
 			$this->screenId = $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
@@ -82,6 +82,11 @@ abstract class BaseAdminPage extends BaseInstances {
 
 		if (!$this->forceInit && isset($this->extraParams['route']->args['force_init']) && $this->extraParams['route']->args['force_init'] === true) {
 			$this->forceInit = true;
+			$routeMethod     = $this->extraParams['route']?->method ?? null;
+
+			if ($routeMethod !== strtolower('GET')) {
+				$this->callAdminPageMethod('init');
+			}
 		}
 	}
 
@@ -123,8 +128,8 @@ abstract class BaseAdminPage extends BaseInstances {
 		}
 
 		$menuPage = add_menu_page(
-			$this->page_title ?? $this->menu_title ?? $this->menu_slug,
-			$this->menu_title ?? $this->menu_slug,
+			$this->page_title ?: $this->menu_title ?: $this->menu_slug,
+			$this->menu_title ?: $this->menu_slug,
 			$this->capability,
 			$this->forceInit ? ($this->forceInitSlug ?? $this->menu_slug) : $this->menu_slug,
 			$callback,
@@ -138,7 +143,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			remove_submenu_page($this->menu_slug, $this->menu_slug); // Xóa submenu tự sinh
 			add_submenu_page(
 				$this->menu_slug,
-				$this->page_title ?? $this->firstSubmenuTitle,
+				$this->page_title ?: $this->firstSubmenuTitle,
 				$this->firstSubmenuTitle,
 				$this->capability,
 				$this->forceInit ? ($this->forceInitSlug ?? $this->menu_slug) : $this->menu_slug,
@@ -166,8 +171,8 @@ abstract class BaseAdminPage extends BaseInstances {
 
 		$subMenuPage = add_submenu_page(
 			$this->parent_slug,
-			$this->page_title ?? $this->menu_title ?? $this->menu_slug,
-			$this->menu_title ?? $this->menu_slug,
+			$this->page_title ?: $this->menu_title ?: $this->menu_slug,
+			$this->menu_title ?: $this->menu_slug,
 			$this->capability,
 			$this->forceInit ? ($this->forceInitSlug ?? $this->menu_slug) : $this->menu_slug,
 			$callback,

@@ -62,13 +62,9 @@ class AdminPages extends BaseRoute {
 
 		if (
 			(
-				($callback instanceof \Closure)
-				||
-				(
-					(is_array($callback) || is_callable($callback))
-					&&
-					(isset($callback[1]) && $callback[1] !== 'index')
-				)
+				(is_array($callback) || is_callable($callback))
+				&&
+				(isset($callback[1]) && $callback[1] !== 'index')
 			)
 			&&
 			(
@@ -158,17 +154,14 @@ class AdminPages extends BaseRoute {
 
 		try {
 			if (
-				($callback instanceof \Closure)
-				|| (
-					(is_array($callback) || is_callable($callback) || is_null($callback[1]))
-					&& (
-						!isset($callback[1])
-						|| $callback[1] == 'index'
-						|| (isset($route->args['force_init']) && $route->args['force_init'])
-						|| $request->get('page') == $fullPath
-						|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
-						|| @preg_match('/' . $fullPath . '/iu', $requestPath)
-					)
+				(is_array($callback) || is_callable($callback) || is_null($callback[1]))
+				&& (
+					!isset($callback[1])
+					|| $callback[1] == 'index'
+					|| (isset($route->args['force_init']) && $route->args['force_init'])
+					|| $request->get('page') == $fullPath
+					|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
+					|| @preg_match('/' . $fullPath . '/iu', $requestPath)
 				)
 			) {
 				if ($this->isPassedMiddleware($middlewares, $request, ['route' => $route])) {
@@ -179,7 +172,7 @@ class AdminPages extends BaseRoute {
 						[
 							'path'              => $path,
 							'full_path'         => $fullPath,
-							'callback_function' => $callback instanceof \Closure ? $callback : $callback[1] ?? null,
+							'callback_function' => $callback[1] ?? null,
 						],
 					];
 
@@ -197,87 +190,13 @@ class AdminPages extends BaseRoute {
 					 */
 					$constructParams[3] = array_merge($constructParams[3], $route->args);
 
-					// Nếu callback là Closure
-					if ($callback instanceof \Closure) {
-						add_action('admin_menu', function() use ($fullPath, $callback) {
-							if (is_array($callback)) {
-								$callbackRef = new \ReflectionMethod($callback[0], $callback[1]);
-							}
-							else {
-								$callbackRef = new \ReflectionFunction($callback);
-							}
-							$params = $callbackRef->getParameters();
-							$args   = [];
-							foreach ($params as $param) {
-								$name = $param->getName();
-
-								if ($param->isDefaultValueAvailable()) {
-									$default = $param->getDefaultValue();
-								}
-								else {
-									$default = null;
-								}
-								$args[$name] = $default;
-							}
-							if (isset($args['is_submenu_page']) && $args['is_submenu_page']) {
-								add_submenu_page(
-									$args['parent_slug'] ?? 'options-general.php',
-									$args['page_title'] ?? $fullPath,
-									$args['menu_title'] ?? $fullPath,
-									$args['capability'] ?? 'manage_options',
-									$args['menu_slug'] ?? $fullPath,
-									$callback,
-									$args['position'] ?? null
-								);
-							}
-							else {
-								add_menu_page(
-									$args['page_title'] ?? $fullPath,
-									$args['menu_title'] ?? $fullPath,
-									$args['capability'] ?? 'manage_options',
-									$args['menu_slug'] ?? $fullPath,
-									$callback,
-									$args['icon_url'] ?? null,
-								);
-							}
-						});
-					}
-
-					// Nếu callback KHÔNG phải Closure
-					else {
-						// Nếu method của callback không phải index, hoặc không force_init, đây không phải route khởi tạo admin page.
-						if ((isset($callback[1]) && is_string($callback[1]) && $callback[1] !== 'index') && (!isset($route->args['force_init']))) {
-							if (
-								$request->get('page') == $fullPath
-								|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
-								|| @preg_match('/' . $fullPath . '/iu', $requestPath)
-							) {
-								/**
-								 * Set route resolver.
-								 */
-								$this->setRouteResolver();
-
-								/**
-								 * Thực hiện các công việc với Callback.
-								 * 1. Chuẩn bị callback.
-								 * 2. Chuẩn bị parameters mà callback sử dụng.
-								 * 3. Xử lý callback với parameters (DI).
-								 * 4. Gọi callback.
-								 */
-								$callback   = $this->prepareRouteCallback($callback, $constructParams);
-								$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
-								$this->resolveAndCall($callback, $callParams);
-							}
-						}
-
-						// Nếu không, đây chính là route khởi tạo admin page.
-						else {
-							/**
-							 * Khi callback có method là "index", thay đổi method thành "init".\
-							 * Mục đích sẽ gọi method "init" trong Base để khởi tạo Admin menu page.
-							 */
-							if (isset($callback[1]) && $callback[1] == 'index' || !isset($callback[1]) || isset($route->args['force_init'])) $callback[1] = 'init';
-
+					// Nếu method của callback không phải index, hoặc không force_init, đây không phải route khởi tạo admin page.
+					if ((isset($callback[1]) && is_string($callback[1]) && $callback[1] !== 'index') && (!isset($route->args['force_init']))) {
+						if (
+							$request->get('page') == $fullPath
+							|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
+							|| @preg_match('/' . $fullPath . '/iu', $requestPath)
+						) {
 							/**
 							 * Set route resolver.
 							 */
@@ -291,25 +210,52 @@ class AdminPages extends BaseRoute {
 							 * 4. Gọi callback.
 							 */
 							$callback   = $this->prepareRouteCallback($callback, $constructParams);
-
-							/**
-							 * Đang truy cập đúng trang này: kiểm tra controller middleware của action "index"
-							 * (authorizeResource(), $this->middleware()->only('index')...) NGAY BÂY GIỜ.
-							 * Action "index" chạy trong callback render của add_menu_page(), lúc header wp-admin
-							 * đã in ra → wp_die() lúc đó chỉ hiện message bên trong giao diện wp-admin.
-							 * Kiểm tra sớm ở đây → bị từ chối thì ra trang lỗi wp_die() đầy đủ.
-							 */
-							if (
-								$request->get('page') == $fullPath
-								|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
-								|| @preg_match('/' . $fullPath . '/iu', $requestPath)
-							) {
-								$this->authorizeRouteActionEarly($callback[0], $route);
-							}
-
 							$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
 							$this->resolveAndCall($callback, $callParams);
 						}
+					}
+
+					// Ngược lại, đây chính là route khởi tạo admin page.
+					else {
+						/**
+						 * Khi callback có method là "index", thay đổi method thành "init".\
+						 * Mục đích sẽ gọi method "init" trong Base để khởi tạo Admin menu page.
+						 */
+						if (isset($callback[1]) && $callback[1] == 'index' || !isset($callback[1]) || isset($route->args['force_init'])) {
+							$callback[1] = 'init';
+						}
+
+						/**
+						 * Set route resolver.
+						 */
+						$this->setRouteResolver();
+
+						/**
+						 * Thực hiện các công việc với Callback.
+						 * 1. Chuẩn bị callback.
+						 * 2. Chuẩn bị parameters mà callback sử dụng.
+						 * 3. Xử lý callback với parameters (DI).
+						 * 4. Gọi callback.
+						 */
+						$callback = $this->prepareRouteCallback($callback, $constructParams);
+
+						/**
+						 * Đang truy cập đúng trang này: kiểm tra controller middleware của action "index"
+						 * (authorizeResource(), $this->middleware()->only('index')...) NGAY BÂY GIỜ.
+						 * Action "index" chạy trong callback render của add_menu_page(), lúc header wp-admin
+						 * đã in ra → wp_die() lúc đó chỉ hiện message bên trong giao diện wp-admin.
+						 * Kiểm tra sớm ở đây → bị từ chối thì ra trang lỗi wp_die() đầy đủ.
+						 */
+						if (
+							$request->get('page') == $fullPath
+							|| @preg_match('/' . $this->funcs->_regexPath($fullPath) . '$/iu', $requestPath)
+							|| @preg_match('/' . $fullPath . '/iu', $requestPath)
+						) {
+							$this->authorizeRouteActionEarly($callback[0], $route);
+						}
+
+						$callParams = $this->getCallParams($path, $fullPath, $requestPath, $callback[0], $callback[1], ['route' => $route]);
+						$this->resolveAndCall($callback, $callParams);
 					}
 				}
 				elseif (
