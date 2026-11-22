@@ -24,7 +24,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	public 	$forceInitSlug         	= null;
 
 	public 	$classes                = null;
-	public 	$firstSubmenuTitle      = null;
+	public 	$firstSubmenuTitle      = '';
 	public 	$firstSubmenuClasses    = null;
 	public 	$isSubmenuPage          = false;
 	public 	$removeFirstSubmenu     = false;
@@ -39,9 +39,9 @@ abstract class BaseAdminPage extends BaseInstances {
 	 */
 
 	public function afterConstruct() {
-		$this->forceInit();
 		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideMenuSlug($this->extraParams['full_path'] ?? null);
+		$this->forceInit();
 
 		if (!$this->screenId) {
 			$this->screenId = $this->funcs->_slugParams(['page']) ?? $this->menu_slug;
@@ -80,8 +80,13 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->forceInitSlug = $this->extraParams['route']->args['force_init_slug'];
 		}
 
-		if (!$this->forceInit && isset($this->extraParams['route']->args['force_init']) && $this->extraParams['route']->args['force_init'] === true && $this->forceInitSlug) {
+		if (!$this->forceInit && isset($this->extraParams['route']->args['force_init']) && $this->extraParams['route']->args['force_init'] === true) {
 			$this->forceInit = true;
+			$routeMethod     = $this->extraParams['route']?->method ?? null;
+
+			if ($routeMethod !== strtolower('GET')) {
+				$this->callAdminPageMethod('init');
+			}
 		}
 	}
 
@@ -117,11 +122,16 @@ abstract class BaseAdminPage extends BaseInstances {
 //			$callback    = $this->resolveCallback($callback, $callParams);
 		}
 
+		// Nếu force_init là true và không có callback_function, thì sử dụng phương thức index
+		if ($this->forceInit && $this->callback_function === null) {
+			$callback = $this->prepareCallbackFunction('index', $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
+		}
+
 		$menuPage = add_menu_page(
-			$this->page_title ?? $this->menu_title ?? $this->menu_slug,
-			$this->menu_title ?? $this->menu_slug,
+			$this->page_title ?: $this->menu_title ?: $this->menu_slug,
+			$this->menu_title ?: $this->menu_slug,
 			$this->capability,
-			$this->forceInit ? $this->forceInitSlug : $this->menu_slug,
+			$this->forceInit ? ($this->forceInitSlug ?? $this->menu_slug) : $this->menu_slug,
 			$callback,
 			$this->icon_url,
 			$this->position
@@ -133,10 +143,10 @@ abstract class BaseAdminPage extends BaseInstances {
 			remove_submenu_page($this->menu_slug, $this->menu_slug); // Xóa submenu tự sinh
 			add_submenu_page(
 				$this->menu_slug,
-				$this->page_title ?? $this->firstSubmenuTitle,
+				$this->page_title ?: $this->firstSubmenuTitle,
 				$this->firstSubmenuTitle,
 				$this->capability,
-				$this->forceInit ? $this->forceInitSlug : $this->menu_slug,
+				$this->forceInit ? ($this->forceInitSlug ?? $this->menu_slug) : $this->menu_slug,
 				$callback,
 				$this->position
 			);
@@ -154,15 +164,34 @@ abstract class BaseAdminPage extends BaseInstances {
 //			$callback    = $this->resolveCallback($callback, $callParams);
 		}
 
+		// Nếu force_init là true và không có callback_function, thì sử dụng phương thức index
+		if ($this->forceInit && $this->callback_function === null) {
+			$callback = $this->prepareCallbackFunction('index', $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
+		}
+
 		$subMenuPage = add_submenu_page(
 			$this->parent_slug,
-			$this->page_title ?? $this->menu_title ?? $this->menu_slug,
-			$this->menu_title ?? $this->menu_slug,
+			$this->page_title ?: $this->menu_title ?: $this->menu_slug,
+			$this->menu_title ?: $this->menu_slug,
 			$this->capability,
-			$this->forceInit ? $this->forceInitSlug : $this->menu_slug,
+			$this->forceInit ? ($this->forceInitSlug ?? $this->menu_slug) : $this->menu_slug,
 			$callback,
 			$this->position
 		);
+
+		/**
+		 * Khi đăng ký và load submenu page và không có parent_slug, thiết lập title cho trang admin trước khi header render.\
+		 * Hook load-{$hook} chạy trong admin.php trước khi include admin-header.php, nên $title đã có giá trị khi tới strip_tags. Cách này cũng giúp tab trình duyệt hiện đúng tiêu đề.
+		 */
+		if ($subMenuPage && empty($this->parent_slug)) {
+			$pageTitle = $this->page_title ?: $this->menu_title ?: $this->menu_slug;
+			add_action('load-' . $subMenuPage, function () use ($pageTitle) {
+				global $title;
+				if (empty($title)) {
+					$title = $pageTitle;
+				}
+			});
+		}
 
 		return $subMenuPage;
 	}
