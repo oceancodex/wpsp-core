@@ -24,7 +24,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	public 	$forceInitSlug         	= null;
 
 	public 	$classes                = null;
-	public 	$firstSubmenuTitle      = null;
+	public 	$firstSubmenuTitle      = '';
 	public 	$firstSubmenuClasses    = null;
 	public 	$isSubmenuPage          = false;
 	public 	$removeFirstSubmenu     = false;
@@ -178,6 +178,20 @@ abstract class BaseAdminPage extends BaseInstances {
 			$callback,
 			$this->position
 		);
+
+		/**
+		 * Khi đăng ký và load submenu page và không có parent_slug, thiết lập title cho trang admin trước khi header render.\
+		 * Hook load-{$hook} chạy trong admin.php trước khi include admin-header.php, nên $title đã có giá trị khi tới strip_tags. Cách này cũng giúp tab trình duyệt hiện đúng tiêu đề.
+		 */
+		if ($subMenuPage && empty($this->parent_slug)) {
+			$pageTitle = $this->page_title ?: $this->menu_title ?: $this->menu_slug;
+			add_action('load-' . $subMenuPage, function () use ($pageTitle) {
+				global $title;
+				if (empty($title)) {
+					$title = $pageTitle;
+				}
+			});
+		}
 
 		return $subMenuPage;
 	}
