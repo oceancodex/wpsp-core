@@ -80,7 +80,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->forceInitSlug = $this->extraParams['route']->args['force_init_slug'];
 		}
 
-		if (!$this->forceInit && isset($this->extraParams['route']->args['force_init']) && $this->extraParams['route']->args['force_init'] === true && $this->forceInitSlug) {
+		if (!$this->forceInit && isset($this->extraParams['route']->args['force_init']) && $this->extraParams['route']->args['force_init'] === true) {
 			$this->forceInit = true;
 		}
 	}
@@ -117,11 +117,16 @@ abstract class BaseAdminPage extends BaseInstances {
 //			$callback    = $this->resolveCallback($callback, $callParams);
 		}
 
+		// Nếu force_init là true và không có callback_function, thì sử dụng phương thức index
+		if ($this->forceInit && $this->callback_function === null) {
+			$callback = $this->prepareCallbackFunction('index', $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
+		}
+
 		$menuPage = add_menu_page(
 			$this->page_title ?? $this->menu_title ?? $this->menu_slug,
 			$this->menu_title ?? $this->menu_slug,
 			$this->capability,
-			$this->forceInit ? $this->forceInitSlug : $this->menu_slug,
+			$this->forceInit ? ($this->forceInitSlug ?? $this->menu_slug) : $this->menu_slug,
 			$callback,
 			$this->icon_url,
 			$this->position
@@ -136,7 +141,7 @@ abstract class BaseAdminPage extends BaseInstances {
 				$this->page_title ?? $this->firstSubmenuTitle,
 				$this->firstSubmenuTitle,
 				$this->capability,
-				$this->forceInit ? $this->forceInitSlug : $this->menu_slug,
+				$this->forceInit ? ($this->forceInitSlug ?? $this->menu_slug) : $this->menu_slug,
 				$callback,
 				$this->position
 			);
@@ -154,12 +159,17 @@ abstract class BaseAdminPage extends BaseInstances {
 //			$callback    = $this->resolveCallback($callback, $callParams);
 		}
 
+		// Nếu force_init là true và không có callback_function, thì sử dụng phương thức index
+		if ($this->forceInit && $this->callback_function === null) {
+			$callback = $this->prepareCallbackFunction('index', $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
+		}
+
 		$subMenuPage = add_submenu_page(
 			$this->parent_slug,
 			$this->page_title ?? $this->menu_title ?? $this->menu_slug,
 			$this->menu_title ?? $this->menu_slug,
 			$this->capability,
-			$this->forceInit ? $this->forceInitSlug : $this->menu_slug,
+			$this->forceInit ? ($this->forceInitSlug ?? $this->menu_slug) : $this->menu_slug,
 			$callback,
 			$this->position
 		);
