@@ -12,27 +12,36 @@ abstract class BaseAdminPage extends BaseInstances {
 	/**
 	 * WordPress admin page properties.
 	 */
-	public 	$menu_title             = '';
-	public 	$page_title             = '';
-	public 	$capability             = null;
-	public 	$menu_slug              = null;
-	public 	$icon_url               = null;
-	public 	$position               = null;
-	public 	$parent_slug            = '';
+	public $menu_title             = '';
+	public $page_title             = '';
+	public $capability             = null;
+	public $menu_slug              = null;
+	public $icon_url               = null;
+	public $position               = null;
+	public $parent_slug            = '';
 
-	public 	$forceInit           	= false;
-	public 	$forceInitSlug         	= null;
+	public $forceInit              = false;
+	public $forceInitPriority      = 10;
+	public $forceInitIsSubmenuPage = false;
+	public $forceInitParentSlug    = '';
+	public $forceInitPageTitle     = '';
+	public $forceInitMenuTitle     = '';
+	public $forceInitCapability    = null;
+	public $forceInitSlug          = null;
+	public $forceInitCallback      = null;
+	public $forceInitIconUrl       = null;
+	public $forceInitPosition      = null;
 
-	public 	$classes                = null;
-	public 	$firstSubmenuTitle      = '';
-	public 	$firstSubmenuClasses    = null;
-	public 	$isSubmenuPage          = false;
-	public 	$removeFirstSubmenu     = false;
+	public $classes                = null;
+	public $firstSubmenuTitle      = '';
+	public $firstSubmenuClasses    = null;
+	public $isSubmenuPage          = false;
+	public $removeFirstSubmenu     = false;
 
-	public 	$urlsMatchCurrentAccess = [];
-	public 	$urlsMatchHighlightMenu = [];
+	public $urlsMatchCurrentAccess = [];
+	public $urlsMatchHighlightMenu = [];
 
-	public  $callback_function     	= null;
+	public $callback_function      = null;
 
 	/*
 	 *
@@ -41,6 +50,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	public function afterConstruct() {
 		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideMenuSlug($this->extraParams['full_path'] ?? null);
+
 		$this->forceInit();
 
 		if (!$this->screenId) {
@@ -69,24 +79,67 @@ abstract class BaseAdminPage extends BaseInstances {
 		if ($menu_slug && !$this->menu_slug) {
 			$this->menu_slug = $menu_slug;
 		}
-
-		if ($this->forceInit && $this->forceInitSlug) {
-			$this->menu_slug = $this->forceInitSlug;
-		}
 	}
 
 	private function forceInit() {
-		if (!$this->forceInitSlug && isset($this->extraParams['route']->args['force_init_slug'])) {
-			$this->forceInitSlug = $this->extraParams['route']->args['force_init_slug'];
-		}
-
+		// Set force init (boolean).
 		if (!$this->forceInit && isset($this->extraParams['route']->args['force_init']) && $this->extraParams['route']->args['force_init'] === true) {
 			$this->forceInit = true;
-			$routeMethod     = $this->extraParams['route']?->method ?? null;
+//			$routeMethod = $this->extraParams['route']?->method ?? null;
+		}
 
-			if ($routeMethod !== strtolower('GET')) {
-				$this->callAdminPageMethod('init');
-			}
+		// Set force init priority.
+		if (!$this->forceInitPriority && isset($this->extraParams['route']->args['force_init_priority'])) {
+			$this->forceInitPriority = $this->extraParams['route']->args['force_init_priority'];
+		}
+
+		// Set force init is submenu page.
+		if (!$this->forceInitIsSubmenuPage && isset($this->extraParams['route']?->args['force_init_is_submenu_page'])) {
+			$this->forceInitIsSubmenuPage = $this->extraParams['route']?->args['force_init_is_submenu_page'];
+		}
+
+		// Set force init parent slug.
+		if (!$this->forceInitParentSlug && isset($this->extraParams['route']?->args['force_init_parent_slug'])) {
+			$this->forceInitParentSlug = $this->extraParams['route']?->args['force_init_parent_slug'];
+		}
+
+		// Set force init page title.
+		if (!$this->forceInitPageTitle && isset($this->extraParams['route']?->args['force_init_page_title'])) {
+			$this->forceInitPageTitle = $this->extraParams['route']?->args['force_init_page_title'];
+		}
+
+		// Set force init menu title.
+		if (!$this->forceInitMenuTitle && isset($this->extraParams['route']?->args['force_init_menu_title'])) {
+			$this->forceInitMenuTitle = $this->extraParams['route']?->args['force_init_menu_title'];
+		}
+
+		// Set force init capability.
+		if (!$this->forceInitCapability && isset($this->extraParams['route']?->args['force_init_capability'])) {
+			$this->forceInitCapability = $this->extraParams['route']?->args['force_init_capability'];
+		}
+
+		// Set force init slug.
+		if (!$this->forceInitSlug && isset($this->extraParams['route']?->args['force_init_slug'])) {
+			$this->forceInitSlug = $this->extraParams['route']?->args['force_init_slug'];
+		}
+
+		// Set force init callback.
+		if (!$this->forceInitCallback && isset($this->extraParams['route']?->args['force_init_callback'])) {
+			$this->forceInitCallback = $this->extraParams['route']?->args['force_init_callback'];
+		}
+
+		// Set force init icon url.
+		if (!$this->forceInitIconUrl && isset($this->extraParams['route']?->args['force_init_icon_url'])) {
+			$this->forceInitIconUrl = $this->extraParams['route']?->args['force_init_icon_url'];
+		}
+
+		// Set force init position.
+		if (!$this->forceInitPosition && isset($this->extraParams['route']?->args['force_init_position'])) {
+			$this->forceInitPosition = $this->extraParams['route']?->args['force_init_position'];
+		}
+
+		if ($this->forceInit) {
+			$this->addAdminMenuPageForce();
 		}
 	}
 
@@ -115,11 +168,9 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	private function addMenuPage() {
 		$callback = null;
+
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
-//			$requestPath = $this->request->getRequestUri();
-			$callback    = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
-//			$callParams  = $this->getCallParams($this->extraParams['path'], $this->extraParams['full_path'], $requestPath, $this, $this->callback_function);
-//			$callback    = $this->resolveCallback($callback, $callParams);
+			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
 		}
 
 		// Nếu force_init là true và không có callback_function, thì sử dụng phương thức index
@@ -131,7 +182,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->page_title ?: $this->menu_title ?: $this->menu_slug,
 			$this->menu_title ?: $this->menu_slug,
 			$this->capability,
-			$this->forceInit ? ($this->forceInitSlug ?? $this->menu_slug) : $this->menu_slug,
+			$this->menu_slug,
 			$callback,
 			$this->icon_url,
 			$this->position
@@ -157,11 +208,9 @@ abstract class BaseAdminPage extends BaseInstances {
 
 	private function addSubMenuPage() {
 		$callback = null;
+
 		if ($this->callback_function && method_exists($this, $this->callback_function)) {
-//			$requestPath = $this->request->getRequestUri();
-			$callback    = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
-//			$callParams  = $this->getCallParams($this->extraParams['path'], $this->extraParams['full_path'], $requestPath, $this, $this->callback_function);
-//			$callback    = $this->resolveCallback($callback, $callParams);
+			$callback = $this->prepareCallbackFunction($this->callback_function, $this->menu_slug, $this->extraParams['full_path'] ?? $this->menu_slug);
 		}
 
 		// Nếu force_init là true và không có callback_function, thì sử dụng phương thức index
@@ -174,7 +223,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			$this->page_title ?: $this->menu_title ?: $this->menu_slug,
 			$this->menu_title ?: $this->menu_slug,
 			$this->capability,
-			$this->forceInit ? ($this->forceInitSlug ?? $this->menu_slug) : $this->menu_slug,
+			$this->menu_slug,
 			$callback,
 			$this->position
 		);
@@ -243,6 +292,80 @@ abstract class BaseAdminPage extends BaseInstances {
 				remove_submenu_page($this->menu_slug, $this->menu_slug);
 			}, 9999999999);
 		}
+	}
+
+	/*
+	 *
+	 */
+
+	private function addMenuPageForce() {
+		$callback = null;
+
+		if ($this->forceInitCallback && method_exists($this, $this->forceInitCallback)) {
+			$callback = $this->prepareCallbackFunction($this->forceInitCallback, $this->forceInitSlug, $this->forceInitSlug);
+		}
+
+		// Nếu force_init là true và không có callback_function, thì sử dụng phương thức index
+		if ($this->forceInit && $this->forceInitCallback === null) {
+			$callback = $this->prepareCallbackFunction('index', $this->forceInitSlug, $this->forceInitSlug);
+		}
+
+		$menuPage = add_menu_page(
+			$this->forceInitPageTitle ?: $this->forceInitMenuTitle ?: $this->forceInitSlug,
+			$this->forceInitMenuTitle ?: $this->forceInitSlug,
+			$this->forceInitCapability,
+			$this->forceInitSlug,
+			$callback,
+			$this->forceInitIconUrl,
+			$this->forceInitPosition
+		);
+
+		return $menuPage;
+	}
+
+	private function addSubMenuPageForce() {
+		$callback = null;
+
+		if ($this->forceInitCallback && method_exists($this, $this->forceInitCallback)) {
+			$callback = $this->prepareCallbackFunction($this->forceInitCallback, $this->forceInitSlug, $this->forceInitSlug);
+		}
+
+		// Nếu force_init là true và không có callback_function, thì sử dụng phương thức index
+		if ($this->forceInit && $this->forceInitCallback === null) {
+			$callback = $this->prepareCallbackFunction('index', $this->forceInitSlug, $this->forceInitSlug);
+		}
+
+		$subMenuPage = add_submenu_page(
+			$this->forceInitParentSlug,
+			$this->forceInitPageTitle ?: $this->forceInitMenuTitle ?: $this->forceInitSlug,
+			$this->forceInitMenuTitle ?: $this->forceInitSlug,
+			$this->forceInitCapability,
+			$this->forceInitSlug,
+			$callback,
+			$this->forceInitPosition
+		);
+
+		/**
+		 * Khi đăng ký và load submenu page và không có parent_slug, thiết lập title cho trang admin trước khi header render.\
+		 * Hook load-{$hook} chạy trong admin.php trước khi include admin-header.php, nên $title đã có giá trị khi tới strip_tags. Cách này cũng giúp tab trình duyệt hiện đúng tiêu đề.
+		 */
+		if ($subMenuPage && empty($this->parent_slug)) {
+			$pageTitle = $this->forceInitPageTitle ?: $this->forceInitMenuTitle ?: $this->forceInitSlug;
+			add_action('load-' . $subMenuPage, function () use ($pageTitle) {
+				global $title;
+				if (empty($title)) {
+					$title = $pageTitle;
+				}
+			});
+		}
+
+		return $subMenuPage;
+	}
+
+	private function addAdminMenuPageForce() {
+		add_action('admin_menu', function() {
+			$adminPage = $this->forceInitIsSubmenuPage ? $this->addSubMenuPageForce() : $this->addMenuPageForce();
+		}, $this->forceInitPriority);
 	}
 
 	/*
