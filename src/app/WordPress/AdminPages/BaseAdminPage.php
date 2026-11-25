@@ -19,6 +19,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $icon_url               = null;
 	public $position               = null;
 	public $parent_slug            = '';
+	public $priority               = 10;
 
 	public $forceInit              = false;
 	public $forceInitPriority      = 10;
@@ -50,6 +51,7 @@ abstract class BaseAdminPage extends BaseInstances {
 	public function afterConstruct() {
 		$this->overrideCallbackFunction($this->extraParams['callback_function'] ?? null);
 		$this->overrideMenuSlug($this->extraParams['full_path'] ?? null);
+		$this->overridePriority($this->extraParams['priority'] ?? null);
 
 		$this->forceInit();
 
@@ -81,7 +83,32 @@ abstract class BaseAdminPage extends BaseInstances {
 		}
 	}
 
-	private function forceInit() {
+	private function overridePriority($priority = null) {
+		if ($priority && !$this->priority) {
+			$this->priority = $priority;
+		}
+	}
+
+	/*
+	 *
+	 */
+
+	public function init() {
+		if (method_exists($this, 'beforeInit'))  {
+			$this->callAdminPageMethod('beforeInit');
+		}
+
+		$this->addAdminMenuPage();
+		$this->handleAdminMenuClasses();
+		$this->matchHighlightMenu();
+		$this->matchCurrentAccess();
+
+		if (method_exists($this, 'afterInit'))  {
+			$this->callAdminPageMethod('afterInit');
+		}
+	}
+
+	public function forceInit() {
 		// Set force init (boolean).
 		if (!$this->forceInit && isset($this->extraParams['route']->args['force_init']) && $this->extraParams['route']->args['force_init'] === true) {
 			$this->forceInit = true;
@@ -139,26 +166,15 @@ abstract class BaseAdminPage extends BaseInstances {
 		}
 
 		if ($this->forceInit) {
+			if (method_exists($this, 'beforeForceInit'))  {
+				$this->callAdminPageMethod('beforeForceInit');
+			}
+
 			$this->addAdminMenuPageForce();
-		}
-	}
 
-	/*
-	 *
-	 */
-
-	public function init() {
-		if (method_exists($this, 'beforeInit'))  {
-			$this->callAdminPageMethod('beforeInit');
-		}
-
-		$this->addAdminMenuPage();
-		$this->handleAdminMenuClasses();
-		$this->matchHighlightMenu();
-		$this->matchCurrentAccess();
-
-		if (method_exists($this, 'afterInit'))  {
-			$this->callAdminPageMethod('afterInit');
+			if (method_exists($this, 'afterForceInit'))  {
+				$this->callAdminPageMethod('afterForceInit');
+			}
 		}
 	}
 
@@ -281,7 +297,7 @@ abstract class BaseAdminPage extends BaseInstances {
 			if (method_exists($this, 'afterLoadAdminPage')) {
 				$this->callAdminPageMethod('afterLoadAdminPage', ['adminPage' => $adminPage]);
 			}
-		}, $this->extraParams['priority'] ?? 10, $this->extraParams['accepted_args'] ?? 1);
+		}, $this->priority, $this->extraParams['accepted_args'] ?? 1);
 
 		/**
 		 * Khi menu có nhiều submenu, WordPress sẽ tự sinh submenu cho trang chính ở vị trí đầu tiên.\
@@ -365,6 +381,39 @@ abstract class BaseAdminPage extends BaseInstances {
 	private function addAdminMenuPageForce() {
 		add_action('admin_menu', function() {
 			$adminPage = $this->forceInitIsSubmenuPage ? $this->addSubMenuPageForce() : $this->addMenuPageForce();
+
+			// Hook sau khi add admin menu page hoặc submenu page.
+			if (method_exists($this, 'afterAddAdminPageForce')) {
+				$this->callAdminPageMethod('afterAddAdminPageForce', ['adminPage' => $adminPage]);
+			}
+
+			// Hook chạy trước khi load admin page.
+			if (method_exists($this, 'beforeLoadAdminPageForce')) {
+				$this->callAdminPageMethod('beforeLoadAdminPageForce', ['adminPage' => $adminPage]);
+			}
+
+			/**
+			 * Action "load-{admin_page}" chỉ hoạt động với admin menu page được register với slug chuẩn WordPress. Ví dụ: "edit.php", "post-new.php", hoặc "my_custom_page".\
+			 * Với các dạng slug khác như: "wpsp&tab=tab-1", action này không hoạt động.
+			 */
+			add_action('load-' . $adminPage, function() use ($adminPage) {
+				if (method_exists($this, 'beforeInLoadAdminPageForce')) {
+					$this->callAdminPageMethod('beforeInLoadAdminPageForce', ['adminPage' => $adminPage]);
+				}
+
+				// Enqueue assets.
+				$this->assets();
+
+				// Hook chạy trong khi load admin page.
+				if (method_exists($this, 'afterInLoadAdminPageForce')) {
+					$this->callAdminPageMethod('afterInLoadAdminPageForce', ['adminPage' => $adminPage]);
+				}
+			});
+
+			// Hook chạy sau khi load admin page.
+			if (method_exists($this, 'afterLoadAdminPageForce')) {
+				$this->callAdminPageMethod('afterLoadAdminPageForce', ['adminPage' => $adminPage]);
+			}
 		}, $this->forceInitPriority);
 	}
 
@@ -541,11 +590,33 @@ abstract class BaseAdminPage extends BaseInstances {
 
 //	public function afterLoadAdminPage($adminPage) {}
 
+//	public function afterInit() {}
+
+	/*
+	 *
+	 */
+
+//	public function beforeForceInit() {}
+
+//	public function afterAddAdminPageForce($adminPage) {}
+
+//	public function beforeLoadAdminPageForce($adminPage) {}
+
+//	public function beforeInLoadAdminPageForce($adminPage) {}
+
+//	public function afterInLoadAdminPageForce($adminPage) {}
+
+//	public function afterLoadAdminPageForce($adminPage) {}
+
+//	public function afterForceInit() {}
+
+	/*
+	 *
+	 */
+
 //	public function matchedHighLightMenu() {}
 
 //	public function matchedCurrentAccess() {}
-
-//	public function afterInit() {}
 
 	/*
 	 *
