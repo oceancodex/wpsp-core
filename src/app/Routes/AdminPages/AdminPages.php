@@ -5,7 +5,19 @@ namespace WPSPCORE\App\Routes\AdminPages;
 use WPSPCORE\App\Routes\BaseRoute;
 
 /**
- * $args = ['force_init', 'force_init_slug']
+ * $args = [
+ * 'force_init',
+ * 'force_init_priority',
+ * 'force_init_is_submenu_page',
+ * 'force_init_parent_slug',
+ * 'force_init_page_title',
+ * 'force_init_menu_title',
+ * 'force_init_capability',
+ * 'force_init_slug',
+ * 'force_init_callback',
+ * 'force_init_icon_url',
+ * 'force_init_position'
+ * ]
  *
  * @method static $this get(string $path, callable|array $callback, array $args = [])
  * @method static $this post(string $path, callable|array $callback, array $args = [])
