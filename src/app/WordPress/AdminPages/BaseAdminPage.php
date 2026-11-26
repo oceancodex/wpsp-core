@@ -365,7 +365,7 @@ abstract class BaseAdminPage extends BaseInstances {
 		 * Khi đăng ký và load submenu page và không có parent_slug, thiết lập title cho trang admin trước khi header render.\
 		 * Hook load-{$hook} chạy trong admin.php trước khi include admin-header.php, nên $title đã có giá trị khi tới strip_tags. Cách này cũng giúp tab trình duyệt hiện đúng tiêu đề.
 		 */
-		if ($subMenuPage && empty($this->parent_slug)) {
+		if ($subMenuPage && empty($this->forceInitParentSlug)) {
 			$pageTitle = $this->forceInitPageTitle ?: $this->forceInitMenuTitle ?: $this->forceInitSlug;
 			add_action('load-' . $subMenuPage, function () use ($pageTitle) {
 				global $title;
