@@ -21,6 +21,9 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $parent_slug            = '';
 	public $priority               = 10;
 
+	/**
+	 * Custom properties.
+	 */
 	public $forceInit              = false;
 	public $forceInitPriority      = 10;
 	public $forceInitIsSubmenuPage = false;
@@ -34,9 +37,9 @@ abstract class BaseAdminPage extends BaseInstances {
 	public $forceInitPosition      = null;
 
 	public $classes                = null;
+	public $isSubmenuPage          = false;
 	public $firstSubmenuTitle      = '';
 	public $firstSubmenuClasses    = null;
-	public $isSubmenuPage          = false;
 	public $removeFirstSubmenu     = false;
 
 	public $urlsMatchCurrentAccess = [];
